@@ -56,11 +56,9 @@ A contract describes:
   - invariants: what must remain true when applicable
 
 Return exactly one valid JSON object. No markdown. No explanation.
-
 ---
 ALLOWED VALUES
 ---
-
 source:
   signature | type_hint | explicit | example | strongly_implied | inferred
 
@@ -75,7 +73,6 @@ invariant.target:
 
 invalid_input_behavior.source:
   explicit | example | strongly_implied | not_specified
-
 ---
 FIELD RULES
 ---
@@ -128,7 +125,6 @@ invalid_input_behavior:
 ---
 QUALITY REQUIREMENTS
 ---
-
 - The contract must describe behavior, not implementation.
 - Preconditions describe caller obligations.
 - Postconditions describe supplier/function guarantees.
