@@ -11,120 +11,45 @@ from src.common.task_utils import select_tasks, task_identifier, task_entry_poin
 STAGE = "stage_2b_raw_contract_guided_generation"
 SYSTEM_PROMPT = (
     "Generate complete executable Python benchmark solutions. "
-    "This is Stage 2 raw contract-guided generation. "
-    "The original benchmark prompt is authoritative. "
-    "The raw contract is unvalidated guidance only. "
-    "Use the raw contract only when it agrees with and clarifies the original prompt. "
-    "Return only Python code. "
-    "Do not return markdown, prose, explanations, or text outside code."
+    "Return only Python code."
 )
 
 PROMPT_TEMPLATE = """
 You are generating a complete Python solution for a benchmark programming task.
 
-STAGE 2 CONTEXT
-This is raw contract-guided generation.
-The contract below is raw and unvalidated.
-It may be incomplete, vague, or wrong.
-
-AUTHORITY ORDER
-1. The original benchmark prompt is the source of truth.
-2. Examples and exact requirements in the original prompt override the raw contract.
-3. The raw contract is only supplementary guidance.
-4. Ignore any raw contract clause that conflicts with the original prompt.
+The original benchmark prompt is the source of truth.
 
 OUTPUT RULES
-Return only executable Python code.
-Do not include markdown fences.
-Do not include explanations.
-Do not include prose.
-Do not include tests.
-Do not include top-level assertions.
-Do not include unnecessary print statements.
-Preserve the required function name and signature.
+- Return Python code.
+- Do not include markdown, explanations, or tests.
+- Preserve the required function name and signature.
+- Include all required imports.
 
-EXACT-BEHAVIOR RULES
-Preserve exact behavior required or implied by the original prompt:
-- exact return type
-- exact string values
-- exact exception messages
-- exact numeric precision or rounding rule
-- exact list, tuple, set, dictionary, or object structure
-- exact ordering, tie-breaking, filtering, and duplicate-handling behavior
-- exact file paths and returned path types
-- exact DataFrame columns, index, shape, ordering, and dtypes
-- exact plot titles, labels, colors, legends, bins, and returned axis or figure objects
-- exact external API call signatures and keyword arguments when relevant
+CONTRACT USAGE RULES
+Use the contract to better understand:
+- required behavior
+- input assumptions
+- output guarantees
+- ordering or structural constraints
 
-Do not generalize or simplify exact strings.
-Do not replace short aliases with equivalent long names when tests may inspect them.
-For example, if the prompt implies color="r", do not use color="red".
-If the prompt implies requests.post(url, json=payload), do not use data=payload.
-If the prompt implies returning a pathlib.Path, do not return a string.
+Do not invent new constraints beyond the prompt and contract.
 
-IMPORT AND SYMBOL RULES
-Include every import used by the code.
-Before finalizing code, verify that every symbol is imported or defined.
-Common aliases must be imported explicitly when used:
-- import numpy as np
-- import pandas as pd
-- import matplotlib.pyplot as plt
-- import seaborn as sns
+BEHAVIOR RULES
+Preserve exact behavior required by the task, including:
+- return type
+- ordering
+- duplicate handling
+- edge-case behavior
+- required output structure
+- exact API usage when relevant
 
-Do not assume aliases already exist.
-Do not use undefined helper functions.
-Include helper functions only when needed by the required solution.
+Do not add unnecessary validation or rejection logic unless explicitly required.
 
-BENCHMARK AND MOCKING RULES
-Some benchmark tasks inspect exact output, exact side effects, or exact API calls.
-Some tasks may use mocks for filesystem, network, subprocess, plotting, database,
-or external-library behavior.
-
-Do not perform unnecessary real filesystem, network, subprocess, FTP, OS, or
-environment checks unless the original prompt explicitly requires them.
-
-If the task involves an API that may be mocked, call the expected API directly
-and preserve the call shape implied by the original prompt.
-Do not reject valid mocked benchmark inputs merely because files, URLs,
-processes, or paths do not exist in the real environment.
-
-For algorithmic tasks:
-- prefer a simple deterministic implementation
-- do not import heavy external libraries unless the prompt requires them
-- do not add input validation unless specified
-- preserve edge-case behavior from examples
-
-For requests/network tasks:
-- preserve expected keyword arguments such as json=, data=, timeout=, headers=
-- use response.text for text or HTML parsing when appropriate
-- use response.content only when binary bytes are required
-- do not replace json= with data=
-
-For subprocess/OS tasks:
-- preserve the subprocess or OS API shape implied by the prompt
-- do not add stdout=, stderr=, shell=, or check= unless required
-- do not add os.path.exists checks before a mocked call unless required
-
-For plotting tasks:
-- return the exact object type expected by the prompt
-- set exact titles, labels, legends, colors, bins, and axes
-- do not call plt.show()
-
-For pandas/DataFrame tasks:
-- preserve columns, index, shape, ordering, and dtypes
-- handle mixed numeric/string columns only as required by the prompt
-- do not transpose, reset index, or sort unless required
-- avoid operations that fail on constant, empty, or mixed-type data unless the prompt requires them
-
-DEFENSIVE-CHECK RULES
-Do not add artificial precondition checks that reject valid benchmark inputs.
-Do not raise errors for valid mocked benchmark scenarios.
-Do not add invalid-input behavior unless the original prompt explicitly specifies it.
-
-TIME AND EXECUTION RULES
-Avoid unbounded loops, sleeps, retries, network waits, and long-running subprocess calls.
-Use deterministic finite operations.
-Do not call external services.
+EXECUTION RULES
+- Produce deterministic executable code.
+- Avoid unnecessary filesystem, network, subprocess, or environment checks.
+- Do not call external services.
+- Avoid infinite loops or long-running operations.
 
 ENTRY POINT
 {entry_point}
@@ -132,7 +57,7 @@ ENTRY POINT
 ORIGINAL BENCHMARK PROMPT
 {prompt}
 
-RAW CONTRACT GUIDANCE
+RAW CONTRACT
 {contract}
 """.strip()
 

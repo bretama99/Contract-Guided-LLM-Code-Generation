@@ -8,7 +8,7 @@ python scripts/prepare_livecodebench.py
 python -m src.vanilla.generate \
   --dataset humaneval \
   --provider openrouter \
-  --model openai/gpt-4o-mini \
+  --model openai/gpt3.5-mini \
   --temperature 0.0 \
   --max-tokens 2048 \
   --delay 1.0
@@ -25,7 +25,7 @@ python -m src.vanilla.evaluate \
 python -m src.contract_synthesis.generate_contracts \
   --dataset humaneval \
   --provider openrouter \
-  --model openai/gpt-4o-mini \
+  --model openai/gpt-3.5-turbo \
   --temperature 0.0 \
   --max-tokens 3000 \
   --delay 1.0
