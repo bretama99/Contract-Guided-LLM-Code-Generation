@@ -1,4 +1,7 @@
 import json
+import subprocess
+import sys
+import tempfile
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -14,231 +17,345 @@ from evalplus.eval import PASS
 from evalplus.eval._special_oracle import MBPP_OUTPUT_NOT_NONE_TASKS
 from evalplus.evaluate import check_correctness, get_groundtruth
 
+from src.common.io_utils import safe_name
+
+
+def short(value: Any, limit: int = 1500) -> str:
+    text = str(value or "").strip()
+    return text if len(text) <= limit else text[:limit] + "\n...[truncated]"
+
+
+def read_json(path: Path | None) -> dict[str, Any] | None:
+    if not path or not path.exists():
+        return None
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else None
+    except Exception:
+        return None
+
 
 def read_jsonl(path: Path) -> dict[str, dict[str, Any]]:
-    rows: dict[str, dict[str, Any]] = {}
-
+    rows = {}
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             if line.strip():
                 row = json.loads(line)
                 rows[str(row["task_id"])] = row
-
     return rows
 
 
-def load_problems(
-    dataset: str,
-    mini: bool,
-    noextreme: bool,
-    version: str,
-) -> tuple[dict[str, Any], dict[str, Any]]:
+def load_problems(dataset: str, mini: bool, noextreme: bool, version: str):
     if dataset == "humaneval":
-        problems = get_human_eval_plus(
-            mini=mini,
-            noextreme=noextreme,
-            version=version,
-        )
-        digest = get_human_eval_plus_hash(
-            mini=mini,
-            noextreme=noextreme,
-            version=version,
-        )
-        expected = get_groundtruth(problems, digest, [])
-        return problems, expected
+        problems = get_human_eval_plus(mini=mini, noextreme=noextreme, version=version)
+        digest = get_human_eval_plus_hash(mini=mini, noextreme=noextreme, version=version)
+        return problems, get_groundtruth(problems, digest, [])
 
     if dataset == "mbpp":
-        problems = get_mbpp_plus(
-            mini=mini,
-            noextreme=noextreme,
-            version=version,
-        )
-        digest = get_mbpp_plus_hash(
-            mini=mini,
-            noextreme=noextreme,
-            version=version,
-        )
-        expected = get_groundtruth(
-            problems,
-            digest,
-            MBPP_OUTPUT_NOT_NONE_TASKS,
-        )
-        return problems, expected
+        problems = get_mbpp_plus(mini=mini, noextreme=noextreme, version=version)
+        digest = get_mbpp_plus_hash(mini=mini, noextreme=noextreme, version=version)
+        return problems, get_groundtruth(problems, digest, MBPP_OUTPUT_NOT_NONE_TASKS)
 
     raise ValueError(f"Unsupported EvalPlus dataset: {dataset}")
 
 
-def is_pass(status: Any) -> bool:
+def passed_status(status: Any) -> bool:
     return status == PASS or str(status).lower() == "pass"
 
 
-def classify_error(status: Any, stage: str) -> tuple[str, str, str]:
-    """
-    Returns:
-        error_type: machine-readable error category
-        error_reason: human-readable explanation
-        error_stage: generation/base/plus/evaluation
-    """
-    text = str(status or "").lower()
+def passed_value(value: Any) -> bool:
+    return value == 1 or value is True or passed_status(value)
 
-    if "timeout" in text or "timed out" in text:
-        return (
-            "timeout",
-            f"{stage.title()} evaluation timed out.",
-            stage,
+
+def part_status(part: Any) -> Any:
+    return part[0] if isinstance(part, (tuple, list)) and part else None
+
+
+def part_vector(part: Any) -> list[Any]:
+    if not isinstance(part, (tuple, list)) or len(part) < 2:
+        return []
+    return part[1] if isinstance(part[1], list) else []
+
+
+def first_failed(part: Any) -> int | None:
+    for index, value in enumerate(part_vector(part)):
+        if not passed_value(value):
+            return index
+    return None
+
+
+def get_inputs(problem: dict[str, Any], stage: str) -> list[Any]:
+    key = "base_input" if stage == "original" else "plus_input"
+    value = problem.get(key)
+    return value if isinstance(value, list) else []
+
+
+def get_expected(expected: Any, stage: str) -> list[Any]:
+    source = "base" if stage == "original" else "plus"
+
+    if isinstance(expected, dict):
+        for key in (
+            source,
+            f"{source}_output",
+            f"{source}_outputs",
+            f"{source}_expected",
+            f"{source}_expected_output",
+            f"{source}_expected_outputs",
+        ):
+            value = expected.get(key)
+            if isinstance(value, list):
+                return value
+
+        outputs = expected.get("outputs")
+        if isinstance(outputs, dict) and isinstance(outputs.get(source), list):
+            return outputs[source]
+
+    return expected if isinstance(expected, list) else []
+
+
+def item_at(values: list[Any], index: int | None) -> Any:
+    if index is None:
+        return None
+    return values[index] if 0 <= index < len(values) else None
+
+
+def generation_file(task_id: str, export_summary: dict[str, Any]) -> Path | None:
+    folder = Path(str(export_summary.get("generation_folder", "")))
+    method = str(export_summary.get("method", ""))
+
+    if not folder.exists():
+        return None
+
+    suffix = "_vanilla.json" if method == "vanilla" else "_raw_contract_guided.json"
+    direct = folder / f"{safe_name(task_id)}{suffix}"
+
+    if direct.exists():
+        return direct
+
+    matches = sorted(folder.glob(f"*{safe_name(task_id)}{suffix}"))
+    return matches[0] if matches else None
+
+
+def generation_info(task_id: str, solution: str, export_summary: dict[str, Any], skipped: str | None):
+    path = generation_file(task_id, export_summary)
+    record = read_json(path)
+    method = str(export_summary.get("method", ""))
+
+    code = solution
+    if record and isinstance(record.get("generated_code"), str):
+        code = record["generated_code"]
+
+    info = {
+        "status": "generation_failed" if skipped else "generated",
+        "error": skipped or (record.get("error") if record else None),
+        "code": code,
+    }
+
+    if method != "vanilla" and record and record.get("contract_path"):
+        info["contract_path"] = record.get("contract_path")
+
+    return info
+
+
+def task_info(task_id: str, problem: dict[str, Any], method: str) -> dict[str, Any]:
+    prompt = (
+        problem.get("prompt")
+        or problem.get("instruct_prompt")
+        or problem.get("complete_prompt")
+    )
+
+    info = {
+        "id": task_id,
+        "entry_point": problem.get("entry_point"),
+        "prompt": prompt,
+    }
+
+    if method != "vanilla" and problem.get("contract"):
+        info["contract"] = problem.get("contract")
+
+    return info
+
+
+def run_actual(solution: str, entry_point: str | None, case_input: Any, timeout: float = 5.0):
+    if not entry_point:
+        return None, "missing entry point"
+
+    program = f"""
+{solution}
+
+import json, inspect, traceback
+fn = globals()[{entry_point!r}]
+case_input = {repr(case_input)}
+
+try:
+    if isinstance(case_input, tuple):
+        args = case_input
+    elif isinstance(case_input, list):
+         args = tuple(case_input)
+    else:
+        args = (case_input,)
+
+    result = fn(*args)
+    print(json.dumps({{"ok": True, "value": repr(result), "error": None}}))
+except Exception:
+    print(json.dumps({{"ok": False, "value": None, "error": traceback.format_exc()}}))
+""".strip()
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = Path(temp_dir) / "case.py"
+        path.write_text(program, encoding="utf-8")
+
+        try:
+            completed = subprocess.run(
+                [sys.executable, str(path)],
+                cwd=temp_dir,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            return None, f"timeout after {timeout}s"
+
+    lines = completed.stdout.strip().splitlines()
+    if not lines:
+        return None, completed.stderr.strip() or "no output"
+
+    try:
+        parsed = json.loads(lines[-1])
+    except Exception:
+        return None, short(completed.stdout + completed.stderr, 800)
+
+    return parsed.get("value"), parsed.get("error")
+
+
+def classify(original_status: Any, plus_status: Any, base_only: bool):
+    original_ok = passed_status(original_status)
+    plus_ok = True if base_only else passed_status(plus_status)
+
+    if original_ok and plus_ok:
+        return True, None, None
+
+    if not original_ok:
+        return False, "original_test_failure", "original"
+
+    return False, "plus_test_failure", "plus"
+
+
+def build_evaluation(problem, expected, solution, stage, failure_type, raw_part):
+    if not stage or stage == "generation":
+        return {
+            "status": "failed",
+            "failed_case_index": None,
+            "input": None,
+            "expected": None,
+            "actual": None,
+            "actual_error": None,
+        }
+
+    index = first_failed(raw_part)
+    case_input = item_at(get_inputs(problem, stage), index)
+    expected_output = item_at(get_expected(expected, stage), index)
+
+    actual_output, actual_error = None, "failed input unavailable"
+    if case_input is not None:
+        actual_output, actual_error = run_actual(
+            solution,
+            problem.get("entry_point"),
+            case_input,
         )
 
-    if "syntax" in text:
+    return {
+        "status": "failed",
+        "failed_case_index": index,
+        "input": repr(case_input) if case_input is not None else None,
+        "expected": repr(expected_output) if expected_output is not None else None,
+        "actual": actual_output,
+        "actual_error": actual_error,
+        "failure_type": failure_type,
+    }
+
+
+def explanation(passed: bool, generation: dict[str, Any], evaluation: dict[str, Any]):
+    if passed:
+        return "Passed all EvalPlus tests."
+
+    if generation["status"] == "generation_failed":
+        return f"Generation failed before evaluation: {generation['error']}."
+
+    stage = "plus" if evaluation.get("failure_type") == "plus_test_failure" else "original"
+    index = evaluation.get("failed_case_index")
+    case_input = evaluation.get("input")
+    expected = evaluation.get("expected")
+    actual = evaluation.get("actual")
+    actual_error = evaluation.get("actual_error")
+
+    if expected is not None and actual is not None:
         return (
-            "syntax_error",
-            f"{stage.title()} evaluation failed because generated code has a syntax error.",
-            stage,
+            f"Failed {stage} test case #{index}. "
+            f"Input: {case_input}. Expected: {expected}. Actual: {actual}."
         )
 
-    if "name" in text:
+    if actual_error:
         return (
-            "name_error",
-            f"{stage.title()} evaluation failed because a required name or symbol was missing.",
-            stage,
-        )
-
-    if "import" in text or "module" in text:
-        return (
-            "import_error",
-            f"{stage.title()} evaluation failed because of an import/module error.",
-            stage,
-        )
-
-    if "exception" in text or "error" in text:
-        return (
-            "runtime_error",
-            f"{stage.title()} evaluation raised a runtime error: {status}",
-            stage,
-        )
-
-    if stage == "base":
-        return (
-            "base_test_failure",
-            f"Base tests failed with status: {status}",
-            "base",
-        )
-
-    if stage == "plus":
-        return (
-            "plus_test_failure",
-            f"Extra EvalPlus tests failed with status: {status}",
-            "plus",
+            f"Failed {stage} test case #{index}. "
+            f"Input: {case_input}. Actual output could not be computed because: "
+            f"{short(actual_error, 500)}"
         )
 
     return (
-        "evaluation_failure",
-        f"{stage.title()} evaluation failed with status: {status}",
-        stage,
+        f"Failed {stage} test case #{index}. "
+        "Expected and actual outputs were not available."
     )
 
 
-def make_detail(
-    *,
-    task_id: str,
-    passed: bool,
-    base_passed: bool,
-    plus_passed: bool,
-    error_type: str | None,
-    error_reason: str | None,
-    error_stage: str | None,
-    base_status: Any,
-    plus_status: Any,
-) -> dict[str, Any]:
-    """
-    Keeps old fields failure_type/error for compatibility and adds clearer
-    error_type/error_reason/error_stage fields for analysis.
-    """
+def make_result(raw, base_only, problem, expected, solution, export_summary, skipped):
+    task_id = str(raw["task_id"])
+    method = str(export_summary.get("method", ""))
+
+    original_raw = raw.get("base")
+    plus_raw = None if base_only else raw.get("plus")
+
+    original_status = part_status(original_raw)
+    plus_status = None if base_only else part_status(plus_raw)
+
+    passed, failure_type, stage = classify(original_status, plus_status, base_only)
+    generation = generation_info(task_id, solution, export_summary, skipped)
+
+    if skipped:
+        passed = False
+        failure_type = "generation_failed"
+        stage = "generation"
+
+    raw_part = original_raw if stage == "original" else plus_raw
+    evaluation = build_evaluation(problem, expected, generation["code"], stage, failure_type, raw_part)
+    evaluation["status"] = "passed" if passed else "failed"
+
     return {
         "task_id": task_id,
+        "index": None,
+        "entry_point": problem.get("entry_point"),
         "passed": passed,
-        "base_passed": base_passed,
-        "plus_passed": plus_passed,
-        "failure_type": error_type,
-        "error": error_reason,
-        "error_type": error_type,
-        "error_reason": error_reason,
-        "error_stage": error_stage,
-        "base_status": None if base_status is None else str(base_status),
-        "plus_status": None if plus_status is None else str(plus_status),
+        "failure_type": failure_type,
+        "failure_explanation": explanation(passed, generation, evaluation),
+        "task": task_info(task_id, problem, method),
+        "generation": generation,
+        "evaluation": evaluation,
     }
 
-def compact_result(raw: dict[str, Any], base_only: bool) -> dict[str, Any]:
-    task_id = str(raw["task_id"])
-
-    raw_debug = {
-        "base": repr(raw.get("base")),
-        "plus": repr(raw.get("plus")),
-    }
-
-    base_status = raw["base"][0]
-    plus_status = None if base_only else raw["plus"][0]
-
-    base_passed = is_pass(base_status)
-    plus_passed = True if base_only else is_pass(plus_status)
-    passed = base_passed and plus_passed
-
-    if passed:
-        result = make_detail(
-            task_id=task_id,
-            passed=True,
-            base_passed=True,
-            plus_passed=True,
-            error_type=None,
-            error_reason=None,
-            error_stage=None,
-            base_status=base_status,
-            plus_status=plus_status,
-        )
-        result["raw_evalplus_debug"] = raw_debug
-        return result
-
-    if not base_passed:
-        error_type, error_reason, error_stage = classify_error(base_status, "base")
-        result = make_detail(
-            task_id=task_id,
-            passed=False,
-            base_passed=False,
-            plus_passed=False,
-            error_type=error_type,
-            error_reason=error_reason,
-            error_stage=error_stage,
-            base_status=base_status,
-            plus_status=plus_status,
-        )
-        result["raw_evalplus_debug"] = raw_debug
-        return result
-
-    error_type, error_reason, error_stage = classify_error(plus_status, "plus")
-    result = make_detail(
-        task_id=task_id,
-        passed=False,
-        base_passed=True,
-        plus_passed=False,
-        error_type=error_type,
-        error_reason=error_reason,
-        error_stage=error_stage,
-        base_status=base_status,
-        plus_status=plus_status,
-    )
-    result["raw_evalplus_debug"] = raw_debug
-    return result
 
 def eval_one(
-    dataset: str,
-    task_id: str,
-    problem: dict[str, Any],
-    solution: str,
-    expected: dict[str, Any],
-    base_only: bool,
-    test_details: bool,
-    min_time_limit: float,
-    gt_time_limit_factor: float,
-) -> dict[str, Any]:
+    dataset,
+    task_id,
+    problem,
+    solution,
+    expected,
+    base_only,
+    test_details,
+    min_time_limit,
+    gt_time_limit_factor,
+    export_summary,
+    skipped,
+):
     try:
         raw = check_correctness(
             dataset,
@@ -252,50 +369,34 @@ def eval_one(
             min_time_limit,
             gt_time_limit_factor,
         )
-        return compact_result(raw, base_only)
+
+        return make_result(raw, base_only, problem, expected, solution, export_summary, skipped)
 
     except Exception as exc:
-        return make_detail(
-            task_id=task_id,
-            passed=False,
-            base_passed=False,
-            plus_passed=False,
-            error_type="evaluation_error",
-            error_reason=f"EvalPlus evaluator crashed: {exc}",
-            error_stage="evaluation",
-            base_status=None,
-            plus_status=None,
-        )
+        method = str(export_summary.get("method", ""))
+        generation = generation_info(task_id, solution, export_summary, skipped)
 
+        evaluation = {
+            "status": "failed",
+            "failed_case_index": None,
+            "input": None,
+            "expected": None,
+            "actual": None,
+            "actual_error": str(exc),
+            "failure_type": "evaluation_error",
+        }
 
-def apply_generation_status(
-    result: dict[str, Any],
-    skipped: dict[str, str],
-) -> dict[str, Any]:
-    task_id = result["task_id"]
-
-    if task_id in skipped and result.get("passed") is not True:
-        reason = skipped[task_id]
-        message = (
-            "Generation was missing or failed; placeholder failing solution "
-            "was evaluated so the task counts as failure."
-        )
-
-        result.update(
-            {
-                "generation_status": "filled_failure",
-                "original_generation_failure_type": reason,
-                "failure_type": reason,
-                "error": message,
-                "error_type": reason,
-                "error_reason": message,
-                "error_stage": "generation",
-            }
-        )
-    else:
-        result["generation_status"] = "generated"
-
-    return result
+        return {
+            "task_id": task_id,
+            "index": None,
+            "entry_point": problem.get("entry_point"),
+            "passed": False,
+            "failure_type": "evaluation_error",
+            "failure_explanation": f"EvalPlus evaluator crashed: {exc}",
+            "task": task_info(task_id, problem, method),
+            "generation": generation,
+            "evaluation": evaluation,
+        }
 
 
 def run_task_level_evalplus(
@@ -312,12 +413,7 @@ def run_task_level_evalplus(
     min_time_limit: float,
     gt_time_limit_factor: float,
 ) -> list[dict[str, Any]]:
-    problems, expected = load_problems(
-        evalplus_dataset,
-        mini,
-        noextreme,
-        version,
-    )
+    problems, expected = load_problems(evalplus_dataset, mini, noextreme, version)
     samples = read_jsonl(samples_path)
 
     missing = [task_id for task_id in problems if task_id not in samples]
@@ -331,7 +427,7 @@ def run_task_level_evalplus(
 
     task_ids = list(problems)
     index_of = {task_id: index for index, task_id in enumerate(task_ids)}
-    results: list[dict[str, Any]] = []
+    results = []
 
     print("\n[Task-level EvalPlus execution]")
 
@@ -348,23 +444,19 @@ def run_task_level_evalplus(
                 test_details,
                 min_time_limit,
                 gt_time_limit_factor,
+                export_summary,
+                skipped.get(task_id),
             ): task_id
             for task_id in task_ids
         }
 
         for future in as_completed(futures):
-            result = apply_generation_status(future.result(), skipped)
-            result["index"] = index_of[result["task_id"]]
-            results.append(result)
+            row = future.result()
+            row["index"] = index_of[row["task_id"]]
+            results.append(row)
 
-            if result["passed"]:
-                print(f"[{result['index']}] PASS {result['task_id']}")
-            else:
-                print(
-                    f"[{result['index']}] "
-                    f"FAIL/{result['error_type']} "
-                    f"{result['task_id']} - {result['error_reason']}"
-                )
+            status = "PASS" if row["passed"] else f"FAIL/{row['failure_type']}"
+            print(f"[{row['index']}] {status} {row['task_id']}")
 
     return sorted(results, key=lambda row: row["index"])
 
@@ -382,17 +474,15 @@ def summarize_evalplus_details(
     base_only: bool,
 ) -> dict[str, Any]:
     total = len(details)
-    base_passed = sum(row["base_passed"] for row in details)
-    plus_passed = sum(row["passed"] for row in details)
+    passed_count = sum(1 for row in details if row.get("passed") is True)
 
     failures = Counter(
-        row.get("error_type") or row.get("failure_type") or "unknown_failure"
+        row.get("failure_type") or "unknown_failure"
         for row in details
-        if not row["passed"]
+        if not row.get("passed")
     )
 
-    base_score = base_passed / total if total else 0.0
-    plus_score = plus_passed / total if total else 0.0
+    score = passed_count / total if total else 0.0
 
     return {
         "benchmark": benchmark,
@@ -404,13 +494,9 @@ def summarize_evalplus_details(
         "total_tasks": total,
         "successful_generation_count": export_summary["successful_sample_count"],
         "filled_failure_count": export_summary["filled_failure_count"],
-        "base_passed": base_passed,
-        "plus_passed": plus_passed,
-        "failed": total - plus_passed,
-        "base_pass@1": base_score,
-        "base_pass@1_percent": round(base_score * 100, 2),
-        "plus_pass@1": None if base_only else plus_score,
-        "plus_pass@1_percent": None if base_only else round(plus_score * 100, 2),
+        "passed": passed_count,
+        "failed": total - passed_count,
+        "pass@1": score,
+        "pass@1_percent": round(score * 100, 2),
         "failure_counts": dict(failures),
-        "base_only": base_only,
     }

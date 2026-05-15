@@ -17,39 +17,53 @@ SYSTEM_PROMPT = (
 PROMPT_TEMPLATE = """
 You are generating a complete Python solution for a benchmark programming task.
 
-The original benchmark prompt is the source of truth.
+The original benchmark prompt, function signature, examples, and tests implied by the prompt are the source of truth.
+The raw contract is only a helper checklist. It may be incomplete or partially wrong.
 
 OUTPUT RULES
-- Return Python code.
+- Return only Python code.
 - Do not include markdown, explanations, or tests.
-- Preserve the required function name and signature.
-- Include all required imports.
+- Preserve the required function name exactly.
+- Preserve the required function signature when given.
+- Include imports only when needed.
+- Define all helper functions used by the solution.
+- The final code must be syntactically valid Python.
 
 CONTRACT USAGE RULES
-Use the contract to better understand:
+Use the raw contract to better understand:
 - required behavior
 - input assumptions
 - output guarantees
+- edge cases
 - ordering or structural constraints
 
-Do not invent new constraints beyond the prompt and contract.
+Do not blindly copy the contract.
+Do not copy contract assertions into the final code.
+Do not add input validation, type checks, assertions, exceptions, or error returns unless the original benchmark prompt explicitly requires them.
+If the raw contract conflicts with the prompt, examples, signature, or required output behavior, ignore the contract and follow the original benchmark prompt.
 
 BEHAVIOR RULES
 Preserve exact behavior required by the task, including:
 - return type
 - ordering
 - duplicate handling
-- edge-case behavior
+- boundary cases
+- empty-input behavior
+- string/list/tuple formatting
+- numeric precision when relevant
 - required output structure
 - exact API usage when relevant
 
-Do not add unnecessary validation or rejection logic unless explicitly required.
+Do not invent constraints beyond the prompt and contract.
+Do not overfit to only the examples.
+Solve the general task described by the prompt.
 
 EXECUTION RULES
 - Produce deterministic executable code.
 - Avoid unnecessary filesystem, network, subprocess, or environment checks.
 - Do not call external services.
 - Avoid infinite loops or long-running operations.
+- Prefer simple, direct, reliable implementations.
 
 ENTRY POINT
 {entry_point}
