@@ -457,7 +457,6 @@ def evaluate_file(gen_file: Path, task: dict, timeout: float, retry_timeout: flo
 
     return make_result(task, generation, passed, failure_type, evaluation)
 
-
 def summarize(dataset: str, provider: str, model: str, results: list[dict]) -> dict:
     total = len(results)
     passed = sum(1 for item in results if item.get("passed") is True)
@@ -483,7 +482,6 @@ def summarize(dataset: str, provider: str, model: str, results: list[dict]) -> d
         "executed_pass@1": passed / executed_total if executed_total else 0,
         "failure_counts": dict(failures),
     }
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate vanilla generated code")
@@ -572,7 +570,6 @@ def main() -> None:
 
     print("\nEvaluation complete")
     print(json.dumps(summary, indent=2))
-
 
 if __name__ == "__main__":
     main()
