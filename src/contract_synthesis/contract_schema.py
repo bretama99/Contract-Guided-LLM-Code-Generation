@@ -260,6 +260,7 @@ def make_contract_schema_for_task(
 
     return schema
 
+
 def build_contract_prompt(task: dict[str, Any], benchmark: str) -> str:
     schema = make_contract_schema_for_task(task, benchmark)
     benchmark_name = clean(benchmark).lower()

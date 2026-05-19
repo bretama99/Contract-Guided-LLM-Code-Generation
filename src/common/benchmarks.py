@@ -8,6 +8,7 @@ from src.common.config import DATASETS
 from src.common.execution import (
     evaluate_bigcodebench_candidate,
     evaluate_humaneval_candidate,
+    evaluate_livecodebench_candidate,
 )
 
 
@@ -32,6 +33,8 @@ def _registry() -> dict[str, Benchmark]:
     evaluators: dict[str, Evaluator] = {
         "humaneval": evaluate_humaneval_candidate,
         "bigcodebench": evaluate_bigcodebench_candidate,
+        "livecodebench": evaluate_livecodebench_candidate,
+
     }
 
     return {

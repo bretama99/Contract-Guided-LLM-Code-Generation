@@ -1,10 +1,12 @@
 from typing import Any, Final
 
+
 SCHEMA_VERSION: Final[str] = "2.9"
 CREATED_STAGE: Final[str] = "2A_raw_contract_synthesis"
 INITIAL_STATUS: Final[str] = "raw_unvalidated"
 
-CONTRACT_SCHEMA: dict[str, Any] = {
+
+CONTRACT_SCHEMA: Final[dict[str, Any]] = {
     "schema_version": SCHEMA_VERSION,
     "lifecycle": {
         "created_stage": CREATED_STAGE,
@@ -20,7 +22,6 @@ CONTRACT_SCHEMA: dict[str, Any] = {
         "helper_functions_required": [],
         "summary": "",
     },
-    
     "interface": {
         "inputs": [],
         "output": {
@@ -42,10 +43,6 @@ CONTRACT_SCHEMA: dict[str, Any] = {
 }
 
 
-from typing import Final
-
-from typing import Final
-
 CONTRACT_RULES: Final[str] = """
 You generate structured Design-by-Contract specifications for Python functions.
 Write all field values in English.
@@ -56,9 +53,11 @@ A contract describes:
   - invariants: what must remain true when applicable
 
 Return exactly one valid JSON object. No markdown. No explanation.
+
 ---
 ALLOWED VALUES
 ---
+
 source:
   signature | type_hint | explicit | example | strongly_implied | inferred
 
@@ -73,6 +72,7 @@ invariant.target:
 
 invalid_input_behavior.source:
   explicit | example | strongly_implied | not_specified
+
 ---
 FIELD RULES
 ---
@@ -80,7 +80,7 @@ FIELD RULES
 task.summary:
   Write one sentence describing what the function computes.
   Do not write generic text like "Implement the function."
-  
+
 interface.inputs:
   For each parameter, write:
     - name: the parameter name
@@ -125,6 +125,7 @@ invalid_input_behavior:
 ---
 QUALITY REQUIREMENTS
 ---
+
 - The contract must describe behavior, not implementation.
 - Preconditions describe caller obligations.
 - Postconditions describe supplier/function guarantees.
