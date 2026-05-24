@@ -6,7 +6,7 @@ import sys
 import tempfile
 from collections import Counter
 from typing import Any
-
+from src.classeval.execution import short
 from src.common.config import DATASETS
 from src.common.execution import evaluate_humaneval_candidate, evaluate_bigcodebench_candidate
 from src.common.io_utils import load_json, load_json_list, save_json
@@ -22,12 +22,6 @@ from typing import *
 import math, re, sys, json, itertools, functools, collections, heapq, bisect
 from collections import *
 """.strip()
-
-
-def short(value: Any, limit: int = 3000) -> str:
-    text = str(value or "").strip()
-    return text if len(text) <= limit else text[:limit] + "\n...[truncated]"
-
 
 def signal(text: str = "") -> str | None:
     keys = (

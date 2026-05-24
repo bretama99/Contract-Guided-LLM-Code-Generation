@@ -1,27 +1,9 @@
-from typing import Any, Final
+from __future__ import annotations
+from copy import deepcopy
+from typing import Any, Final, TypeAlias
+JsonDict: TypeAlias = dict[str, Any]
 
-
-SCHEMA_VERSION: Final[str] = "2.9"
-CREATED_STAGE: Final[str] = "2A_raw_contract_synthesis"
-INITIAL_STATUS: Final[str] = "raw_unvalidated"
-
-
-CONTRACT_SCHEMA: Final[dict[str, Any]] = {
-    "schema_version": SCHEMA_VERSION,
-    "lifecycle": {
-        "created_stage": CREATED_STAGE,
-        "status": INITIAL_STATUS,
-    },
-    "task": {
-        "task_id": "",
-        "benchmark": "",
-        "language": "python",
-        "entry_point": "",
-        "signature": "",
-        "imports_required": [],
-        "helper_functions_required": [],
-        "summary": "",
-    },
+CALLABLE_CONTRACT_SCHEMA: Final[JsonDict] = {
     "interface": {
         "inputs": [],
         "output": {
@@ -35,13 +17,33 @@ CONTRACT_SCHEMA: Final[dict[str, Any]] = {
     "edge_cases": [],
     "invalid_input_behavior": {
         "specified": False,
-        "expected_behavior": "not_specified",
-        "exception_type": None,
+        "expected_behavior": "",
+        "exception_type": "",
         "description": "",
-        "source": "not_specified",
+        "source": "",
     },
 }
+CONTRACT_SCHEMA: Final[JsonDict] = {
+    "task": {
+        "task_id": "",
+        "benchmark": "",
+        "language": "python",
+        "entry_point": "",
+        "signature": "",
+        "imports_required": [],
+        "helper_functions_required": [],
+        "summary": "",
+    },
+    **deepcopy(CALLABLE_CONTRACT_SCHEMA),
+}
 
+def new_callable_contract_schema() -> JsonDict:
+    """Return a fresh contract body for a function, method, or constructor."""
+    return deepcopy(CALLABLE_CONTRACT_SCHEMA)
+
+def new_contract_schema() -> JsonDict:
+    """Return a fresh function-level contract schema."""
+    return deepcopy(CONTRACT_SCHEMA)
 
 CONTRACT_RULES: Final[str] = """
 You generate structured Design-by-Contract specifications for Python functions.
@@ -53,11 +55,9 @@ A contract describes:
   - invariants: what must remain true when applicable
 
 Return exactly one valid JSON object. No markdown. No explanation.
-
 ---
 ALLOWED VALUES
 ---
-
 source:
   signature | type_hint | explicit | example | strongly_implied | inferred
 
@@ -71,12 +71,10 @@ invariant.target:
   state | input | output | collection_element
 
 invalid_input_behavior.source:
-  explicit | example | strongly_implied | not_specified
-
+  explicit | example | strongly_implied
 ---
 FIELD RULES
 ---
-
 task.summary:
   Write one sentence describing what the function computes.
   Do not write generic text like "Implement the function."
@@ -120,12 +118,10 @@ invalid_input_behavior:
   Behavior when inputs violate the valid calling conditions.
   Set specified to true only if the prompt or examples explicitly define what should happen.
   Examples: raise ValueError, return -1, return None.
-  If invalid-input behavior is not specified, leave specified as false.
-
+  If invalid-input behavior is not specified, leave specified as false and leave the other fields empty.
 ---
 QUALITY REQUIREMENTS
 ---
-
 - The contract must describe behavior, not implementation.
 - Preconditions describe caller obligations.
 - Postconditions describe supplier/function guarantees.
@@ -137,3 +133,11 @@ QUALITY REQUIREMENTS
 - If a claim is only inferred, mark it as inferred.
 - Raw contracts may be incomplete; do not over-specify.
 """.strip()
+
+__all__ = [
+    "CALLABLE_CONTRACT_SCHEMA",
+    "CONTRACT_SCHEMA",
+    "CONTRACT_RULES",
+    "new_callable_contract_schema",
+    "new_contract_schema",
+]

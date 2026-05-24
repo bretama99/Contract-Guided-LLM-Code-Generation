@@ -4,7 +4,7 @@ import re
 from typing import Any
 from src.common.task_utils import task_identifier, task_entry_point, task_prompt
 from src.contract_synthesis import contract_schema_constants as C
-
+from src.common.task_utils import clean
 DEF_RE = re.compile(r"\bdef\s+([A-Za-z_]\w*)\s*\(")
 TYPING_NAMES = {
     "Any", "Callable", "Deque", "Dict", "FrozenSet", "Generator",
@@ -111,9 +111,6 @@ def infer_imports_from_prompt_and_signature(prompt: str, signature: str) -> list
             imports.append(item)
 
     return imports
-
-def clean(value: Any) -> str:
-    return str(value or "").strip()
 
 def extract_signature(prompt: str, entry_point: str | None) -> str:
     prompt = clean(prompt)

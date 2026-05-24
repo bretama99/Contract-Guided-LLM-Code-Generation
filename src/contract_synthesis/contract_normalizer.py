@@ -2,10 +2,10 @@ import ast
 import copy
 import re
 from typing import Any
-
+from src.classeval.core import as_list
 from src.contract_synthesis import contract_schema_constants as C
 from src.contract_synthesis.contract_schema import make_contract_schema_for_task, task_summary
-
+from src.common.task_utils import clean
 SOURCES = {"signature", "type_hint", "explicit", "example", "strongly_implied", "inferred"}
 INVALID_SOURCES = SOURCES | {"not_specified"}
 PRE_KINDS = {"domain", "structural", "relational", "format", "membership", "numeric_range"}
@@ -14,19 +14,9 @@ TARGETS = {"state", "input", "output", "collection_element"}
 SOURCE_ALIASES = {"prompt": "explicit"}
 PLACEHOLDERS = ("short source phrase", "parameter_name", "valid boundary case", "expected behavior supported")
 
-
-def clean(value: Any) -> str:
-    return str(value or "").strip()
-
-
 def scrub(value: Any) -> str:
     text = clean(value)
     return "" if any(marker in text.lower() for marker in PLACEHOLDERS) else text
-
-
-def as_list(value: Any) -> list[Any]:
-    return value if isinstance(value, list) else []
-
 
 def choose(value: Any, allowed: set[str], default: str) -> str:
     value = SOURCE_ALIASES.get(clean(value), clean(value))

@@ -225,7 +225,6 @@ python -m src.vanilla.generate \
   --model qwen2.5-32b-instruct \
   --temperature 0.0 \
   --max-tokens 2048 \
-  --delay 2.0 \
   --overwrite
 python -m src.vanilla.evaluate \
   --dataset bigcodebench \
@@ -413,3 +412,42 @@ docker run --rm -it `
 >>   thesis-eval `
 >>   bash
 
+https://modelstudio.console.alibabacloud.com/ap-southeast-1?spm=a2c63.p38356.0.0.5b3d388e7ouuNA&tab=globalset#/efm/api_key
+
+
+
+python -m src.classeval.generate_contracts \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --temperature 0.0 \
+  --overwrite && \
+python -m src.classeval.generate_from_contracts \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --contract-provider qwen \
+  --contract-model "qwen2.5-32b-instruct" \
+  --temperature 0.0 \
+  --overwrite && \
+python -m src.classeval.evaluate_contract_guided \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --overwrite
+
+python -m src.classeval.generate_vanilla \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --temperature 0.0 \
+  --overwrite && \
+python -m src.classeval.evaluate_vanilla \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --overwrite && \
+  python -m src.classeval.generate_agentic_vanilla \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --temperature 0.0 \
+  --overwrite && \
+python -m src.classeval.evaluate_agentic_vanilla \
+  --provider qwen \
+  --model "qwen2.5-32b-instruct" \
+  --overwrite
