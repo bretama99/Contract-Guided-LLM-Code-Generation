@@ -188,6 +188,69 @@ def generate_one(
             error=str(exc),
         )
 
+def method_signature_map(task: JsonDict) -> dict[str, str]:
+    source = skeleton(task)
+    tree = ast.parse(source)
+
+    cls = next(
+        (
+            node
+            for node in tree.body
+            if isinstance(node, ast.ClassDef) and node.name == class_name(task)
+        ),
+        None,
+    )
+    if cls is None:
+        return {}
+
+    return {
+        node.name: _function_header(source, node)
+        for node in cls.body
+        if isinstance(node, ast.FunctionDef) and node.name != "__init__"
+    }
+
+
+def _function_header(source: str, node: ast.FunctionDef) -> str:
+    lines = source.splitlines()
+    segment = "\n".join(lines[node.lineno - 1 : node.end_lineno])
+    depth = 0
+    in_string: str | None = None
+    escape = False
+
+    for index, char in enumerate(segment):
+        if in_string:
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == in_string:
+                in_string = None
+            continue
+
+        if char in {"'", '"'}:
+            in_string = char
+        elif char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        elif char == ":" and depth == 0:
+            return segment[:index].strip()
+
+    return segment.splitlines()[0].strip()
+
+def repair_method_signatures(contract: JsonDict, task: JsonDict) -> JsonDict:
+    signatures = method_signature_map(task)
+
+    for method in contract.get("method_contracts", []):
+        if not isinstance(method, dict):
+            continue
+
+        name = text(method.get("method_name"))
+        if name and not text(method.get("signature")) and name in signatures:
+            method["signature"] = signatures[name]
+
+    return contract
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate ClassEval Stage 2 raw contracts")
     parser.add_argument("--provider", choices=sorted(PROVIDERS), required=True)
@@ -233,43 +296,6 @@ def main() -> None:
     print(f"Failed: {failed}")
     print(f"Skipped: {skipped}")
     print(f"Elapsed: {round(time.perf_counter() - started, 4)}s")
-def method_signature_map(task: JsonDict) -> dict[str, str]:
-    tree = ast.parse(skeleton(task))
-    cls = next(
-        (
-            node
-            for node in tree.body
-            if isinstance(node, ast.ClassDef) and node.name == class_name(task)
-        ),
-        None,
-    )
-
-    if cls is None:
-        return {}
-
-    signatures: dict[str, str] = {}
-
-    for node in cls.body:
-        if isinstance(node, ast.FunctionDef) and node.name != "__init__":
-            source = ast.get_source_segment(skeleton(task), node) or ""
-            header = source.split(":", 1)[0].strip()
-            signatures[node.name] = header
-
-    return signatures
-
-
-def repair_method_signatures(contract: JsonDict, task: JsonDict) -> JsonDict:
-    signatures = method_signature_map(task)
-
-    for method in contract.get("method_contracts", []):
-        if not isinstance(method, dict):
-            continue
-
-        name = text(method.get("method_name"))
-        if name and not text(method.get("signature")) and name in signatures:
-            method["signature"] = signatures[name]
-
-    return contract
-
+    
 if __name__ == "__main__":
     main()

@@ -62,34 +62,90 @@ def prune(value: Any) -> Any:
         ]
     return value
 
+def compact_clause_items(items: Any) -> list[Any]:
+    compacted = []
+
+    for item in as_list(items):
+        if not isinstance(item, dict):
+            if text(item):
+                compacted.append(item)
+            continue
+
+        compacted.append(
+            prune(
+                {
+                    "description": item.get("description"),
+                    "condition": item.get("condition"),
+                    "expected_behavior": item.get("expected_behavior"),
+                    "kind": item.get("kind"),
+                    "source": item.get("source"),
+                }
+            )
+        )
+
+    return compacted
+
+
+def compact_callable_contract(contract: JsonDict) -> JsonDict:
+    invalid = as_dict(contract.get("invalid_input_behavior"))
+
+    return prune(
+        {
+            "inputs": as_dict(contract.get("interface")).get("inputs"),
+            "output": as_dict(contract.get("interface")).get("output"),
+            "preconditions": compact_clause_items(contract.get("preconditions")),
+            "postconditions": compact_clause_items(contract.get("postconditions")),
+            "invariants": compact_clause_items(contract.get("invariants")),
+            "edge_cases": compact_clause_items(contract.get("edge_cases")),
+            "invalid_input_behavior": invalid if invalid.get("specified") is True else {},
+        }
+    )
+
+
 def compact_method(method: JsonDict) -> JsonDict:
     return prune(
         {
             "method_name": method.get("method_name"),
             "signature": method.get("signature"),
-            "is_static": method.get("is_static"),
             "dependencies": method.get("dependencies"),
-            "contract": as_dict(method.get("contract")),
+            "contract": compact_callable_contract(as_dict(method.get("contract"))),
         }
     )
 
+
 def compact_contract(contract: JsonDict) -> JsonDict:
     task = as_dict(contract.get("task"))
+    constructor = as_dict(contract.get("constructor"))
+
     return prune(
         {
             "summary": task.get("summary"),
-            "class_interface": contract.get("class_interface"),
-            "constructor": contract.get("constructor"),
-            "class_invariants": contract.get("class_invariants"),
+            "constructor": {
+                "signature": constructor.get("signature"),
+                "initializes": constructor.get("initializes"),
+                "contract": compact_callable_contract(as_dict(constructor.get("contract"))),
+            },
+            "class_invariants": compact_clause_items(contract.get("class_invariants")),
             "method_contracts": [
                 compact_method(method)
                 for method in as_list(contract.get("method_contracts"))
                 if isinstance(method, dict)
             ],
-            "interaction_contracts": contract.get("interaction_contracts"),
+            "interaction_contracts": [
+                prune(
+                    {
+                        "name": item.get("name"),
+                        "method_sequence": item.get("method_sequence"),
+                        "preconditions": compact_clause_items(item.get("preconditions")),
+                        "postconditions": compact_clause_items(item.get("postconditions")),
+                    }
+                )
+                for item in as_list(contract.get("interaction_contracts"))
+                if isinstance(item, dict)
+            ],
         }
     )
-
+    
 def load_contract(task: JsonDict, provider: str, model: str) -> JsonDict:
     path = contract_path(task, provider, model)
     if not path.exists():
@@ -172,9 +228,11 @@ def generate_one(
             prompt = build_prompt(task, contract, template)
             if attempt and error:
                 prompt += (
-                    "\n\nThe previous output was invalid Python.\n"
-                    f"Error: {error}\n"
+                    "\n\nThe previous output was rejected before evaluation.\n"
+                    f"Reason: {error}\n"
                     "Regenerate the complete class from scratch. "
+                    "Preserve all method signatures exactly. "
+                    "Replace every pass, ..., TODO, placeholder, or incomplete method body with executable implementation. "
                     "Return only valid Python source code. "
                     "Do not include markdown, explanations, or tests."
                 )
@@ -234,7 +292,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--count", type=int)
     parser.add_argument("--delay", type=float, default=0.0)
     parser.add_argument("--overwrite", action="store_true")
-    parser.add_argument("--retries", type=int, default=1)
+    parser.add_argument("--retries", type=int, default=0)
     return parser.parse_args()
 
 def main() -> None:

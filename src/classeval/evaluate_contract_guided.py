@@ -76,8 +76,16 @@ def main() -> None:
 
     for index, task in enumerate(tasks, start=args.start):
         path = evaluation_path(task, args.provider, model)
+    
         if path.exists() and not args.overwrite:
             result = load_json(path)
+            if (
+                result.get("provider") != args.provider
+                or result.get("model_name") != model
+                or result.get("stage") != STAGE
+                or result.get("task_id") != task_id(task)
+            ):
+                raise ValueError(f"Cached evaluation metadata mismatch: {path}")
         else:
             result = evaluate_one(
                 task,

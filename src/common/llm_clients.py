@@ -39,6 +39,21 @@ PROVIDERS: Final[dict[str, dict[str, str]]] = {
         "default_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "default_model": "qwen2.5-coder-32b-instruct",
     },
+    
+    "groq": {
+        "kind": "openai_chat",
+        "api_key_env": "GROQ_API_KEY",
+        "base_url_env": "GROQ_BASE_URL",
+        "default_base_url": "https://api.groq.com/openai/v1",
+        "default_model": "llama-3.3-70b-versatile",
+    },
+    "gemini": {
+        "kind": "openai_chat",
+        "api_key_env": "GEMINI_API_KEY",
+        "base_url_env": "GEMINI_BASE_URL",
+        "default_base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "default_model": "gemini-3.5-flash",
+    },
 }
 
 

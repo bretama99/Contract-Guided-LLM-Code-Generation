@@ -5,6 +5,7 @@ import time
 from src.classeval.core import JsonDict, output_path, task_id
 from src.classeval.execution import (
     evaluate_generation,
+    failure_record,
     summarize_results,
 )
 from src.common.config import LOG_ROOT, OUTPUT_ROOT, RESULTS_ROOT, ROOT
@@ -22,14 +23,10 @@ STAGE = "vanilla_evaluation"
 def generation_path(task: JsonDict, provider: str, model: str):
     return output_path(GEN_DIR, task, provider, model, "vanilla")
 
-def evaluation_path(task: JsonDict, provider: str, model: str):
-    return output_path(EVAL_DIR, task, provider, model, "eval")
-
 def evaluate_one(task: JsonDict, provider: str, model: str, timeout: float, include_code: bool) -> JsonDict:
     path = generation_path(task, provider, model)
 
     if not path.exists():
-        from src.classeval.execution import failure_record
         return failure_record(
             task,
             provider=provider,
@@ -70,7 +67,7 @@ def main() -> None:
     started = time.perf_counter()
 
     for index, task in enumerate(tasks, start=args.start):
-        path = evaluation_path(task, args.provider, model)
+        path = output_path(EVAL_DIR, task, args.provider, model, "eval")
         if path.exists() and not args.overwrite:
             result = load_json(path)
         else:
