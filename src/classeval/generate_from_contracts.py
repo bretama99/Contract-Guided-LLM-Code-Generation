@@ -206,7 +206,6 @@ def make_record(
         "error": error,
         "source": "ClassEval_data.json",
     }
-
 def generate_one(
     task: JsonDict,
     args: argparse.Namespace,
@@ -220,64 +219,50 @@ def generate_one(
     prompt = ""
     raw_response = ""
     api_result: JsonDict | None = None
-    error = None
 
-    for attempt in range(args.retries + 1):
-        try:
-            contract = contract or load_contract(task, contract_provider, contract_model)
-            prompt = build_prompt(task, contract, template)
-            if attempt and error:
-                prompt += (
-                    "\n\nThe previous output was rejected before evaluation.\n"
-                    f"Reason: {error}\n"
-                    "Regenerate the complete class from scratch. "
-                    "Preserve all method signatures exactly. "
-                    "Replace every pass, ..., TODO, placeholder, or incomplete method body with executable implementation. "
-                    "Return only valid Python source code. "
-                    "Do not include markdown, explanations, or tests."
-                )
-            raw_response, api_result = call_chat_model(
-                client=client,
-                model=model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=args.temperature,
-                max_tokens=args.max_tokens,
-                json_mode=False,
-            )
-            return make_record(
-                task,
-                args,
-                model,
-                status="success",
-                contract=contract,
-                prompt=prompt,
-                raw_response=raw_response,
-                generated_code=extract_class_code(raw_response, task),
-                api_result=api_result,
-                error=None,
-            )
-        except Exception as exc:
-            error = str(exc)
-            logger.exception("Contract-guided generation failed for %s", task_id(task))
+    try:
+        contract = load_contract(task, contract_provider, contract_model)
+        prompt = build_prompt(task, contract, template)
 
-            if attempt < args.retries:
-                time.sleep(0.3)
-    return make_record(
-        task,
-        args,
-        model,
-        status="failed",
-        contract=contract,
-        prompt=prompt,
-        raw_response=raw_response,
-        generated_code=None,
-        api_result=api_result,
-        error=error,
-    )
+        raw_response, api_result = call_chat_model(
+            client=client,
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=args.temperature,
+            max_tokens=args.max_tokens,
+            json_mode=False,
+        )
 
+        return make_record(
+            task,
+            args,
+            model,
+            status="success",
+            contract=contract,
+            prompt=prompt,
+            raw_response=raw_response,
+            generated_code=extract_class_code(raw_response, task),
+            api_result=api_result,
+            error=None,
+        )
+
+    except Exception as exc:
+        logger.exception("Contract-guided generation failed for %s", task_id(task))
+        return make_record(
+            task,
+            args,
+            model,
+            status="failed",
+            contract=contract,
+            prompt=prompt,
+            raw_response=raw_response,
+            generated_code=None,
+            api_result=api_result,
+            error=str(exc),
+        )
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate ClassEval code from skeleton and raw Stage-2 contract."
@@ -292,7 +277,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--count", type=int)
     parser.add_argument("--delay", type=float, default=0.0)
     parser.add_argument("--overwrite", action="store_true")
-    parser.add_argument("--retries", type=int, default=0)
     return parser.parse_args()
 
 def main() -> None:

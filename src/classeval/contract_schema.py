@@ -19,11 +19,7 @@ _FIELD: Final[JsonDict] = {
     "initial_value": "",
     "source": "",
 }
-_METHOD_INTERFACE: Final[JsonDict] = {
-    "name": "",
-    "signature": "",
-    "description": "",
-}
+
 _INTERACTION_CONTRACT: Final[JsonDict] = {
     "name": "",
     "method_sequence": [],
@@ -69,7 +65,6 @@ def new_contract_schema() -> JsonDict:
         },
         "class_interface": {
             "fields": [],
-            "methods": [],
         },
         "constructor": new_constructor_schema(),
         "class_invariants": [],
@@ -80,7 +75,6 @@ def new_contract_schema() -> JsonDict:
 def schema_for_prompt() -> JsonDict:
     schema = new_contract_schema()
     schema["class_interface"]["fields"] = [deepcopy(_FIELD)]
-    schema["class_interface"]["methods"] = [deepcopy(_METHOD_INTERFACE)]
     schema["method_contracts"] = [new_method_schema()]
     schema["interaction_contracts"] = [deepcopy(_INTERACTION_CONTRACT)]
     return schema

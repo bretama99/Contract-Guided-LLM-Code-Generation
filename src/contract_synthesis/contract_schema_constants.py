@@ -7,10 +7,10 @@ CALLABLE_CONTRACT_SCHEMA: Final[JsonDict] = {
     "interface": {
         "inputs": [],
         "output": {
-            "type": "",
+     },
+    },         "type": "",
             "description": "",
-        },
-    },
+      
     "preconditions": [],
     "postconditions": [],
     "invariants": [],

@@ -76,58 +76,45 @@ def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: A
     prompt = build_prompt(task, template)
     raw_response = ""
     api_result: JsonDict | None = None
-    error: str | None = None
 
-    for attempt in range(args.retries + 1):
-        try:
-            retry_prompt = prompt
-            if attempt and error:
-                retry_prompt += (
-                    "\n\nThe previous output was rejected before evaluation.\n"
-                    f"Reason: {error}\n"
-                    "Regenerate the complete class. Preserve all signatures exactly. "
-                    "Return only valid Python source code."
-                )
+    try:
+        raw_response, api_result = call_chat_model(
+            client=client,
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=args.temperature,
+            max_tokens=args.max_tokens,
+            json_mode=False,
+        )
 
-            raw_response, api_result = call_chat_model(
-                client=client,
-                model=model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": retry_prompt},
-                ],
-                temperature=args.temperature,
-                max_tokens=args.max_tokens,
-                json_mode=False,
-            )
+        return make_record(
+            task,
+            args,
+            model,
+            prompt=prompt,
+            raw_response=raw_response,
+            generated_code=extract_class_code(raw_response, task),
+            status="success",
+            api_result=api_result,
+        )
 
-            return make_record(
-                task,
-                args,
-                model,
-                prompt=retry_prompt,
-                raw_response=raw_response,
-                generated_code=extract_class_code(raw_response, task),
-                status="success",
-                api_result=api_result,
-            )
-
-        except Exception as exc:
-            error = str(exc)
-            logger.exception("Vanilla generation failed for %s", task_id(task))
-
-    return make_record(
-        task,
-        args,
-        model,
-        prompt=prompt,
-        raw_response=raw_response,
-        generated_code=None,
-        status="failed",
-        api_result=api_result,
-        error=error,
-    )
-    
+    except Exception as exc:
+        logger.exception("Vanilla generation failed for %s", task_id(task))
+        return make_record(
+            task,
+            args,
+            model,
+            prompt=prompt,
+            raw_response=raw_response,
+            generated_code=None,
+            status="failed",
+            api_result=api_result,
+            error=str(exc),
+        )
+         
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate ClassEval vanilla code")
     parser.add_argument("--provider", choices=sorted(PROVIDERS), required=True)
@@ -138,7 +125,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--count", type=int)
     parser.add_argument("--delay", type=float, default=0.0)
     parser.add_argument("--overwrite", action="store_true")
-    parser.add_argument("--retries", type=int, default=1)
     return parser.parse_args()
 
 def main() -> None:
