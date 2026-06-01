@@ -1,39 +1,38 @@
+from __future__ import annotations
+
 import ast
 import json
 import re
 from typing import Any
 
-
-_CODE_BLOCK_RE = re.compile(
-    r"```(?:python|py)?\s*(.*?)```",
-    flags=re.IGNORECASE | re.DOTALL,
-)
-
-_JSON_BLOCK_RE = re.compile(
-    r"```(?:json)?\s*(.*?)```",
-    flags=re.IGNORECASE | re.DOTALL,
-)
-
+_CODE_BLOCK_RE = re.compile(r"```(?:python|py)?\s*(.*?)```", re.I | re.S)
+_JSON_BLOCK_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.I | re.S)
 _CODE_START_RE = re.compile(
     r"(?m)^(from\s+\S+\s+import\s+.*|import\s+.*|def\s+\w+\s*\(|class\s+\w+\s*)"
 )
 
+COMMON_ALIAS_IMPORTS = {
+    "np": "import numpy as np",
+    "pd": "import pandas as pd",
+    "plt": "import matplotlib.pyplot as plt",
+    "sns": "import seaborn as sns",
+}
+
 
 def extract_json_object(text: str) -> dict[str, Any]:
-    cleaned = (text or "").strip()
-
-    block = _JSON_BLOCK_RE.search(cleaned)
+    content = (text or "").strip()
+    block = _JSON_BLOCK_RE.search(content)
     if block:
-        cleaned = block.group(1).strip()
+        content = block.group(1).strip()
 
     try:
-        value = json.loads(cleaned)
+        value = json.loads(content)
     except json.JSONDecodeError:
-        start = cleaned.find("{")
-        end = cleaned.rfind("}")
-        if start == -1 or end == -1 or end <= start:
+        start = content.find("{")
+        end = content.rfind("}")
+        if start < 0 or end <= start:
             raise ValueError("No valid JSON object found in model response.")
-        value = json.loads(cleaned[start : end + 1])
+        value = json.loads(content[start : end + 1])
 
     if not isinstance(value, dict):
         raise ValueError(f"Expected JSON object, got {type(value).__name__}")
@@ -42,40 +41,30 @@ def extract_json_object(text: str) -> dict[str, Any]:
 
 
 def extract_python_code(text: str, entry_point: str | None = None, validate: bool = True) -> str:
-    cleaned = (text or "").strip()
+    code = (text or "").strip()
 
-    block = _CODE_BLOCK_RE.search(cleaned)
+    block = _CODE_BLOCK_RE.search(code)
     if block:
-        cleaned = block.group(1).strip()
+        code = block.group(1).strip()
 
-    start = _CODE_START_RE.search(cleaned)
+    start = _CODE_START_RE.search(code)
     if start:
-        cleaned = cleaned[start.start() :].strip()
+        code = code[start.start() :].strip()
 
     if validate:
-        tree = ast.parse(cleaned)
+        tree = ast.parse(code)
+        if entry_point and not _has_entry_point(tree, entry_point):
+            raise ValueError(f"Missing required entry point: {entry_point}")
 
-        if entry_point:
-            function_names = {
-                node.name
-                for node in tree.body
-                if isinstance(node, ast.FunctionDef)
-            }
-
-            if entry_point not in function_names:
-                raise ValueError(f"Missing required entry point: {entry_point}")
-
-    return cleaned
-
-import ast
+    return code
 
 
-COMMON_ALIAS_IMPORTS = {
-    "np": "import numpy as np",
-    "pd": "import pandas as pd",
-    "plt": "import matplotlib.pyplot as plt",
-    "sns": "import seaborn as sns",
-}
+def _has_entry_point(tree: ast.Module, entry_point: str) -> bool:
+    return any(
+        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+        and node.name == entry_point
+        for node in tree.body
+    )
 
 
 class _NameCollector(ast.NodeVisitor):
@@ -92,7 +81,7 @@ class _NameCollector(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self.defined.add(node.name)
-        for arg in node.args.args + node.args.kwonlyargs:
+        for arg in [*node.args.args, *node.args.kwonlyargs]:
             self.defined.add(arg.arg)
         if node.args.vararg:
             self.defined.add(node.args.vararg.arg)
@@ -109,7 +98,7 @@ class _NameCollector(ast.NodeVisitor):
 
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
-            self.defined.add(alias.asname or alias.name.split(".")[0])
+            self.defined.add(alias.asname or alias.name.split(".", 1)[0])
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         for alias in node.names:
@@ -118,16 +107,13 @@ class _NameCollector(ast.NodeVisitor):
 
 def add_missing_common_alias_imports(code: str) -> str:
     tree = ast.parse(code)
-
     collector = _NameCollector()
     collector.visit(tree)
 
-    missing_imports = []
-    for alias, import_line in COMMON_ALIAS_IMPORTS.items():
-        if alias in collector.loaded and alias not in collector.defined:
-            missing_imports.append(import_line)
+    imports = [
+        import_line
+        for alias, import_line in COMMON_ALIAS_IMPORTS.items()
+        if alias in collector.loaded and alias not in collector.defined
+    ]
 
-    if not missing_imports:
-        return code
-
-    return "\n".join(missing_imports) + "\n\n" + code
+    return "\n".join(imports) + "\n\n" + code if imports else code

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import json
 from pathlib import Path
@@ -22,10 +24,6 @@ def load_evalplus(name: str) -> tuple[str, dict[str, dict[str, Any]]]:
 
 
 def safe_json(value: Any) -> Any:
-    """
-    Converts EvalPlus objects into JSON-serializable values.
-    Tuples become lists, and unusual objects become strings.
-    """
     return json.loads(json.dumps(value, ensure_ascii=False, default=str))
 
 
@@ -37,6 +35,7 @@ def to_record(
     include_tests: bool,
 ) -> dict[str, Any]:
     prompt = str(problem.get("prompt") or "").strip()
+    entry_point = str(problem.get("entry_point") or "").strip()
 
     if not prompt:
         raise ValueError(f"EvalPlus task has no prompt: {task_id}")
@@ -48,7 +47,7 @@ def to_record(
         "task_id": task_id,
         "benchmark": "evalplus",
         "evalplus_dataset": evalplus_dataset,
-        "entry_point": str(problem.get("entry_point") or "").strip(),
+        "entry_point": entry_point,
         "prompt": prompt,
         "source": "evalplus/evalplus",
         "source_version": f"evalplus/{evalplus_dataset}+",
@@ -67,21 +66,14 @@ def to_record(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare EvalPlus tasks")
-
-    parser.add_argument(
-        "--evalplus-dataset",
-        choices=sorted(LOADERS),
-        default="humaneval",
-    )
+    parser.add_argument("--evalplus-dataset", choices=sorted(LOADERS), default="humaneval")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--output")
-
     parser.add_argument(
         "--include-tests",
         action="store_true",
         help="Include EvalPlus base_input and plus_input in the processed dataset.",
     )
-
     return parser.parse_args()
 
 
@@ -90,7 +82,6 @@ def main() -> None:
     project_key, problems = load_evalplus(args.evalplus_dataset)
 
     records = []
-
     for index, (task_id, problem) in enumerate(problems.items()):
         if args.limit is not None and index >= args.limit:
             break
@@ -108,7 +99,7 @@ def main() -> None:
     save_json(output, records)
 
     print(f"Saved {len(records)} EvalPlus/{args.evalplus_dataset} tasks to {output}")
-    print(f"Included tests: {args.include_tests}")
+    print(f"Included test inputs: {args.include_tests}")
 
 
 if __name__ == "__main__":

@@ -1,31 +1,36 @@
+from __future__ import annotations
+
 import ast
 import copy
 import re
 from typing import Any
 
+from src.common.task_utils import clean
 from src.contract_synthesis import contract_schema_constants as C
 from src.contract_synthesis.contract_schema import make_contract_schema_for_task, task_summary
 
 SOURCES = {"signature", "type_hint", "explicit", "example", "strongly_implied", "inferred"}
 INVALID_SOURCES = SOURCES | {"not_specified"}
 PRE_KINDS = {"domain", "structural", "relational", "format", "membership", "numeric_range"}
-POST_KINDS = {"semantic", "relational", "ordering", "membership", "numeric", "structural"}
+POST_KINDS = {"semantic", "relational", "ordering", "membership", "numeric", "structural", "side_effect"}
 TARGETS = {"state", "input", "output", "collection_element"}
 SOURCE_ALIASES = {"prompt": "explicit"}
-PLACEHOLDERS = ("short source phrase", "parameter_name", "valid boundary case", "expected behavior supported")
-
-
-def clean(value: Any) -> str:
-    return str(value or "").strip()
-
-
-def scrub(value: Any) -> str:
-    text = clean(value)
-    return "" if any(marker in text.lower() for marker in PLACEHOLDERS) else text
+PLACEHOLDERS = (
+    "short source phrase",
+    "parameter_name",
+    "valid boundary case",
+    "expected behavior supported",
+)
 
 
 def as_list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def scrub(value: Any) -> str:
+    value = clean(value)
+    lowered = value.lower()
+    return "" if any(marker in lowered for marker in PLACEHOLDERS) else value
 
 
 def choose(value: Any, allowed: set[str], default: str) -> str:
@@ -38,6 +43,7 @@ def parse_signature(signature: str) -> ast.FunctionDef | None:
         tree = ast.parse(f"{clean(signature)}\n    pass")
     except SyntaxError:
         return None
+
     node = tree.body[0] if tree.body else None
     return node if isinstance(node, ast.FunctionDef) else None
 
@@ -53,6 +59,7 @@ def signature_params(signature: str) -> dict[str, str]:
     node = parse_signature(signature)
     if node is None:
         return {}
+
     args = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
     return {arg.arg: annotation(arg.annotation) for arg in args if arg.arg != "self"}
 
@@ -64,25 +71,30 @@ def signature_return(signature: str) -> str:
 
 def normalize_interface(raw: Any, signature: str) -> dict[str, Any]:
     raw = raw if isinstance(raw, dict) else {}
+
     raw_inputs = {
         clean(item.get("name")): item
         for item in as_list(raw.get("inputs"))
         if isinstance(item, dict) and clean(item.get("name"))
     }
+
     params = signature_params(signature)
     names = list(params) or list(raw_inputs)
 
     inputs = []
     for name in names:
         item = raw_inputs.get(name, {})
-        inputs.append({
-            "name": name,
-            "type": clean(item.get("type")) or params.get(name, ""),
-            "description": scrub(item.get("description")) or f"Input parameter {name}.",
-            "source": choose(item.get("source"), SOURCES, "signature"),
-        })
+        inputs.append(
+            {
+                "name": name,
+                "type": clean(item.get("type")) or params.get(name, ""),
+                "description": scrub(item.get("description")) or f"Input parameter {name}.",
+                "source": choose(item.get("source"), SOURCES, "signature"),
+            }
+        )
 
     output = raw.get("output") if isinstance(raw.get("output"), dict) else {}
+
     return {
         "inputs": inputs,
         "output": {
@@ -93,7 +105,12 @@ def normalize_interface(raw: Any, signature: str) -> dict[str, Any]:
 
 
 def clause(target: str, kind: str, description: str, source: str) -> dict[str, str]:
-    return {"target": target, "kind": kind, "description": description, "source": source}
+    return {
+        "target": target,
+        "kind": kind,
+        "description": description,
+        "source": source,
+    }
 
 
 def interface_types(interface: dict[str, Any]) -> dict[str, str]:
@@ -108,51 +125,52 @@ def infer_target(item: dict[str, Any], names: set[str]) -> str:
     target = clean(item.get("target"))
     if target in names:
         return target
-    text = clean(item.get("description"))
-    matches = [name for name in names if re.search(rf"\b{re.escape(name)}\b", text)]
+
+    description = clean(item.get("description"))
+    matches = [name for name in names if re.search(rf"\b{re.escape(name)}\b", description)]
     return matches[0] if len(matches) == 1 else ""
 
-def preconditions(
-    raw: Any,
-    param_types: dict[str, str],
-    type_sources: dict[str, str],
-) -> list[dict[str, str]]:
-    rows = []
+
+def normalize_preconditions(raw: Any, param_types: dict[str, str]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
 
     for item in as_list(raw):
         if not isinstance(item, dict):
             continue
 
+        description = scrub(item.get("description"))
         target = infer_target(item, set(param_types))
-        kind = choose(item.get("kind"), PRE_KINDS, "domain")
 
-        if target and kind != "type":
-            rows.append(
-                clause(
-                    target,
-                    kind,
-                    scrub(item.get("description")),
-                    choose(item.get("source"), SOURCES, "strongly_implied"),
-                )
+        if not target or not description:
+            continue
+
+        rows.append(
+            clause(
+                target,
+                choose(item.get("kind"), PRE_KINDS, "domain"),
+                description,
+                choose(item.get("source"), SOURCES, "strongly_implied"),
             )
+        )
 
     return rows
 
-def postconditions(
+
+def normalize_postconditions(
     raw: Any,
     output_type: str,
     output_source: str,
     output_description: str,
     summary: str,
 ) -> list[dict[str, str]]:
-    rows = []
+    rows: list[dict[str, str]] = []
     fallback = scrub(output_description) or summary
 
     if output_type and output_type != "None":
         rows.append(
             clause(
                 "return",
-                "type",
+                "structural",
                 f"result must satisfy the return type {output_type}.",
                 output_source,
             )
@@ -166,55 +184,78 @@ def postconditions(
         if kind == "type":
             continue
 
+        description = scrub(item.get("description")) or f"result must satisfy: {fallback}"
         rows.append(
             clause(
                 "return",
-                "semantic",
-                scrub(item.get("description")) or f"result must satisfy: {fallback}",
+                kind,
+                description,
                 choose(item.get("source"), SOURCES, "explicit"),
             )
         )
-        break
 
     if not any(row.get("kind") == "semantic" for row in rows):
+        rows.append(clause("return", "semantic", f"result must satisfy: {fallback}", "explicit"))
+
+    return rows
+
+
+def normalize_invariants(raw: Any) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+
+    for item in as_list(raw):
+        if not isinstance(item, dict):
+            continue
+
+        description = scrub(item.get("description"))
+        if not description:
+            continue
+
         rows.append(
-            clause(
-                "return",
-                "semantic",
-                f"result must satisfy: {fallback}",
-                "explicit",
-            )
+            {
+                "target": choose(item.get("target"), TARGETS, "state"),
+                "description": description,
+                "source": choose(item.get("source"), SOURCES, "strongly_implied"),
+            }
         )
 
     return rows
 
-def simple_items(raw: Any, kind: str) -> list[dict[str, str]]:
-    rows = []
+
+def normalize_edge_cases(raw: Any) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+
     for item in as_list(raw):
         if not isinstance(item, dict):
             continue
-        if kind == "invariant":
-            rows.append({
-                "target": choose(item.get("target"), TARGETS, "state"),
-                "description": scrub(item.get("description")),
-                "source": choose(item.get("source"), SOURCES, "strongly_implied"),
-            })
-        else:
-            rows.append({
-                "case": scrub(item.get("case")),
-                "expected_behavior": scrub(item.get("expected_behavior")),
+
+        case = scrub(item.get("case"))
+        expected = scrub(item.get("expected_behavior"))
+
+        if not case and not expected:
+            continue
+
+        rows.append(
+            {
+                "case": case,
+                "expected_behavior": expected,
                 "source": choose(item.get("source"), SOURCES, "explicit"),
-            })
+            }
+        )
+
     return rows
 
 
 def invalid_input_behavior(raw: Any) -> dict[str, Any]:
+    default = copy.deepcopy(C.CONTRACT_SCHEMA["invalid_input_behavior"])
+
     if not isinstance(raw, dict) or raw.get("specified") is not True:
-        return copy.deepcopy(C.CONTRACT_SCHEMA["invalid_input_behavior"])
+        return default
+
     return {
         "specified": True,
         "expected_behavior": scrub(raw.get("expected_behavior")) or "not_specified",
-        "exception_type": raw.get("exception_type") or None,
+        "exception_type": clean(raw.get("exception_type")) or None,
         "description": scrub(raw.get("description")),
         "source": choose(raw.get("source"), INVALID_SOURCES, "explicit"),
     }
@@ -227,58 +268,65 @@ def renumber(rows: list[dict[str, Any]], prefix: str) -> list[dict[str, Any]]:
 
 
 def dedupe(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    seen, result = set(), []
+    seen: set[tuple[Any, Any, str]] = set()
+    result: list[dict[str, Any]] = []
+
     for row in rows:
-        key = (row.get("target"), row.get("kind"), clean(row.get("description")).lower())
+        key = (
+            row.get("target") or row.get("case"),
+            row.get("kind"),
+            clean(row.get("description") or row.get("expected_behavior")).lower(),
+        )
+
         if key not in seen:
             seen.add(key)
             result.append(row)
+
     return result
+
 
 def normalize_contract(contract: dict[str, Any], task: dict[str, Any], benchmark: str) -> dict[str, Any]:
     base = copy.deepcopy(C.CONTRACT_SCHEMA)
     task_meta = make_contract_schema_for_task(task, benchmark)["task"]
     signature = task_meta["signature"]
-    summary = scrub(contract.get("task", {}).get("summary")) or task_summary(task)
+    summary = scrub((contract.get("task") or {}).get("summary")) or task_summary(task)
 
+    base["schema_version"] = C.SCHEMA_VERSION
     base["task"] = task_meta
     base["task"]["summary"] = summary
     base["interface"] = normalize_interface(contract.get("interface"), signature)
 
-    sig_types = signature_params(signature)
+    signature_types = signature_params(signature)
     input_types = interface_types(base["interface"])
-    param_names = sig_types or input_types
-
     param_types = {
-        name: sig_types.get(name) or input_types.get(name, "")
-        for name in param_names
-    }
-    type_sources = {
-        name: "type_hint" if sig_types.get(name) else "inferred"
-        for name in param_types
+        name: signature_types.get(name) or input_types.get(name, "")
+        for name in (signature_types or input_types)
     }
 
-    output_type = signature_return(signature)
-    output_source = "signature"
-    if not output_type:
-        output_type = base["interface"]["output"].get("type", "")
-        output_source = "inferred"
+    output_type = signature_return(signature) or base["interface"]["output"].get("type", "")
+    output_source = "signature" if signature_return(signature) else "inferred"
 
     base["preconditions"] = renumber(
-        dedupe(preconditions(contract.get("preconditions"), param_types, type_sources)),
+        dedupe(normalize_preconditions(contract.get("preconditions"), param_types)),
         "P",
     )
     base["postconditions"] = renumber(
-        postconditions(
-            contract.get("postconditions"),
-            output_type,
-            output_source,
-            base["interface"]["output"].get("description", ""),
-            summary,
+        dedupe(
+            normalize_postconditions(
+                contract.get("postconditions"),
+                output_type,
+                output_source,
+                base["interface"]["output"].get("description", ""),
+                summary,
+            )
         ),
         "Q",
     )
-    base["invariants"] = renumber(simple_items(contract.get("invariants"), "invariant"), "I")
-    base["edge_cases"] = renumber(simple_items(contract.get("edge_cases"), "edge_case"), "E")
+    base["invariants"] = renumber(dedupe(normalize_invariants(contract.get("invariants"))), "I")
+    base["edge_cases"] = renumber(dedupe(normalize_edge_cases(contract.get("edge_cases"))), "E")
     base["invalid_input_behavior"] = invalid_input_behavior(contract.get("invalid_input_behavior"))
+
     return base
+
+
+__all__ = ["normalize_contract"]

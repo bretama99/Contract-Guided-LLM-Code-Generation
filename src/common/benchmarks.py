@@ -5,12 +5,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from src.common.config import DATASETS
-from src.common.execution import (
-    evaluate_bigcodebench_candidate,
-    evaluate_humaneval_candidate,
-    evaluate_livecodebench_candidate,
-)
-
+from src.common.execution import evaluate_bigcodebench_candidate, evaluate_humaneval_candidate
 
 EvaluationResult = dict[str, Any]
 Evaluator = Callable[[dict[str, Any], str, float], EvaluationResult]
@@ -33,14 +28,12 @@ def _registry() -> dict[str, Benchmark]:
     evaluators: dict[str, Evaluator] = {
         "humaneval": evaluate_humaneval_candidate,
         "bigcodebench": evaluate_bigcodebench_candidate,
-        "livecodebench": evaluate_livecodebench_candidate,
-
     }
 
     return {
         key: Benchmark(
             key=key,
-            label=info["label"],
+            label=str(info["label"]),
             path=Path(info["path"]),
             evaluator=evaluators.get(key),
             evalplus_dataset=info.get("evalplus_dataset"),
@@ -57,7 +50,7 @@ def benchmark_keys() -> list[str]:
 
 
 def evalplus_keys() -> list[str]:
-    return sorted(key for key, bench in BENCHMARKS.items() if bench.is_evalplus)
+    return sorted(key for key, benchmark in BENCHMARKS.items() if benchmark.is_evalplus)
 
 
 def get_benchmark(key: str) -> Benchmark:
@@ -76,8 +69,7 @@ def require_native_evaluator(benchmark: Benchmark, method: str) -> None:
 
     if benchmark.evaluator is None:
         raise NotImplementedError(
-            f"No native evaluator registered for dataset '{benchmark.key}'. "
-            f"Add tests and register an evaluator in src/common/benchmarks.py."
+            f"No native evaluator registered for dataset '{benchmark.key}'."
         )
 
 
@@ -89,6 +81,5 @@ def evaluate_candidate(
     timeout: float,
 ) -> EvaluationResult:
     require_native_evaluator(benchmark, method="native")
-
     assert benchmark.evaluator is not None
     return benchmark.evaluator(task, code, timeout)

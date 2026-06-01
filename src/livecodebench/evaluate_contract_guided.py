@@ -5,24 +5,16 @@ import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
-
 from src.common.config import DATASETS
 from src.common.io_utils import load_json, load_json_list, save_json
 from src.common.llm_clients import default_model
 from src.common.raw_contract_paths import raw_contract_code_path, raw_contract_results_folder
 from src.common.task_utils import select_tasks, task_identifier
-
+from src.classeval.execution import short
 from src.livecodebench.evaluate_vanilla import cases, norm, run_code
-
 
 STAGE = "stage_2c_livecodebench_contract_guided_evaluation"
 METHOD = "livecodebench_contract_guided_generation"
-
-
-def short(value: Any, limit: int = 3000) -> str:
-    text = str(value or "").strip()
-    return text if len(text) <= limit else text[:limit] + "\n...[truncated]"
-
 
 def load_contract(generation: dict[str, Any]) -> Any:
     path = generation.get("contract_path")

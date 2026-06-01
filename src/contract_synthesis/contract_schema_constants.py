@@ -1,27 +1,13 @@
-from typing import Any, Final
+from __future__ import annotations
 
+from copy import deepcopy
+from typing import Any, Final, TypeAlias
 
-SCHEMA_VERSION: Final[str] = "2.9"
-CREATED_STAGE: Final[str] = "2A_raw_contract_synthesis"
-INITIAL_STATUS: Final[str] = "raw_unvalidated"
+JsonDict: TypeAlias = dict[str, Any]
 
+SCHEMA_VERSION: Final[str] = "stage2_raw_contract_schema_v1"
 
-CONTRACT_SCHEMA: Final[dict[str, Any]] = {
-    "schema_version": SCHEMA_VERSION,
-    "lifecycle": {
-        "created_stage": CREATED_STAGE,
-        "status": INITIAL_STATUS,
-    },
-    "task": {
-        "task_id": "",
-        "benchmark": "",
-        "language": "python",
-        "entry_point": "",
-        "signature": "",
-        "imports_required": [],
-        "helper_functions_required": [],
-        "summary": "",
-    },
+CALLABLE_CONTRACT_SCHEMA: Final[JsonDict] = {
     "interface": {
         "inputs": [],
         "output": {
@@ -35,105 +21,78 @@ CONTRACT_SCHEMA: Final[dict[str, Any]] = {
     "edge_cases": [],
     "invalid_input_behavior": {
         "specified": False,
-        "expected_behavior": "not_specified",
-        "exception_type": None,
+        "expected_behavior": "",
+        "exception_type": "",
         "description": "",
         "source": "not_specified",
     },
 }
 
+CONTRACT_SCHEMA: Final[JsonDict] = {
+    "schema_version": SCHEMA_VERSION,
+    "task": {
+        "task_id": "",
+        "benchmark": "",
+        "language": "python",
+        "entry_point": "",
+        "signature": "",
+        "imports_required": [],
+        "helper_functions_required": [],
+        "summary": "",
+    },
+    **deepcopy(CALLABLE_CONTRACT_SCHEMA),
+}
 
 CONTRACT_RULES: Final[str] = """
 You generate structured Design-by-Contract specifications for Python functions.
 Write all field values in English.
 
 A contract describes:
-  - preconditions: what must be true before the function is called
-  - postconditions: what must be true after successful execution
-  - invariants: what must remain true when applicable
+- preconditions: caller obligations before the function is called
+- postconditions: function guarantees after successful execution
+- invariants: properties preserved across execution when applicable
+- edge_cases: valid but special inputs and expected behavior
+- invalid_input_behavior: only behavior explicitly specified for invalid inputs
 
 Return exactly one valid JSON object. No markdown. No explanation.
 
----
-ALLOWED VALUES
----
+Allowed source values:
+signature | type_hint | explicit | example | strongly_implied | inferred | not_specified
 
-source:
-  signature | type_hint | explicit | example | strongly_implied | inferred
+Allowed precondition.kind values:
+domain | structural | relational | format | membership | numeric_range
 
-precondition.kind:
-  domain | structural | relational | format | membership | numeric_range
+Allowed postcondition.kind values:
+semantic | relational | ordering | membership | numeric | structural | side_effect
 
-postcondition.kind:
-  semantic | relational | ordering | membership | numeric | structural | side_effect
+Allowed invariant.target values:
+state | input | output | collection_element
 
-invariant.target:
-  state | input | output | collection_element
-
-invalid_input_behavior.source:
-  explicit | example | strongly_implied | not_specified
-
----
-FIELD RULES
----
-
-task.summary:
-  Write one sentence describing what the function computes.
-  Do not write generic text like "Implement the function."
-
-interface.inputs:
-  For each parameter, write:
-    - name: the parameter name
-    - type: the parameter type, from the signature or docstring
-    - description: what this parameter means or controls in the task
-
-interface.output:
-  Write:
-    - type: the return type, from the signature or docstring
-    - description: what the returned value means in the task
-
-preconditions:
-  Conditions that must be true before the function is called for valid execution.
-  They describe caller obligations.
-  Include only constraints stated or clearly required by the prompt, signature, or examples.
-  Do not invent constraints such as non-empty, positive, sorted, or unique unless clearly supported.
-
-postconditions:
-  Conditions that must be true after the function successfully returns, assuming the preconditions hold.
-  They describe the function's guarantees.
-  Describe the relationship between the output and the inputs.
-  Include visible side effects only if the prompt requires them.
-  Do not include implementation details.
-  Every postcondition must be observable and testable.
-
-edge_cases:
-  Valid but special input situations that may affect the result.
-  Examples: empty collection if allowed, one-element collection, zero, duplicates, equal values, boundary values, already sorted input, or no matching element.
-  Each edge case must describe the input situation and the expected behavior.
-  Do not include invalid inputs here; invalid inputs belong in invalid_input_behavior.
-
-invariants:
-  Properties that must remain true before and after execution, or across object/state changes.
-  Add an invariant only when the task involves persistent state, mutation, preserved structure, or an always-maintained property.
-
-invalid_input_behavior:
-  Behavior when inputs violate the valid calling conditions.
-  Set specified to true only if the prompt or examples explicitly define what should happen.
-  Examples: raise ValueError, return -1, return None.
-  If invalid-input behavior is not specified, leave specified as false.
-
----
-QUALITY REQUIREMENTS
----
-
-- The contract must describe behavior, not implementation.
-- Preconditions describe caller obligations.
-- Postconditions describe supplier/function guarantees.
-- Invariants describe always-maintained properties.
-- Do not invent constraints.
-- Do not add vague postconditions like "returns the correct result."
-- Prefer precise, testable statements.
-- Use source to show where each claim came from.
-- If a claim is only inferred, mark it as inferred.
-- Raw contracts may be incomplete; do not over-specify.
+Rules:
+- Use only the visible prompt, signature, imports, docstring, examples, and helper code.
+- Do not use tests, canonical solutions, generated code, execution feedback, validation results, or repair feedback.
+- Do not invent constraints such as non-empty, positive, sorted, unique, finite, or non-null unless clearly supported.
+- Preconditions describe valid calling conditions, not implementation checks.
+- Postconditions describe observable behavior, not implementation details.
+- Every postcondition should be concrete and testable.
+- Leave invalid_input_behavior.specified as false unless the prompt explicitly says what to do for invalid inputs.
+- Prefer concise, precise clauses over long explanations.
 """.strip()
+
+
+def new_callable_contract_schema() -> JsonDict:
+    return deepcopy(CALLABLE_CONTRACT_SCHEMA)
+
+
+def new_contract_schema() -> JsonDict:
+    return deepcopy(CONTRACT_SCHEMA)
+
+
+__all__ = [
+    "CALLABLE_CONTRACT_SCHEMA",
+    "CONTRACT_SCHEMA",
+    "CONTRACT_RULES",
+    "SCHEMA_VERSION",
+    "new_callable_contract_schema",
+    "new_contract_schema",
+]
