@@ -15,7 +15,7 @@ except ImportError:
 
 from src.common.config import DATASETS
 
-HELPED = "Helped by Contracts Vanilla fai"
+HELPED = "Helped by Contracts"
 REGRESSED = "Regressed by Contracts"
 FAILED = "Failed Both"
 
@@ -296,7 +296,7 @@ def summary_df(vs, cs):
             "Method": name,
             "Total Tasks": t,
             "Successful Generations": s.get("successful_generation_count", t - gen_fail_count(s) if t else ""),
-            "Filled Generation Failures": s.get("filled_failure_count", gen_fail_count(s) or ""),
+            "Filled Generation Failures": s.get("filled_failure_count", gen_fail_count(s) or 0),
             "Passed": p,
             "Failed": int(s.get("failed", t - p)),
             "Pass@1": p1,
@@ -308,8 +308,8 @@ def summary_df(vs, cs):
     net = {
         "Method": "Net Difference",
         "Total Tasks": t,
-        "Successful Generations": None,
-        "Filled Generation Failures": None,
+        "Successful Generations": b["Successful Generations"] - a["Successful Generations"],
+        "Filled Generation Failures": b["Filled Generation Failures"] - a["Filled Generation Failures"],
         "Passed": b["Passed"] - a["Passed"],
         "Failed": b["Failed"] - a["Failed"],
         "Pass@1": (b["Passed"] - a["Passed"]) / t if t else 0,
@@ -341,7 +341,7 @@ def shift_df(vs, cs):
     vc, cc = vs.get("failure_counts") or {}, cs.get("failure_counts") or {}
     out = []
 
-    for k in sorted(set(vc) | set(cc)):
+    for k in sorted((set(vc) | set(cc)) - {"passed"}):
         v, c = int(vc.get(k, 0) or 0), int(cc.get(k, 0) or 0)
         d = c - v
 
@@ -405,7 +405,7 @@ def analyze(args, dataset):
     else:
         fname = f"{dataset}_analysis.xlsx"
 
-    out = Path(args.output) if args.output else root / "analysis" / safe(model) / fname
+    out = Path(args.output) if args.output else root / "analysis" / safe(model) / "basic" / fname
     out.parent.mkdir(parents=True, exist_ok=True)
 
     with pd.ExcelWriter(out, engine="openpyxl") as w:

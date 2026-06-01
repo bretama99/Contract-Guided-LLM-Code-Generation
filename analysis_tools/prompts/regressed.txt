@@ -1,0 +1,61 @@
+You are evaluating whether contracts introduced or contributed to a bug in LLM-generated code.
+
+Given:
+- task description
+- vanilla code generated without contract guidance, which passed all tests
+- contract-guided code that failed at least one test
+- contract-guided failed test output
+- contracts, including any preconditions, postconditions, and invariants
+
+Decide:
+1. The single best reason the contract-guided code failed.
+2. Whether the contract statements are correct.
+3. Whether the contracts capture all intended behavior.
+4. The single best contract effect on the generated code.
+5. A concrete contract improvement, if any.
+
+{failure_reasons}
+
+{contract_quality_definitions}
+
+Use exactly one contract_effect_on_code:
+- no apparent contract influence: The contract-guided code failed, but the failure does not appear meaningfully caused or shaped by the contracts.
+- added harmful validation or assertions: The contracts appear to have led the code to add checks, assertions, exceptions, filtering, or early returns that reject or mishandle valid cases.
+- mishandled edge or boundary cases: The contracts appear to have led the code to mishandle edge cases, limits, equality cases, empty/singleton inputs, indexing, or inclusive/exclusive boundaries.
+- modeled the problem incorrectly: The contracts appear to have led the code to use the wrong internal model of the task, such as tracking the wrong information, using the wrong data structure, or enforcing the wrong state invariant.
+- used the wrong algorithm steps: The contracts appear to have led the code to use incorrect branching, loop conditions, recursion, operation order, or state updates.
+- formatted the output incorrectly: The contracts appear to have led the code to return, print, assemble, order, round, format, or structure the output incorrectly.
+- satisfied contracts but missed task intent: The contracts appear to have led the code to satisfy explicit contract properties while missing the broader intended task behavior.
+- unclear: Evidence is insufficient.
+
+Choose a contract-influenced category only when the contracts plausibly shaped the failed behavior. Do not infer contract influence merely because the contract-guided code failed. If the failure appears due to ordinary implementation error, unrelated rewriting, or task misunderstanding not supported by the contracts, choose "no apparent contract influence". Choose "unclear" if evidence is insufficient.
+
+Use the passing vanilla code as comparative evidence, but do not assume every difference from the vanilla code was caused by the contracts.
+
+{yes_no_rule}
+
+Return only the JSON object in this exact format. Do not include markdown, code fences, comments, or any text before or after the JSON:
+
+{{
+  "code_failure_reason": "input interface/parsing mismatch" | "invalid input assumption" | "missing input case handling" | "wrong output value" | "incomplete or extra output" | "wrong output format/type" | "algorithmic logic error" | "inefficient algorithm" | "non-executable or missing implementation" | "unclear",
+  "contract_statements_are_correct": "yes" | "no" | "unclear",
+  "contracts_capture_all_intended_behavior": "yes" | "no" | "unclear",
+  "contract_effect_on_code": "no apparent contract influence" | "added harmful validation or assertions" | "mishandled edge or boundary cases" | "modeled the problem incorrectly" | "used the wrong algorithm steps" | "formatted the output incorrectly" | "satisfied contracts but missed task intent" | "unclear",
+  "explanation": "One to two concise sentences explaining the failure reason and contract judgments.",
+  "suggested_contract_improvement": "One to two concise sentences suggesting a concrete contract improvement, or explaining why no improvement is clearly needed."
+}}
+
+=== TASK ===
+{task_description}
+
+=== VANILLA CODE WITHOUT CONTRACT GUIDANCE ===
+{vanilla_code}
+
+=== CONTRACT-GUIDED CODE THAT FAILED AT LEAST ONE TEST ===
+{contract_code}
+
+=== CONTRACT-GUIDED FAILED TEST OUTPUT ===
+{contract_code_failure}
+
+=== CONTRACTS ===
+{contract}

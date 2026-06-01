@@ -1,0 +1,64 @@
+You are evaluating why both vanilla and contract-guided LLM-generated code failed.
+
+Given:
+- task description
+- vanilla code generated without contract guidance, which failed at least one test
+- vanilla failed test output
+- contract-guided code that also failed at least one test
+- contract-guided failed test output
+- contracts, including any preconditions, postconditions, and invariants
+
+Decide:
+1. The single best failure reason for the vanilla code.
+2. The single best failure reason for the contract-guided code.
+3. Whether the contract statements are correct.
+4. Whether the contracts capture all intended behavior.
+5. How the contract-guided code changed relative to the vanilla code.
+6. Why both versions still failed.
+7. A concrete contract improvement, if any.
+
+{failure_reasons}
+
+{contract_quality_definitions}
+
+Use exactly one contract_effect_on_code:
+- no meaningful code change: The contract-guided code is effectively the same as the vanilla code, aside from trivial edits.
+- original bug unchanged: The code changed, but the same underlying bug or failure mode remains.
+- original bug partially addressed: The code fixed or improved part of the vanilla issue, but still fails required behavior.
+- original bug replaced by new failure: The original issue appears mostly resolved, but the contract-guided code fails for a different reason.
+- regression dominates: The contract-guided code introduced a new failure or regression that is the main reason it still fails.
+- unclear: Evidence is insufficient.
+
+Compare the contract-guided code against the vanilla code. Do not choose a substantive-change category merely because both versions failed; choose it only if the contract-guided code meaningfully differs from the vanilla code. Choose "unclear" if evidence is insufficient.
+
+{yes_no_rule}
+
+Return only the JSON object in this exact format. Do not include markdown, code fences, comments, or any text before or after the JSON:
+
+{{
+  "vanilla_code_failure_reason": "input interface/parsing mismatch" | "invalid input assumption" | "missing input case handling" | "wrong output value" | "incomplete or extra output" | "wrong output format/type" | "algorithmic logic error" | "inefficient algorithm" | "non-executable or missing implementation" | "unclear",
+  "contract_guided_code_failure_reason": "input interface/parsing mismatch" | "invalid input assumption" | "missing input case handling" | "wrong output value" | "incomplete or extra output" | "wrong output format/type" | "algorithmic logic error" | "inefficient algorithm" | "non-executable or missing implementation" | "unclear",
+  "contract_statements_are_correct": "yes" | "no" | "unclear",
+  "contracts_capture_all_intended_behavior": "yes" | "no" | "unclear",
+  "contract_effect_on_code": "no meaningful code change" | "original bug unchanged" | "original bug partially addressed" | "original bug replaced by new failure" | "regression dominates" | "unclear",
+  "explanation": "One to two concise sentences explaining why both versions failed and how the contract-guided code changed.",
+  "suggested_contract_improvement": "One to two concise sentences suggesting a concrete contract improvement, or explaining why no improvement is clearly needed."
+}}
+
+=== TASK ===
+{task_description}
+
+=== VANILLA CODE WITHOUT CONTRACT GUIDANCE ===
+{vanilla_code}
+
+=== VANILLA FAILED TEST OUTPUT ===
+{vanilla_code_failure}
+
+=== CONTRACT-GUIDED CODE THAT ALSO FAILED AT LEAST ONE TEST ===
+{contract_code}
+
+=== CONTRACT-GUIDED FAILED TEST OUTPUT ===
+{contract_code_failure}
+
+=== CONTRACTS ===
+{contract}
