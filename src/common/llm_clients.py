@@ -9,46 +9,38 @@ from openai import OpenAI
 
 from src.common.config import ROOT
 
-
 PROVIDERS: Final[dict[str, dict[str, str]]] = {
     "openai": {
-        "kind": "openai_chat",
         "api_key_env": "OPENAI_API_KEY",
         "base_url_env": "OPENAI_BASE_URL",
         "default_base_url": "https://api.openai.com/v1",
         "default_model": "gpt-3.5-turbo",
     },
     "openrouter": {
-        "kind": "openai_chat",
         "api_key_env": "OPENROUTER_API_KEY",
         "base_url_env": "OPENROUTER_BASE_URL",
         "default_base_url": "https://openrouter.ai/api/v1",
         "default_model": "openai/gpt-3.5-turbo",
     },
     "deepseek": {
-        "kind": "openai_chat",
         "api_key_env": "DEEPSEEK_API_KEY",
         "base_url_env": "DEEPSEEK_BASE_URL",
         "default_base_url": "https://api.deepseek.com",
         "default_model": "deepseek-chat",
     },
     "qwen": {
-        "kind": "openai_chat",
         "api_key_env": "DASHSCOPE_API_KEY",
         "base_url_env": "QWEN_BASE_URL",
         "default_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "default_model": "qwen2.5-coder-32b-instruct",
     },
-    
     "groq": {
-        "kind": "openai_chat",
         "api_key_env": "GROQ_API_KEY",
         "base_url_env": "GROQ_BASE_URL",
         "default_base_url": "https://api.groq.com/openai/v1",
         "default_model": "llama-3.3-70b-versatile",
     },
     "gemini": {
-        "kind": "openai_chat",
         "api_key_env": "GEMINI_API_KEY",
         "base_url_env": "GEMINI_BASE_URL",
         "default_base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -66,9 +58,7 @@ def provider_config(provider: str) -> dict[str, str]:
         return PROVIDERS[provider]
     except KeyError as exc:
         supported = ", ".join(sorted(PROVIDERS))
-        raise ValueError(
-            f"Unsupported provider '{provider}'. Supported providers: {supported}"
-        ) from exc
+        raise ValueError(f"Unsupported provider '{provider}'. Supported providers: {supported}") from exc
 
 
 def provider_keys() -> list[str]:
@@ -118,7 +108,6 @@ def get_client(provider: str) -> OpenAI:
 
 def usage_stats(response: Any, latency: float) -> dict[str, Any]:
     usage = getattr(response, "usage", None)
-
     prompt_tokens = getattr(usage, "prompt_tokens", None) if usage else None
     completion_tokens = getattr(usage, "completion_tokens", None) if usage else None
     total_tokens = getattr(usage, "total_tokens", None) if usage else None
@@ -174,18 +163,20 @@ def call_chat_model(
         json_mode=json_mode,
     )
 
-    start = time.perf_counter()
+    started = time.perf_counter()
 
     try:
         response = client.chat.completions.create(**request)
     except Exception:
         if not json_mode:
             raise
-
         request.pop("response_format", None)
         response = client.chat.completions.create(**request)
 
-    latency = time.perf_counter() - start
-    text = response.choices[0].message.content or ""
+    latency = time.perf_counter() - started
+    content = response.choices[0].message.content or ""
 
-    return text, usage_stats(response, latency)
+    return content, usage_stats(response, latency)
+
+
+

@@ -700,3 +700,48 @@ python -m src.classeval.rl_optimize_contract_policy \
   --provider qwen \
   --model qwen2.5-32b-instruct \
   --overwrite
+
+
+
+# Fix HumanEval/22 raw artifact
+python -m src.contract_synthesis.generate_contracts \
+  --dataset evalplus \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --overwrite
+
+  python -m src.contract_guided_generation.generate_from_raw_contracts \
+  --dataset evalplus \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source raw \
+  --overwrite
+
+python -m src.contract_guided_generation.evaluate_raw_contracts \
+  --dataset evalplus \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source raw \
+  --timeout 15
+
+  python -m src.rl_method_level.rl_generate_contract \
+  --dataset humaneval \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --selection epsilon_greedy \
+  --epsilon 0.2 \
+  --overwrite
+
+python -m src.contract_guided_generation.generate_from_raw_contracts \
+  --dataset humaneval \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source optimized_rl \
+  --overwrite
+
+python -m src.contract_guided_generation.evaluate_raw_contracts \
+  --dataset humaneval \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source optimized_rl \
+  --timeout 15

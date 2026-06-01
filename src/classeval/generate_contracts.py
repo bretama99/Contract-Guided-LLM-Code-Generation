@@ -1,14 +1,13 @@
 from __future__ import annotations
+
 import argparse
-import logging
 import ast
+import logging
 import time
 from datetime import datetime, timezone
 from typing import Any
-from src.classeval.contract_normalizer import (
-    normalize_contract_shape,
-    stage2_shape_errors,
-)
+
+from src.classeval.contract_normalizer import normalize_contract_shape, stage2_shape_errors
 from src.classeval.contract_schema import new_contract_schema, schema_for_prompt
 from src.classeval.core import (
     JsonDict,
@@ -34,31 +33,50 @@ from src.common.task_utils import select_tasks
 BENCHMARK = "ClassEval"
 EXECUTION_MODEL = "class_level"
 STAGE = "2A_raw_contract_synthesis"
+
 TASK_FILE = ROOT / "data" / "processed" / "classeval" / "ClassEval_data.json"
 PROMPT_FILE = ROOT / "prompts" / "classeval" / "contract_prompt.txt"
 OUT_DIR = OUTPUT_ROOT / "classeval" / "contracts"
 LOG_FILE = LOG_ROOT / "classeval_contracts.log"
+
 DEFAULT_MAX_TOKENS = 4096
+
 SYSTEM_PROMPT = (
     "You are an expert Design-by-Contract specification generator. "
     "Return exactly one valid JSON object. "
     "Do not include markdown, explanations, Python code, or tests."
 )
+
 logger = logging.getLogger(__name__)
+
 
 def contract_path(task: JsonDict, provider: str, model: str):
     return output_path(OUT_DIR, task, provider, model, "contract")
 
+
+def imports_for_prompt(task: JsonDict) -> list[str]:
+    value = task.get("import_statement")
+    if isinstance(value, str):
+        return [line.strip() for line in value.splitlines() if line.strip()]
+    if isinstance(value, list):
+        return [text(item) for item in value if text(item)]
+    return []
+
+
 def method_names(task: JsonDict) -> list[str]:
     names: list[str] = []
+
     for method in safe_methods_info(task):
         name = text(method.get("method_name"))
         if name and name not in names:
             names.append(name)
+
     for name in method_profiles(skeleton(task), class_name(task)):
         if name != "__init__" and name not in names:
             names.append(name)
+
     return names
+
 
 def sanitized_task(task: JsonDict) -> JsonDict:
     return {
@@ -69,11 +87,12 @@ def sanitized_task(task: JsonDict) -> JsonDict:
         "class_description": text(task.get("class_description")),
         "class_constructor": task.get("class_constructor") or "",
         "fields": as_list(task.get("fields")),
-        "import_statement": as_list(task.get("import_statement")),
+        "import_statement": imports_for_prompt(task),
         "method_names": method_names(task),
         "methods_info": safe_methods_info(task),
         "skeleton": skeleton(task),
     }
+
 
 def build_prompt(task: JsonDict, template: str) -> str:
     prompt = (
@@ -83,9 +102,11 @@ def build_prompt(task: JsonDict, template: str) -> str:
     ensure_no_reference_leak(task, prompt)
     return prompt
 
+
 def stamp_contract(raw: JsonDict, task: JsonDict) -> JsonDict:
     contract = new_contract_schema()
     contract.update(raw)
+
     task_block = as_dict(contract.get("task"))
     task_block.update(
         {
@@ -97,10 +118,74 @@ def stamp_contract(raw: JsonDict, task: JsonDict) -> JsonDict:
             "entry_point": class_name(task),
         }
     )
+
     if not text(task_block.get("summary")):
         task_block["summary"] = text(task.get("class_description"))
+
     contract["task"] = task_block
     return contract
+
+
+def method_signature_map(task: JsonDict) -> dict[str, str]:
+    source = skeleton(task)
+    tree = ast.parse(source)
+    target = class_name(task)
+
+    cls = next(
+        (node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == target),
+        None,
+    )
+    if cls is None:
+        return {}
+
+    return {
+        node.name: function_header(source, node)
+        for node in cls.body
+        if isinstance(node, ast.FunctionDef) and node.name != "__init__"
+    }
+
+
+def function_header(source: str, node: ast.FunctionDef) -> str:
+    segment = "\n".join(source.splitlines()[node.lineno - 1 : node.end_lineno])
+    depth = 0
+    quote: str | None = None
+    escape = False
+
+    for index, char in enumerate(segment):
+        if quote:
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == quote:
+                quote = None
+            continue
+
+        if char in {"'", '"'}:
+            quote = char
+        elif char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        elif char == ":" and depth == 0:
+            return segment[:index].strip()
+
+    return segment.splitlines()[0].strip()
+
+
+def repair_method_signatures(contract: JsonDict, task: JsonDict) -> JsonDict:
+    signatures = method_signature_map(task)
+
+    for method in as_list(contract.get("method_contracts")):
+        if not isinstance(method, dict):
+            continue
+
+        name = text(method.get("method_name"))
+        if name and not text(method.get("signature")) and name in signatures:
+            method["signature"] = signatures[name]
+
+    return contract
+
 
 def parse_contract(response: str, task: JsonDict) -> tuple[JsonDict, list[str]]:
     raw = extract_json_object(response)
@@ -110,19 +195,15 @@ def parse_contract(response: str, task: JsonDict) -> tuple[JsonDict, list[str]]:
 
     contract = normalize_contract_shape(stamp_contract(raw, task))
     contract = repair_method_signatures(contract, task)
-
     errors = stage2_shape_errors(contract, expected_methods=method_names(task))
     return contract, errors
 
-def make_record(
-    task: JsonDict,
-    args: argparse.Namespace,
-    model: str,
-    **extra: Any,
-) -> JsonDict:
+
+def make_record(task: JsonDict, args: argparse.Namespace, model: str, **extra: Any) -> JsonDict:
     return {
         "task_id": task_id(task),
         "benchmark": BENCHMARK,
+        "dataset": "classeval",
         "execution_model": EXECUTION_MODEL,
         "class_name": class_name(task),
         "entry_point": class_name(task),
@@ -137,16 +218,12 @@ def make_record(
         **extra,
     }
 
-def generate_one(
-    task: JsonDict,
-    args: argparse.Namespace,
-    model: str,
-    client: Any,
-    template: str,
-) -> JsonDict:
+
+def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: Any, template: str) -> JsonDict:
     response = ""
     api_result: JsonDict | None = None
     errors: list[str] = []
+
     try:
         prompt = build_prompt(task, template)
         response, api_result = call_chat_model(
@@ -160,20 +237,25 @@ def generate_one(
             max_tokens=args.max_tokens,
             json_mode=True,
         )
+
         contract, errors = parse_contract(response, task)
         if errors:
             raise ValueError("Stage 2 shape errors: " + "; ".join(errors[:10]))
+
         return make_record(
             task,
             args,
             model,
             status="success",
             contract=contract,
+            contract_type="baseline",
+            contract_version="v1_baseline_contract",
             stage2_shape_errors=[],
             raw_response=response,
             api_result=api_result,
             error=None,
         )
+
     except Exception as exc:
         logger.exception("Contract synthesis failed for %s", task_id(task))
         return make_record(
@@ -182,74 +264,14 @@ def generate_one(
             model,
             status="failed",
             contract=None,
+            contract_type="baseline",
+            contract_version="v1_baseline_contract",
             stage2_shape_errors=errors,
             raw_response=response,
             api_result=api_result,
             error=str(exc),
         )
 
-def method_signature_map(task: JsonDict) -> dict[str, str]:
-    source = skeleton(task)
-    tree = ast.parse(source)
-
-    cls = next(
-        (
-            node
-            for node in tree.body
-            if isinstance(node, ast.ClassDef) and node.name == class_name(task)
-        ),
-        None,
-    )
-    if cls is None:
-        return {}
-
-    return {
-        node.name: _function_header(source, node)
-        for node in cls.body
-        if isinstance(node, ast.FunctionDef) and node.name != "__init__"
-    }
-
-
-def _function_header(source: str, node: ast.FunctionDef) -> str:
-    lines = source.splitlines()
-    segment = "\n".join(lines[node.lineno - 1 : node.end_lineno])
-    depth = 0
-    in_string: str | None = None
-    escape = False
-
-    for index, char in enumerate(segment):
-        if in_string:
-            if escape:
-                escape = False
-            elif char == "\\":
-                escape = True
-            elif char == in_string:
-                in_string = None
-            continue
-
-        if char in {"'", '"'}:
-            in_string = char
-        elif char in "([{":
-            depth += 1
-        elif char in ")]}":
-            depth -= 1
-        elif char == ":" and depth == 0:
-            return segment[:index].strip()
-
-    return segment.splitlines()[0].strip()
-
-def repair_method_signatures(contract: JsonDict, task: JsonDict) -> JsonDict:
-    signatures = method_signature_map(task)
-
-    for method in contract.get("method_contracts", []):
-        if not isinstance(method, dict):
-            continue
-
-        name = text(method.get("method_name"))
-        if name and not text(method.get("signature")) and name in signatures:
-            method["signature"] = signatures[name]
-
-    return contract
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate ClassEval Stage 2 raw contracts")
@@ -263,18 +285,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
+
 def main() -> None:
     args = parse_args()
     setup_logging(LOG_FILE)
+
     model = args.model or default_model(args.provider)
     client = get_client(args.provider)
     template = read_template(PROMPT_FILE, ("schema", "structure"))
     tasks = select_tasks(load_json_list(TASK_FILE), start=args.start, count=args.count)
+
     done = failed = skipped = 0
     started = time.perf_counter()
-    
+
     for index, task in enumerate(tasks, start=args.start):
         path = contract_path(task, args.provider, model)
+
         if path.exists() and not args.overwrite:
             skipped += 1
             print(f"[{index}] SKIP {task_id(task)}")
@@ -282,6 +308,7 @@ def main() -> None:
 
         record = generate_one(task, args, model, client, template)
         save_json(path, record)
+
         if record["status"] == "success":
             done += 1
             print(f"[{index}] DONE {task_id(task)}")
@@ -291,11 +318,13 @@ def main() -> None:
 
         if args.delay:
             time.sleep(args.delay)
+
     print("\nClassEval Stage 2 raw contract synthesis finished.")
     print(f"Completed: {done}")
     print(f"Failed: {failed}")
     print(f"Skipped: {skipped}")
     print(f"Elapsed: {round(time.perf_counter() - started, 4)}s")
-    
+
+
 if __name__ == "__main__":
     main()

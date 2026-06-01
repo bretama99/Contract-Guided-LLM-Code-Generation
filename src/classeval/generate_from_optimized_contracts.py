@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import ast
 import json
 import logging
 import time
@@ -16,163 +15,94 @@ from src.classeval.core import (
     class_name,
     ensure_no_reference_leak,
     extract_class_code,
+    method_profiles,
     skeleton,
     task_id,
     text,
+    verify_class_code,
 )
-from src.classeval.generate_contracts import DEFAULT_MAX_TOKENS, SYSTEM_PROMPT, TASK_FILE
+from src.classeval.generate_contracts import TASK_FILE
+from src.classeval.generate_from_contracts import compact_contract
+from src.classeval.generate_from_contracts import generation_path as v1_generation_path
 from src.classeval.rl_generate_optimized_contracts import optimized_path
+from src.classeval.rl_reward import contract_record_status
 from src.common.config import LOG_ROOT, OUTPUT_ROOT
 from src.common.io_utils import load_json, load_json_list, safe_name, save_json, setup_logging
 from src.common.llm_clients import PROVIDERS, call_chat_model, default_model, get_client
-from src.common.parsing import extract_python_code
 from src.common.task_utils import select_tasks
 
 STAGE = "2R_optimized_contract_guided_generation"
 OUT_DIR = OUTPUT_ROOT / "classeval" / "rl_optimized_contract_guided"
 LOG_FILE = LOG_ROOT / "classeval_rl_optimized_contract_guided.log"
+DEFAULT_MAX_TOKENS = 8192
+
+SYSTEM_PROMPT = (
+    "You are an expert Python class-level code generation assistant. "
+    "Return only one complete, syntactically valid Python source file. "
+    "Do not include markdown, explanations, tests, or partial code."
+)
 
 logger = logging.getLogger(__name__)
 
 
-def generation_path(task: JsonDict, provider: str, model: str) -> Path:
-    return OUT_DIR / safe_name(provider) / safe_name(model) / f"{safe_name(task_id(task))}.json"
+def generation_path(
+    task: JsonDict,
+    provider: str,
+    model: str,
+    contract_provider: str | None = None,
+    contract_model: str | None = None,
+) -> Path:
+    base = OUT_DIR / safe_name(provider) / safe_name(model)
+    if contract_provider and contract_model and (contract_provider != provider or contract_model != model):
+        base = base / "from_contract" / safe_name(contract_provider) / safe_name(contract_model)
+    return base / f"{safe_name(task_id(task))}.json"
 
 
 def safe_class_name(task: JsonDict) -> str:
     return text(task.get("class_name")) or text(task.get("entry_point")) or class_name(task)
 
 
-def keep(value: Any) -> bool:
-    if value is None:
-        return False
-    if isinstance(value, bool):
-        return value is True
-    if isinstance(value, str):
-        return bool(value.strip())
-    if isinstance(value, (list, tuple, set, dict)):
-        return bool(value)
-    return True
+def classify_generation_error(error: Any) -> tuple[str, str]:
+    detail = str(error).strip()
+    lower = detail.lower()
+
+    if not detail:
+        return "optimized_generation_failed", ""
+    if "missing optimized contract file" in lower:
+        return "contract_missing", detail
+    if "not usable for code generation" in lower:
+        return "contract_unusable_or_fallback", detail
+    if "has no contract object" in lower:
+        return "contract_missing_object", detail
+    if "incomplete method bodies" in lower or "missing methods" in lower:
+        return "missing method", detail
+    if "changed method signatures" in lower or "staticmethod" in lower:
+        return "signature error", detail
+    if "invalid python source" in lower or "syntaxerror" in lower or "invalid syntax" in lower:
+        return "syntax error", detail
+    if "modulenotfounderror" in lower or "no module named" in lower:
+        return "import error", detail
+    if "timed out" in lower or "timeout" in lower:
+        return "timeout", detail
+    if "rate limit" in lower:
+        return "provider_rate_limit", detail
+    if "authentication" in lower or "api key" in lower:
+        return "provider_authentication_error", detail
+    if "connection" in lower or "network" in lower:
+        return "provider_connection_error", detail
+
+    return "optimized_generation_failed", detail
 
 
-def clean_list(value: Any) -> list[Any]:
-    return [x for x in as_list(value) if keep(x)]
+def task_imports(task: JsonDict) -> list[str]:
+    imports = task.get("import_statement")
 
+    if isinstance(imports, list):
+        return [text(item) for item in imports if text(item)]
+    if isinstance(imports, str):
+        return [line.strip() for line in imports.splitlines() if line.strip()]
 
-def add(dst: JsonDict, key: str, value: Any) -> None:
-    if keep(value):
-        dst[key] = value
-
-
-def compact_input(value: Any) -> Any:
-    if not isinstance(value, dict):
-        return value
-    out: JsonDict = {}
-    add(out, "name", text(value.get("name")))
-    add(out, "type", text(value.get("type")))
-    add(out, "description", text(value.get("description")))
-    return out
-
-
-def compact_output(value: Any) -> JsonDict:
-    value = as_dict(value)
-    out: JsonDict = {}
-    add(out, "type", text(value.get("type")))
-    add(out, "description", text(value.get("description")))
-    return out
-
-
-def compact_invalid_behavior(value: Any) -> JsonDict:
-    value = as_dict(value)
-    if value.get("specified") is not True:
-        return {}
-
-    out: JsonDict = {"specified": True}
-    for key in ("expected_behavior", "exception_type", "description", "source"):
-        add(out, key, text(value.get(key)))
-    return out
-
-
-def compact_method(method: JsonDict) -> JsonDict:
-    body = as_dict(method.get("contract"))
-    interface = as_dict(body.get("interface"))
-    deps = as_dict(method.get("dependencies"))
-
-    out: JsonDict = {
-        "name": text(method.get("method_name")),
-        "signature": text(method.get("signature")),
-    }
-
-    add(out, "inputs", [compact_input(x) for x in clean_list(interface.get("inputs"))])
-    add(out, "returns", compact_output(interface.get("output")))
-
-    for key in ("reads", "modifies", "preserves", "calls", "uses_libraries"):
-        add(out, key, clean_list(deps.get(key)))
-
-    add(out, "preconditions", clean_list(body.get("preconditions")))
-    add(out, "postconditions", clean_list(body.get("postconditions")))
-    add(out, "invariants", clean_list(body.get("invariants")))
-    add(out, "edge_cases", clean_list(body.get("edge_cases")))
-    add(out, "invalid_input_behavior", compact_invalid_behavior(body.get("invalid_input_behavior")))
-    return out
-
-
-def compact_contract(contract: JsonDict) -> JsonDict:
-    task_block = as_dict(contract.get("task"))
-    interface = as_dict(contract.get("class_interface"))
-    constructor = as_dict(contract.get("constructor"))
-    constructor_contract = as_dict(constructor.get("contract"))
-
-    out: JsonDict = {
-        "class_name": text(task_block.get("class_name")),
-        "summary": text(task_block.get("summary")),
-    }
-
-    add(out, "fields", clean_list(interface.get("fields")))
-
-    ctor: JsonDict = {}
-    add(ctor, "signature", text(constructor.get("signature")))
-    add(ctor, "initializes", clean_list(constructor.get("initializes")))
-    add(ctor, "preconditions", clean_list(constructor_contract.get("preconditions")))
-    add(ctor, "postconditions", clean_list(constructor_contract.get("postconditions")))
-    add(ctor, "invariants", clean_list(constructor_contract.get("invariants")))
-    add(ctor, "edge_cases", clean_list(constructor_contract.get("edge_cases")))
-    add(out, "constructor", ctor)
-
-    add(
-        out,
-        "methods",
-        [compact_method(m) for m in clean_list(contract.get("method_contracts")) if isinstance(m, dict)],
-    )
-    add(out, "class_invariants", clean_list(contract.get("class_invariants")))
-    add(out, "interaction_contracts", clean_list(contract.get("interaction_contracts")))
-    return out
-
-
-def method_descriptions(task: JsonDict) -> list[JsonDict]:
-    out: list[JsonDict] = []
-    blocked = ("test", "assert", "unittest", "expected", "candidate.py", "traceback")
-
-    for info in as_list(task.get("methods_info")):
-        if not isinstance(info, dict):
-            continue
-
-        name = text(info.get("method_name"))
-        desc = text(info.get("method_description")).replace('"""', "").replace("'''", "")
-        lines: list[str] = []
-
-        for line in desc.splitlines():
-            line = line.strip()
-            low = line.lower()
-            if not line or line.startswith(("def ", ">>>")):
-                continue
-            if any(b in low for b in blocked):
-                continue
-            lines.append(line)
-
-        if name:
-            out.append({"method": name, "description": " ".join(lines)[:1200]})
-    return out
+    return []
 
 
 def strip_leaky_content(value: Any) -> Any:
@@ -184,7 +114,6 @@ def strip_leaky_content(value: Any) -> Any:
         "reference",
         "ground_truth",
         "oracle",
-        "candidate",
         "stdout",
         "stderr",
         "traceback",
@@ -192,273 +121,226 @@ def strip_leaky_content(value: Any) -> Any:
         "prompt",
         "api_result",
     )
-    blocked_text = (
-        "self.assert",
-        "unittest",
-        "def test_",
-        "candidate.py",
-        "traceback",
-        "file \"/tmp",
-        "__main__",
-    )
 
     if isinstance(value, dict):
-        out: JsonDict = {}
-        for k, v in value.items():
-            key = str(k)
-            low = key.lower()
-            if any(b in low for b in blocked_keys):
-                continue
-            out[key] = strip_leaky_content(v)
-        return out
+        return {
+            str(key): strip_leaky_content(child)
+            for key, child in value.items()
+            if not any(blocked in str(key).lower() for blocked in blocked_keys)
+        }
 
     if isinstance(value, list):
-        cleaned = [strip_leaky_content(x) for x in value]
-        return [x for x in cleaned if x not in ("", None, [], {})]
+        return [clean for item in value if (clean := strip_leaky_content(item)) not in ("", None, [], {})]
 
     if isinstance(value, str):
-        low = value.lower()
-        if any(b in low for b in blocked_text):
+        lowered = value.lower()
+        if any(marker in lowered for marker in ("self.assert", "unittest", "def test_", "traceback", "candidate.py")):
             return ""
         return value[:1800]
 
     return value
 
 
-def contract_brief(contract: JsonDict) -> JsonDict:
-    contract = strip_leaky_content(contract)
-    out: JsonDict = {}
+def visible_method_examples(description: str, limit: int = 8) -> list[str]:
+    lines = text(description).replace('"""', "").replace("'''", "").splitlines()
+    blocked = ("self.assert", "unittest", "def test_", "candidate.py", "traceback")
 
-    add(out, "class_name", text(contract.get("class_name")))
-    add(out, "summary", text(contract.get("summary")))
-    add(out, "fields", clean_list(contract.get("fields")))
-    add(out, "constructor", as_dict(contract.get("constructor")))
-    add(out, "class_invariants", clean_list(contract.get("class_invariants")))
-    add(out, "interaction_contracts", clean_list(contract.get("interaction_contracts")))
+    examples: list[str] = []
+    capture_next = False
 
-    methods: list[JsonDict] = []
-    for method in clean_list(contract.get("methods")):
-        if not isinstance(method, dict):
+    for raw in lines:
+        line = raw.strip()
+        lowered = line.lower()
+
+        if not line or any(marker in lowered for marker in blocked):
+            capture_next = False
             continue
-        m: JsonDict = {
-            "name": text(method.get("name")),
-            "signature": text(method.get("signature")),
-        }
-        add(m, "returns", as_dict(method.get("returns")))
-        add(m, "reads", clean_list(method.get("reads")))
-        add(m, "modifies", clean_list(method.get("modifies")))
-        add(m, "postconditions", clean_list(method.get("postconditions")))
-        add(m, "edge_cases", clean_list(method.get("edge_cases")))
-        add(m, "invalid_input_behavior", as_dict(method.get("invalid_input_behavior")))
-        methods.append(m)
 
-    add(out, "methods", methods)
-    return out
+        if line.startswith(">>>"):
+            examples.append(line[:300])
+            capture_next = True
+        elif capture_next and not line.startswith(("def ", ":param", ":return:")):
+            examples.append(line[:300])
+            capture_next = False
+        else:
+            capture_next = False
+
+        if len(examples) >= limit:
+            break
+
+    return examples
 
 
-def load_contract(task: JsonDict, provider: str, model: str) -> JsonDict:
+def method_descriptions(task: JsonDict) -> list[JsonDict]:
+    blocked = ("test", "assert", "unittest", "expected", "candidate.py", "traceback")
+    result: list[JsonDict] = []
+
+    for info in as_list(task.get("methods_info")):
+        if not isinstance(info, dict):
+            continue
+
+        name = text(info.get("method_name"))
+        description = text(info.get("method_description"))
+
+        lines: list[str] = []
+        for line in description.replace('"""', "").replace("'''", "").splitlines():
+            line = line.strip()
+            lowered = line.lower()
+
+            if line and not line.startswith(("def ", ">>>")) and not any(marker in lowered for marker in blocked):
+                lines.append(line)
+
+        if name:
+            result.append(
+                {
+                    "method": name,
+                    "description": " ".join(lines)[:1200],
+                    "visible_examples": visible_method_examples(description),
+                }
+            )
+
+    return result
+
+
+def required_api(task: JsonDict) -> JsonDict:
+    profiles = method_profiles(skeleton(task), safe_class_name(task))
+    return {
+        "class_name": safe_class_name(task),
+        "methods": [
+            {
+                "method_name": name,
+                "signature_profile": profile[0],
+                "is_static": profile[1],
+            }
+            for name, profile in profiles.items()
+        ],
+    }
+
+
+def load_v1_generation(task: JsonDict, provider: str, model: str) -> tuple[str, str | None]:
+    path = v1_generation_path(task, provider, model)
+
+    if not path.exists():
+        return "", None
+
+    record = load_json(path)
+    if not isinstance(record, dict):
+        return "", str(path)
+
+    code = text(record.get("generated_code"))
+    if record.get("status") == "success" and code:
+        return code, str(path)
+
+    return "", str(path)
+
+
+def load_contract_bundle(task: JsonDict, provider: str, model: str) -> tuple[JsonDict, JsonDict]:
     path = optimized_path(task, provider, model)
+
     if not path.exists():
         raise FileNotFoundError(f"Missing optimized contract file: {path}")
 
     record = load_json(path)
-    if record.get("status") != "success":
-        raise RuntimeError(text(record.get("error")) or f"Optimized contract failed: {path}")
+    status = contract_record_status(record)
+
+    if status.get("usable_for_optimized_metrics") is not True:
+        raise RuntimeError(
+            f"Optimized contract is not usable for code generation: "
+            f"path={path} status={status.get('status')} fallback={status.get('fallback')} error={status.get('error')}"
+        )
 
     contract = record.get("contract")
     if not isinstance(contract, dict):
         raise ValueError(f"Optimized contract record has no contract object: {path}")
 
-    return compact_contract(contract)
+    return compact_contract(contract), {
+        "contract_path": str(path),
+        "contract_status": record.get("status"),
+        "contract_type": record.get("contract_type") or "rl_optimized",
+        "contract_version": record.get("contract_version") or "v2_rl_optimized",
+        "fallback_to_previous_contract": record.get("fallback_to_previous_contract") is True,
+        "excluded_from_optimized_metrics": record.get("excluded_from_optimized_metrics") is True,
+        "rl_policy": record.get("rl_policy"),
+    }
 
 
-def previous_feedback(task: JsonDict, provider: str, model: str) -> JsonDict:
+def previous_feedback(
+    task: JsonDict,
+    provider: str,
+    model: str,
+    contract_provider: str | None = None,
+    contract_model: str | None = None,
+) -> JsonDict:
     from src.classeval.evaluate_contract_guided_optimized import evaluation_path
 
-    path = evaluation_path(task, provider, model)
+    path = evaluation_path(task, provider, model, contract_provider, contract_model)
+
     if not path.exists():
         return {}
 
     record = load_json(path)
-    prepared = record.get("feedback_for_next_contract")
+    feedback = as_dict(record.get("feedback_for_next_contract"))
+    keys = ("passed", "failure_type", "tests_passed", "tests_total", "tests_failed", "failures", "errors", "skipped")
 
-    if not isinstance(prepared, dict):
-        prepared = {}
-
-    # For code generation, keep only high-level feedback. Detailed failure lines may
-    # include test names/assertions and trigger reference-leak protection.
-    feedback: JsonDict = {}
-    for key in ("passed", "failure_type", "tests_passed", "tests_total", "tests_failed", "failures", "errors", "skipped"):
-        if prepared.get(key) not in (None, "", [], {}):
-            feedback[key] = prepared.get(key)
-
-    if feedback:
-        return feedback
-
-    evaluation = as_dict(record.get("evaluation"))
-    metrics = as_dict(evaluation.get("metrics"))
-    return {
-        "passed": record.get("passed") is True,
-        "failure_type": text(record.get("failure_type")),
-        "tests_passed": metrics.get("passed"),
-        "tests_total": metrics.get("total"),
-        "failures": metrics.get("failures"),
-        "errors": metrics.get("errors"),
-    }
+    return {key: feedback.get(key) for key in keys if feedback.get(key) not in (None, "", [], {})}
 
 
 def build_prompt(payload: JsonDict) -> str:
     return "\n".join(
         [
-            "Generate exactly ONE complete Python class for ClassEval.",
-            "Return only Python code. No markdown. No explanation. No tests.",
+            "Generate exactly ONE complete Python class implementation for ClassEval.",
+            "Return only Python source code. No markdown. No explanations. No tests.",
+            "",
+            "ABSOLUTE SOURCE OF TRUTH:",
+            "The skeleton and REQUIRED_API define the exact class name, imports, constructor, fields, decorators, and method signatures.",
+            "The optimized contract is only guidance and must never override the skeleton.",
+            "",
+            "HARD REJECTION RULES:",
+            "- Every required method must exist.",
+            "- Every required method must have executable implementation code.",
+            "- Do not use pass, ellipsis, TODO, NotImplementedError, or empty method bodies.",
+            "- Do not omit __init__ when it exists in the skeleton.",
+            "- Do not change @staticmethod.",
+            "- Do not rename, remove, reorder, or add methods or parameters.",
+            "- Do not add tests, unittest code, self.assert, examples as code, or markdown fences.",
+            "- Do not include reference/canonical solutions, hidden tests, or test answers.",
+            "",
+            "BEHAVIOR RULES:",
+            "- Start from the v1 generated implementation when available.",
+            "- Preserve correct v1 behavior.",
+            "- Modify behavior only when the visible task or optimized contract clearly supports the change.",
+            "- Prefer simple deterministic Python and standard-library-only code.",
+            "- Preserve class state fields initialized by the constructor.",
             "",
             "INPUT:",
             json.dumps(payload, ensure_ascii=False, indent=2),
-            "",
-            "RULES:",
-            "- Preserve the class name and every method signature from the skeleton exactly.",
-            "- Do not add @staticmethod unless it appears in the skeleton.",
-            "- Do not rename, remove, or add parameters.",
-            "- Every required method must contain executable code.",
-            "- Use the optimized contract as the main semantic specification.",
-            "- Use previous evaluation feedback only to avoid the same broad failure type.",
-            "- If the task/skeleton and contract conflict, the task/skeleton are authoritative.",
-            "- Do not copy previous V1 code.",
-            "- Do not copy tests or prompt text.",
-            "- Do not add artificial validation that rejects valid boundary cases unless explicitly required.",
-            "- Do not raise exceptions unless the task or contract explicitly requires it.",
-            "- Handle zero, empty strings, empty lists, empty dictionaries, missing keys, duplicates, boundary values, and None-like values when relevant.",
-            "- Preserve required return type, return value, ordering, formatting, mutation, persistence, and side effects.",
-            "- Do not use triple-quoted strings or docstrings.",
-            "- Do not leave pass, ..., TODO, NotImplementedError, or empty method bodies.",
-            "- Output a single Python source file.",
         ]
     )
 
 
-def make_prompt(task: JsonDict, contract: JsonDict, feedback: JsonDict) -> str:
-    payload: JsonDict = {
+def make_prompt(task: JsonDict, contract: JsonDict, feedback: JsonDict, v1_code: str, v1_code_path: str | None, rl_policy: Any) -> str:
+    payload = {
+        "required_api": required_api(task),
         "class_name": safe_class_name(task),
         "skeleton": skeleton(task),
-        "imports": as_list(task.get("import_statement")),
-        "class_description": text(task.get("class_description")).replace('"""', "").replace("'''", "").strip()[:1600],
+        "imports": task_imports(task),
+        "class_constructor": text(task.get("class_constructor"))[:1200],
+        "class_description": text(task.get("class_description")).replace('"""', "").replace("'''", "")[:1800],
+        "fields": as_list(task.get("fields")),
         "method_descriptions": method_descriptions(task),
+        "v1_generated_code_path": v1_code_path,
+        "v1_generated_code": v1_code[:12000],
         "optimized_contract": strip_leaky_content(contract),
+        "selected_rl_action": strip_leaky_content(rl_policy),
         "previous_optimized_evaluation_feedback": strip_leaky_content(feedback),
     }
 
     prompt = build_prompt(payload)
-    try:
-        ensure_no_reference_leak(task, prompt)
-        return prompt
-    except Exception:
-        safe_payload: JsonDict = {
-            "class_name": payload["class_name"],
-            "skeleton": payload["skeleton"],
-            "imports": payload["imports"],
-            "class_description": "",
-            "method_descriptions": [{"method": m["method"]} for m in payload["method_descriptions"]],
-            "optimized_contract": contract_brief(contract),
-            "previous_optimized_evaluation_feedback": {},
-        }
-        prompt = build_prompt(safe_payload)
-        ensure_no_reference_leak(task, prompt)
-        return prompt
+    ensure_no_reference_leak(task, prompt)
+    return prompt
 
 
-def patch_empty_init(code: str, task: JsonDict) -> str:
-    tree = ast.parse(code)
-    expected = safe_class_name(task)
-
-    for node in tree.body:
-        if not isinstance(node, ast.ClassDef) or node.name != expected:
-            continue
-
-        for item in node.body:
-            if not isinstance(item, ast.FunctionDef) or item.name != "__init__":
-                continue
-
-            docstrings = [
-                stmt
-                for stmt in item.body
-                if isinstance(stmt, ast.Expr)
-                and isinstance(stmt.value, ast.Constant)
-                and isinstance(stmt.value.value, str)
-            ]
-            executable = [stmt for stmt in item.body if stmt not in docstrings]
-
-            if not executable or all(
-                isinstance(stmt, ast.Pass)
-                or (
-                    isinstance(stmt, ast.Expr)
-                    and isinstance(stmt.value, ast.Constant)
-                    and stmt.value.value is Ellipsis
-                )
-                for stmt in executable
-            ):
-                item.body = [ast.Return(value=ast.Constant(value=None))]
-                ast.fix_missing_locations(tree)
-                return ast.unparse(tree)
-
-    return code
-
-
-def extract_code(response: str, task: JsonDict) -> str:
-    try:
-        return extract_class_code(response, task, check_methods=True)
-    except Exception:
-        raw = extract_python_code(response, entry_point=None, validate=False).strip()
-        patched = patch_empty_init(raw, task)
-        return extract_class_code(patched, task, check_methods=True)
-
-
-def repair_code_with_model(
-    client: Any,
-    model: str,
-    bad_response: str,
-    error: str,
-    task: JsonDict,
-    args: argparse.Namespace,
-) -> tuple[str, str, JsonDict | None]:
-    prompt = "\n".join(
-        [
-            "Repair the Python class below so it is valid and matches the required skeleton.",
-            "Return only one complete Python source file. No markdown. No tests. No explanation.",
-            "",
-            "REQUIRED_SKELETON:",
-            skeleton(task),
-            "",
-            "ERROR:",
-            error[:2000],
-            "",
-            "BAD_OUTPUT:",
-            bad_response[:12000],
-            "",
-            "RULES:",
-            "- Preserve every method signature exactly.",
-            "- Fix syntax, empty bodies, changed signatures, and missing methods.",
-            "- Do not add tests.",
-            "- Do not use triple-quoted strings or docstrings.",
-        ]
-    )
-
-    response, api_result = call_chat_model(
-        client=client,
-        model=model,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.0,
-        max_tokens=args.max_tokens,
-        json_mode=False,
-    )
-
-    return extract_code(response, task), response, api_result
-
-
-def call_model(client: Any, model: str, prompt: str, task: JsonDict, args: argparse.Namespace) -> tuple[str, str, JsonDict | None, bool]:
+def call_model(client: Any, model: str, prompt: str, task: JsonDict, args: argparse.Namespace) -> tuple[str, str, JsonDict | None]:
     response, api_result = call_chat_model(
         client=client,
         model=model,
@@ -471,26 +353,20 @@ def call_model(client: Any, model: str, prompt: str, task: JsonDict, args: argpa
         json_mode=False,
     )
 
-    try:
-        return extract_code(response, task), response, api_result, False
-    except Exception as exc:
-        if args.format_retries <= 0:
-            raise
-        code, repaired_response, repaired_api_result = repair_code_with_model(
-            client=client,
-            model=model,
-            bad_response=response,
-            error=str(exc),
-            task=task,
-            args=args,
-        )
-        return code, repaired_response, repaired_api_result, True
+    code = extract_class_code(response, task)
+    verify_class_code(code, task, check_methods=True)
+
+    return code, response, api_result
 
 
 def make_record(task: JsonDict, args: argparse.Namespace, model: str, **extra: Any) -> JsonDict:
     return {
         "task_id": task_id(task),
+        "benchmark": "ClassEval",
+        "dataset": "classeval",
+        "execution_model": "class_level",
         "class_name": safe_class_name(task),
+        "entry_point": safe_class_name(task),
         "stage": STAGE,
         "provider": args.provider,
         "model_name": model,
@@ -506,21 +382,29 @@ def make_record(task: JsonDict, args: argparse.Namespace, model: str, **extra: A
 def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: Any) -> JsonDict:
     contract_provider = args.contract_provider or args.provider
     contract_model = args.contract_model or model
+    base_provider = args.base_provider or args.provider
+    base_model = args.base_model or model
 
-    contract = load_contract(task, contract_provider, contract_model)
-    feedback = previous_feedback(task, args.provider, model) if args.use_previous_eval_feedback else {}
-    prompt = make_prompt(task, contract, feedback)
-    code, response, api_result, repaired = call_model(client, model, prompt, task, args)
+    contract, contract_meta = load_contract_bundle(task, contract_provider, contract_model)
+    v1_code, v1_code_path = load_v1_generation(task, base_provider, base_model)
+    feedback = previous_feedback(task, args.provider, model, contract_provider, contract_model) if args.use_previous_eval_feedback else {}
+
+    prompt = make_prompt(task, contract, feedback, v1_code, v1_code_path, contract_meta.get("rl_policy"))
+    code, response, api_result = call_model(client, model, prompt, task, args)
 
     record = make_record(
         task,
         args,
         model,
         status="success",
+        failure_type=None,
+        failure_detail=None,
         contract=contract,
+        **contract_meta,
+        v1_generated_code_path=v1_code_path,
+        used_v1_generated_code=bool(v1_code),
         generated_code=code,
         copied_from_v1=False,
-        format_repair_used=repaired,
         error=None,
     )
 
@@ -531,14 +415,15 @@ def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: A
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate one ClassEval solution from each optimized contract.")
+    parser = argparse.ArgumentParser(description="Generate ClassEval solutions from optimized contracts.")
     parser.add_argument("--provider", choices=sorted(PROVIDERS), required=True)
     parser.add_argument("--model")
     parser.add_argument("--contract-provider")
     parser.add_argument("--contract-model")
+    parser.add_argument("--base-provider")
+    parser.add_argument("--base-model")
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
-    parser.add_argument("--format-retries", type=int, default=1)
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--count", type=int)
     parser.add_argument("--delay", type=float, default=0.0)
@@ -553,14 +438,18 @@ def main() -> None:
     setup_logging(LOG_FILE)
 
     model = args.model or default_model(args.provider)
+    contract_provider = args.contract_provider or args.provider
+    contract_model = args.contract_model or model
     client = get_client(args.provider)
     tasks = select_tasks(load_json_list(TASK_FILE), start=args.start, count=args.count)
 
-    done = failed = skipped = repaired = 0
+    done = 0
+    failed = 0
+    skipped = 0
     started = time.perf_counter()
 
     for index, task in enumerate(tasks, start=args.start):
-        path = generation_path(task, args.provider, model)
+        path = generation_path(task, args.provider, model, contract_provider, contract_model)
 
         if path.exists() and not args.overwrite:
             skipped += 1
@@ -571,34 +460,38 @@ def main() -> None:
             record = generate_one(task, args, model, client)
         except Exception as exc:
             logger.exception("Optimized-contract-guided generation failed: %s", task_id(task))
+            failure_type, failure_detail = classify_generation_error(exc)
             record = make_record(
                 task,
                 args,
                 model,
                 status="failed",
+                failure_type=failure_type,
+                failure_detail=failure_detail,
                 contract=None,
+                contract_path=str(optimized_path(task, contract_provider, contract_model)),
+                contract_status=None,
+                contract_type="rl_optimized",
+                contract_version="v2_rl_optimized",
                 generated_code=None,
-                error=str(exc),
+                copied_from_v1=False,
+                error=failure_detail,
             )
 
         save_json(path, record)
 
-        if record["status"] == "success":
+        if record.get("status") == "success":
             done += 1
-            if record.get("format_repair_used"):
-                repaired += 1
-            suffix = " repaired" if record.get("format_repair_used") else ""
-            print(f"[{index}] DONE {task_id(task)}{suffix}")
+            print(f"[{index}] DONE {task_id(task)}")
         else:
             failed += 1
-            print(f"[{index}] FAILED {task_id(task)}: {record['error']}")
+            print(f"[{index}] FAILED/{record.get('failure_type')} {task_id(task)}")
 
         if args.delay:
             time.sleep(args.delay)
 
     print("\nClassEval optimized-contract-guided generation finished.")
     print(f"Completed: {done}")
-    print(f"Format-repaired: {repaired}")
     print(f"Failed: {failed}")
     print(f"Skipped: {skipped}")
     print(f"Elapsed: {round(time.perf_counter() - started, 2)}s")

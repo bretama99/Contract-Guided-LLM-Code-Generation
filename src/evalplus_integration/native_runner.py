@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import subprocess
 import sys
@@ -21,27 +23,31 @@ from src.common.io_utils import safe_name
 
 
 def short(value: Any, limit: int = 1500) -> str:
-    text = str(value or "").strip()
-    return text if len(text) <= limit else text[:limit] + "\n...[truncated]"
+    value = str(value or "").strip()
+    return value if len(value) <= limit else value[:limit] + "\n...[truncated]"
 
 
 def read_json(path: Path | None) -> dict[str, Any] | None:
     if not path or not path.exists():
         return None
+
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
-        return value if isinstance(value, dict) else None
     except Exception:
         return None
 
+    return value if isinstance(value, dict) else None
+
 
 def read_jsonl(path: Path) -> dict[str, dict[str, Any]]:
-    rows = {}
+    rows: dict[str, dict[str, Any]] = {}
+
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             if line.strip():
                 row = json.loads(line)
                 rows[str(row["task_id"])] = row
+
     return rows
 
 
@@ -126,7 +132,15 @@ def generation_file(task_id: str, export_summary: dict[str, Any]) -> Path | None
     if not folder.exists():
         return None
 
-    suffix = "_vanilla.json" if method == "vanilla" else "_raw_contract_guided.json"
+    suffix_by_method = {
+    "vanilla": "_vanilla.json",
+    "raw_contracts": "_raw_contract_guided.json",
+    "optimized_rl": "_optimized_contract_guided.json",
+}
+
+    suffix = suffix_by_method.get(method)
+    if suffix is None:
+        raise ValueError(f"Unsupported EvalPlus method: {method}")
     direct = folder / f"{safe_name(task_id)}{suffix}"
 
     if direct.exists():
@@ -136,16 +150,19 @@ def generation_file(task_id: str, export_summary: dict[str, Any]) -> Path | None
     return matches[0] if matches else None
 
 
-def generation_info(task_id: str, solution: str, export_summary: dict[str, Any], skipped: str | None):
+def generation_info(
+    task_id: str,
+    solution: str,
+    export_summary: dict[str, Any],
+    skipped: str | None,
+) -> dict[str, Any]:
     path = generation_file(task_id, export_summary)
     record = read_json(path)
     method = str(export_summary.get("method", ""))
 
-    code = solution
-    if record and isinstance(record.get("generated_code"), str):
-        code = record["generated_code"]
+    code = record["generated_code"] if record and isinstance(record.get("generated_code"), str) else solution
 
-    info = {
+    info: dict[str, Any] = {
         "status": "generation_failed" if skipped else "generated",
         "error": skipped or (record.get("error") if record else None),
         "code": code,
@@ -158,32 +175,23 @@ def generation_info(task_id: str, solution: str, export_summary: dict[str, Any],
 
 
 def task_info(task_id: str, problem: dict[str, Any], method: str) -> dict[str, Any]:
-    prompt = (
-        problem.get("prompt")
-        or problem.get("instruct_prompt")
-        or problem.get("complete_prompt")
-    )
-
-    info = {
+    return {
         "id": task_id,
         "entry_point": problem.get("entry_point"),
-        "prompt": prompt,
+        "prompt": problem.get("prompt") or problem.get("instruct_prompt") or problem.get("complete_prompt"),
+        **({"contract": problem.get("contract")} if method != "vanilla" and problem.get("contract") else {}),
     }
 
-    if method != "vanilla" and problem.get("contract"):
-        info["contract"] = problem.get("contract")
 
-    return info
-
-
-def run_actual(solution: str, entry_point: str | None, case_input: Any, timeout: float = 5.0):
+def run_actual(solution: str, entry_point: str | None, case_input: Any, timeout: float = 5.0) -> tuple[Any, str | None]:
     if not entry_point:
         return None, "missing entry point"
 
     program = f"""
 {solution}
 
-import json, inspect, traceback
+import json, traceback
+
 fn = globals()[{entry_point!r}]
 case_input = {repr(case_input)}
 
@@ -191,14 +199,14 @@ try:
     if isinstance(case_input, tuple):
         args = case_input
     elif isinstance(case_input, list):
-         args = tuple(case_input)
+        args = tuple(case_input)
     else:
         args = (case_input,)
 
     result = fn(*args)
-    print(json.dumps({{"ok": True, "value": repr(result), "error": None}}))
+    print(json.dumps({{"value": repr(result), "error": None}}))
 except Exception:
-    print(json.dumps({{"ok": False, "value": None, "error": traceback.format_exc()}}))
+    print(json.dumps({{"value": None, "error": traceback.format_exc()}}))
 """.strip()
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -228,20 +236,25 @@ except Exception:
     return parsed.get("value"), parsed.get("error")
 
 
-def classify(original_status: Any, plus_status: Any, base_only: bool):
+def classify(original_status: Any, plus_status: Any, base_only: bool) -> tuple[bool, str | None, str | None]:
     original_ok = passed_status(original_status)
     plus_ok = True if base_only else passed_status(plus_status)
 
     if original_ok and plus_ok:
         return True, None, None
-
     if not original_ok:
         return False, "original_test_failure", "original"
-
     return False, "plus_test_failure", "plus"
 
 
-def build_evaluation(problem, expected, solution, stage, failure_type, raw_part):
+def build_evaluation(
+    problem: dict[str, Any],
+    expected: Any,
+    solution: str,
+    stage: str | None,
+    failure_type: str | None,
+    raw_part: Any,
+) -> dict[str, Any]:
     if not stage or stage == "generation":
         return {
             "status": "failed",
@@ -250,6 +263,7 @@ def build_evaluation(problem, expected, solution, stage, failure_type, raw_part)
             "expected": None,
             "actual": None,
             "actual_error": None,
+            "failure_type": failure_type,
         }
 
     index = first_failed(raw_part)
@@ -258,11 +272,7 @@ def build_evaluation(problem, expected, solution, stage, failure_type, raw_part)
 
     actual_output, actual_error = None, "failed input unavailable"
     if case_input is not None:
-        actual_output, actual_error = run_actual(
-            solution,
-            problem.get("entry_point"),
-            case_input,
-        )
+        actual_output, actual_error = run_actual(solution, problem.get("entry_point"), case_input)
 
     return {
         "status": "failed",
@@ -275,7 +285,7 @@ def build_evaluation(problem, expected, solution, stage, failure_type, raw_part)
     }
 
 
-def explanation(passed: bool, generation: dict[str, Any], evaluation: dict[str, Any]):
+def explanation(passed: bool, generation: dict[str, Any], evaluation: dict[str, Any]) -> str:
     if passed:
         return "Passed all EvalPlus tests."
 
@@ -284,41 +294,45 @@ def explanation(passed: bool, generation: dict[str, Any], evaluation: dict[str, 
 
     stage = "plus" if evaluation.get("failure_type") == "plus_test_failure" else "original"
     index = evaluation.get("failed_case_index")
-    case_input = evaluation.get("input")
-    expected = evaluation.get("expected")
-    actual = evaluation.get("actual")
-    actual_error = evaluation.get("actual_error")
 
-    if expected is not None and actual is not None:
+    if evaluation.get("expected") is not None and evaluation.get("actual") is not None:
         return (
             f"Failed {stage} test case #{index}. "
-            f"Input: {case_input}. Expected: {expected}. Actual: {actual}."
+            f"Input: {evaluation.get('input')}. "
+            f"Expected: {evaluation.get('expected')}. "
+            f"Actual: {evaluation.get('actual')}."
         )
 
-    if actual_error:
+    if evaluation.get("actual_error"):
         return (
             f"Failed {stage} test case #{index}. "
-            f"Input: {case_input}. Actual output could not be computed because: "
-            f"{short(actual_error, 500)}"
+            f"Input: {evaluation.get('input')}. "
+            f"Actual output could not be computed because: {short(evaluation.get('actual_error'), 500)}"
         )
 
-    return (
-        f"Failed {stage} test case #{index}. "
-        "Expected and actual outputs were not available."
-    )
+    return f"Failed {stage} test case #{index}. Expected and actual outputs were not available."
 
 
-def make_result(raw, base_only, problem, expected, solution, export_summary, skipped):
+def make_result(
+    raw: dict[str, Any],
+    base_only: bool,
+    problem: dict[str, Any],
+    expected: Any,
+    solution: str,
+    export_summary: dict[str, Any],
+    skipped: str | None,
+) -> dict[str, Any]:
     task_id = str(raw["task_id"])
     method = str(export_summary.get("method", ""))
 
     original_raw = raw.get("base")
     plus_raw = None if base_only else raw.get("plus")
 
-    original_status = part_status(original_raw)
-    plus_status = None if base_only else part_status(plus_raw)
-
-    passed, failure_type, stage = classify(original_status, plus_status, base_only)
+    passed, failure_type, stage = classify(
+        part_status(original_raw),
+        None if base_only else part_status(plus_raw),
+        base_only,
+    )
     generation = generation_info(task_id, solution, export_summary, skipped)
 
     if skipped:
@@ -344,18 +358,18 @@ def make_result(raw, base_only, problem, expected, solution, export_summary, ski
 
 
 def eval_one(
-    dataset,
-    task_id,
-    problem,
-    solution,
-    expected,
-    base_only,
-    test_details,
-    min_time_limit,
-    gt_time_limit_factor,
-    export_summary,
-    skipped,
-):
+    dataset: str,
+    task_id: str,
+    problem: dict[str, Any],
+    solution: str,
+    expected: Any,
+    base_only: bool,
+    test_details: bool,
+    min_time_limit: float,
+    gt_time_limit_factor: float,
+    export_summary: dict[str, Any],
+    skipped: str | None,
+) -> dict[str, Any]:
     try:
         raw = check_correctness(
             dataset,
@@ -369,13 +383,11 @@ def eval_one(
             min_time_limit,
             gt_time_limit_factor,
         )
-
         return make_result(raw, base_only, problem, expected, solution, export_summary, skipped)
 
     except Exception as exc:
         method = str(export_summary.get("method", ""))
         generation = generation_info(task_id, solution, export_summary, skipped)
-
         evaluation = {
             "status": "failed",
             "failed_case_index": None,
@@ -385,7 +397,6 @@ def eval_one(
             "actual_error": str(exc),
             "failure_type": "evaluation_error",
         }
-
         return {
             "task_id": task_id,
             "index": None,
@@ -420,14 +431,10 @@ def run_task_level_evalplus(
     if missing:
         raise ValueError(f"Complete sample file is missing tasks: {missing[:10]}")
 
-    skipped = {
-        str(item["task_id"]): str(item["reason"])
-        for item in export_summary.get("skipped", [])
-    }
-
+    skipped = {str(item["task_id"]): str(item["reason"]) for item in export_summary.get("skipped", [])}
     task_ids = list(problems)
     index_of = {task_id: index for index, task_id in enumerate(task_ids)}
-    results = []
+    results: list[dict[str, Any]] = []
 
     print("\n[Task-level EvalPlus execution]")
 
@@ -474,15 +481,9 @@ def summarize_evalplus_details(
     base_only: bool,
 ) -> dict[str, Any]:
     total = len(details)
-    passed_count = sum(1 for row in details if row.get("passed") is True)
-
-    failures = Counter(
-        row.get("failure_type") or "unknown_failure"
-        for row in details
-        if not row.get("passed")
-    )
-
-    score = passed_count / total if total else 0.0
+    passed = sum(row.get("passed") is True for row in details)
+    failures = Counter(row.get("failure_type") or "unknown_failure" for row in details if not row.get("passed"))
+    score = passed / total if total else 0.0
 
     return {
         "benchmark": benchmark,
@@ -491,11 +492,12 @@ def summarize_evalplus_details(
         "method": method,
         "provider": provider,
         "model": model,
+        "base_only": base_only,
         "total_tasks": total,
         "successful_generation_count": export_summary["successful_sample_count"],
         "filled_failure_count": export_summary["filled_failure_count"],
-        "passed": passed_count,
-        "failed": total - passed_count,
+        "passed": passed,
+        "failed": total - passed,
         "pass@1": score,
         "pass@1_percent": round(score * 100, 2),
         "failure_counts": dict(failures),
