@@ -7,6 +7,11 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
+from src.classeval.contract_clause_utils import (
+    contract_clause_errors,
+    infer_clause_hints,
+    merge_missing_clause_hints,
+)
 from src.classeval.contract_normalizer import normalize_contract_shape, stage2_shape_errors
 from src.classeval.contract_schema import new_contract_schema, schema_for_prompt
 from src.classeval.core import (
@@ -31,6 +36,7 @@ from src.common.parsing import extract_json_object
 from src.common.task_utils import select_tasks
 
 BENCHMARK = "ClassEval"
+DATASET = "classeval"
 EXECUTION_MODEL = "class_level"
 STAGE = "2A_raw_contract_synthesis"
 
@@ -39,12 +45,13 @@ PROMPT_FILE = ROOT / "prompts" / "classeval" / "contract_prompt.txt"
 OUT_DIR = OUTPUT_ROOT / "classeval" / "contracts"
 LOG_FILE = LOG_ROOT / "classeval_contracts.log"
 
+DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_TOKENS = 4096
-
+DEFAULT_DELAY = 0.0
 SYSTEM_PROMPT = (
     "You are an expert Design-by-Contract specification generator. "
     "Return exactly one valid JSON object. "
-    "Do not include markdown, explanations, Python code, or tests."
+    "Do not include markdown, explanations, Python code, tests, reference solutions, or hidden answers."
 )
 
 logger = logging.getLogger(__name__)
@@ -71,7 +78,12 @@ def method_names(task: JsonDict) -> list[str]:
         if name and name not in names:
             names.append(name)
 
-    for name in method_profiles(skeleton(task), class_name(task)):
+    try:
+        profiles = method_profiles(skeleton(task), class_name(task))
+    except SyntaxError:
+        profiles = {}
+
+    for name in profiles:
         if name != "__init__" and name not in names:
             names.append(name)
 
@@ -85,7 +97,7 @@ def sanitized_task(task: JsonDict) -> JsonDict:
         "execution_model": EXECUTION_MODEL,
         "class_name": class_name(task),
         "class_description": text(task.get("class_description")),
-        "class_constructor": task.get("class_constructor") or "",
+        "class_constructor": text(task.get("class_constructor")),
         "fields": as_list(task.get("fields")),
         "import_statement": imports_for_prompt(task),
         "method_names": method_names(task),
@@ -95,10 +107,23 @@ def sanitized_task(task: JsonDict) -> JsonDict:
 
 
 def build_prompt(task: JsonDict, template: str) -> str:
+    task_view = sanitized_task(task)
+    hints = infer_clause_hints(task_view)
     prompt = (
         template.replace("{schema}", compact_json(schema_for_prompt()))
-        .replace("{structure}", compact_json(sanitized_task(task)))
+        .replace("{structure}", compact_json(task_view))
     )
+    prompt += "\n\nADDITIONAL_STAGE_2_CONTRACT_REQUIREMENTS:\n"
+    prompt += "- Generate a faithful raw/v1 contract using only the visible task data.\n"
+    prompt += "- Fill meaningful preconditions, postconditions, invariants, and edge_cases when supported by the visible task.\n"
+    prompt += "- Do not leave every clause group empty for a method.\n"
+    prompt += "- Preconditions describe valid inputs or required class state assumptions only.\n"
+    prompt += "- Postconditions describe observable return values, state updates, side effects, or output format.\n"
+    prompt += "- Invariants describe object state that remains valid before and after methods.\n"
+    prompt += "- Edge cases describe visible boundary cases only when supported.\n"
+    prompt += "- Do not invent exception behavior, hidden-test behavior, reference-solution logic, or exact test answers.\n"
+    prompt += "\nVISIBLE_CLAUSE_HINTS:\n"
+    prompt += compact_json(hints)
     ensure_no_reference_leak(task, prompt)
     return prompt
 
@@ -106,7 +131,6 @@ def build_prompt(task: JsonDict, template: str) -> str:
 def stamp_contract(raw: JsonDict, task: JsonDict) -> JsonDict:
     contract = new_contract_schema()
     contract.update(raw)
-
     task_block = as_dict(contract.get("task"))
     task_block.update(
         {
@@ -118,31 +142,21 @@ def stamp_contract(raw: JsonDict, task: JsonDict) -> JsonDict:
             "entry_point": class_name(task),
         }
     )
-
     if not text(task_block.get("summary")):
         task_block["summary"] = text(task.get("class_description"))
-
     contract["task"] = task_block
     return contract
 
 
-def method_signature_map(task: JsonDict) -> dict[str, str]:
-    source = skeleton(task)
-    tree = ast.parse(source)
-    target = class_name(task)
-
-    cls = next(
-        (node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == target),
+def class_node(task: JsonDict) -> ast.ClassDef | None:
+    try:
+        tree = ast.parse(skeleton(task))
+    except SyntaxError:
+        return None
+    return next(
+        (node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == class_name(task)),
         None,
     )
-    if cls is None:
-        return {}
-
-    return {
-        node.name: function_header(source, node)
-        for node in cls.body
-        if isinstance(node, ast.FunctionDef) and node.name != "__init__"
-    }
 
 
 def function_header(source: str, node: ast.FunctionDef) -> str:
@@ -173,37 +187,111 @@ def function_header(source: str, node: ast.FunctionDef) -> str:
     return segment.splitlines()[0].strip()
 
 
-def repair_method_signatures(contract: JsonDict, task: JsonDict) -> JsonDict:
+def method_signature_map(task: JsonDict) -> dict[str, str]:
+    source = skeleton(task)
+    cls = class_node(task)
+    if cls is None:
+        return {}
+
+    return {
+        node.name: function_header(source, node)
+        for node in cls.body
+        if isinstance(node, ast.FunctionDef)
+    }
+
+
+def method_static_map(task: JsonDict) -> dict[str, bool]:
+    cls = class_node(task)
+    if cls is None:
+        return {}
+
+    return {
+        node.name: any(
+            (isinstance(dec, ast.Name) and dec.id == "staticmethod")
+            or (isinstance(dec, ast.Attribute) and dec.attr == "staticmethod")
+            for dec in node.decorator_list
+        )
+        for node in cls.body
+        if isinstance(node, ast.FunctionDef)
+    }
+
+
+def repair_interface(contract: JsonDict, task: JsonDict) -> JsonDict:
     signatures = method_signature_map(task)
+    static_flags = method_static_map(task)
+    expected_methods = method_names(task)
 
-    for method in as_list(contract.get("method_contracts")):
-        if not isinstance(method, dict):
-            continue
+    contract["class_interface"] = {
+        "fields": as_list(task.get("fields")),
+        "methods": expected_methods,
+    }
 
-        name = text(method.get("method_name"))
-        if name and not text(method.get("signature")) and name in signatures:
-            method["signature"] = signatures[name]
+    constructor = as_dict(contract.get("constructor")).copy()
+    constructor["signature"] = signatures.get("__init__", text(constructor.get("signature")))
+    constructor.setdefault("contract", {})
+    contract["constructor"] = constructor
 
+    existing = {
+        text(method.get("method_name")): method
+        for method in as_list(contract.get("method_contracts"))
+        if isinstance(method, dict) and text(method.get("method_name"))
+    }
+
+    repaired_methods: list[JsonDict] = []
+    for name in expected_methods:
+        method = as_dict(existing.get(name)).copy()
+        method["method_name"] = name
+        method["signature"] = signatures.get(name, text(method.get("signature")))
+        method["is_static"] = bool(static_flags.get(name, method.get("is_static") is True))
+        method.setdefault("dependencies", {})
+        method.setdefault("contract", {})
+        repaired_methods.append(method)
+
+    contract["method_contracts"] = repaired_methods
     return contract
 
 
-def parse_contract(response: str, task: JsonDict) -> tuple[JsonDict, list[str]]:
-    raw = extract_json_object(response)
+def metadata_contract(task: JsonDict) -> JsonDict:
+    return repair_interface(stamp_contract(new_contract_schema(), task), task)
 
-    if not isinstance(raw, dict):
-        raise ValueError("LLM response does not contain a JSON object.")
+
+def parse_raw_response(response: str, task: JsonDict) -> tuple[JsonDict, str | None]:
+    try:
+        raw = extract_json_object(response)
+        if isinstance(raw, dict):
+            return raw, None
+    except Exception as exc:
+        logger.exception("Could not parse LLM contract JSON for %s", task_id(task))
+        return metadata_contract(task), str(exc)
+
+    return metadata_contract(task), "LLM response did not contain a JSON object."
+
+
+def finalize_contract(raw: JsonDict, task: JsonDict) -> tuple[JsonDict, list[str], list[str]]:
+    task_view = sanitized_task(task)
 
     contract = normalize_contract_shape(stamp_contract(raw, task))
-    contract = repair_method_signatures(contract, task)
-    errors = stage2_shape_errors(contract, expected_methods=method_names(task))
-    return contract, errors
+    contract = repair_interface(contract, task)
+    contract = merge_missing_clause_hints(contract, task_view)
+    contract = normalize_contract_shape(contract)
+    contract = repair_interface(contract, task)
+
+    shape_errors = stage2_shape_errors(contract, expected_methods=method_names(task))
+    clause_warnings = contract_clause_errors(contract, task_view)
+    return contract, shape_errors, clause_warnings
+
+
+def parse_contract(response: str, task: JsonDict) -> tuple[JsonDict, list[str], list[str], str | None]:
+    raw, parse_error = parse_raw_response(response, task)
+    contract, shape_errors, clause_warnings = finalize_contract(raw, task)
+    return contract, shape_errors, clause_warnings, parse_error
 
 
 def make_record(task: JsonDict, args: argparse.Namespace, model: str, **extra: Any) -> JsonDict:
     return {
         "task_id": task_id(task),
         "benchmark": BENCHMARK,
-        "dataset": "classeval",
+        "dataset": DATASET,
         "execution_model": EXECUTION_MODEL,
         "class_name": class_name(task),
         "entry_point": class_name(task),
@@ -220,9 +308,12 @@ def make_record(task: JsonDict, args: argparse.Namespace, model: str, **extra: A
 
 
 def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: Any, template: str) -> JsonDict:
+    prompt = ""
     response = ""
     api_result: JsonDict | None = None
-    errors: list[str] = []
+    shape_errors: list[str] = []
+    clause_warnings: list[str] = []
+    parse_error: str | None = None
 
     try:
         prompt = build_prompt(task, template)
@@ -238,9 +329,10 @@ def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: A
             json_mode=True,
         )
 
-        contract, errors = parse_contract(response, task)
-        if errors:
-            raise ValueError("Stage 2 shape errors: " + "; ".join(errors[:10]))
+        contract, shape_errors, clause_warnings, parse_error = parse_contract(response, task)
+
+        if shape_errors:
+            raise ValueError("Stage 2 shape errors: " + "; ".join(shape_errors[:10]))
 
         return make_record(
             task,
@@ -250,9 +342,14 @@ def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: A
             contract=contract,
             contract_type="baseline",
             contract_version="v1_baseline_contract",
+            contract_generation_mode="metadata_fallback" if parse_error else "llm_json_plus_visible_hints",
+            llm_parse_error=parse_error,
             stage2_shape_errors=[],
+            stage2_clause_warnings=clause_warnings,
+            generation_prompt=prompt,
             raw_response=response,
             api_result=api_result,
+            api_latency_seconds=api_result.get("latency_seconds") if isinstance(api_result, dict) else None,
             error=None,
         )
 
@@ -266,9 +363,14 @@ def generate_one(task: JsonDict, args: argparse.Namespace, model: str, client: A
             contract=None,
             contract_type="baseline",
             contract_version="v1_baseline_contract",
-            stage2_shape_errors=errors,
+            contract_generation_mode="failed",
+            llm_parse_error=parse_error,
+            stage2_shape_errors=shape_errors,
+            stage2_clause_warnings=clause_warnings,
+            generation_prompt=prompt,
             raw_response=response,
             api_result=api_result,
+            api_latency_seconds=api_result.get("latency_seconds") if isinstance(api_result, dict) else None,
             error=str(exc),
         )
 
@@ -277,11 +379,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate ClassEval Stage 2 raw contracts")
     parser.add_argument("--provider", choices=sorted(PROVIDERS), required=True)
     parser.add_argument("--model")
-    parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument("--temperature", type=float, default=DEFAULT_TEMPERATURE)
     parser.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--count", type=int)
-    parser.add_argument("--delay", type=float, default=0.0)
+    parser.add_argument("--delay", type=float, default=DEFAULT_DELAY)
     parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
@@ -295,12 +397,11 @@ def main() -> None:
     template = read_template(PROMPT_FILE, ("schema", "structure"))
     tasks = select_tasks(load_json_list(TASK_FILE), start=args.start, count=args.count)
 
-    done = failed = skipped = 0
+    done = failed = skipped = fallback = 0
     started = time.perf_counter()
 
     for index, task in enumerate(tasks, start=args.start):
         path = contract_path(task, args.provider, model)
-
         if path.exists() and not args.overwrite:
             skipped += 1
             print(f"[{index}] SKIP {task_id(task)}")
@@ -311,7 +412,10 @@ def main() -> None:
 
         if record["status"] == "success":
             done += 1
-            print(f"[{index}] DONE {task_id(task)}")
+            fallback += int(record.get("contract_generation_mode") == "metadata_fallback")
+            warnings = len(record.get("stage2_clause_warnings") or [])
+            suffix = " fallback" if record.get("contract_generation_mode") == "metadata_fallback" else ""
+            print(f"[{index}] DONE {task_id(task)} warnings={warnings}{suffix}")
         else:
             failed += 1
             print(f"[{index}] FAILED {task_id(task)}: {record['error']}")
@@ -321,6 +425,7 @@ def main() -> None:
 
     print("\nClassEval Stage 2 raw contract synthesis finished.")
     print(f"Completed: {done}")
+    print(f"Metadata fallback: {fallback}")
     print(f"Failed: {failed}")
     print(f"Skipped: {skipped}")
     print(f"Elapsed: {round(time.perf_counter() - started, 4)}s")

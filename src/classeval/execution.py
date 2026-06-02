@@ -13,18 +13,68 @@ from typing import Any
 from src.classeval.core import JsonDict, class_name, reference_leakage_report, task_id, text
 
 FAILURE_SYNTAX = "syntax error"
+FAILURE_IMPORT = "import error"
 FAILURE_RUNTIME = "runtime error"
 FAILURE_TIMEOUT = "timeout"
 FAILURE_LOGICAL = "logical error"
-FAILURE_OTHER = "other"
+FAILURE_MISSING_GENERATION = "missing generation"
+FAILURE_GENERATION_FAILED = "generation failed"
+FAILURE_EMPTY_GENERATION = "empty generation"
+FAILURE_MISSING_METHOD = "missing method"
+FAILURE_INCOMPLETE_METHOD = "incomplete method"
+FAILURE_SIGNATURE = "signature error"
+FAILURE_EVALUATION = "evaluation error"
+FAILURE_INVALID_TEST_RESULT = "invalid test result"
 
 ALLOWED_FAILURE_TYPES = {
     FAILURE_SYNTAX,
+    FAILURE_IMPORT,
     FAILURE_RUNTIME,
     FAILURE_TIMEOUT,
     FAILURE_LOGICAL,
-    FAILURE_OTHER,
+    FAILURE_MISSING_GENERATION,
+    FAILURE_GENERATION_FAILED,
+    FAILURE_EMPTY_GENERATION,
+    FAILURE_MISSING_METHOD,
+    FAILURE_INCOMPLETE_METHOD,
+    FAILURE_SIGNATURE,
+    FAILURE_EVALUATION,
+    FAILURE_INVALID_TEST_RESULT,
 }
+
+
+def normalize_failure_type(value: Any) -> str:
+    raw = text(value).lower().replace("_", " ").replace("-", " ")
+
+    if raw in ALLOWED_FAILURE_TYPES:
+        return raw
+
+    if "missing generation" in raw or "missing generation file" in raw:
+        return FAILURE_MISSING_GENERATION
+    if "empty generation" in raw or "generated code is empty" in raw:
+        return FAILURE_EMPTY_GENERATION
+    if "incomplete method" in raw or "incomplete method bodies" in raw:
+        return FAILURE_INCOMPLETE_METHOD
+    if "missing method" in raw or "missing methods" in raw:
+        return FAILURE_MISSING_METHOD
+    if "signature" in raw or "staticmethod" in raw or "decorator" in raw:
+        return FAILURE_SIGNATURE
+    if "syntax" in raw or "indentation" in raw or "taberror" in raw or "invalid python" in raw:
+        return FAILURE_SYNTAX
+    if "import" in raw or "modulenotfounderror" in raw or "no module named" in raw:
+        return FAILURE_IMPORT
+    if "timeout" in raw or "timed out" in raw:
+        return FAILURE_TIMEOUT
+    if "logical" in raw or "wrong answer" in raw or "assert" in raw or "fail" in raw:
+        return FAILURE_LOGICAL
+    if "runtime" in raw or "exception" in raw or "typeerror" in raw or "valueerror" in raw or "attributeerror" in raw:
+        return FAILURE_RUNTIME
+    if "no tests were executed" in raw or "invalid test" in raw:
+        return FAILURE_INVALID_TEST_RESULT
+    if "generation" in raw:
+        return FAILURE_GENERATION_FAILED
+
+    return FAILURE_EVALUATION
 
 PRELUDE = """
 import unittest
@@ -44,24 +94,6 @@ def short(value: Any, limit: int = 3000) -> str:
     value = text(value)
     return value if len(value) <= limit else value[:limit] + "\n...[truncated]"
 
-
-def normalize_failure_type(value: Any) -> str:
-    value = text(value).lower().replace("_", " ").replace("-", " ")
-
-    if value in ALLOWED_FAILURE_TYPES:
-        return value
-    if "syntax" in value or "indentation" in value or "taberror" in value:
-        return FAILURE_SYNTAX
-    if "timeout" in value or "timed out" in value:
-        return FAILURE_TIMEOUT
-    if "logical" in value or "wrong answer" in value or "assert" in value or "fail" in value:
-        return FAILURE_LOGICAL
-    if "runtime" in value or "exception" in value or "error" in value:
-        return FAILURE_RUNTIME
-
-    return FAILURE_OTHER
-
-
 def classify(stderr: str, returncode: int | None, *, timed_out: bool = False) -> str:
     if timed_out:
         return FAILURE_TIMEOUT
@@ -75,7 +107,7 @@ def classify(stderr: str, returncode: int | None, *, timed_out: bool = False) ->
     if returncode not in (0, None):
         return FAILURE_RUNTIME
 
-    return FAILURE_OTHER
+    return FAILURE_INVALID_TEST_RESULT
 
 
 def imports_for(task: JsonDict) -> str:
@@ -279,7 +311,7 @@ def evaluate_generation(
             provider=provider,
             model=model,
             stage=stage,
-            failure_type=FAILURE_OTHER,
+            failure_type=normalize_failure_type(generation.get("error") or generation.get("failure_type") or FAILURE_GENERATION_FAILED),
             error=text(generation.get("error")) or "Generation failed.",
             generation_path=generation_path,
             failure_stage="generation",
@@ -293,7 +325,7 @@ def evaluate_generation(
             provider=provider,
             model=model,
             stage=stage,
-            failure_type=FAILURE_OTHER,
+            failure_type=normalize_failure_type(generation.get("error") or generation.get("failure_type") or FAILURE_GENERATION_FAILED),
             error="Generated code is empty.",
             generation_path=generation_path,
             failure_stage="generation",
@@ -311,7 +343,7 @@ def evaluate_generation(
             provider=provider,
             model=model,
             stage=stage,
-            failure_type=FAILURE_OTHER,
+            failure_type=normalize_failure_type(generation.get("error") or generation.get("failure_type") or FAILURE_GENERATION_FAILED),
             error=str(exc),
             generation_path=generation_path,
             failure_stage="evaluation",
@@ -330,7 +362,9 @@ def evaluate_generation(
     if not passed:
         failure_type = normalize_failure_type(result.get("failure_type"))
         error = short(result.get("error"), 6000)
-        if not tests_executed and failure_type == FAILURE_OTHER:
+
+        if not tests_executed:
+            failure_type = FAILURE_INVALID_TEST_RESULT
             error = "No tests were executed or unittest output did not report a test count."
 
     record = {
@@ -426,7 +460,6 @@ def summarize_results(
 __all__ = [
     "ALLOWED_FAILURE_TYPES",
     "FAILURE_LOGICAL",
-    "FAILURE_OTHER",
     "FAILURE_RUNTIME",
     "FAILURE_SYNTAX",
     "FAILURE_TIMEOUT",

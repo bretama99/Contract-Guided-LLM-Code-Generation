@@ -116,3 +116,51 @@ python -m src.contract_guided_generation.evaluate_raw_contracts \
   --contract-source optimized_rl \
   --timeout 15
 
+
+
+python -m py_compile src/classeval/contract_clause_utils.py
+python -m py_compile src/classeval/generate_contracts.py
+python -m py_compile src/classeval/generate_from_contracts.py
+python -m py_compile src/classeval/rl_generate_optimized_contracts.py
+python -m py_compile src/classeval/evaluate_contract_guided.py
+
+python -m src.classeval.generate_contracts \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --temperature 0.0 \
+  --overwrite
+
+python -m src.classeval.generate_from_contracts \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source raw \
+  --temperature 0.0 \
+  --overwrite
+
+python -m src.classeval.evaluate_contract_guided \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source raw \
+  --timeout 15 \
+  --overwrite
+
+python -m src.classeval.rl_generate_optimized_contracts \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --temperature 0.2 \
+  --epsilon 0.15 \
+  --overwrite
+
+python -m src.classeval.generate_from_contracts \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source optimized_rl \
+  --temperature 0.0 \
+  --overwrite
+
+python -m src.classeval.evaluate_contract_guided \
+  --provider openrouter \
+  --model gpt-3.5-turbo \
+  --contract-source optimized_rl \
+  --timeout 15 \
+  --overwrite
