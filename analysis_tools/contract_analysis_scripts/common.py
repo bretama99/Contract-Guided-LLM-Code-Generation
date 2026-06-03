@@ -10,7 +10,7 @@ from analysis_tools.analyze_results import HELPED, REGRESSED, FAILED
 from analysis_tools.contract_analysis_scripts.specs import AnalysisSpec
 
 DEFAULT_PROVIDER = "openrouter"
-DEFAULT_MODEL = "openai/gpt-5.5"
+DEFAULT_MODEL = "google/gemini-3.5-flash"
 MAX_LLM_ATTEMPTS = 3
 
 SUMMARY_SHEET = "Summary"
@@ -58,12 +58,18 @@ VALID_FAILURE_REASONS = {
 }
 
 
-def parse_args() -> tuple[Path, str, str, bool, str]:
+def parse_args() -> tuple[Path, str, str, bool, str, str]:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".")
     parser.add_argument("--dataset", choices=sorted(DATASETS), required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--overwrite", action="store_true")
+
+    parser.add_argument(
+        "--contract-version",
+        choices=["raw_contracts", "optimized_rl"],
+        default="raw_contracts",
+    )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--helped", action="store_true")
@@ -81,23 +87,37 @@ def parse_args() -> tuple[Path, str, str, bool, str]:
     else:
         raise ValueError("Expected one analysis type.")
 
-    return Path(args.root).resolve(), args.dataset, args.model, args.overwrite, analysis_type
+    return (
+        Path(args.root).resolve(),
+        args.dataset,
+        args.model,
+        args.overwrite,
+        analysis_type,
+        args.contract_version,
+    )
 
 
-def read_input_sheet(root: Path, dataset: str, model: str, analysis_type: str) -> pd.DataFrame:
+def read_input_sheet(
+    root: Path,
+    dataset: str,
+    model: str,
+    analysis_type: str,
+    contract_version: str,
+) -> pd.DataFrame:
     analysis_type = analysis_type.strip().lower()
-    
-    if dataset == "evalplus":
-        fname = "EvalPlus_analysis.xlsx"
-    elif dataset == "evalplus_mbpp":
-        fname = "EvalPlus_MBPP_analysis.xlsx"
-    else:
-        fname = f"{dataset}_analysis.xlsx"
 
-    path = root / "analysis" / safe(model) / "basic" / fname
+    path = (
+        root
+        / "analysis"
+        / safe(model)
+        / safe(dataset)
+        / "basic"
+        / f"{safe(contract_version)}_analysis.xlsx"
+    )
+
     if not path.exists():
         raise FileNotFoundError(f"{dataset}: missing analysis file: {path}")
-    
+
     if analysis_type == "helped":
         sheet_name = HELPED
     elif analysis_type == "regressed":
@@ -106,30 +126,62 @@ def read_input_sheet(root: Path, dataset: str, model: str, analysis_type: str) -
         sheet_name = FAILED
     else:
         raise ValueError("Invalid analysis type in script. Cannot read input sheet.")
-    
+
     return pd.read_excel(path, sheet_name=sheet_name)
 
 
-def get_output_path(root: Path, dataset: str, model: str, analysis_type: str) -> Path:
-
+def get_output_path(
+    root: Path,
+    dataset: str,
+    model: str,
+    analysis_type: str,
+    contract_version: str,
+) -> Path:
     analysis_type = analysis_type.strip().lower()
 
     if analysis_type not in ("helped", "regressed", "failed"):
         raise ValueError("Invalid analysis type in script. Cannot write output.")
 
-    out = root / "analysis" / safe(model) / "contracts" / dataset / f"{analysis_type}_analysis.xlsx"
+    out = (
+        root
+        / "analysis"
+        / safe(model)
+        / safe(dataset)
+        / "contracts"
+        / safe(contract_version)
+        / f"{analysis_type}_analysis.xlsx"
+    )
+
     out.parent.mkdir(parents=True, exist_ok=True)
     return out
 
 
-def get_stored_analysis_path(root: Path, dataset: str, model: str, task_id: Any, analysis_type: str) -> Path:
+def get_stored_analysis_path(
+    root: Path,
+    dataset: str,
+    model: str,
+    task_id: Any,
+    analysis_type: str,
+    contract_version: str,
+) -> Path:
     task_id = safe(str(task_id))
     analysis_type = analysis_type.strip().lower()
 
     if analysis_type not in ("helped", "regressed", "failed"):
         raise ValueError("Invalid analysis type in script. Cannot get stored analysis path.")
 
-    path = root / "analysis" / safe(model) / "contracts" / dataset / "log" / analysis_type / f"{task_id}_{analysis_type}_analysis.json"
+    path = (
+        root
+        / "analysis"
+        / safe(model)
+        / safe(dataset)
+        / "contracts"
+        / safe(contract_version)
+        / "log"
+        / analysis_type
+        / f"{task_id}_{analysis_type}_analysis.json"
+    )
+
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 

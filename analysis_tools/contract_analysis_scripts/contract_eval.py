@@ -100,11 +100,17 @@ class ContractAnalysisComplete:
 
 
 def main() -> None:
-    root, dataset, model, overwrite, analysis_type = parse_args()
+    root, dataset, model, overwrite, analysis_type, contract_version = parse_args()
     spec = SPECS[analysis_type]
     validate_spec(spec)
 
-    original_sheet = read_input_sheet(root, dataset, model, spec.analysis_type)
+    original_sheet = read_input_sheet(
+        root,
+        dataset,
+        model,
+        spec.analysis_type,
+        contract_version,
+    )
 
     result = get_contract_analysis(
         original_sheet,
@@ -113,9 +119,17 @@ def main() -> None:
         model=model,
         overwrite=overwrite,
         spec=spec,
+        contract_version=contract_version,
     )
 
-    out = get_output_path(root, dataset, model, spec.analysis_type)
+    out = get_output_path(
+        root,
+        dataset,
+        model,
+        spec.analysis_type,
+        contract_version,
+    )
+
     write_contract_analysis(out, result)
 
     print(f"Wrote {out}")
@@ -173,6 +187,7 @@ def get_contract_analysis(
     model: str,
     overwrite: bool,
     spec: AnalysisSpec,
+    contract_version: str,
 ) -> ContractAnalysisComplete:
     summary = ContractAnalysisSummary()
     input_errors: list[dict[str, Any]] = []
@@ -187,6 +202,7 @@ def get_contract_analysis(
             model,
             task_id=task["Task ID"],
             analysis_type=spec.analysis_type,
+            contract_version=contract_version,
         )
 
         if log_path.exists() and not overwrite:

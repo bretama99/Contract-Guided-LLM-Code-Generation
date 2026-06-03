@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
-import argparse, json, re, sys
+import argparse
+import json
+import re
+import sys
 from pathlib import Path
-from collections import Counter
+
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,208 +11,406 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 try:
-    from formatting import format_worksheet
+    from formatting import format_analysis_summary_worksheet, format_worksheet
 except ImportError:
-    from analysis_tools.formatting import format_worksheet
+    from analysis_tools.formatting import format_analysis_summary_worksheet, format_worksheet
 
 from src.common.config import DATASETS
+
 
 HELPED = "Helped by Contracts"
 REGRESSED = "Regressed by Contracts"
 FAILED = "Failed Both"
 
-GEN_FAILS = {"generation_failed", "generation_error", "missing_generation",
-             "empty_code", "empty_generated_code", "missing_result"}
+GEN_FAILS = {
+    "generation_failed",
+    "generation_error",
+    "missing_generation",
+    "empty_code",
+    "empty_generated_code",
+    "missing_result",
+}
 
-HELPED_COLS = ["Task ID", "Vanilla Explanation", "Prompt", "Vanilla Code",
-               "Contract-Guided Code", "Vanilla Failing Test", "Preconditions",
-               "Postconditions", "Invariants", "Interpretation"]
+HELPED_COLS = [
+    "Task ID",
+    "Vanilla Explanation",
+    "Prompt",
+    "Vanilla Code",
+    "Contract-Guided Code",
+    "Vanilla Failing Test",
+    "Preconditions",
+    "Postconditions",
+    "Invariants",
+    "Interpretation",
+]
 
-REGRESSED_COLS = ["Task ID", "Contract-Guided Explanation", "Prompt",
-                  "Vanilla Code", "Contract-Guided Code",
-                  "Contract-Guided Failing Test", "Preconditions",
-                  "Postconditions", "Invariants", "Interpretation"]
+REGRESSED_COLS = [
+    "Task ID",
+    "Contract-Guided Explanation",
+    "Prompt",
+    "Vanilla Code",
+    "Contract-Guided Code",
+    "Contract-Guided Failing Test",
+    "Preconditions",
+    "Postconditions",
+    "Invariants",
+    "Interpretation",
+]
 
-FAILED_COLS = ["Task ID", "Vanilla Explanation", "Contract-Guided Explanation",
-               "Prompt", "Vanilla Code", "Contract-Guided Code",
-               "Vanilla Failing Test", "Contract-Guided Failing Test",
-               "Preconditions", "Postconditions", "Invariants", "Interpretation"]
+FAILED_COLS = [
+    "Task ID",
+    "Vanilla Explanation",
+    "Contract-Guided Explanation",
+    "Prompt",
+    "Vanilla Code",
+    "Contract-Guided Code",
+    "Vanilla Failing Test",
+    "Contract-Guided Failing Test",
+    "Preconditions",
+    "Postconditions",
+    "Invariants",
+    "Interpretation",
+]
+
+DETAIL_SHEETS = [
+    (HELPED, "contract_helped", HELPED_COLS),
+    (REGRESSED, "contract_regressed", REGRESSED_COLS),
+    (FAILED, "both_failed", FAILED_COLS),
+]
 
 
-def safe(x):
-    return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(x)).strip("._-") or "x"
+# ---------------------------------------------------------------------------
+# Basic utilities
+# ---------------------------------------------------------------------------
 
 
-def load(path):
+def safe(value):
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value)).strip("._-") or "x"
+
+
+def display_version(version):
+    labels = {
+        "raw_contracts": "Raw Contract Guided",
+        "optimized_rl": "Optimized RL",
+    }
+    return labels.get(version, str(version).replace("_", " ").title())
+
+
+def version_filename(version):
+    return f"{safe(version)}_analysis.xlsx"
+
+
+def pct(num, den):
+    return round((num / den) * 100, 2) if den else 0
+
+
+def load_json(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def clean(x):
-    return re.sub(r"\s+", " ", str(x or "").replace("\r", " ")).strip()
+def clean(value):
+    return re.sub(r"\s+", " ", str(value or "").replace("\r", " ")).strip()
 
 
-def passed(r):
-    return bool(r and r.get("passed") is True)
+def sorted_task_ids(task_ids):
+    def key(task_id):
+        return [
+            int(part) if part.isdigit() else part
+            for part in re.split(r"(\d+)", str(task_id))
+        ]
+
+    return sorted(task_ids, key=key)
 
 
-def ftype(r):
-    r = r or {}
-    return str(r.get("failure_type") or (r.get("evaluation") or {}).get("failure_type") or "unknown_failure")
+# ---------------------------------------------------------------------------
+# Loading inputs
+# ---------------------------------------------------------------------------
 
 
-def genfail(r):
-    if not r:
-        return True
-    return ftype(r) in GEN_FAILS or str((r.get("generation") or {}).get("status") or "") in GEN_FAILS
+def result_input_paths(root, dataset, provider, model, method, result_type):
+    safe_provider = safe(provider)
+    safe_model = safe(model)
+
+    if DATASETS[dataset].get("evalplus_dataset"):
+        return [
+            root
+            / "results"
+            / "evalplus"
+            / method
+            / safe_provider
+            / safe_model
+            / dataset
+            / f"{result_type}.json"
+        ]
+
+    if method == "vanilla":
+        return [
+            root
+            / "results"
+            / "vanilla"
+            / f"stage1_{dataset}_{provider}_{safe_model}_{result_type}.json",
+            root
+            / "results"
+            / "vanilla"
+            / f"stage1_{dataset}_{safe_provider}_{safe_model}_{result_type}.json",
+        ]
+
+    return [
+        root
+        / "results"
+        / "contract_guided_generation"
+        / safe(method)
+        / safe_provider
+        / safe_model
+        / dataset
+        / f"{result_type}.json"
+    ]
 
 
-def code(r):
-    g = (r or {}).get("generation") or {}
-    return str(g.get("code") or g.get("generated_code") or (r or {}).get("generated_code") or "")
+def first_existing(paths):
+    return next((path for path in paths if path.exists()), None)
 
 
-def load_tasks(dataset):
+def load_required_details(root, dataset, provider, model, method):
+    path = first_existing(
+        result_input_paths(root, dataset, provider, model, method, "details")
+    )
+    if not path:
+        searched = "\n".join(
+            f"  - {p}" for p in result_input_paths(root, dataset, provider, model, method, "details")
+        )
+        raise FileNotFoundError(
+            f"{dataset}: missing details JSON file for {method!r}. Searched:\n{searched}"
+        )
+    return load_json(path)
+
+
+def load_tasks(root, dataset):
     path = Path(DATASETS[dataset]["path"])
     if not path.is_absolute():
-        path = ROOT / path
+        path = root / path
     if not path.exists():
         return {}
 
     tasks = {}
-    for r in load(path):
-        tasks[str(r.get("task_id"))] = {
-            "entry_point": r.get("entry_point") or "",
-            "prompt": r.get("prompt") or r.get("instruct_prompt") or r.get("complete_prompt") or "",
+    for record in load_json(path):
+        task_id = str(record.get("task_id"))
+        tasks[task_id] = {
+            "entry_point": record.get("entry_point") or "",
+            "prompt": record.get("prompt")
+            or record.get("instruct_prompt")
+            or record.get("complete_prompt")
+            or "",
         }
     return tasks
 
 
-def prompt(tasks, tid, r):
-    if tid in tasks:
-        return tasks[tid]["prompt"]
-    t = (r or {}).get("task") or {}
-    return str(t.get("prompt") or t.get("instruct_prompt") or t.get("complete_prompt") or "")
+# ---------------------------------------------------------------------------
+# Result interpretation
+# ---------------------------------------------------------------------------
 
 
-def entry(r):
-    return str((r or {}).get("entry_point") or ((r or {}).get("task") or {}).get("entry_point") or "")
+def passed(result):
+    return bool(result and result.get("passed") is True)
 
 
-def explain(r):
-    if not r:
+def ftype(result):
+    result = result or {}
+    evaluation = result.get("evaluation") or {}
+    return str(result.get("failure_type") or evaluation.get("failure_type") or "unknown_failure")
+
+
+def genfail(result):
+    if not result:
+        return True
+
+    generation = result.get("generation") or {}
+    return ftype(result) in GEN_FAILS or str(generation.get("status") or "") in GEN_FAILS
+
+
+def code(result):
+    result = result or {}
+    generation = result.get("generation") or {}
+    return str(
+        generation.get("code")
+        or generation.get("generated_code")
+        or result.get("generated_code")
+        or ""
+    )
+
+
+def result_by_task(details):
+    return {
+        str(result.get("task_id")): result
+        for result in details
+        if result.get("task_id")
+    }
+
+
+def all_task_ids(*detail_lists, tasks=None):
+    ids = set(tasks or [])
+    for details in detail_lists:
+        ids.update(
+            str(result.get("task_id"))
+            for result in details
+            if result.get("task_id")
+        )
+    return ids
+
+
+def count_passed(details):
+    return sum(1 for result in details if passed(result))
+
+
+def count_failed(details):
+    return sum(1 for result in details if not passed(result))
+
+
+def count_generation_failures(details):
+    return sum(1 for result in details if not passed(result) and genfail(result))
+
+
+def prompt(tasks, task_id, result):
+    if task_id in tasks:
+        return tasks[task_id]["prompt"]
+
+    task = (result or {}).get("task") or {}
+    return str(
+        task.get("prompt")
+        or task.get("instruct_prompt")
+        or task.get("complete_prompt")
+        or ""
+    )
+
+
+def entry(result):
+    result = result or {}
+    return str(result.get("entry_point") or (result.get("task") or {}).get("entry_point") or "")
+
+
+def explain(result):
+    if not result:
         return "No result was found for this task."
-    if passed(r):
+    if passed(result):
         return "Passed."
-    if r.get("failure_explanation"):
-        return clean(r["failure_explanation"])
+    if result.get("failure_explanation"):
+        return clean(result["failure_explanation"])
 
-    ev, g, ft = r.get("evaluation") or {}, r.get("generation") or {}, ftype(r)
+    evaluation = result.get("evaluation") or {}
+    generation = result.get("generation") or {}
+    failure_type = ftype(result)
 
-    if genfail(r):
-        return clean(f"Generation failed before evaluation: {g.get('error') or ft}.")
+    if genfail(result):
+        return clean(
+            f"Generation failed before evaluation: {generation.get('error') or failure_type}."
+        )
 
-    stage = "plus" if ft == "plus_test_failure" else "original" if ft == "original_test_failure" else "benchmark"
-    idx, inp = ev.get("failed_case_index"), ev.get("input")
-    exp, act = ev.get("expected"), ev.get("actual")
-    err = ev.get("actual_error") or ev.get("exception")
+    if failure_type == "plus_test_failure":
+        stage = "plus"
+    elif failure_type == "original_test_failure":
+        stage = "original"
+    else:
+        stage = "benchmark"
 
-    if exp is not None and act is not None:
-        return clean(f"Failed {stage} test case #{idx}. Input: {inp}. Expected: {exp}. Actual: {act}.")
-    if err:
-        return clean(f"Failed {stage} test case #{idx}. Input: {inp}. Actual output could not be computed because: {err}")
-    if ev.get("failed_assertion"):
-        return clean(f"Failed assertion: {ev.get('failed_assertion')}.")
+    idx = evaluation.get("failed_case_index")
+    inp = evaluation.get("input")
+    expected = evaluation.get("expected")
+    actual = evaluation.get("actual")
+    error = evaluation.get("actual_error") or evaluation.get("exception")
 
-    return clean(f"Failed with failure type: {ft}.")
+    if expected is not None and actual is not None:
+        return clean(
+            f"Failed {stage} test case #{idx}. Input: {inp}. "
+            f"Expected: {expected}. Actual: {actual}."
+        )
+    if error:
+        return clean(
+            f"Failed {stage} test case #{idx}. Input: {inp}. "
+            f"Actual output could not be computed because: {error}"
+        )
+    if evaluation.get("failed_assertion"):
+        return clean(f"Failed assertion: {evaluation.get('failed_assertion')}.")
+
+    return clean(f"Failed with failure type: {failure_type}.")
 
 
-def call(ep, inp):
+def call(entry_point, inp):
     if inp is None:
         return ""
-    s = str(inp).strip()
-    if ep and re.search(rf"\b{re.escape(ep)}\s*\(", s):
-        return s
-    if ep and "candidate(" in s:
-        return re.sub(r"\bcandidate\s*\(", f"{ep}(", s)
-    if not ep:
-        return s
-    return f"{ep}(*{s})" if s[:1] in "[(" else f"{ep}({s})"
+
+    text = str(inp).strip()
+    if entry_point and re.search(rf"\b{re.escape(entry_point)}\s*\(", text):
+        return text
+    if entry_point and "candidate(" in text:
+        return re.sub(r"\bcandidate\s*\(", f"{entry_point}(", text)
+    if not entry_point:
+        return text
+    if text[:1] in "[(":
+        return f"{entry_point}(*{text})"
+    return f"{entry_point}({text})"
 
 
-def failing_test(r):
-    if not r or passed(r):
+def failing_test(result):
+    if not result or passed(result):
         return ""
-    if genfail(r):
-        return f"# Generation failed before evaluation\n# reason: {((r.get('generation') or {}).get('error') or ftype(r))}"
 
-    ev, ep, lines = r.get("evaluation") or {}, entry(r), []
-    for k, v in [("failure_type", ftype(r)), ("failed_case_index", ev.get("failed_case_index")),
-                 ("input", ev.get("input")), ("expected", ev.get("expected")), ("actual", ev.get("actual"))]:
-        if v is not None:
-            lines.append(f"# {k}: {v}")
+    if genfail(result):
+        generation = result.get("generation") or {}
+        return (
+            "# Generation failed before evaluation\n"
+            f"# reason: {generation.get('error') or ftype(result)}"
+        )
 
-    err = ev.get("actual_error") or ev.get("exception")
-    if err:
-        lines += ["# actual_error:"] + [f"# {x}" for x in str(err).splitlines()]
+    evaluation = result.get("evaluation") or {}
+    entry_point = entry(result)
+    lines = []
+
+    fields = [
+        ("failure_type", ftype(result)),
+        ("failed_case_index", evaluation.get("failed_case_index")),
+        ("input", evaluation.get("input")),
+        ("expected", evaluation.get("expected")),
+        ("actual", evaluation.get("actual")),
+    ]
+    for key, value in fields:
+        if value is not None:
+            lines.append(f"# {key}: {value}")
+
+    error = evaluation.get("actual_error") or evaluation.get("exception")
+    if error:
+        lines += ["# actual_error:"] + [f"# {line}" for line in str(error).splitlines()]
 
     lines.append("")
 
-    if ev.get("failed_assertion"):
-        lines.append(re.sub(r"\bcandidate\s*\(", f"{ep}(", str(ev["failed_assertion"])))
+    if evaluation.get("failed_assertion"):
+        lines.append(
+            re.sub(
+                r"\bcandidate\s*\(",
+                f"{entry_point}(",
+                str(evaluation["failed_assertion"]),
+            )
+        )
     else:
-        c = call(ep, ev.get("input"))
-        lines.append(f"assert {c} == {ev.get('expected')}" if c and ev.get("expected") is not None else c or "# Failed test input was not available.")
+        rendered_call = call(entry_point, evaluation.get("input"))
+        expected = evaluation.get("expected")
+        if rendered_call and expected is not None:
+            lines.append(f"assert {rendered_call} == {expected}")
+        else:
+            lines.append(rendered_call or "# Failed test input was not available.")
 
     return "\n".join(lines)
 
 
-def contract_text(x):
-    if not x:
-        return ""
-    if isinstance(x, list):
-        return "\n".join(filter(None, map(contract_text, x)))
-    if isinstance(x, dict):
-        for k in ["description", "condition", "expression", "expected_behavior", "case"]:
-            if x.get(k):
-                return str(x[k]).strip()
-        return "\n".join(filter(None, (contract_text(v) for v in x.values())))
-    return str(x).strip()
-
-
-def get_contract(root, dataset, provider, model, tid, r):
-    g = (r or {}).get("generation") or {}
-    obj = g.get("contract") or (r or {}).get("contract") or ((r or {}).get("task") or {}).get("contract") or {}
-
-    paths = [
-        g.get("contract_path"),
-        root / "outputs" / "contracts" / "raw" / safe(provider) / safe(model) / dataset / f"{safe(tid)}_contract.json",
-    ]
-
-    for p in paths:
-        if not p:
-            continue
-        p = Path(p)
-        p = p if p.is_absolute() else root / p
-        if p.exists():
-            data = load(p)
-            obj = data.get("contract", data) if isinstance(data, dict) else {}
-            break
-
-    obj = obj if isinstance(obj, dict) else {}
-    return {
-        "Preconditions": contract_text(obj.get("preconditions")),
-        "Postconditions": contract_text(obj.get("postconditions")),
-        "Invariants": contract_text(obj.get("invariants")),
-    }
-
-
-def bug(r):
-    if not r:
+def bug(result):
+    if not result:
         return "missing_result"
-    if passed(r):
+    if passed(result):
         return "passed"
-    text = (explain(r) + " " + str((r.get("evaluation") or {}).get("actual_error") or "")).lower()
-    if genfail(r):
+
+    evaluation = result.get("evaluation") or {}
+    text = (explain(result) + " " + str(evaluation.get("actual_error") or "")).lower()
+
+    if genfail(result):
         return "generation failure"
     if "timeout" in text:
         return "timeout / inefficient algorithm"
@@ -218,234 +418,726 @@ def bug(r):
         return "missing import or undefined name"
     if "syntaxerror" in text:
         return "syntax error"
-    if any(x in text for x in ["typeerror", "valueerror", "traceback"]):
+    if any(token in text for token in ["typeerror", "valueerror", "traceback"]):
         return "runtime exception"
-    if ftype(r) == "plus_test_failure":
+    if ftype(result) == "plus_test_failure":
         return "EvalPlus edge-case failure"
     return "wrong algorithm / wrong output"
 
 
-def effect(v, c):
-    if passed(v) and passed(c):
+def effect(vanilla_result, contract_result):
+    if passed(vanilla_result) and passed(contract_result):
         return "both_passed"
-    if not passed(v) and passed(c):
+    if not passed(vanilla_result) and passed(contract_result):
         return "contract_helped"
-    if passed(v) and not passed(c):
+    if passed(vanilla_result) and not passed(contract_result):
         return "contract_regressed"
     return "both_failed"
 
 
-def interpretation(e, vb, cb, con):
-    q = "has output guarantees only" if con["Postconditions"] else "missing or weak contract"
-    if e == "contract_helped":
-        return f"Contract guidance fixed a vanilla failure, likely by improving behavior related to: {vb}."
-    if e == "contract_regressed":
-        return f"Contract guidance introduced a regression. Contract quality: {q}. Contract-guided bug: {cb}."
-    if e == "both_failed":
-        return f"Both methods failed. Vanilla bug: {vb}. Contract-guided bug: {cb}. Raw contract did not fix the task."
+def interpretation(effect_name, vanilla_bug, contract_bug, contract_info):
+    quality = "has output guarantees only" if contract_info["Postconditions"] else "missing or weak contract"
+
+    if effect_name == "contract_helped":
+        return (
+            "Contract guidance fixed a vanilla failure, likely by improving "
+            f"behavior related to: {vanilla_bug}."
+        )
+    if effect_name == "contract_regressed":
+        return (
+            "Contract guidance introduced a regression. "
+            f"Contract quality: {quality}. Contract-guided bug: {contract_bug}."
+        )
+    if effect_name == "both_failed":
+        return (
+            f"Both methods failed. Vanilla bug: {vanilla_bug}. "
+            f"Contract-guided bug: {contract_bug}. The contract did not fix the task."
+        )
     return "Both methods passed."
 
 
-def rows(root, dataset, provider, model, vanilla, contract):
-    tasks = load_tasks(dataset)
-    V = {str(r.get("task_id")): r for r in vanilla if r.get("task_id")}
-    C = {str(r.get("task_id")): r for r in contract if r.get("task_id")}
-
-    def sort_key(x):
-        return [int(p) if p.isdigit() else p for p in re.split(r"(\d+)", x)]
-
-    out = []
-    for tid in sorted(set(tasks) | set(V) | set(C), key=sort_key):
-        v, c = V.get(tid), C.get(tid)
-        con = get_contract(root, dataset, provider, model, tid, c)
-        e = effect(v, c)
-
-        row = {
-            "Task ID": tid,
-            "Vanilla Explanation": explain(v),
-            "Contract-Guided Explanation": explain(c),
-            "Prompt": prompt(tasks, tid, c or v),
-            "Vanilla Code": code(v),
-            "Contract-Guided Code": code(c),
-            "Vanilla Failing Test": failing_test(v),
-            "Contract-Guided Failing Test": failing_test(c),
-            **con,
-        }
-
-        row["Contract Effect"] = e
-        row["Interpretation"] = interpretation(e, bug(v), bug(c), con)
-        out.append(row)
-
-    return out
+# ---------------------------------------------------------------------------
+# Contract loading and contract-generation status
+# ---------------------------------------------------------------------------
 
 
-def total(s):
-    return int(s.get("total_tasks") or s.get("total") or s.get("task_count") or 0)
+def contract_text(value):
+    if not value:
+        return ""
+
+    if isinstance(value, list):
+        return "\n".join(filter(None, map(contract_text, value)))
+
+    if isinstance(value, dict):
+        for key in ["description", "condition", "expression", "expected_behavior", "case"]:
+            if value.get(key):
+                return str(value[key]).strip()
+        return "\n".join(filter(None, (contract_text(v) for v in value.values())))
+
+    return str(value).strip()
 
 
-def gen_fail_count(s):
-    fc = s.get("failure_counts") or {}
-    return sum(int(fc.get(k, 0) or 0) for k in GEN_FAILS) if isinstance(fc, dict) else 0
+def contract_file_path(root, dataset, provider, model, task_id, contract_version):
+    contract_dir = (
+        root
+        / "outputs"
+        / "contracts"
+        / "raw"
+        / safe(provider)
+        / safe(model)
+        / dataset
+    )
+
+    if contract_version == "raw_contracts":
+        return contract_dir / f"{safe(task_id)}_contract.json"
+
+    if contract_version == "optimized_rl":
+        return contract_dir / f"{safe(task_id)}_optimized_contract.json"
+
+    raise ValueError(
+        f"Unsupported contract_version={contract_version!r}. "
+        "Add its filename pattern to contract_file_path()."
+    )
 
 
-def summary_df(vs, cs):
-    def line(name, s):
-        t, p = total(s), int(s.get("passed") or 0)
-        p1 = float(s.get("pass@1") or s.get("pass_at_1") or (p / t if t else 0))
-        return {
-            "Method": name,
-            "Total Tasks": t,
-            "Successful Generations": s.get("successful_generation_count", t - gen_fail_count(s) if t else ""),
-            "Filled Generation Failures": s.get("filled_failure_count", gen_fail_count(s) or 0),
-            "Passed": p,
-            "Failed": int(s.get("failed", t - p)),
-            "Pass@1": p1,
-            "Pass@1 Percent": s.get("pass@1_percent", s.get("pass_at_1_percent", round(p1 * 100, 2))),
-        }
+def load_contract_file(root, dataset, provider, model, task_id, contract_version):
+    path = contract_file_path(root, dataset, provider, model, task_id, contract_version)
+    if not path.exists():
+        return None
+    return load_json(path)
 
-    a, b = line("Vanilla", vs), line("Raw Contract Guided", cs)
-    t = a["Total Tasks"] or b["Total Tasks"]
-    net = {
-        "Method": "Net Difference",
-        "Total Tasks": t,
-        "Successful Generations": b["Successful Generations"] - a["Successful Generations"],
-        "Filled Generation Failures": b["Filled Generation Failures"] - a["Filled Generation Failures"],
-        "Passed": b["Passed"] - a["Passed"],
-        "Failed": b["Failed"] - a["Failed"],
-        "Pass@1": (b["Passed"] - a["Passed"]) / t if t else 0,
-        "Pass@1 Percent": round(((b["Passed"] - a["Passed"]) / t) * 100, 2) if t else 0,
+
+def extract_contract_object(contract_file_data):
+    if not isinstance(contract_file_data, dict):
+        return {}
+    contract = contract_file_data.get("contract") or {}
+    return contract if isinstance(contract, dict) else {}
+
+
+def get_contract(root, dataset, provider, model, task_id, contract_version="raw_contracts"):
+    contract_file_data = load_contract_file(
+        root=root,
+        dataset=dataset,
+        provider=provider,
+        model=model,
+        task_id=task_id,
+        contract_version=contract_version,
+    )
+    contract = extract_contract_object(contract_file_data)
+
+    return {
+        "Preconditions": contract_text(contract.get("preconditions")),
+        "Postconditions": contract_text(contract.get("postconditions")),
+        "Invariants": contract_text(contract.get("invariants")),
     }
-    return pd.DataFrame([a, b, net])
 
 
-def effect_df(rs):
-    c, t = Counter(r["Contract Effect"] for r in rs), len(rs)
-    data = [
-        ("both_passed", "Both passed", "Both methods solved the task."),
-        ("both_failed", "Both failed", "The raw contract did not fix the task."),
-        ("contract_helped", "Vanilla failed, contract passed", "The contract-guided method improved over vanilla."),
-        ("contract_regressed", "Vanilla passed, contract failed", "The raw contract or contract prompt likely misled generation."),
-    ]
+def contract_generation_status(root, dataset, provider, model, task_id, version):
+    """Return the contract-generation status used for counting.
 
-    out = [{"Outcome": label, "Count": c[k], "Percent of Tasks": round(c[k] / t * 100, 2) if t else 0, "Meaning": m}
-           for k, label, m in data]
+    raw_contracts are treated as generated when they appear in the result details.
+    optimized_rl uses optimization_status from the optimized contract JSON file.
+    """
 
-    net = c["contract_helped"] - c["contract_regressed"]
-    out.append({"Outcome": "Net improvement", "Count": net,
-                "Percent of Tasks": round(net / t * 100, 2) if t else 0,
-                "Meaning": "Contract-helped tasks minus contract-regressed tasks."})
-    return pd.DataFrame(out)
+    if version == "raw_contracts":
+        return "generated"
+
+    if version != "optimized_rl":
+        raise ValueError(f"Unsupported version={version!r}")
+
+    data = load_contract_file(
+        root=root,
+        dataset=dataset,
+        provider=provider,
+        model=model,
+        task_id=task_id,
+        contract_version="optimized_rl",
+    )
+
+    if not isinstance(data, dict):
+        return "missing"
+
+    return str(data.get("optimization_status") or "")
 
 
-def shift_df(vs, cs):
-    vc, cc = vs.get("failure_counts") or {}, cs.get("failure_counts") or {}
-    out = []
+def was_attempted_contract_generation(root, dataset, provider, model, task_id, version):
+    if version == "raw_contracts":
+        return True
 
-    for k in sorted((set(vc) | set(cc)) - {"passed"}):
-        v, c = int(vc.get(k, 0) or 0), int(cc.get(k, 0) or 0)
-        d = c - v
+    status = contract_generation_status(root, dataset, provider, model, task_id, version)
+    return status != "preserved_raw_passed"
 
-        meaning = (
-            "EvalPlus edge-case/robustness failures" if k == "plus_test_failure"
-            else "core benchmark functional failures" if k == "original_test_failure"
-            else "failures before executable code was produced" if k in GEN_FAILS
-            else "this failure category"
+
+def was_successful_contract_generation(root, dataset, provider, model, task_id, version):
+    if version == "raw_contracts":
+        return True
+
+    status = contract_generation_status(root, dataset, provider, model, task_id, version)
+    return status == "optimized"
+
+
+# ---------------------------------------------------------------------------
+# Detail rows
+# ---------------------------------------------------------------------------
+
+
+def detail_task_ids(root, dataset, provider, model, detail_version, detail_details):
+    ids = {
+        str(result.get("task_id"))
+        for result in detail_details
+        if result.get("task_id")
+    }
+
+    if detail_version == "raw_contracts":
+        return ids
+
+    return {
+        task_id
+        for task_id in ids
+        if was_successful_contract_generation(
+            root, dataset, provider, model, task_id, detail_version
+        )
+    }
+
+
+def comparison_rows(
+    root,
+    dataset,
+    provider,
+    model,
+    tasks,
+    vanilla_details,
+    contract_details,
+    contract_version,
+    task_ids,
+):
+    vanilla_by_task = result_by_task(vanilla_details)
+    contract_by_task = result_by_task(contract_details)
+    rows_out = []
+
+    for task_id in sorted_task_ids(task_ids):
+        vanilla_result = vanilla_by_task.get(task_id)
+        contract_result = contract_by_task.get(task_id)
+
+        contract_info = get_contract(
+            root=root,
+            dataset=dataset,
+            provider=provider,
+            model=model,
+            task_id=task_id,
+            contract_version=contract_version,
         )
 
-        direction = "increased" if d > 0 else "decreased" if d < 0 else "did not change"
+        contract_effect = effect(vanilla_result, contract_result)
 
-        out.append({
-            "Failure Type": k,
-            "Vanilla Count": v,
-            "Contract-Guided Count": c,
-            "Change": d,
-            "Interpretation": f"{meaning} {direction} by {abs(d)}.",
-        })
+        row = {
+            "Task ID": task_id,
+            "Vanilla Explanation": explain(vanilla_result),
+            "Contract-Guided Explanation": explain(contract_result),
+            "Prompt": prompt(tasks, task_id, contract_result or vanilla_result),
+            "Vanilla Code": code(vanilla_result),
+            "Contract-Guided Code": code(contract_result),
+            "Vanilla Failing Test": failing_test(vanilla_result),
+            "Contract-Guided Failing Test": failing_test(contract_result),
+            **contract_info,
+        }
+        row["Contract Effect"] = contract_effect
+        row["Interpretation"] = interpretation(
+            contract_effect,
+            bug(vanilla_result),
+            bug(contract_result),
+            contract_info,
+        )
+        rows_out.append(row)
 
-    return pd.DataFrame(out)
-
-
-def candidates(root, dataset, provider, model, method, kind):
-    sp, sm = safe(provider), safe(model)
-
-    if DATASETS[dataset].get("evalplus_dataset"):
-        return [root / "results" / "evalplus" / method / sp / sm / dataset / f"{kind}.json"]
-
-    if method == "vanilla":
-        return [
-            root / "results" / "vanilla" / f"stage1_{dataset}_{provider}_{sm}_{kind}.json",
-            root / "results" / "vanilla" / f"stage1_{dataset}_{sp}_{sm}_{kind}.json",
-        ]
-
-    return [root / "results" / "contract_guided_generation" / "raw_contracts" / sp / sm / dataset / f"{kind}.json"]
+    return rows_out
 
 
-def first(paths):
-    return next((p for p in paths if p.exists()), None)
+# ---------------------------------------------------------------------------
+# Summary tables
+# ---------------------------------------------------------------------------
 
 
-def analyze(args, dataset):
-    root, provider, model = Path(args.root).resolve(), args.provider, args.model
+def count_successful_result_generations(details_by_task, task_ids):
+    """Count tasks whose result row contains a usable generated program.
 
-    vs = first(candidates(root, dataset, provider, model, "vanilla", "summary"))
-    vd = first(candidates(root, dataset, provider, model, "vanilla", "details"))
-    cs = first(candidates(root, dataset, provider, model, "raw_contracts", "summary"))
-    cd = first(candidates(root, dataset, provider, model, "raw_contracts", "details"))
+    This is intentionally different from optimized contract generation success.
+    For example, an optimized_rl result may reuse a preserved raw generation; that
+    still counts as a successful program generation in the cumulative summary.
+    """
 
-    if not all([vs, vd, cs, cd]):
-        raise FileNotFoundError(f"{dataset}: missing vanilla/raw_contracts summary/details json files")
+    return sum(
+        1
+        for task_id in task_ids
+        if details_by_task.get(task_id) and not genfail(details_by_task[task_id])
+    )
 
-    v_sum, c_sum = load(vs), load(cs)
-    rs = rows(root, dataset, provider, model, load(vd), load(cd))
 
-    if dataset == "evalplus":
-        fname = "EvalPlus_analysis.xlsx"
-    elif dataset == "evalplus_mbpp":
-        fname = "EvalPlus_MBPP_analysis.xlsx"
-    else:
-        fname = f"{dataset}_analysis.xlsx"
+def count_passed_for_task_ids(details_by_task, task_ids):
+    return sum(
+        1
+        for task_id in task_ids
+        if passed(details_by_task.get(task_id))
+    )
 
-    out = Path(args.output) if args.output else root / "analysis" / safe(model) / "basic" / fname
-    out.parent.mkdir(parents=True, exist_ok=True)
 
-    with pd.ExcelWriter(out, engine="openpyxl") as w:
-        summary_df(v_sum, c_sum).to_excel(w, sheet_name="Summary", index=False, startrow=0)
-        effect_df(rs).to_excel(w, sheet_name="Summary", index=False, startrow=8)
-        shift_df(v_sum, c_sum).to_excel(w, sheet_name="Summary", index=False, startrow=18)
-        format_worksheet(w.sheets["Summary"])
+def count_generation_failures_for_task_ids(details_by_task, task_ids):
+    """Count tasks whose code generation failed for this stage.
 
-        for sheet, eff, cols in [
-            (HELPED, "contract_helped", HELPED_COLS),
-            (REGRESSED, "contract_regressed", REGRESSED_COLS),
-            (FAILED, "both_failed", FAILED_COLS),
-        ]:
-            pd.DataFrame([r for r in rs if r["Contract Effect"] == eff], columns=cols).to_excel(
-                w, sheet_name=sheet, index=False
+    This uses the same full task universe as the rest of the cumulative summary.
+    A missing result row is counted as a generation failure because there is no
+    usable generated program for that stage/task.
+    """
+
+    return sum(
+        1
+        for task_id in task_ids
+        if genfail(details_by_task.get(task_id))
+    )
+
+
+def generation_summary_df(root, dataset, provider, model, vanilla_details, version_details):
+    """Build the main cumulative summary over the full task set.
+
+    Every row is counted against the same task universe. The optimized_rl row does
+    not shrink to only tasks whose contracts were optimized; it uses every task
+    present in vanilla or any contract-guided result file.
+    """
+
+    task_ids = sorted_task_ids(
+        all_task_ids(vanilla_details, *(details for _, details in version_details))
+    )
+    total_tasks = len(task_ids)
+
+    vanilla_by_task = result_by_task(vanilla_details)
+    vanilla_passed = count_passed_for_task_ids(vanilla_by_task, task_ids)
+
+    rows_out = [
+        {
+            "Stage": "Vanilla",
+            "Total Tasks": total_tasks,
+            "Successful Generations": count_successful_result_generations(
+                vanilla_by_task, task_ids
+            ),
+            "Filled Generation Failures": count_generation_failures_for_task_ids(
+                vanilla_by_task, task_ids
+            ),
+            "Cumulative Passed": vanilla_passed,
+            "Cumulative Failed": total_tasks - vanilla_passed,
+            "Cumulative Passed Percentage": pct(vanilla_passed, total_tasks),
+        }
+    ]
+
+    for version, details in version_details:
+        details_by_task = result_by_task(details)
+        cumulative_passed = count_passed_for_task_ids(details_by_task, task_ids)
+        generation_failures = count_generation_failures_for_task_ids(
+            details_by_task,
+            task_ids,
+        )
+
+        rows_out.append(
+            {
+                "Stage": display_version(version),
+                "Total Tasks": total_tasks,
+                "Successful Generations": count_successful_result_generations(
+                    details_by_task, task_ids
+                ),
+                "Filled Generation Failures": generation_failures,
+                "Cumulative Passed": cumulative_passed,
+                "Cumulative Failed": total_tasks - cumulative_passed,
+                "Cumulative Passed Percentage": pct(cumulative_passed, total_tasks),
+            }
+        )
+
+    return pd.DataFrame(rows_out)
+
+
+def rl_generation_summary_df(root, dataset, provider, model, version_details):
+    rows_out = []
+
+    for version, details in version_details:
+        if version != "optimized_rl":
+            continue
+
+        attempted = 0
+        successful = 0
+        passed_count = 0
+        failed_count = 0
+
+        for result in details:
+            task_id = str(result.get("task_id"))
+            if not task_id:
+                continue
+
+            if not was_attempted_contract_generation(
+                root, dataset, provider, model, task_id, version
+            ):
+                continue
+
+            attempted += 1
+
+            if was_successful_contract_generation(
+                root, dataset, provider, model, task_id, version
+            ):
+                successful += 1
+
+            if passed(result):
+                passed_count += 1
+            else:
+                failed_count += 1
+
+        rows_out.append(
+            {
+                "Stage": display_version(version),
+                "Attempted Contract Generations": attempted,
+                "Successful Contract Generations": successful,
+                "Passed Task Count": passed_count,
+                "Failed Task Count": failed_count,
+                "Passed Task Percentage": pct(passed_count, attempted),
+            }
+        )
+
+    return pd.DataFrame(rows_out)
+
+
+def effect_vs_vanilla_df(vanilla_details, version_details):
+    vanilla_by_task = result_by_task(vanilla_details)
+    task_ids = all_task_ids(vanilla_details, *(details for _, details in version_details))
+    rows_out = []
+
+    for version, details in version_details:
+        details_by_task = result_by_task(details)
+        both_passed = 0
+        helped = 0
+        regressed = 0
+        both_failed = 0
+
+        for task_id in sorted_task_ids(task_ids):
+            comparison = effect(
+                vanilla_by_task.get(task_id),
+                details_by_task.get(task_id),
             )
-            format_worksheet(w.sheets[sheet])
 
-    print(f"Wrote {out}")
+            if comparison == "both_passed":
+                both_passed += 1
+            elif comparison == "contract_helped":
+                helped += 1
+            elif comparison == "contract_regressed":
+                regressed += 1
+            elif comparison == "both_failed":
+                both_failed += 1
+
+        rows_out.append(
+            {
+                "Contract Version": display_version(version),
+                "Compared Tasks": len(task_ids),
+                "Both Passed": both_passed,
+                "Vanilla Failed, Contract Passed": helped,
+                "Contract Failed, Vanilla Passed": regressed,
+                "Both Failed": both_failed,
+                "Net Improvement vs Vanilla": helped - regressed,
+            }
+        )
+
+    return pd.DataFrame(rows_out)
+
+
+def failure_type_summary_df(vanilla_details, version_details):
+    failure_types = set()
+
+    for details in [vanilla_details, *(details for _, details in version_details)]:
+        for result in details:
+            if not passed(result):
+                failure_types.add(ftype(result))
+
+    latest_version = version_details[-1][0] if version_details else None
+    latest_label = display_version(latest_version) if latest_version else None
+
+    rows_out = []
+
+    for failure_type in sorted(failure_types):
+        row = {"Failure Type": failure_type}
+        row["Vanilla"] = sum(
+            1
+            for result in vanilla_details
+            if not passed(result) and ftype(result) == failure_type
+        )
+
+        for version, details in version_details:
+            row[display_version(version)] = sum(
+                1
+                for result in details
+                if not passed(result) and ftype(result) == failure_type
+            )
+
+        # Positive values mean the latest stage has fewer failures than vanilla.
+        # Negative values mean the latest stage has more failures than vanilla.
+        row["Net Difference"] = (
+            row["Vanilla"] - row[latest_label]
+            if latest_label is not None
+            else 0
+        )
+
+        rows_out.append(row)
+
+    total_row = {"Failure Type": "Total Failed"}
+    total_row["Vanilla"] = count_failed(vanilla_details)
+
+    for version, details in version_details:
+        total_row[display_version(version)] = count_failed(details)
+
+    total_row["Net Difference"] = (
+        total_row["Vanilla"] - total_row[latest_label]
+        if latest_label is not None
+        else 0
+    )
+
+    rows_out.append(total_row)
+    return pd.DataFrame(rows_out)
+
+
+# ---------------------------------------------------------------------------
+# Excel output helpers
+# ---------------------------------------------------------------------------
+
+
+EXCEL_CELL_LIMIT = 32767
+TRUNCATION_NOTE = "\n\n[Truncated because Excel cells are limited to 32,767 characters.]"
+
+
+def truncate_for_excel(value):
+    """Keep cell contents within Excel/openpyxl's maximum cell length."""
+
+    if not isinstance(value, str):
+        return value
+
+    if len(value) <= EXCEL_CELL_LIMIT:
+        return value
+
+    keep = EXCEL_CELL_LIMIT - len(TRUNCATION_NOTE)
+    return value[:keep] + TRUNCATION_NOTE
+
+
+def dataframe_for_excel(df):
+    """Return a copy with oversized string cells truncated before to_excel()."""
+
+    return df.map(truncate_for_excel)
+
+
+# ---------------------------------------------------------------------------
+# Workbook writing
+# ---------------------------------------------------------------------------
+
+
+def write_table(writer, df, sheet_name, title, startrow):
+    """Write a table directly, without an extra title row.
+
+    The title argument is kept so the call sites stay readable, but the Summary
+    sheet now contains only tables and blank spacing between them.
+    """
+
+    dataframe_for_excel(df).to_excel(
+        writer,
+        sheet_name=sheet_name,
+        index=False,
+        startrow=startrow,
+    )
+
+    # pandas writes one header row plus len(df) data rows. Add 3 to leave
+    # exactly two blank rows before the next table starts.
+    return startrow + len(df) + 3
+
+
+def write_analysis_workbook(
+    root,
+    dataset,
+    provider,
+    model,
+    detail_version,
+    vanilla_details,
+    version_details,
+    detail_rows,
+):
+    output_path = (
+        root
+        / "analysis"
+        / safe(model)
+        / safe(dataset)
+        / "basic"
+        / version_filename(detail_version)
+    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        pd.DataFrame().to_excel(writer, sheet_name="Summary", index=False)
+        startrow = 0
+
+        startrow = write_table(
+            writer,
+            generation_summary_df(
+                root, dataset, provider, model, vanilla_details, version_details
+            ),
+            "Summary",
+            "Generation / Cumulative Summary",
+            startrow,
+        )
+
+        rl_summary = rl_generation_summary_df(
+            root, dataset, provider, model, version_details
+        )
+
+        if not rl_summary.empty:
+            startrow = write_table(
+                writer,
+                rl_summary,
+                "Summary",
+                "RL Contract Generation Summary",
+                startrow,
+            )
+
+        startrow = write_table(
+            writer,
+            effect_vs_vanilla_df(vanilla_details, version_details),
+            "Summary",
+            "Effect Comparison vs Vanilla",
+            startrow,
+        )
+
+        startrow = write_table(
+            writer,
+            failure_type_summary_df(vanilla_details, version_details),
+            "Summary",
+            "Failure Type Summary: Remaining Failures After Each Stage",
+            startrow,
+        )
+
+        format_analysis_summary_worksheet(writer.sheets["Summary"])
+
+        for sheet_name, effect_name, columns in DETAIL_SHEETS:
+            sheet_rows = [
+                row for row in detail_rows if row["Contract Effect"] == effect_name
+            ]
+
+            dataframe_for_excel(pd.DataFrame(sheet_rows, columns=columns)).to_excel(
+                writer,
+                sheet_name=sheet_name,
+                index=False,
+            )
+
+            format_worksheet(writer.sheets[sheet_name])
+
+    print(f"Wrote {output_path}")
+
+
+# ---------------------------------------------------------------------------
+# Main analysis
+# ---------------------------------------------------------------------------
+
+
+def validate_args(contract_versions, detail_version):
+    if not contract_versions:
+        raise ValueError("--contract-versions must include at least one version.")
+
+    if contract_versions[0] != "raw_contracts":
+        raise ValueError(
+            "--contract-versions must start with raw_contracts because the "
+            "generation summary treats raw contracts as the first contract-guided stage."
+        )
+
+    if detail_version not in contract_versions:
+        raise ValueError(
+            "--detail-version must be one of --contract-versions. "
+            f"Got {detail_version!r}, expected one of {contract_versions!r}."
+        )
+
+
+def analyze(args):
+    root = Path(args.root).resolve()
+    dataset = args.dataset
+    provider = args.provider
+    model = args.model
+
+    contract_versions = args.contract_versions
+    detail_version = args.detail_version or contract_versions[-1]
+    validate_args(contract_versions, detail_version)
+
+    tasks = load_tasks(root, dataset)
+    vanilla_details = load_required_details(root, dataset, provider, model, "vanilla")
+
+    loaded_versions = [
+        {
+            "version": version,
+            "details": load_required_details(root, dataset, provider, model, version),
+        }
+        for version in contract_versions
+    ]
+    version_details = [
+        (item["version"], item["details"])
+        for item in loaded_versions
+    ]
+
+    detail_version_data = next(
+        item for item in loaded_versions if item["version"] == detail_version
+    )
+    detail_ids = detail_task_ids(
+        root=root,
+        dataset=dataset,
+        provider=provider,
+        model=model,
+        detail_version=detail_version,
+        detail_details=detail_version_data["details"],
+    )
+
+    detail_rows = comparison_rows(
+        root=root,
+        dataset=dataset,
+        provider=provider,
+        model=model,
+        tasks=tasks,
+        vanilla_details=vanilla_details,
+        contract_details=detail_version_data["details"],
+        contract_version=detail_version,
+        task_ids=detail_ids,
+    )
+
+    write_analysis_workbook(
+        root=root,
+        dataset=dataset,
+        provider=provider,
+        model=model,
+        detail_version=detail_version,
+        vanilla_details=vanilla_details,
+        version_details=version_details,
+        detail_rows=detail_rows,
+    )
 
 
 def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--root", default=".")
-    p.add_argument("--dataset", default="evalplus", choices=["all", *sorted(DATASETS)])
-    p.add_argument("--provider", default="openrouter")
-    p.add_argument("--model", default="openai/gpt-3.5-turbo")
-    p.add_argument("--output")
-    args = p.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", default=".")
+    parser.add_argument("--dataset", choices=sorted(DATASETS), required=True)
+    parser.add_argument("--provider", required=True)
+    parser.add_argument("--model", required=True)
+    parser.add_argument(
+        "--contract-versions",
+        nargs="+",
+        default=["raw_contracts"],
+        help=(
+            "Contract-guided result versions to include in summary tables, "
+            "in pipeline order. Example: --contract-versions raw_contracts optimized_rl"
+        ),
+    )
+    parser.add_argument(
+        "--detail-version",
+        default=None,
+        help=(
+            "Contract version to use for helped/regressed/failed detail sheets. "
+            "Defaults to the last item in --contract-versions."
+        ),
+    )
 
-    if args.dataset == "all":
-        if args.output:
-            raise SystemExit("--output can only be used with one dataset")
-        for dataset in sorted(DATASETS):
-            try:
-                analyze(args, dataset)
-            except FileNotFoundError as e:
-                print(f"SKIP {e}")
-    else:
-        analyze(args, args.dataset)
+    analyze(parser.parse_args())
 
 
 if __name__ == "__main__":
