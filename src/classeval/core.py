@@ -122,20 +122,16 @@ def reference_blobs(task: JsonDict, *, include_tests: bool = True) -> list[tuple
     blobs: list[tuple[str, str]] = []
 
     for key, value in task.items():
-        if _looks_reference_key(str(key), include_tests=include_tests):
-            content = text(value)
-            if content:
-                blobs.append((str(key), content))
+        if _looks_reference_key(str(key), include_tests=include_tests) and text(value):
+            blobs.append((str(key), text(value)))
 
     for index, method in enumerate(as_list(task.get("methods_info"))):
         if not isinstance(method, dict):
             continue
 
         for key, value in method.items():
-            if _looks_reference_key(str(key), include_tests=include_tests):
-                content = text(value)
-                if content:
-                    blobs.append((f"methods_info[{index}].{key}", content))
+            if _looks_reference_key(str(key), include_tests=include_tests) and text(value):
+                blobs.append((f"methods_info[{index}].{key}", text(value)))
 
     return blobs
 
@@ -183,8 +179,6 @@ def reference_leakage_report(
         return best
 
     for source, reference in reference_blobs(task, include_tests=include_tests):
-        reference = text(reference)
-
         if len(reference) < MIN_REFERENCE_CHARS:
             continue
 
@@ -273,12 +267,16 @@ def has_incomplete_method_body(node: ast.FunctionDef) -> bool:
 
 def method_profiles(code: str, expected_class: str) -> dict[str, tuple[str, bool]]:
     cls = find_class(parse_module(code), expected_class)
-
     if cls is None:
         return {}
 
     return {
-        node.name: (ast.dump(node.args, include_attributes=False), is_staticmethod(node))
+        node.name: (
+            ast.dump(node.args, include_attributes=False)
+            + "|returns="
+            + (ast.dump(node.returns, include_attributes=False) if node.returns is not None else "None"),
+            is_staticmethod(node),
+        )
         for node in cls.body
         if isinstance(node, ast.FunctionDef)
     }
@@ -302,6 +300,24 @@ def contains_tests(tree: ast.Module) -> bool:
     return False
 
 
+def _allowed_top_level(node: ast.stmt, expected: str) -> bool:
+    if isinstance(node, (ast.Import, ast.ImportFrom)):
+        return True
+
+    if isinstance(node, ast.ClassDef):
+        return node.name == expected
+
+    return isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
+
+
+def _metadata_method_names(task: JsonDict) -> set[str]:
+    return {
+        text(method.get("method_name"))
+        for method in safe_methods_info(task)
+        if text(method.get("method_name"))
+    }
+
+
 def verify_class_code(code: str, task: JsonDict, *, check_methods: bool = True) -> None:
     expected = class_name(task)
     tree = parse_module(code)
@@ -313,18 +329,29 @@ def verify_class_code(code: str, task: JsonDict, *, check_methods: bool = True) 
     if contains_tests(tree):
         raise ValueError("Generated code appears to contain tests.")
 
+    bad_top_level = [type(node).__name__ for node in tree.body if not _allowed_top_level(node, expected)]
+    if bad_top_level:
+        raise ValueError(f"Generated code contains disallowed top-level code: {bad_top_level}")
+
     if not check_methods:
         return
 
-    required = method_profiles(skeleton(task), expected)
+    try:
+        required = method_profiles(skeleton(task), expected)
+    except SyntaxError:
+        required = {}
+
     generated = method_profiles(code, expected)
+    required_names = set(required) or _metadata_method_names(task)
 
     incomplete = sorted(
         node.name
         for node in generated_class.body
-        if isinstance(node, ast.FunctionDef) and has_incomplete_method_body(node)
+        if isinstance(node, ast.FunctionDef)
+        and node.name != "__init__"
+        and has_incomplete_method_body(node)
     )
-    missing = sorted(set(required) - set(generated))
+    missing = sorted(required_names - set(generated))
     changed = sorted(name for name, profile in required.items() if generated.get(name) != profile)
 
     if incomplete:
@@ -334,7 +361,7 @@ def verify_class_code(code: str, task: JsonDict, *, check_methods: bool = True) 
         raise ValueError(f"Missing methods: {missing}")
 
     if changed:
-        raise ValueError(f"Changed method signatures or staticmethod decorators: {changed}")
+        raise ValueError(f"Changed method signatures, return annotations, or staticmethod decorators: {changed}")
 
 
 def extract_class_code(raw_response: str, task: JsonDict, *, check_methods: bool = True) -> str:
@@ -343,11 +370,11 @@ def extract_class_code(raw_response: str, task: JsonDict, *, check_methods: bool
         entry_point=None,
         validate=False,
     ).strip()
-    code = normalize_code_text(code)
 
     if not code:
         raise ValueError("Generated code is empty.")
 
+    code = normalize_code_text(code)
     verify_class_code(code, task, check_methods=check_methods)
     return code
 
@@ -361,10 +388,12 @@ __all__ = [
     "ensure_no_reference_leak",
     "extract_class_code",
     "fill_template",
+    "find_class",
     "has_incomplete_method_body",
     "method_profiles",
     "normalize_code_text",
     "output_path",
+    "parse_module",
     "pretty_json",
     "read_template",
     "reference_blobs",
