@@ -6,8 +6,8 @@ import pandas as pd
 from src.common.parsing import extract_json_object
 from src.common.llm_clients import call_chat_model, get_client
 from src.common.config import DATASETS
-from analysis_tools.analyze_results import HELPED, REGRESSED, FAILED
-from analysis_tools.contract_analysis_scripts.specs import AnalysisSpec
+from analysis_tools.old.analyze_results import HELPED, REGRESSED, FAILED
+from analysis_tools.contract_analysis.specs import AnalysisSpec
 
 DEFAULT_PROVIDER = "openrouter"
 DEFAULT_MODEL = "google/gemini-3.5-flash"

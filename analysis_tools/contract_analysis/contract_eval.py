@@ -6,7 +6,7 @@ from typing import Any
 import pandas as pd
 
 from analysis_tools.formatting import format_worksheet, format_summary_worksheet
-from analysis_tools.contract_analysis_scripts.common import (
+from analysis_tools.contract_analysis.common import (
     MAX_LLM_ATTEMPTS,
     SUMMARY_SHEET,
     INPUT_ERRORS_SHEET,
@@ -32,7 +32,7 @@ from analysis_tools.contract_analysis_scripts.common import (
     get_failure_reason_bucket,
     safe_pct,
 )
-from analysis_tools.contract_analysis_scripts.specs import AnalysisSpec, SPECS
+from analysis_tools.contract_analysis.specs import AnalysisSpec, SPECS
 
 
 @dataclass

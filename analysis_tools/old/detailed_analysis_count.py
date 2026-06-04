@@ -7,7 +7,7 @@ import argparse, re
 from pathlib import Path
 from openpyxl import Workbook, load_workbook
 from collections import Counter
-from analyze_results import HELPED, REGRESSED, FAILED
+from analysis_tools.old.analyze_results import HELPED, REGRESSED, FAILED
 from formatting import format_worksheet
 from src.common.config import DATASETS
 from src.common.llm_clients import PROVIDERS, default_model

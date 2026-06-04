@@ -2,7 +2,7 @@ import argparse, re
 from pathlib import Path
 import pandas as pd
 import unicodedata
-from analyze_results import HELPED, REGRESSED, FAILED, HELPED_COLS, REGRESSED_COLS, FAILED_COLS
+from analysis_tools.old.analyze_results import HELPED, REGRESSED, FAILED, HELPED_COLS, REGRESSED_COLS, FAILED_COLS
 from formatting import format_worksheet
 from src.common.config import DATASETS
 from src.common.llm_clients import PROVIDERS, call_chat_model, default_model, get_client
