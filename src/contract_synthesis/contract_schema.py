@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 import copy
 import json
 import re
 from typing import Any
-
 from src.common.task_utils import clean, task_entry_point, task_identifier, task_prompt
 from src.contract_synthesis import contract_schema_constants as C
 
@@ -12,7 +10,6 @@ DEF_RE = re.compile(r"\bdef\s+([A-Za-z_]\w*)\s*\(")
 IMPORT_RE = re.compile(
     r"(?m)^\s*(?:from\s+[A-Za-z_][\w.]*\s+import\s+.+|import\s+[A-Za-z_][\w.]*.*)\s*$"
 )
-
 TYPING_NAMES = {
     "Any",
     "Callable",
@@ -33,14 +30,12 @@ TYPING_NAMES = {
     "Type",
     "Union",
 }
-
 SIGNATURE_FIELDS = (
     "signature",
     "declaration",
     "function_signature",
     "entry_point_signature",
 )
-
 
 def first_present(task: dict[str, Any], fields: tuple[str, ...]) -> str:
     for field in fields:
@@ -49,10 +44,8 @@ def first_present(task: dict[str, Any], fields: tuple[str, ...]) -> str:
             return value
     return ""
 
-
 def explicit_signature(task: dict[str, Any]) -> str:
     return first_present(task, SIGNATURE_FIELDS)
-
 
 def extract_import_lines(prompt: str) -> list[str]:
     imports: list[str] = []
@@ -64,11 +57,9 @@ def extract_import_lines(prompt: str) -> list[str]:
 
     return imports
 
-
 def infer_imports(signature: str) -> list[str]:
     names = sorted(name for name in TYPING_NAMES if re.search(rf"\b{re.escape(name)}\b", signature))
     return [f"from typing import {', '.join(names)}"] if names else []
-
 
 def infer_imports_from_prompt_and_signature(prompt: str, signature: str) -> list[str]:
     imports = extract_import_lines(prompt)
@@ -78,7 +69,6 @@ def infer_imports_from_prompt_and_signature(prompt: str, signature: str) -> list
             imports.append(item)
 
     return imports
-
 
 def extract_signature(prompt: str, entry_point: str | None) -> str:
     prompt = clean(prompt)
@@ -133,7 +123,6 @@ def extract_signature(prompt: str, entry_point: str | None) -> str:
 
     return ""
 
-
 def helper_functions(prompt: str, entry_point: str | None) -> list[str]:
     entry_point = clean(entry_point)
     helpers: list[str] = []
@@ -143,7 +132,6 @@ def helper_functions(prompt: str, entry_point: str | None) -> list[str]:
             helpers.append(name)
 
     return helpers
-
 
 def task_summary(task: dict[str, Any]) -> str:
     prompt = task_prompt(task)
@@ -182,7 +170,6 @@ def make_contract_schema_for_task(task: dict[str, Any], benchmark: str) -> dict[
     )
     return schema
 
-
 def build_contract_prompt(task: dict[str, Any], benchmark: str) -> str:
     schema = make_contract_schema_for_task(task, benchmark)
 
@@ -210,14 +197,11 @@ def build_contract_prompt(task: dict[str, Any], benchmark: str) -> str:
         )
     )
 
-
 def make_humaneval_contract_schema_for_task(task: dict[str, Any], benchmark: str) -> dict[str, Any]:
     return make_contract_schema_for_task(task, benchmark)
 
-
 def make_bigcodebench_contract_schema_for_task(task: dict[str, Any], benchmark: str) -> dict[str, Any]:
     return make_contract_schema_for_task(task, benchmark)
-
 
 __all__ = [
     "build_contract_prompt",

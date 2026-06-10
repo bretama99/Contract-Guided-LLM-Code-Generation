@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from typing import Any
 
 TASK_ID_FIELDS = ("task_id", "id", "problem_id", "question_id")
@@ -15,10 +14,8 @@ PROMPT_FIELDS = (
     "problem_statement",
 )
 
-
 def clean(value: Any) -> str:
     return str(value or "").strip()
-
 
 def first_present(task: dict[str, Any], fields: tuple[str, ...]) -> str:
     for field in fields:
@@ -26,7 +23,6 @@ def first_present(task: dict[str, Any], fields: tuple[str, ...]) -> str:
         if value:
             return value
     return ""
-
 
 def task_identifier(task: dict[str, Any]) -> str:
     value = first_present(task, TASK_ID_FIELDS)

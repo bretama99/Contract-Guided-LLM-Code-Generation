@@ -119,9 +119,27 @@ def to_record(row: dict[str, Any], index: int) -> dict[str, Any]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare LiveCodeBench tasks")
-    parser.add_argument("--limit", type=int, default=20)
-    parser.add_argument("--scan-limit", type=int, default=500)
-    parser.add_argument("--keep-missing-tests", action="store_true")
+
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Maximum number of tasks to save. If omitted, save all matching tasks.",
+    )
+
+    parser.add_argument(
+        "--scan-limit",
+        type=int,
+        default=None,
+        help="Maximum number of raw rows to scan. If omitted, scan the full split.",
+    )
+
+    parser.add_argument(
+        "--keep-missing-tests",
+        action="store_true",
+        help="Keep tasks even if public/sample tests are missing.",
+    )
+
     return parser.parse_args()
 
 
@@ -136,28 +154,43 @@ def main() -> None:
         trust_remote_code=True,
     )
 
-    records = []
+    records: list[dict[str, Any]] = []
     scanned = 0
+    skipped_missing_tests = 0
+    skipped_errors = 0
 
     for index, row in enumerate(dataset):
-        if scanned >= args.scan_limit:
+        if args.scan_limit is not None and scanned >= args.scan_limit:
             break
 
         scanned += 1
-        item = to_record(row, index)
+
+        try:
+            item = to_record(row, index)
+        except Exception as exc:
+            skipped_errors += 1
+            print(f"[skip:error] row={index} reason={exc}")
+            continue
+
         tests = item.get("input_output", {})
         has_tests = bool(tests.get("inputs") and tests.get("outputs"))
 
-        if args.keep_missing_tests or has_tests:
-            records.append(item)
+        if not args.keep_missing_tests and not has_tests:
+            skipped_missing_tests += 1
+            continue
 
-        if len(records) >= args.limit:
+        records.append(item)
+
+        if args.limit is not None and len(records) >= args.limit:
             break
 
     output = DATASETS["livecodebench"]["path"]
     save_json(output, records)
 
-    print(f"Saved {len(records)} LiveCodeBench tasks to {output} (scanned {scanned} raw rows)")
+    print(f"Saved {len(records)} LiveCodeBench tasks to {output}")
+    print(f"Scanned raw rows: {scanned}")
+    print(f"Skipped missing tests: {skipped_missing_tests}")
+    print(f"Skipped errors: {skipped_errors}")
 
 
 if __name__ == "__main__":

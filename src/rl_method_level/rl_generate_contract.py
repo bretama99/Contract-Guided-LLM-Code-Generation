@@ -238,7 +238,7 @@ def load_evaluation_rows(folder: Path) -> list[dict[str, Any]]:
     return rows
 
 def feedback_results_folder(method: str, dataset: str, provider: str, model: str) -> Path:
-    if "evalplus_dataset" in DATASETS.get(dataset, {}):
+    if "evalplus" in DATASETS.get(dataset, {}):
         return evalplus_results_folder(method, dataset, provider, model)
 
     if method == "raw_contracts":
@@ -250,7 +250,6 @@ def feedback_results_folder(method: str, dataset: str, provider: str, model: str
     raise ValueError(f"Unsupported feedback method: {method}")
 def evaluation_map(folder: Path) -> dict[str, dict[str, Any]]:
     return {str(row["task_id"]): row for row in load_evaluation_rows(folder) if row.get("task_id")}
-
 
 def make_feedback(row: dict[str, Any] | None) -> dict[str, Any]:
     if not row:
@@ -353,7 +352,6 @@ def ensure_policy_shape(policy: Any) -> dict[str, Any]:
     policy["actions"] = list(ACTION_ORDER)
     policy["feature_names"] = list(FEATURE_NAMES)
     return policy
-
 
 def load_policy(path: Path) -> dict[str, Any]:
     if not path.exists():
@@ -468,7 +466,6 @@ def features_from_state(state: dict[str, Any]) -> dict[str, float]:
     features["inv_count"] = min(float(counts.get("invariants", 0)) / 10.0, 1.0)
     features["edge_count"] = min(float(counts.get("edge_cases", 0)) / 10.0, 1.0)
     return features
-
 
 # ---------------------------------------------------------------------------
 # Policy reward update.
@@ -646,9 +643,6 @@ def build_revision_prompt(
             selected_action,
             ACTIONS[selected_action],
             "",
-            "Failure diagnosis:",
-            json.dumps(diagnosis, indent=2, ensure_ascii=False),
-            "",
             "Task ID:",
             task_identifier(task),
             "",
@@ -658,13 +652,11 @@ def build_revision_prompt(
             "Original benchmark prompt:",
             task_prompt(task),
             "",
-            "Previous raw/v1 contract-guided evaluation feedback:",
-            json.dumps(feedback, indent=2, ensure_ascii=False),
-            "",
             "v1/raw contract:",
             json.dumps(raw_contract, indent=2, ensure_ascii=False),
         ]
     )
+    
 def build_recovery_prompt(*, task: dict[str, Any], dataset: str, raw_error: str, feedback: dict[str, Any]) -> str:
     schema = make_contract_schema_for_task(task, dataset)
     diagnosis = diagnose_feedback(feedback, raw_contract_error=raw_error)

@@ -138,6 +138,7 @@ def evaluate_one(task: dict[str, Any], args: argparse.Namespace) -> dict[str, An
         return fail(task, generation, "other", "Generated code is empty or missing.")
 
     benchmark = get_benchmark(args.dataset)
+    
     result = evaluate_candidate(
         benchmark=benchmark,
         task=task,

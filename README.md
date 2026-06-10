@@ -164,3 +164,13 @@ python -m src.classeval.evaluate_contract_guided \
   --contract-source optimized_rl \
   --timeout 15 \
   --overwrite
+
+
+rm -rf outputs/v2/data/deepseek16b_contract_sft_clean_sample
+
+python src/v2/generate_deepseek_sft_messages_dataset.py \
+  --input data/processed/bigcodebench/bigcodebench_tasks.json \
+  --output-dir outputs/v2/data/deepseek16b_contract_sft_clean_sample \
+  --provider openrouter \
+  --model openai/gpt-5.5 \
+  --limit 1

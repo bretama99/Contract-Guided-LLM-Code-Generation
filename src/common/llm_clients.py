@@ -1,12 +1,9 @@
 from __future__ import annotations
-
 import os
 import time
 from typing import Any, Final
-
 from dotenv import load_dotenv
 from openai import OpenAI
-
 from src.common.config import ROOT
 
 PROVIDERS: Final[dict[str, dict[str, str]]] = {
@@ -48,10 +45,8 @@ PROVIDERS: Final[dict[str, dict[str, str]]] = {
     },
 }
 
-
 def load_environment() -> None:
     load_dotenv(ROOT / ".env", override=True)
-
 
 def provider_config(provider: str) -> dict[str, str]:
     try:
@@ -59,7 +54,6 @@ def provider_config(provider: str) -> dict[str, str]:
     except KeyError as exc:
         supported = ", ".join(sorted(PROVIDERS))
         raise ValueError(f"Unsupported provider '{provider}'. Supported providers: {supported}") from exc
-
 
 def provider_keys() -> list[str]:
     return sorted(PROVIDERS)
@@ -84,7 +78,6 @@ def default_headers(provider: str) -> dict[str, str] | None:
 
     return headers or None
 
-
 def get_client(provider: str) -> OpenAI:
     load_environment()
 
@@ -104,7 +97,6 @@ def get_client(provider: str) -> OpenAI:
         kwargs["default_headers"] = headers
 
     return OpenAI(**kwargs)
-
 
 def usage_stats(response: Any, latency: float) -> dict[str, Any]:
     usage = getattr(response, "usage", None)

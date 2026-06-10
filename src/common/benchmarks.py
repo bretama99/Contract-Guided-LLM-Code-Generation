@@ -64,7 +64,7 @@ def require_native_evaluator(benchmark: Benchmark, method: str) -> None:
     if benchmark.is_evalplus:
         raise SystemExit(
             f"EvalPlus datasets must be evaluated with: "
-            f"python scripts/evaluate_evalplus.py --method {method}"
+            f"python src/evalplus_integration/evaluate_evalplus.py --method {method}"
         )
 
     if benchmark.evaluator is None:

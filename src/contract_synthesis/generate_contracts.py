@@ -141,7 +141,6 @@ def generate_one(
             error=str(exc),
         )
 
-
 def run(args: argparse.Namespace) -> None:
     dataset_info = DATASETS[args.dataset]
     benchmark = dataset_info["label"]
@@ -194,7 +193,6 @@ def run(args: argparse.Namespace) -> None:
     print(f"Skipped: {counts['skipped']}")
     print(f"Elapsed: {round(time.perf_counter() - started, 4)}s")
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Stage 2A: synthesize raw unvalidated contracts")
     parser.add_argument("--dataset", choices=sorted(DATASETS), required=True)
@@ -208,11 +206,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
-
 def main() -> None:
     setup_logging(LOG_FILE)
     run(parse_args())
-
 
 if __name__ == "__main__":
     main()

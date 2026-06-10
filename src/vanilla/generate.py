@@ -80,7 +80,6 @@ def looks_truncated(code: str) -> bool:
         "(",
         "[",
         "{",
-        "return",
         "if",
         "for",
         "while",
@@ -90,7 +89,7 @@ def looks_truncated(code: str) -> bool:
 
     return (
         last in bad_endings
-        or re.search(r"(\bif\b|\bwhile\b|\bfor\b|\breturn\b|=|<|>|-|\+|\*)\s*$", last) is not None
+        or re.search(r"(\bif\b|\bwhile\b|\bfor\b|=|<|>|-|\+|\*)\s*$", last) is not None
         or code.count("(") > code.count(")")
         or code.count("[") > code.count("]")
         or code.count("{") > code.count("}")

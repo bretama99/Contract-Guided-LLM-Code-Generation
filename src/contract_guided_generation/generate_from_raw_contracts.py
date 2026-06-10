@@ -86,7 +86,6 @@ def output_path(source: str, dataset: str, task_id: str, provider: str, model: s
 def as_list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
 
-
 def extract_contract_payload(record: Any, source: str) -> tuple[dict[str, Any], dict[str, Any]]:
     source = require_source(source)
     label = contract_type(source)
@@ -187,7 +186,6 @@ def extract_solution(raw_response: str, entry_point: str) -> str:
     code = add_missing_common_alias_imports(code)
     return extract_python_code(code, entry_point=entry_point, validate=True)
 
-
 def reuse_raw_if_allowed(task: dict[str, Any], dataset: str, provider: str, model: str, metadata: dict[str, Any]) -> tuple[str | None, str | None]:
     if metadata.get("optimization_status") not in {"preserved_raw_passed", "keep_raw_if_passed", "kept_good_raw_contract", "no_optimized_candidate"}:
         return None, None
@@ -198,7 +196,6 @@ def reuse_raw_if_allowed(task: dict[str, Any], dataset: str, provider: str, mode
     if isinstance(record, dict) and record.get("status") == "success" and isinstance(record.get("generated_code"), str):
         return record["generated_code"], str(path)
     return None, None
-
 
 def generate_one(
     *, task: dict[str, Any], dataset: str, benchmark: str, provider: str, model: str,

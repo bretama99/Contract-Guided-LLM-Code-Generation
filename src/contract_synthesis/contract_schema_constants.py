@@ -1,12 +1,9 @@
 from __future__ import annotations
-
 from copy import deepcopy
 from typing import Any, Final, TypeAlias
-
 JsonDict: TypeAlias = dict[str, Any]
 
 SCHEMA_VERSION: Final[str] = "stage2_raw_contract_schema_v1"
-
 CALLABLE_CONTRACT_SCHEMA: Final[JsonDict] = {
     "interface": {
         "inputs": [],
@@ -79,14 +76,11 @@ Rules:
 - Prefer concise, precise clauses over long explanations.
 """.strip()
 
-
 def new_callable_contract_schema() -> JsonDict:
     return deepcopy(CALLABLE_CONTRACT_SCHEMA)
 
-
 def new_contract_schema() -> JsonDict:
     return deepcopy(CONTRACT_SCHEMA)
-
 
 __all__ = [
     "CALLABLE_CONTRACT_SCHEMA",
