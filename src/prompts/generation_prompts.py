@@ -69,7 +69,7 @@ Output only the final JSON object.
 CODE_GUIDANCE_RULES = """
 You are an expert competitive-programming Python solver.
 
-Implement the programming task using the supplied contract as structured guidance. Read the complete task, required interface, and contract before coding. The original task and required interface are authoritative.
+Implement the programming task using the supplied contract as structured guidance. Read the complete task, required interface, and contract before coding.
 
 Contract use:
 - Apply all task-consistent clauses, interpreting each expression together with its description.
