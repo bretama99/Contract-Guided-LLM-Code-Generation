@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_19615",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 3 * 10**5 for x in stdin.split() if x.isdigit())",
+        "description": "All integers in input are within bounds 1 ≤ n, q, a_i, x_i, y_i, u_i, v_i, l_i, r_i ≤ 3⋅10^5."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 2 + n + 2*(n-1) + 4*q",
+        "description": "Input format is correct: first line n and q, second line n integers a_i, followed by (n-1) lines of edges, then q lines of queries."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n for a_i in map(int, stdin.split()[2:2+n]))",
+        "description": "Each city's mineral resource label a_i is between 1 and n."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= x_i < y_i <= n for x_i, y_i in zip(map(int, stdin.split()[2+n+2*i:2+n+2*i+2]) for i in range(n-1)))",
+        "description": "Edges form a tree with unique undirected connections between distinct cities."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u_i <= n and 1 <= v_i <= n and 1 <= l_i <= r_i <= n for u_i, v_i, l_i, r_i in zip(map(int, stdin.split()[2+n+2*(n-1)+4*i:2+n+2*(n-1)+4*i+4]) for i in range(q)))",
+        "description": "Each query has valid city indices u_i, v_i and bounds l_i ≤ r_i."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line.split()) == 1 for stdout_line in stdout.splitlines())",
+        "description": "Each output line contains exactly one integer (either -1 or a valid mineral resource)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(stdout_line.strip() in ['-1'] or (1 <= int(stdout_line.strip()) <= n) for stdout_line in stdout.splitlines())",
+        "description": "Each output is either -1 or a mineral resource label between 1 and n."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((c_i == -1) or (l_i <= c_i <= r_i) for (u_i, v_i, l_i, r_i), c_i in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[2+n+2*(n-1)+i:2+n+2*(n-1)+i+1]] for i in range(q)), map(int, stdout.splitlines())))",
+        "description": "If c_i is not -1, it lies within the query's bounds l_i ≤ c_i ≤ r_i."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((c_i == -1) or (count_odd_on_path(u_i, v_i, c_i, a, tree) for (u_i, v_i, l_i, r_i), c_i in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[2+n+2*(n-1)+i:2+n+2*(n-1)+i+1]] for i in range(q)), map(int, stdout.splitlines())))",
+        "description": "If c_i is not -1, it appears an odd number of times on the path between u_i and v_i in the tree. (count_odd_on_path(u, v, c, a, tree) is true iff the count of c in the path from u to v is odd.)"
+      },
+      {
+        "id": "Q5",
+        "expression": "all((c_i == -1) or (any(c == c_i and l_i <= c <= r_i and count_odd_on_path(u_i, v_i, c, a, tree) for c in set(a))) for (u_i, v_i, l_i, r_i), c_i in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[2+n+2*(n-1)+i:2+n+2*(n-1)+i+1]] for i in range(q)), map(int, stdout.splitlines())))",
+        "description": "If c_i is not -1, it is a valid mineral resource satisfying the query's conditions (exists in a, within bounds, and odd count on path)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 3 * 10**5 for x in stdin.split() if x.isdigit())\",\n      \"description\": \"All integers in input are within bounds 1 ≤ n, q, a_i, x_i, y_i, u_i, v_i, l_i, r_i ≤ 3⋅10^5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()) == 2 + n + 2*(n-1) + 4*q\",\n      \"description\": \"Input format is correct: first line n and q, second line n integers a_i, followed by (n-1) lines of edges, then q lines of queries.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a_i <= n for a_i in map(int, stdin.split()[2:2+n]))\",\n      \"description\": \"Each city's mineral resource label a_i is between 1 and n.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= x_i < y_i <= n for x_i, y_i in zip(map(int, stdin.split()[2+n+2*i:2+n+2*i+2]) for i in range(n-1)))\",\n      \"description\": \"Edges form a tree with unique undirected connections between distinct cities.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= u_i <= n and 1 <= v_i <= n and 1 <= l_i <= r_i <= n for u_i, v_i, l_i, r_i in zip(map(int, stdin.split()[2+n+2*(n-1)+4*i:2+n+2*(n-1)+4*i+4]) for i in range(q)))\",\n      \"description\": \"Each query has valid city indices u_i, v_i and bounds l_i ≤ r_i.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_line.split()) == 1 for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line contains exactly one integer (either -1 or a valid mineral resource).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(stdout_line.strip() in ['-1'] or (1 <= int(stdout_line.strip()) <= n) for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output is either -1 or a mineral resource label between 1 and n.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((c_i == -1) or (l_i <= c_i <= r_i) for (u_i, v_i, l_i, r_i), c_i in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[2+n+2*(n-1)+i:2+n+2*(n-1)+i+1]] for i in range(q)), map(int, stdout.splitlines())))\",\n      \"description\": \"If c_i is not -1, it lies within the query's bounds l_i ≤ c_i ≤ r_i.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((c_i == -1) or (count_odd_on_path(u_i, v_i, c_i, a, tree) for (u_i, v_i, l_i, r_i), c_i in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[2+n+2*(n-1)+i:2+n+2*(n-1)+i+1]] for i in range(q)), map(int, stdout.splitlines())))\",\n      \"description\": \"If c_i is not -1, it appears an odd number of times on the path between u_i and v_i in the tree. (count_odd_on_path(u, v, c, a, tree) is true iff the count of c in the path from u to v is odd.)\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((c_i == -1) or (any(c == c_i and l_i <= c <= r_i and count_odd_on_path(u_i, v_i, c, a, tree) for c in set(a))) for (u_i, v_i, l_i, r_i), c_i in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[2+n+2*(n-1)+i:2+n+2*(n-1)+i+1]] for i in range(q)), map(int, stdout.splitlines())))\",\n      \"description\": \"If c_i is not -1, it is a valid mineral resource satisfying the query's conditions (exists in a, within bounds, and odd count on path).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1893,
+  "generated_tokens": 1137,
+  "hit_output_limit": false,
+  "generation_seconds": 51.439,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:45:07.458216+00:00"
+}

@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_14658",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "q >= 1 and q <= 150000",
+        "description": "The number of queries q is between 1 and 150,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 300000 for n in [int(line) for line in stdin.splitlines() if line.strip().isdigit() and int(line) >= 2])",
+        "description": "Each query's tree has n vertices where n is between 2 and 300,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == n - 1 for n, edges in zip([int(line) for line in stdin.splitlines() if line.strip().isdigit()], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()]))",
+        "description": "Each query's tree has exactly n-1 edges, forming a connected acyclic graph."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= n for n, edges in zip([int(line) for line in stdin.splitlines() if line.strip().isdigit()], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()]) for x, y in edges)",
+        "description": "Each edge connects vertices with valid indices between 1 and n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == q for q in [int(stdin.splitlines()[0])])",
+        "description": "The output contains exactly one integer per query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(2 <= int(line) <= n for n, line in zip([int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]] for i in range(1, len(stdin.splitlines()), n+1)), stdout.splitlines()[i//(n+1)]) if line.strip().isdigit())",
+        "description": "Each output integer is a valid subtree size between 2 and n."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(any(subtree_size == n for subtree_size in [int(line) for line in stdout.splitlines()]) for n in [int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]] if n >= 2)",
+        "description": "If the entire tree is a good subtree, the output is n."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(subtree_size == 2 for subtree_size in [int(line) for line in stdout.splitlines()]) for n in [int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]] if n >= 2)",
+        "description": "If no good subtree larger than 2 exists, the output is 2."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any(subtree_size == max_possible for subtree_size in [int(line) for line in stdout.splitlines()]) for n, edges, max_possible in zip([int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()], [max_good_subtree_size(n, edges) for n, edges in zip([int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()])]))",
+        "description": "The output for each query is the maximum size of a good subtree, where a good subtree is a connected subgraph that can be represented by intersecting segments."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"q >= 1 and q <= 150000\",\n      \"description\": \"The number of queries q is between 1 and 150,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= n <= 300000 for n in [int(line) for line in stdin.splitlines() if line.strip().isdigit() and int(line) >= 2])\",\n      \"description\": \"Each query's tree has n vertices where n is between 2 and 300,000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(edges) == n - 1 for n, edges in zip([int(line) for line in stdin.splitlines() if line.strip().isdigit()], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()]))\",\n      \"description\": \"Each query's tree has exactly n-1 edges, forming a connected acyclic graph.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(x) <= n and 1 <= int(y) <= n for n, edges in zip([int(line) for line in stdin.splitlines() if line.strip().isdigit()], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()]) for x, y in edges)\",\n      \"description\": \"Each edge connects vertices with valid indices between 1 and n.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.splitlines()) == q for q in [int(stdin.splitlines()[0])])\",\n      \"description\": \"The output contains exactly one integer per query.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(2 <= int(line) <= n for n, line in zip([int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]] for i in range(1, len(stdin.splitlines()), n+1)), stdout.splitlines()[i//(n+1)]) if line.strip().isdigit())\",\n      \"description\": \"Each output integer is a valid subtree size between 2 and n.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(any(subtree_size == n for subtree_size in [int(line) for line in stdout.splitlines()]) for n in [int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]] if n >= 2)\",\n      \"description\": \"If the entire tree is a good subtree, the output is n.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(subtree_size == 2 for subtree_size in [int(line) for line in stdout.splitlines()]) for n in [int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]] if n >= 2)\",\n      \"description\": \"If no good subtree larger than 2 exists, the output is 2.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any(subtree_size == max_possible for subtree_size in [int(line) for line in stdout.splitlines()]) for n, edges, max_possible in zip([int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()], [max_good_subtree_size(n, edges) for n, edges in zip([int(stdin.splitlines()[i]) for i in range(1, len(stdin.splitlines()), n+1) for n in [int(stdin.splitlines()[i])]], [line.strip().split() for line in stdin.splitlines() if not line.strip().isdigit()])]))\",\n      \"description\": \"The output for each query is the maximum size of a good subtree, where a good subtree is a connected subgraph that can be represented by intersecting segments.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1618,
+  "generated_tokens": 1060,
+  "hit_output_limit": false,
+  "generation_seconds": 45.794,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:44:48.906951+00:00"
+}

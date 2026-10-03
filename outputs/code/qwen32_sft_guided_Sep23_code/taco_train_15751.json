@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_15751",
+  "task_index": 322,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_15751.json",
+  "code": "import sys\nfrom collections import defaultdict\nimport heapq\n\ndef dfs(u, p, depth, max_depth, farthest):\n    depth[u] = depth[p] + 1\n    if depth[u] > max_depth[0]:\n        max_depth[0] = depth[u]\n        farthest[0] = u\n    for v, _ in graph[u]:\n        if v != p:\n            dfs(v, u, depth, max_depth, farthest)\n\ndef bfs(start, depth_limit):\n    queue = [(0, start)]\n    visited = [False] * (n + 1)\n    visited[start] = True\n    count = 0\n    while queue:\n        dist, u = heapq.heappop(queue)\n        if dist > depth_limit:\n            break\n        count += 1\n        for v, w in graph[u]:\n            if not visited[v]:\n                visited[v] = True\n                heapq.heappush(queue, (dist + w, v))\n    return count\n\nn = int(input().strip())\nedges = [tuple(map(int, input().strip().split())) for _ in range(n - 1)]\nq = int(input().strip())\nqueries = list(map(int, input().strip().split()))\n\ngraph = defaultdict(list)\nfor x, y, v in edges:\n    graph[x].append((y, v))\n    graph[y].append((x, v))\n\ndepth = [0] * (n + 1)\nmax_depth = [0]\nfarthest = [0]\ndfs(1, 0, depth, max_depth, farthest)\nstart = farthest[0]\nmax_depth = [0]\nfarthest = [0]\ndfs(start, 0, depth, max_depth, farthest)\nend = farthest[0]\nmax_diameter = max_depth[0]\n\nresults = []\nfor l in queries:\n    if max_diameter <= l:\n        results.append(n)\n    else:\n        max_children = 0\n        for i in range(1, n + 1):\n            if depth[i] * 2 <= l:\n                max_children = max(max_children, bfs(i, l // 2))\n        results.append(max_children)\n\nfor result in results:\n    print(result)",
+  "generation_seconds": 42.202,
+  "generated_at": "2026-09-23T19:23:23.271558+00:00"
+}

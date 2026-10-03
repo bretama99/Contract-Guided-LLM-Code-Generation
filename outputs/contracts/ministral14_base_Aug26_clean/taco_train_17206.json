@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_17206",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(t, int) and t >= 1 and t <= 1000 for t in [int(stdin.split()[0])])",
+        "description": "The first line of input is a single integer t (1 ≤ t ≤ 1000) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(test_case) == 2 for test_case in [stdin.split()[1:].split() for _ in range(t)])",
+        "description": "Each test case consists of exactly two lines: the first line is an integer n (1 ≤ n ≤ 1000), and the second line contains 2n positive integers (1 ≤ a_i ≤ 10^6)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(isinstance(int(n), int) and n >= 1 and n <= 1000 for n in [int(stdin.split()[1:][0])])",
+        "description": "For each test case, the first line after t is an integer n (1 ≤ n ≤ 1000)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(a) == 2 * int(n) for a, n in zip([line.split() for line in stdin.split()[1:][1::2]], [int(stdin.split()[1:][0])]))",
+        "description": "For each test case, the second line contains exactly 2n positive integers."
+      },
+      {
+        "id": "P5",
+        "expression": "all(isinstance(int(a_i), int) and a_i >= 1 and a_i <= 10**6 for a_i in [int(a) for a in stdin.split()[1:][1::2][0]])",
+        "description": "Each element in the array a is a positive integer (1 ≤ a_i ≤ 10^6)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all('YES' in line or 'NO' in line for line in stdout.splitlines() if line.strip() != '')",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO', indicating whether it is possible to throw out all elements of the array."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('YES' in line and any('x' in line.lower() for line in stdout.splitlines()[i+1:i+1+n+1]) for i, line in enumerate(stdout.splitlines()) if line.strip() == 'YES')",
+        "description": "If the answer is 'YES', the second line contains the initial value of x chosen. The next n lines describe the operations, each line containing a pair of integers removed in that operation."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('NO' in line and len(stdout.splitlines()[i+1:i+1+n+1]) == 0 for i, line in enumerate(stdout.splitlines()) if line.strip() == 'NO')",
+        "description": "If the answer is 'NO', no additional lines are printed for that test case."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(int(a) + int(b) == int(x) for a, b in [line.split() for line in stdout.splitlines()[i+2:i+2+n]] if line.strip() != '') for i, x in enumerate([line for line in stdout.splitlines() if 'YES' in line and 'x' in line.lower()]))",
+        "description": "For each operation in a 'YES' case, the sum of the two removed integers equals the current value of x (initially chosen and updated as the maximum of the two removed numbers)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(a).intersection(set(b))) == 0 for a, b in [([int(num) for num in line.split()], [int(num) for num in a]) for line, a in zip(stdout.splitlines()[i+2:i+2+n], [stdin.split()[1:][1::2][0]]) if line.strip() != ''] for i in range(0, len(stdout.splitlines()), n+2))",
+        "description": "Each pair of integers removed in an operation is distinct and does not overlap with previously removed pairs in the same test case."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(int(a) in [int(num) for num in a_list] and int(b) in [int(num) for num in a_list] for a, b in [line.split() for line in stdout.splitlines()[i+2:i+2+n]]) for i, a_list in enumerate([stdin.split()[1:][1::2][0] for _ in range(t)]))",
+        "description": "Each pair of integers removed in an operation exists in the current array at the time of removal."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(t, int) and t >= 1 and t <= 1000 for t in [int(stdin.split()[0])])\",\n      \"description\": \"The first line of input is a single integer t (1 ≤ t ≤ 1000) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(test_case) == 2 for test_case in [stdin.split()[1:].split() for _ in range(t)])\",\n      \"description\": \"Each test case consists of exactly two lines: the first line is an integer n (1 ≤ n ≤ 1000), and the second line contains 2n positive integers (1 ≤ a_i ≤ 10^6).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(isinstance(int(n), int) and n >= 1 and n <= 1000 for n in [int(stdin.split()[1:][0])])\",\n      \"description\": \"For each test case, the first line after t is an integer n (1 ≤ n ≤ 1000).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(a) == 2 * int(n) for a, n in zip([line.split() for line in stdin.split()[1:][1::2]], [int(stdin.split()[1:][0])]))\",\n      \"description\": \"For each test case, the second line contains exactly 2n positive integers.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(isinstance(int(a_i), int) and a_i >= 1 and a_i <= 10**6 for a_i in [int(a) for a in stdin.split()[1:][1::2][0]])\",\n      \"description\": \"Each element in the array a is a positive integer (1 ≤ a_i ≤ 10^6).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all('YES' in line or 'NO' in line for line in stdout.splitlines() if line.strip() != '')\",\n      \"description\": \"For each test case, the first line of output is either 'YES' or 'NO', indicating whether it is possible to throw out all elements of the array.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all('YES' in line and any('x' in line.lower() for line in stdout.splitlines()[i+1:i+1+n+1]) for i, line in enumerate(stdout.splitlines()) if line.strip() == 'YES')\",\n      \"description\": \"If the answer is 'YES', the second line contains the initial value of x chosen. The next n lines describe the operations, each line containing a pair of integers removed in that operation.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all('NO' in line and len(stdout.splitlines()[i+1:i+1+n+1]) == 0 for i, line in enumerate(stdout.splitlines()) if line.strip() == 'NO')\",\n      \"description\": \"If the answer is 'NO', no additional lines are printed for that test case.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(all(int(a) + int(b) == int(x) for a, b in [line.split() for line in stdout.splitlines()[i+2:i+2+n]] if line.strip() != '') for i, x in enumerate([line for line in stdout.splitlines() if 'YES' in line and 'x' in line.lower()]))\",\n      \"description\": \"For each operation in a 'YES' case, the sum of the two removed integers equals the current value of x (initially chosen and updated as the maximum of the two removed numbers).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(len(set(a).intersection(set(b))) == 0 for a, b in [([int(num) for num in line.split()], [int(num) for num in a]) for line, a in zip(stdout.splitlines()[i+2:i+2+n], [stdin.split()[1:][1::2][0]]) if line.strip() != ''] for i in range(0, len(stdout.splitlines()), n+2))\",\n      \"description\": \"Each pair of integers removed in an operation is distinct and does not overlap with previously removed pairs in the same test case.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(all(int(a) in [int(num) for num in a_list] and int(b) in [int(num) for num in a_list] for a, b in [line.split() for line in stdout.splitlines()[i+2:i+2+n]]) for i, a_list in enumerate([stdin.split()[1:][1::2][0] for _ in range(t)]))\",\n      \"description\": \"Each pair of integers removed in an operation exists in the current array at the time of removal.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1637,
+  "generated_tokens": 1202,
+  "hit_output_limit": false,
+  "generation_seconds": 55.005,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:19:12.115626+00:00"
+}

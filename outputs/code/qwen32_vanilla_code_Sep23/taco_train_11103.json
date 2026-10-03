@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_11103",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T14:03:18.776369+00:00",
+  "code": "import sys\n\ndef main():\n    import sys\n    input = sys.stdin.read().splitlines()\n    n = int(input[0])\n    types = {}\n    output = []\n\n    def resolve_type(t):\n        if t in ['void', 'errtype']:\n            return t\n        elif t not in types:\n            return 'errtype'\n        else:\n            resolved = types[t]\n            if resolved == t:\n                return t\n            else:\n                types[t] = resolve_type(resolved)\n                return types[t]\n\n    def simplify_type(t):\n        if t.startswith('&&'):\n            return 'errtype'\n        while t.endswith('*&'):\n            t = t[:-2]\n        if t == '&void':\n            return 'errtype'\n        count = t.count('&')\n        t = t.replace('&', '')\n        t = t.replace('*', '')\n        t = 'void' + '*' * (len(t) + count - 1)\n        return t\n\n    for i in range(1, n + 1):\n        line = input[i].strip()\n        if line.startswith('typedef'):\n            _, a, b = line.split()\n            a = resolve_type(a)\n            a = simplify_type(a)\n            types[b] = a\n        elif line.startswith('typeof'):\n            _, a = line.split()\n            a = resolve_type(a)\n            a = simplify_TYPE(a)\n            output.append(a)\n\n    for res in output:\n        print(res)\n\nif __name__ == \"__main__\":\n    main()"
+}

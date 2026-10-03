@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_11427",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(line, str) for line in stdin.splitlines())",
+        "description": "Input consists of lines of text, where each line is a string."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) >= 1 and all(line.strip() for line in stdin.splitlines())",
+        "description": "Input is non-empty and contains no empty lines."
+      },
+      {
+        "id": "P3",
+        "expression": "int(stdin.splitlines()[0]) >= 1 and int(stdin.splitlines()[0]) <= 10",
+        "description": "First line is a valid integer T (1 ≤ T ≤ 10) representing the number of test cases."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= N <= 100000 for line in stdin.splitlines()[1:] if line.strip().isdigit() and int(line.strip()) == N)",
+        "description": "For each test case, the first line after T is a valid integer N (1 ≤ N ≤ 100000) representing the number of matches."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(goals) == N for N, goals_line in zip([int(stdin.splitlines()[i*2+1]) for i in range(int(stdin.splitlines()[0]))], [stdin.splitlines()[i*2+2] for i in range(int(stdin.splitlines()[0]))]))",
+        "description": "For each test case, the goals line contains exactly N integers."
+      },
+      {
+        "id": "P6",
+        "expression": "all(0 <= int(g) <= 1000000 for goals_line in [stdin.splitlines()[i*2+2] for i in range(int(stdin.splitlines()[0]))] for g in goals_line.split())",
+        "description": "Each goal count gi is a non-negative integer (0 ≤ gi ≤ 1000000)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['UNFIT'] or (stdout_line.strip().isdigit() and int(stdout_line.strip()) > 0) for stdout_line in stdout.splitlines())",
+        "description": "For each test case, the output is either 'UNFIT' or a positive integer representing the maximum goal difference (g_j - g_i > 0 where j > i)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((N < 2 or max((int(goals[j]) - int(goals[i])) for i in range(N) for j in range(i+1, N) if int(goals[j]) > int(goals[i])) <= 0) == (stdout_line.strip() == 'UNFIT') for N, goals_line, stdout_line in zip([int(stdin.splitlines()[i*2+1]) for i in range(int(stdin.splitlines()[0]))], [stdin.splitlines()[i*2+2] for i in range(int(stdin.splitlines()[0]))], stdout.splitlines()))",
+        "description": "If there are fewer than 2 matches (N < 2) or no pair of matches (i < j) exists where goals in match j > goals in match i, output 'UNFIT'. Otherwise, output the maximum positive goal difference (g_j - g_i) for any i < j."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(line, str) for line in stdin.splitlines())\",\n      \"description\": \"Input consists of lines of text, where each line is a string.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) >= 1 and all(line.strip() for line in stdin.splitlines())\",\n      \"description\": \"Input is non-empty and contains no empty lines.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"int(stdin.splitlines()[0]) >= 1 and int(stdin.splitlines()[0]) <= 10\",\n      \"description\": \"First line is a valid integer T (1 ≤ T ≤ 10) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= N <= 100000 for line in stdin.splitlines()[1:] if line.strip().isdigit() and int(line.strip()) == N)\",\n      \"description\": \"For each test case, the first line after T is a valid integer N (1 ≤ N ≤ 100000) representing the number of matches.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(goals) == N for N, goals_line in zip([int(stdin.splitlines()[i*2+1]) for i in range(int(stdin.splitlines()[0]))], [stdin.splitlines()[i*2+2] for i in range(int(stdin.splitlines()[0]))]))\",\n      \"description\": \"For each test case, the goals line contains exactly N integers.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(0 <= int(g) <= 1000000 for goals_line in [stdin.splitlines()[i*2+2] for i in range(int(stdin.splitlines()[0]))] for g in goals_line.split())\",\n      \"description\": \"Each goal count gi is a non-negative integer (0 ≤ gi ≤ 1000000).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in ['UNFIT'] or (stdout_line.strip().isdigit() and int(stdout_line.strip()) > 0) for stdout_line in stdout.splitlines())\",\n      \"description\": \"For each test case, the output is either 'UNFIT' or a positive integer representing the maximum goal difference (g_j - g_i > 0 where j > i).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((N < 2 or max((int(goals[j]) - int(goals[i])) for i in range(N) for j in range(i+1, N) if int(goals[j]) > int(goals[i])) <= 0) == (stdout_line.strip() == 'UNFIT') for N, goals_line, stdout_line in zip([int(stdin.splitlines()[i*2+1]) for i in range(int(stdin.splitlines()[0]))], [stdin.splitlines()[i*2+2] for i in range(int(stdin.splitlines()[0]))], stdout.splitlines()))\",\n      \"description\": \"If there are fewer than 2 matches (N < 2) or no pair of matches (i < j) exists where goals in match j > goals in match i, output 'UNFIT'. Otherwise, output the maximum positive goal difference (g_j - g_i) for any i < j.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1729,
+  "generated_tokens": 864,
+  "hit_output_limit": false,
+  "generation_seconds": 41.338,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:20:01.095820+00:00"
+}

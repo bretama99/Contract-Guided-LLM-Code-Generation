@@ -1,0 +1,267 @@
+{
+  "task_id": "taco_train_12400",
+  "task_index": 642,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 200000",
+        "description": "The number of groups n must be between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(x) <= 2 for x in stdin.split()[1:])",
+        "description": "Each group size a_i must be either 1 or 2."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and 0 <= int(stdout) <= (sum(int(x) for x in stdin.split()[1:]) // 3)",
+        "description": "The output is a non-negative integer representing the maximum number of teams of three people that can be formed, not exceeding the total possible teams from the total number of students."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(stdout) == max(teams for teams in possible_teams(stdin))",
+        "description": "The output is the maximum number of teams of three people, where each team is formed by either: (1) three single students, or (2) one group of two students and one single student, ensuring both students from a group of two are in the same team if used."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 200000",
+        "description": "The number of groups n must be between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(x) <= 2 for x in stdin.split()[1:])",
+        "description": "Each group size a_i must be either 1 or 2."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and 0 <= int(stdout) <= (sum(int(x) for x in stdin.split()[1:]) // 3)",
+        "description": "The output is a non-negative integer representing the maximum number of teams of three people that can be formed, not exceeding the total possible teams from the total number of students."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(stdout) == max(teams for teams in possible_teams(stdin))",
+        "description": "The output is the maximum number of teams of three people, where each team is formed by either: (1) three single students, or (2) one group of two students and one single student, ensuring both students from a group of two are in the same team if used."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "462c9b2f2c29466f0abb28eadf785f0446ce113c21950ab2ccabc23bd7fc7d8e",
+  "selected_contract_fingerprint": "462c9b2f2c29466f0abb28eadf785f0446ce113c21950ab2ccabc23bd7fc7d8e",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_12400.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly bounds the output by `(sum(int(x) for x in stdin.split()[1:]) // 3)`, which is not a valid constraint per the task. The task allows partial use of students, and the upper bound is not semantically meaningful (e.g., 4 students can form 1 team, not 1). Replace with a task-agnostic expression (e.g., `stdout.isdigit()`) or remove the redundant constraint.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition expression that captures the **substantive input-output relation**: the output must equal the maximum number of teams of three that can be formed under the constraints: (1) groups of two must be used entirely or not at all, and (2) if used, both members of a group of two must be in the same team. The expression must encode the greedy/optimal selection logic implied by the task (e.g., prioritize groups of two paired with singles, then triples of singles).",
+        "task_evidence": "Determine the maximum number of teams of three people he can form. ... For groups of two, either both students should write the contest, or both should not. If two students from a group of two will write the contest, they should be in the same team.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression `int(stdout) == max(teams for teams in possible_teams(stdin))` is underspecified and relies on an undefined `possible_teams` helper. Replace with a **direct expression** that computes the maximum teams from the input groups, respecting the constraints (e.g., count groups of two as 2 students, then compute teams as `min(total_students // 3, max_possible_teams_under_constraints)`).",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly bounds the output by `(sum(int(x) for x in stdin.split()[1:]) // 3)`, which is not a valid constraint per the task. The task allows partial use of students, and the upper bound is not semantically meaningful (e.g., 4 students can form 1 team, not 1). Replace with a task-agnostic expression (e.g., `stdout.isdigit()`) or remove the redundant constraint.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition expression that captures the **substantive input-output relation**: the output must equal the maximum number of teams of three that can be formed under the constraints: (1) groups of two must be used entirely or not at all, and (2) if used, both members of a group of two must be in the same team. The expression must encode the greedy/optimal selection logic implied by the task (e.g., prioritize groups of two paired with singles, then triples of singles).",
+        "task_evidence": "Determine the maximum number of teams of three people he can form. ... For groups of two, either both students should write the contest, or both should not. If two students from a group of two will write the contest, they should be in the same team.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression `int(stdout) == max(teams for teams in possible_teams(stdin))` is underspecified and relies on an undefined `possible_teams` helper. Replace with a **direct expression** that computes the maximum teams from the input groups, respecting the constraints (e.g., count groups of two as 2 students, then compute teams as `min(total_students // 3, max_possible_teams_under_constraints)`).",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 23.395,
+  "processing_error": null,
+  "finished_at": "2026-09-04T03:33:47.413106+00:00"
+}

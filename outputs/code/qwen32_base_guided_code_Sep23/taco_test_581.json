@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_581",
+  "task_index": 638,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_581.json",
+  "code": "import sys\nimport math\nfrom collections import defaultdict\n\ndef gcd(a, b):\n    while b:\n        a, b = b, a % b\n    return a\n\ndef dfs(node, parent, values, tree, gcds, sizes):\n    current_gcd = values[node]\n    size = 1\n    for neighbor in tree[node]:\n        if neighbor != parent:\n            ngcd, nsize = dfs(neighbor, node, values, tree, gcds, sizes)\n            current_gcd = gcd(current_gcd, ngcd)\n            size += nsize\n    gcds[node] = current_gcd\n    sizes[node] = size\n    return current_gcd, size\n\ndef calculate_damage(node, parent, values, tree, gcds, sizes, total_gcd):\n    damage = 0\n    for neighbor in tree[node]:\n        if neighbor != parent:\n            damage += gcds[neighbor]\n            total_gcd = gcd(total_gcd, gcds[neighbor])\n    return damage, total_gcd\n\ndef solve():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    T = int(input[index])\n    index += 1\n    results = []\n    for _ in range(T):\n        N = int(input[index])\n        index += 1\n        tree = defaultdict(list)\n        for _ in range(N - 1):\n            a = int(input[index]) - 1\n            b = int(input[index + 1]) - 1\n            index += 2\n            tree[a].append(b)\n            tree[b].append(a)\n        values = list(map(int, input[index:index + N]))\n        index += N\n        gcds = [0] * N\n        sizes = [0] * N\n        dfs(0, -1, values, tree, gcds, sizes)\n        max_damage = 0\n        total_gcd = gcds[0]\n        for node in range(N):\n            damage, new_total_gcd = calculate_damage(node, -1, values, tree, gcds, sizes, total_gcd)\n            if node != 0:\n                damage += new_total_gcd\n            max_damage = max(max_damage, damage)\n        results.append(max_damage)\n    print('\\n'.join(map(str, results)))\n\nsolve()",
+  "generation_seconds": 44.348,
+  "generated_at": "2026-09-23T20:21:12.452477+00:00"
+}

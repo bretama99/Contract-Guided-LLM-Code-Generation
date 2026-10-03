@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_7534",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.splitlines()[0]) and 1 <= n <= 10**5",
+        "description": "The first line of input is an integer n (1 ≤ n ≤ 10^5) representing the number of registration requests."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line) > 0 and line.islower() and line.isalpha() for line in stdin.splitlines()[1:n+1])",
+        "description": "Each of the next n lines is a non-empty string of lowercase Latin letters (length ≤ 32)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines() == [process_request(requests[i], database) for i in range(n)]",
+        "description": "For each request in the input, the output line is the system's response: 'OK' if the name is available, or the smallest available namei (name + i) if the name is taken."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(response == 'OK' or (response.startswith(name) and response[len(name):].isdigit()) for name, response in zip(requests, stdout.splitlines()))",
+        "description": "Every response is either 'OK' or a valid generated name (original name followed by a positive integer)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(name not in database for name in requests if response == 'OK' for response, name in zip(stdout.splitlines(), requests))",
+        "description": "If the response is 'OK', the requested name is not present in the database after processing."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((response != 'OK' and response in database) for response in stdout.splitlines() if response != 'OK')",
+        "description": "If the response is a generated name, it must be present in the database after processing."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.splitlines()[0]) and 1 <= n <= 10**5\",\n      \"description\": \"The first line of input is an integer n (1 ≤ n ≤ 10^5) representing the number of registration requests.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line) > 0 and line.islower() and line.isalpha() for line in stdin.splitlines()[1:n+1])\",\n      \"description\": \"Each of the next n lines is a non-empty string of lowercase Latin letters (length ≤ 32).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines() == [process_request(requests[i], database) for i in range(n)]\",\n      \"description\": \"For each request in the input, the output line is the system's response: 'OK' if the name is available, or the smallest available namei (name + i) if the name is taken.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(response == 'OK' or (response.startswith(name) and response[len(name):].isdigit()) for name, response in zip(requests, stdout.splitlines()))\",\n      \"description\": \"Every response is either 'OK' or a valid generated name (original name followed by a positive integer).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(name not in database for name in requests if response == 'OK' for response, name in zip(stdout.splitlines(), requests))\",\n      \"description\": \"If the response is 'OK', the requested name is not present in the database after processing.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((response != 'OK' and response in database) for response in stdout.splitlines() if response != 'OK')\",\n      \"description\": \"If the response is a generated name, it must be present in the database after processing.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1432,
+  "generated_tokens": 521,
+  "hit_output_limit": false,
+  "generation_seconds": 23.802,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:46:43.404616+00:00"
+}

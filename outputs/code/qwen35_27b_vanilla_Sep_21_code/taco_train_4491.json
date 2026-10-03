@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_4491",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T02:28:05.146822+00:00",
+  "code": "from collections import Counter\n\ndef maxScoreWords(words, letters, score):\n    letter_count = Counter(letters)\n    n = len(words)\n    \n    def calculate_word_score_and_count(word):\n        word_count = Counter(word)\n        total_score = 0\n        for char, count in word_count.items():\n            if letter_count[char] < count:\n                return None, None\n            total_score += count * score[ord(char) - ord('a')]\n        return total_score, word_count\n    \n    max_score = 0\n    \n    def backtrack(index, current_score, available_letters):\n        nonlocal max_score\n        if index == n:\n            max_score = max(max_score, current_score)\n            return\n        \n        # Option 1: Skip the current word\n        backtrack(index + 1, current_score, available_letters)\n        \n        # Option 2: Include the current word if possible\n        word = words[index]\n        word_count = Counter(word)\n        can_form = True\n        temp_available = available_letters.copy()\n        \n        for char, count in word_count.items():\n            if temp_available[char] < count:\n                can_form = False\n                break\n            temp_available[char] -= count\n        \n        if can_form:\n            word_score = sum(count * score[ord(char) - ord('a')] for char, count in word_count.items())\n            backtrack(index + 1, current_score + word_score, temp_available)\n    \n    backtrack(0, 0, letter_count)\n    return max_score"
+}

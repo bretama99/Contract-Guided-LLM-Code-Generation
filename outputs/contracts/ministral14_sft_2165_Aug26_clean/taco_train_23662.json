@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_23662",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 1000 and 1 <= m <= 1000",
+        "description": "The dimensions of the field are within the specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line) == m for line in stdin.splitlines()[1:])",
+        "description": "Each of the n lines has exactly m characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c in {'.', '#'} for line in stdin.splitlines()[1:] for c in line)",
+        "description": "Each cell is either empty ('.') or filled ('#')."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (len(stdout.splitlines()) == n and all(len(line) == m for line in stdout.splitlines()))",
+        "description": "Output is either '-1' or a valid n x m grid matching the input dimensions."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == '-1' or all(c in {'#', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} for line in stdout.splitlines() for c in line)",
+        "description": "Every cell in the output is either '#' (initially filled), a digit (part of a figure), or '-1' (no solution)."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout != '-1' and all(line[i] == '#' for line, i in zip(stdin.splitlines()[1:], range(n)) for i, c in enumerate(line) if c == '#')",
+        "description": "All initially filled cells ('#') remain unchanged in the output."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout != '-1' and all(c != '.' for line in stdout.splitlines() for c in line)",
+        "description": "If a solution exists, all initially empty cells ('.') are filled with digits representing figures."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout != '-1' and all(any(c != d for c, d in zip(line, other_line)) for line, other_line in zip(stdout.splitlines(), stdout.splitlines()[1:]))",
+        "description": "Adjacent figures (sharing a side) must be represented by distinct digits."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout != '-1' and all(len(set(c for c in line if c != '#')) <= 1 or all(c == '#' for c in line) for line in stdout.splitlines())",
+        "description": "Each connected figure (by side) is represented by a single digit, except for '#' cells."
+      },
+      {
+        "id": "Q7",
+        "expression": "stdout != '-1' and all(2 <= sum(1 for c in line if c == d and c != '#') <= 5 for d in set(c for line in stdout.splitlines() for c in line if c != '#'))",
+        "description": "Each digit represents a figure of size 2, 3, 4, or 5 cells."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 1000 and 1 <= m <= 1000\",\n      \"description\": \"The dimensions of the field are within the specified bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line) == m for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n lines has exactly m characters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(c in {'.', '#'} for line in stdin.splitlines()[1:] for c in line)\",\n      \"description\": \"Each cell is either empty ('.') or filled ('#').\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '-1' or (len(stdout.splitlines()) == n and all(len(line) == m for line in stdout.splitlines()))\",\n      \"description\": \"Output is either '-1' or a valid n x m grid matching the input dimensions.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout == '-1' or all(c in {'#', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} for line in stdout.splitlines() for c in line)\",\n      \"description\": \"Every cell in the output is either '#' (initially filled), a digit (part of a figure), or '-1' (no solution).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout != '-1' and all(line[i] == '#' for line, i in zip(stdin.splitlines()[1:], range(n)) for i, c in enumerate(line) if c == '#')\",\n      \"description\": \"All initially filled cells ('#') remain unchanged in the output.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout != '-1' and all(c != '.' for line in stdout.splitlines() for c in line)\",\n      \"description\": \"If a solution exists, all initially empty cells ('.') are filled with digits representing figures.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout != '-1' and all(any(c != d for c, d in zip(line, other_line)) for line, other_line in zip(stdout.splitlines(), stdout.splitlines()[1:]))\",\n      \"description\": \"Adjacent figures (sharing a side) must be represented by distinct digits.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"stdout != '-1' and all(len(set(c for c in line if c != '#')) <= 1 or all(c == '#' for c in line) for line in stdout.splitlines())\",\n      \"description\": \"Each connected figure (by side) is represented by a single digit, except for '#' cells.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"stdout != '-1' and all(2 <= sum(1 for c in line if c == d and c != '#') <= 5 for d in set(c for line in stdout.splitlines() for c in line if c != '#'))\",\n      \"description\": \"Each digit represents a figure of size 2, 3, 4, or 5 cells.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1532,
+  "generated_tokens": 817,
+  "hit_output_limit": false,
+  "generation_seconds": 35.096,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:38:52.870507+00:00"
+}

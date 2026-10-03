@@ -1,0 +1,629 @@
+{
+  "task_id": "taco_train_16980",
+  "task_index": 401,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "description": "The number of test cases T is between 1 and 10 inclusive.",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 10",
+        "id": "P1"
+      },
+      {
+        "description": "For each test case, the number of intersections N is between 2 and 10 inclusive.",
+        "expression": "all(2 <= N <= 10 for N, M, roads in parse_test_cases(stdin))",
+        "id": "P2"
+      },
+      {
+        "description": "For each test case, the number of roads M is between 1 and N*(N-1)/2 inclusive.",
+        "expression": "all(1 <= M <= N * (N - 1) // 2 for N, M, roads in parse_test_cases(stdin))",
+        "id": "P3"
+      },
+      {
+        "description": "Each road connects two distinct intersections Ai and Bi (1 ≤ Ai, Bi ≤ N, Ai ≠ Bi) with a length Ci between 1 and 10 inclusive.",
+        "expression": "all(1 <= Ai <= N and 1 <= Bi <= N and Ai != Bi and 1 <= Ci <= 10 for Ai, Bi, Ci in roads for N, M, roads in parse_test_cases(stdin))",
+        "id": "P4"
+      },
+      {
+        "description": "No duplicate roads exist (if i ≠ j and Ai = Aj, then Bi ≠ Bj).",
+        "expression": "all(Ai == Aj and Bi != Bj for i in range(len(roads)) for j in range(i + 1, len(roads)) for Ai, Bi, _ in roads for Aj, Bj, _ in roads if Ai == Aj)",
+        "id": "P5"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip() == str(count_shortest_paths(N, roads)) for N, M, roads in parse_test_cases(stdin))",
+        "description": "For each test case, the output is the number of shortest paths from intersection 1 to intersection N, where roads is the list of (Ai, Bi, Ci) tuples."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 10 for N, M in (line.split() for line in stdin.splitlines()[1:]) if line.strip() and line.split()[0] == str(N))",
+        "description": "For each test case, the number of intersections N is between 2 and 10 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= M <= N * (N - 1) // 2 for N, M in (line.split() for line in stdin.splitlines()[1:]) if line.strip() and line.split()[0] == str(N))",
+        "description": "For each test case, the number of roads M is between 1 and N*(N-1)/2 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= Ai <= N and 1 <= Bi <= N and Ai != Bi and 1 <= Ci <= 10 for line in stdin.splitlines()[2:] if line.strip())",
+        "description": "Each road connects two distinct intersections Ai and Bi (1 ≤ Ai, Bi ≤ N, Ai ≠ Bi) with a length Ci between 1 and 10 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(Ai != Aj or Bi != Bj for i in range(len(roads)) for j in range(i + 1, len(roads)) if (Ai, Bi) != (Aj, Bj))",
+        "description": "No duplicate roads exist (if i ≠ j and Ai = Aj, then Bi ≠ Bj)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(any(Ai == 1 and Bi == N or Ai == N and Bi == 1 for Ai, Bi, Ci in roads) or any(Ai == 1 and Bi == k or Ai == k and Bi == 1 for k in range(2, N) for Ai, Bi, Ci in roads) or any(Ai == k and Bi == N or Ai == N and Bi == k for k in range(2, N) for Ai, Bi, Ci in roads))",
+        "description": "There is at least one path from intersection 1 (Tomya's house) to intersection N (Ciel's restaurant)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip() == str(count_shortest_paths(N, roads)) for N, M, roads in parse_test_cases(stdin))",
+        "description": "For each test case, the output is the number of shortest paths from intersection 1 to intersection N, where roads is the list of (Ai, Bi, Ci) tuples."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "8c4a3e0fff2f342ed5a32b73264a7048798157bc3c7638bbd59669cb0e9facf6",
+  "selected_contract_fingerprint": "b2aeec5126fd8ddcbce3dcc1c347c628264979a6d5027f60f5364dcddb5ea70d",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_16980.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[5].expression",
+      "action": "replace",
+      "instruction": "The precondition P6's expression is overly complex and does not correctly capture the requirement that there is at least one path from intersection 1 to intersection N. The task does not require checking for connectivity via intermediate nodes in this way; it only requires that a path exists. The expression should be simplified to reflect that the graph is guaranteed to have at least one path from 1 to N (as per the problem statement).",
+      "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "ISSUE",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[5].expression",
+      "action": "replace",
+      "instruction": "The precondition P6's expression is overly complex and does not correctly capture the requirement that there is at least one path from intersection 1 to intersection N. The task does not require checking for connectivity via intermediate nodes in this way; it only requires that a path exists. The expression should be simplified to reflect that the graph is guaranteed to have at least one path from 1 to N (as per the problem statement).",
+      "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[5].expression",
+        "action": "replace",
+        "instruction": "The precondition P6's expression is overly complex and does not correctly capture the requirement that there is at least one path from intersection 1 to intersection N. The task does not require checking for connectivity via intermediate nodes in this way; it only requires that a path exists. The expression should be simplified to reflect that the graph is guaranteed to have at least one path from 1 to N (as per the problem statement).",
+        "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[5].expression",
+        "action": "replace",
+        "instruction": "The precondition P6's expression is overly complex and does not correctly capture the requirement that there is at least one path from intersection 1 to intersection N. The task does not require checking for connectivity via intermediate nodes in this way; it only requires that a path exists. The expression should be simplified to reflect that the graph is guaranteed to have at least one path from 1 to N (as per the problem statement).",
+        "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[5].expression",
+        "action": "replace",
+        "instruction": "The precondition P6's expression is overly complex and does not correctly capture the requirement that there is at least one path from intersection 1 to intersection N. The task does not require checking for connectivity via intermediate nodes in this way; it only requires that a path exists. The expression should be simplified to reflect that the graph is guaranteed to have at least one path from 1 to N (as per the problem statement).",
+        "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[4].expression",
+        "action": "replace",
+        "instruction": "The precondition P5's expression is incorrect. The task states that if i ≠ j and Ai = Aj, then Bi ≠ Bj, meaning no duplicate roads exist where the same pair of intersections is connected twice. The current expression checks for (Ai, Bi) != (Aj, Bj) which is redundant and does not correctly enforce the uniqueness constraint. The expression should check for duplicate roads in the form of (Ai, Bi) == (Aj, Bj) or (Ai, Bi) == (Bj, Aj) for undirected roads.",
+        "task_evidence": "If i ≠ j and Ai = Aj, then Bi ≠ Bj",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[2].expression",
+        "action": "replace",
+        "instruction": "The precondition P3's expression is incorrect. It attempts to parse N and M from the same line, but the logic is flawed because it does not correctly iterate over test cases. The expression should parse each test case's N and M separately and check the constraints for each test case.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[3].expression",
+        "action": "replace",
+        "instruction": "The precondition P4's expression is incorrect. It does not correctly parse the roads for each test case. The expression should iterate over the roads for each test case and check the constraints for each road.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "preconditions[5].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "preconditions[2].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "preconditions[3].expression"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "description": "The number of test cases T is between 1 and 10 inclusive.",
+          "expression": "1 <= int(stdin.splitlines()[0]) <= 10",
+          "id": "P1"
+        },
+        {
+          "description": "For each test case, the number of intersections N is between 2 and 10 inclusive.",
+          "expression": "all(2 <= N <= 10 for N, M, roads in parse_test_cases(stdin))",
+          "id": "P2"
+        },
+        {
+          "description": "For each test case, the number of roads M is between 1 and N*(N-1)/2 inclusive.",
+          "expression": "all(1 <= M <= N * (N - 1) // 2 for N, M, roads in parse_test_cases(stdin))",
+          "id": "P3"
+        },
+        {
+          "description": "Each road connects two distinct intersections Ai and Bi (1 ≤ Ai, Bi ≤ N, Ai ≠ Bi) with a length Ci between 1 and 10 inclusive.",
+          "expression": "all(1 <= Ai <= N and 1 <= Bi <= N and Ai != Bi and 1 <= Ci <= 10 for Ai, Bi, Ci in roads for N, M, roads in parse_test_cases(stdin))",
+          "id": "P4"
+        },
+        {
+          "description": "No duplicate roads exist (if i ≠ j and Ai = Aj, then Bi ≠ Bj).",
+          "expression": "all(Ai == Aj and Bi != Bj for i in range(len(roads)) for j in range(i + 1, len(roads)) for Ai, Bi, _ in roads for Aj, Bj, _ in roads if Ai == Aj)",
+          "id": "P5"
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "all(stdout.strip() == str(count_shortest_paths(N, roads)) for N, M, roads in parse_test_cases(stdin))",
+          "description": "For each test case, the output is the number of shortest paths from intersection 1 to intersection N, where roads is the list of (Ai, Bi, Ci) tuples."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions[5].expression",
+          "action": "replace",
+          "instruction": "The precondition P6's expression is overly complex and does not correctly capture the requirement that there is at least one path from intersection 1 to intersection N. The task does not require checking for connectivity via intermediate nodes in this way; it only requires that a path exists. The expression should be simplified to reflect that the graph is guaranteed to have at least one path from 1 to N (as per the problem statement).",
+          "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "P6",
+          "expression": "True",
+          "description": "There is at least one path from intersection 1 (Tomya's house) to intersection N (Ciel's restaurant)."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "0a299ad816547528fb99ac00c0ece4513b9342ee3bd374268a426dfce7794813",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "ISSUE",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace `True` with a verifiable expression that checks connectivity from intersection 1 to intersection N using the given roads.",
+            "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace `True` with a verifiable expression that checks connectivity from intersection 1 to intersection N using the given roads.",
+            "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a correct check for duplicate roads. The current expression is logically flawed (it checks `(Ai, Bi) != (Aj, Bj)` in the condition, which is always true if `i != j` and `Ai = Aj` or `Bi = Bj`).",
+            "task_evidence": "If i ≠ j and Ai = Aj, then Bi ≠ Bj",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly parse `N` and `M` from the input lines. The current expression incorrectly assumes `line.split()[0] == str(N)` and does not properly handle the input structure (e.g., `stdin.splitlines()[1:]` skips the first line, but the first line is `T`).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly parse `roads` and validate `M` for each test case. The current expression does not correctly associate `M` with its corresponding `roads`.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "preconditions[2].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "preconditions[3].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions[5].expression",
+          "action": "replace",
+          "instruction": "Replace `True` with a verifiable expression that checks connectivity from intersection 1 to intersection N using the given roads.",
+          "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "P6",
+          "expression": "is_connected(1, N, roads)",
+          "description": "There is at least one path from intersection 1 (Tomya's house) to intersection N (Ciel's restaurant)."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "dcca76a7bcb03692e3cf7dea1c423fc83f640b60e8e06d46d06b4f7c51217ef8",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "ISSUE",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[5].expression",
+            "action": "replace",
+            "instruction": "The precondition P6's expression `is_connected(1, N, roads)` is not verifiable from the input alone (it requires parsing the entire graph structure). Since the task guarantees connectivity, this precondition is redundant and should be removed entirely.",
+            "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[5].expression",
+            "action": "replace",
+            "instruction": "The precondition P6's expression `is_connected(1, N, roads)` is not verifiable from the input alone (it requires parsing the entire graph structure). Since the task guarantees connectivity, this precondition is redundant and should be removed entirely.",
+            "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[4].expression",
+            "action": "replace",
+            "instruction": "The precondition P5's expression is incorrect. The task states 'If i ≠ j and Ai = Aj, then Bi ≠ Bj', but the current expression checks `(Ai, Bi) != (Aj, Bj)` for all i ≠ j, which is overly restrictive and does not match the task's requirement. Replace with: `all(Ai == Aj and Bi != Bj for i in range(len(roads)) for j in range(i + 1, len(roads)) if Ai == Aj)`",
+            "task_evidence": "If i ≠ j and Ai = Aj, then Bi ≠ Bj",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[2].expression",
+            "action": "replace",
+            "instruction": "The precondition P3's expression is incorrect. It attempts to parse `N` from `line.split()[0]`, but the input structure is not correctly handled. The expression should instead parse `N` and `M` from the first line of each test case (after the `T` line). Replace with: `all(1 <= M <= N * (N - 1) // 2 for N, M in parse_test_cases(stdin))`",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[1].expression",
+            "action": "replace",
+            "instruction": "The precondition P2's expression is incorrect. It attempts to parse `N` from `line.split()[0]`, but the input structure is not correctly handled. The expression should instead parse `N` from the first line of each test case (after the `T` line). Replace with: `all(2 <= N <= 10 for N, M in parse_test_cases(stdin))`",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[0].expression",
+            "action": "replace",
+            "instruction": "The precondition P1's expression is correct in intent but does not account for the fact that `T` is read from the first line of `stdin`. Replace with: `1 <= int(stdin.splitlines()[0]) <= 10`",
+            "task_evidence": "The first line contains an integer T, the number of test cases.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "preconditions[2].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "preconditions[1].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete preconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "preconditions[5].expression",
+            "action": "replace",
+            "instruction": "The precondition P6's expression `is_connected(1, N, roads)` is not verifiable from the input alone (it requires parsing the entire graph structure). Since the task guarantees connectivity, this precondition is redundant and should be removed entirely.",
+            "task_evidence": "There is at least one path from Tomya's house to Ciel's restaurant.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The number of test cases T is between 1 and 10 inclusive.",
+            "expression": "1 <= int(stdin.splitlines()[0]) <= 10",
+            "id": "P1"
+          },
+          {
+            "description": "For each test case, the number of intersections N is between 2 and 10 inclusive.",
+            "expression": "all(2 <= N <= 10 for N, M, roads in parse_test_cases(stdin))",
+            "id": "P2"
+          },
+          {
+            "description": "For each test case, the number of roads M is between 1 and N*(N-1)/2 inclusive.",
+            "expression": "all(1 <= M <= N * (N - 1) // 2 for N, M, roads in parse_test_cases(stdin))",
+            "id": "P3"
+          },
+          {
+            "description": "Each road connects two distinct intersections Ai and Bi (1 ≤ Ai, Bi ≤ N, Ai ≠ Bi) with a length Ci between 1 and 10 inclusive.",
+            "expression": "all(1 <= Ai <= N and 1 <= Bi <= N and Ai != Bi and 1 <= Ci <= 10 for Ai, Bi, Ci in roads for N, M, roads in parse_test_cases(stdin))",
+            "id": "P4"
+          },
+          {
+            "description": "No duplicate roads exist (if i ≠ j and Ai = Aj, then Bi ≠ Bj).",
+            "expression": "all(Ai == Aj and Bi != Bj for i in range(len(roads)) for j in range(i + 1, len(roads)) for Ai, Bi, _ in roads for Aj, Bj, _ in roads if Ai == Aj)",
+            "id": "P5"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "b2aeec5126fd8ddcbce3dcc1c347c628264979a6d5027f60f5364dcddb5ea70d",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 134.84,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:43:44.890535+00:00"
+}

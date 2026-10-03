@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18556",
+  "task_index": 664,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_18556.json",
+  "code": "import sys\nfrom collections import defaultdict\nfrom functools import lru_cache\n\nMOD = 10**9 + 7\n\ndef dfs(node, parent, red_count, black_count, adj_list, memo):\n    if (node, parent, red_count, black_count) in memo:\n        return memo[(node, parent, red_count, black_count)]\n    \n    result = 1\n    for neighbor, weight, color in adj_list[node]:\n        if neighbor == parent:\n            continue\n        new_red_count = red_count + (color == 0)\n        new_black_count = black_count + (color == 1)\n        if abs(new_red_count - new_black_count) <= 2:\n            result = result * dfs(neighbor, node, new_red_count, new_black_count, adj_list, memo) % MOD\n    \n    memo[(node, parent, red_count, black_count)] = result\n    return result\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    threads = []\n    index = 1\n    for _ in range(n - 1):\n        ui = int(input[index])\n        vi = int(input[index + 1])\n        xi = int(input[index + 2])\n        ci = int(input[index + 3])\n        threads.append((ui, vi, xi, ci))\n        index += 4\n    \n    adj_list = defaultdict(list)\n    for ui, vi, xi, ci in threads:\n        adj_list[ui].append((vi, xi, ci))\n        adj_list[vi].append((ui, xi, ci))\n    \n    memo = {}\n    result = 1\n    for node in range(1, n + 1):\n        result = result * dfs(node, -1, 0, 0, adj_list, memo) % MOD\n    \n    print(result)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 36.296,
+  "generated_at": "2026-09-23T20:33:19.671639+00:00"
+}

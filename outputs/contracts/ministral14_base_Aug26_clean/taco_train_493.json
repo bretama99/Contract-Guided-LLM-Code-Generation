@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_493",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(0 <= d_i <= n for d_i in d) and 0 in d and n in d and len(d) == m and m >= 2 and n >= 1 and m <= min(n + 1, 10**4) and g >= 1 and r >= 1 and g <= 1000 and r <= 1000",
+        "description": "Input consists of integers n (road width), m (number of safety islands), distinct safety island coordinates d_1, ..., d_m (including 0 and n), and traffic light timings g (green) and r (red). All values are within specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "len(set(d)) == m",
+        "description": "All safety island coordinates are distinct."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (stdout.isdigit() and int(stdout) >= 0)",
+        "description": "Output is either -1 (impossible) or a non-negative integer representing the minimal time to cross the road."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == '-1' or (all(0 <= pos <= n for pos in path) and path[0] == 0 and path[-1] == n and len(path) == int(stdout) + 1 and all(abs(path[i+1] - path[i]) == 1 for i in range(len(path)-1)))",
+        "description": "If output is not -1, there exists a valid path (sequence of positions) of length equal to the output time + 1, starting at 0, ending at n, and moving exactly ±1 per second while staying within [0, n]."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == '-1' or (all((time % (g + r) < g) or (pos in d) for time, pos in enumerate(path)) and all((time % (g + r) >= g) == (pos in d) for time, pos in enumerate(path)))",
+        "description": "If output is not -1, Denis is on a safety island whenever the light is red (time % (g + r) >= g), and can be anywhere during green light (time % (g + r) < g)."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout == '-1' or (all((path[i+1] - path[i] == -1 and (path[i] in d or path[i+1] in d)) or (path[i+1] - path[i] == 1 and (path[i] in d or path[i+1] in d)) or (path[i+1] - path[i] == -1 and path[i] not in d and path[i+1] not in d and (path[i-1] - path[i] == -1 if i > 0 else True)) or (path[i+1] - path[i] == 1 and path[i] not in d and path[i+1] not in d and (path[i-1] - path[i] == 1 if i > 0 else True)) for i in range(len(path)-1)))",
+        "description": "If output is not -1, Denis can only change direction (±1) on safety islands. Otherwise, he must continue in the same direction (±1) unless forced by boundaries."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout == '-1' or (min_time == int(stdout))",
+        "description": "If output is not -1, it is the minimal possible time to cross the road under the given constraints."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(0 <= d_i <= n for d_i in d) and 0 in d and n in d and len(d) == m and m >= 2 and n >= 1 and m <= min(n + 1, 10**4) and g >= 1 and r >= 1 and g <= 1000 and r <= 1000\",\n      \"description\": \"Input consists of integers n (road width), m (number of safety islands), distinct safety island coordinates d_1, ..., d_m (including 0 and n), and traffic light timings g (green) and r (red). All values are within specified bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(set(d)) == m\",\n      \"description\": \"All safety island coordinates are distinct.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '-1' or (stdout.isdigit() and int(stdout) >= 0)\",\n      \"description\": \"Output is either -1 (impossible) or a non-negative integer representing the minimal time to cross the road.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout == '-1' or (all(0 <= pos <= n for pos in path) and path[0] == 0 and path[-1] == n and len(path) == int(stdout) + 1 and all(abs(path[i+1] - path[i]) == 1 for i in range(len(path)-1)))\",\n      \"description\": \"If output is not -1, there exists a valid path (sequence of positions) of length equal to the output time + 1, starting at 0, ending at n, and moving exactly ±1 per second while staying within [0, n].\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout == '-1' or (all((time % (g + r) < g) or (pos in d) for time, pos in enumerate(path)) and all((time % (g + r) >= g) == (pos in d) for time, pos in enumerate(path)))\",\n      \"description\": \"If output is not -1, Denis is on a safety island whenever the light is red (time % (g + r) >= g), and can be anywhere during green light (time % (g + r) < g).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout == '-1' or (all((path[i+1] - path[i] == -1 and (path[i] in d or path[i+1] in d)) or (path[i+1] - path[i] == 1 and (path[i] in d or path[i+1] in d)) or (path[i+1] - path[i] == -1 and path[i] not in d and path[i+1] not in d and (path[i-1] - path[i] == -1 if i > 0 else True)) or (path[i+1] - path[i] == 1 and path[i] not in d and path[i+1] not in d and (path[i-1] - path[i] == 1 if i > 0 else True)) for i in range(len(path)-1)))\",\n      \"description\": \"If output is not -1, Denis can only change direction (±1) on safety islands. Otherwise, he must continue in the same direction (±1) unless forced by boundaries.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout == '-1' or (min_time == int(stdout))\",\n      \"description\": \"If output is not -1, it is the minimal possible time to cross the road under the given constraints.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2060,
+  "generated_tokens": 912,
+  "hit_output_limit": false,
+  "generation_seconds": 42.7,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:49:25.906716+00:00"
+}

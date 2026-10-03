@@ -1,0 +1,91 @@
+{
+  "task_id": "taco_train_19117",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 2**16",
+        "description": "The number of vertices n is an integer between 1 and 2¹⁶ (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= degree_v <= n - 1 for degree_v, _ in degrees_and_sums)",
+        "description": "For each vertex v, degree_v is an integer between 0 and n-1 (inclusive), representing the number of adjacent vertices."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= s_v < 2**16 for _, s_v in degrees_and_sums)",
+        "description": "For each vertex v, s_v is an integer between 0 and 2¹⁶-1 (inclusive), representing the XOR sum of degrees of adjacent vertices."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(degree_v for degree_v, _ in degrees_and_sums) == 2 * m",
+        "description": "The sum of all degrees is even (since it equals twice the number of edges m in the forest)."
+      },
+      {
+        "id": "P5",
+        "expression": "degrees_and_sums == [(degree_v, s_v) for degree_v, s_v in zip(degrees, sums)]",
+        "description": "degrees_and_sums is a list of tuples (degree_v, s_v) for each vertex v, where degrees and sums are parsed from stdin."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "m == sum(degree_v // 2 for degree_v, _ in degrees_and_sums)",
+        "description": "m is the number of edges in the forest, computed as half the sum of all degrees (since each edge contributes to two degrees)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= a < n and 0 <= b < n and a != b for a, b in edges)",
+        "description": "Each edge (a, b) consists of two distinct vertices a and b, both in the range [0, n-1]."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(edges) == m",
+        "description": "The number of edges printed equals m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(degree_v == len([b for a, b in edges if a == v or b == v]) for v, (degree_v, _) in enumerate(degrees_and_sums))",
+        "description": "For each vertex v, its degree in the output graph matches the given degree_v."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(s_v == (sum(degree_u for u in neighbors if u != v) ^ degree_v) for v, (degree_v, s_v) in enumerate(degrees_and_sums) if degree_v > 0)",
+        "description": "For each vertex v with degree_v > 0, the XOR sum of degrees of its neighbors equals s_v. Here, neighbors are vertices connected to v in the output graph."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any(a == b for a, b in edges)",
+        "description": "No edge connects a vertex to itself (no loops)."
+      },
+      {
+        "id": "Q7",
+        "expression": "not any((a1 == b2 and a2 == b1) for (a1, b1) in edges for (a2, b2) in edges if (a1, b1) != (a2, b2))",
+        "description": "No two edges are parallel (no duplicate edges)."
+      },
+      {
+        "id": "Q8",
+        "expression": "is_acyclic(edges, n)",
+        "description": "The output graph is acyclic (no directed cycles when treated as undirected). The helper is_acyclic(edges, n) checks for cycles using a union-find or DFS/BFS approach."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 1 and n <= 2**16\",\n      \"description\": \"The number of vertices n is an integer between 1 and 2¹⁶ (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= degree_v <= n - 1 for degree_v, _ in degrees_and_sums)\",\n      \"description\": \"For each vertex v, degree_v is an integer between 0 and n-1 (inclusive), representing the number of adjacent vertices.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= s_v < 2**16 for _, s_v in degrees_and_sums)\",\n      \"description\": \"For each vertex v, s_v is an integer between 0 and 2¹⁶-1 (inclusive), representing the XOR sum of degrees of adjacent vertices.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"sum(degree_v for degree_v, _ in degrees_and_sums) == 2 * m\",\n      \"description\": \"The sum of all degrees is even (since it equals twice the number of edges m in the forest).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"degrees_and_sums == [(degree_v, s_v) for degree_v, s_v in zip(degrees, sums)]\",\n      \"description\": \"degrees_and_sums is a list of tuples (degree_v, s_v) for each vertex v, where degrees and sums are parsed from stdin.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"m == sum(degree_v // 2 for degree_v, _ in degrees_and_sums)\",\n      \"description\": \"m is the number of edges in the forest, computed as half the sum of all degrees (since each edge contributes to two degrees).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= a < n and 0 <= b < n and a != b for a, b in edges)\",\n      \"description\": \"Each edge (a, b) consists of two distinct vertices a and b, both in the range [0, n-1].\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(edges) == m\",\n      \"description\": \"The number of edges printed equals m.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(degree_v == len([b for a, b in edges if a == v or b == v]) for v, (degree_v, _) in enumerate(degrees_and_sums))\",\n      \"description\": \"For each vertex v, its degree in the output graph matches the given degree_v.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(s_v == (sum(degree_u for u in neighbors if u != v) ^ degree_v) for v, (degree_v, s_v) in enumerate(degrees_and_sums) if degree_v > 0)\",\n      \"description\": \"For each vertex v with degree_v > 0, the XOR sum of degrees of its neighbors equals s_v. Here, neighbors are vertices connected to v in the output graph.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"not any(a == b for a, b in edges)\",\n      \"description\": \"No edge connects a vertex to itself (no loops).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"not any((a1 == b2 and a2 == b1) for (a1, b1) in edges for (a2, b2) in edges if (a1, b1) != (a2, b2))\",\n      \"description\": \"No two edges are parallel (no duplicate edges).\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"is_acyclic(edges, n)\",\n      \"description\": \"The output graph is acyclic (no directed cycles when treated as undirected). The helper is_acyclic(edges, n) checks for cycles using a union-find or DFS/BFS approach.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1475,
+  "generated_tokens": 1004,
+  "hit_output_limit": false,
+  "generation_seconds": 60.988,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:36:08.325871+00:00"
+}

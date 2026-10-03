@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_17863",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solve",
+      "signature": "solve(alarms: List[str]) -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(len(alarm) == 5 and alarm[2] == ':' and alarm[0:2].isdigit() and alarm[3:5].isdigit() for alarm in alarms)",
+        "description": "Each alarm time is a string of length 5 in the format 'HH:MM', where HH and MM are digits."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(alarm[0:2]) <= 23 and 0 <= int(alarm[3:5]) <= 59 for alarm in alarms)",
+        "description": "Each alarm time represents a valid time of day (HH:MM), where HH is between 00 and 23 and MM is between 00 and 59."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == '00:00' or (return_value != '00:00' and all(0 <= int(return_value[0:2]) <= 23 and 0 <= int(return_value[3:5]) <= 59))",
+        "description": "The result is a valid time string in 'HH:MM' format, where HH is between 00 and 23 and MM is between 00 and 59, or '00:00' if no alarms are provided."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(set(alarms)) == 1 and alarms[0] == '00:00' and return_value == '00:00'",
+        "description": "If there is only one unique alarm at '00:00', the result is '00:00'."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(alarms)) == 1 and alarms[0] != '00:00' and return_value == '00:00'",
+        "description": "If there is only one unique alarm (not '00:00'), the result is '00:00' (the interval wraps around midnight)."
+      },
+      {
+        "id": "Q4",
+        "expression": "len(set(alarms)) > 1 and return_value == max((((int(alarm1[0:2]) * 60 + int(alarm1[3:5])) - (int(alarm2[0:2]) * 60 + int(alarm2[3:5]))) % 1440 for alarm1 in set(alarms) for alarm2 in set(alarms) if alarm1 != alarm2), key=lambda x: x) % 1440)",
+        "description": "The result is the maximum time interval (in minutes) between any two distinct alarms in the set, formatted as 'HH:MM'. The interval is calculated as the difference between two alarms, wrapping around midnight if necessary."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"solve\",\n    \"signature\": \"solve(alarms: List[str]) -> str\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(len(alarm) == 5 and alarm[2] == ':' and alarm[0:2].isdigit() and alarm[3:5].isdigit() for alarm in alarms)\",\n      \"description\": \"Each alarm time is a string of length 5 in the format 'HH:MM', where HH and MM are digits.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= int(alarm[0:2]) <= 23 and 0 <= int(alarm[3:5]) <= 59 for alarm in alarms)\",\n      \"description\": \"Each alarm time represents a valid time of day (HH:MM), where HH is between 00 and 23 and MM is between 00 and 59.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == '00:00' or (return_value != '00:00' and all(0 <= int(return_value[0:2]) <= 23 and 0 <= int(return_value[3:5]) <= 59))\",\n      \"description\": \"The result is a valid time string in 'HH:MM' format, where HH is between 00 and 23 and MM is between 00 and 59, or '00:00' if no alarms are provided.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(set(alarms)) == 1 and alarms[0] == '00:00' and return_value == '00:00'\",\n      \"description\": \"If there is only one unique alarm at '00:00', the result is '00:00'.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(set(alarms)) == 1 and alarms[0] != '00:00' and return_value == '00:00'\",\n      \"description\": \"If there is only one unique alarm (not '00:00'), the result is '00:00' (the interval wraps around midnight).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"len(set(alarms)) > 1 and return_value == max((((int(alarm1[0:2]) * 60 + int(alarm1[3:5])) - (int(alarm2[0:2]) * 60 + int(alarm2[3:5]))) % 1440 for alarm1 in set(alarms) for alarm2 in set(alarms) if alarm1 != alarm2), key=lambda x: x) % 1440)\",\n      \"description\": \"The result is the maximum time interval (in minutes) between any two distinct alarms in the set, formatted as 'HH:MM'. The interval is calculated as the difference between two alarms, wrapping around midnight if necessary.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1272,
+  "generated_tokens": 746,
+  "hit_output_limit": false,
+  "generation_seconds": 31.962,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:54:26.115256+00:00"
+}

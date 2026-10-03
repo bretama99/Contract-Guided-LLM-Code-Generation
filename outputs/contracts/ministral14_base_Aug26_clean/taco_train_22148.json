@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_22148",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= n <= 300 and 3 <= m <= 300 and 1 <= t <= 10**9",
+        "description": "The land plot dimensions n and m are integers between 3 and 300 inclusive, and the target time t is a positive integer up to 10^9."
+      },
+      {
+        "id": "P2",
+        "expression": "1 <= tp <= 100 and 1 <= tu <= 100 and 1 <= td <= 100",
+        "description": "The time values tp (flat), tu (ascent), and td (descent) are positive integers between 1 and 100 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= row <= n and all(1 <= height <= 10**6 for height in row) for row in (line.split() for line in stdin.splitlines()[3:3+n]))",
+        "description": "The land plot is an n x m grid where each cell's height is a positive integer up to 10^6. The input is read as n lines of m space-separated integers."
+      },
+      {
+        "id": "P4",
+        "expression": "len(stdin.splitlines()) == 3 + n",
+        "description": "The input consists of exactly 3 + n lines: first line with n, m, t; second line with tp, tu, td; followed by n lines of m integers each."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() != '' and all(part.isdigit() for part in stdout.strip().split())",
+        "description": "The output is a single line containing four positive integers: row1, col1, row2, col2, representing the upper-left and lower-right corners of the chosen rectangle."
+      },
+      {
+        "id": "Q2",
+        "expression": "let corners = list(map(int, stdout.strip().split())); let (r1, c1, r2, c2) = corners; let grid = [list(map(int, line.split())) for line in stdin.splitlines()[3:3+n]]; let heights = [grid[i-1][j-1] for i in range(r1, r2+1) for j in range(c1, c2+1)]; let perimeter = [(r1, c) for c in range(c1, c2+1)] + [(r, c2) for r in range(r1+1, r2+1)] + [(r2, c) for c in range(c2, c1-1, -1)] + [(r, c1) for r in range(r2-1, r1, -1)]; let time = 0; let prev = (r1, c1); for (i, curr) in enumerate(perimeter): time += tu if heights[prev[0]*m + prev[1]-1] < heights[curr[0]*m + curr[1]-1] else td if heights[prev[0]*m + prev[1]-1] > heights[curr[0]*m + curr[1]-1] else tp; prev = curr; abs(time - t) == min(abs(calculate_time(r, c, r2, c2, grid) - t) for r in range(1, n-1) for c in range(1, m-1) for r2 in range(r+2, n+1) for c2 in range(c+2, m+1))",
+        "description": "The chosen rectangle's perimeter time is the closest to t among all possible rectangles with sides of at least 3 squares. The time is calculated by summing the time for each move along the perimeter in clockwise order, where moves are classified as ascent (tu), descent (td), or flat (tp) based on height differences between adjacent cells."
+      },
+      {
+        "id": "Q3",
+        "expression": "let corners = list(map(int, stdout.strip().split())); let (r1, c1, r2, c2) = corners; r1 >= 1 and c1 >= 1 and r2 <= n and c2 <= m and r2 - r1 + 1 >= 3 and c2 - c1 + 1 >= 3",
+        "description": "The chosen rectangle is entirely within the land plot, and each side of the rectangle has at least 3 squares (i.e., height >= 3 and width >= 3)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"3 <= n <= 300 and 3 <= m <= 300 and 1 <= t <= 10**9\",\n      \"description\": \"The land plot dimensions n and m are integers between 3 and 300 inclusive, and the target time t is a positive integer up to 10^9.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"1 <= tp <= 100 and 1 <= tu <= 100 and 1 <= td <= 100\",\n      \"description\": \"The time values tp (flat), tu (ascent), and td (descent) are positive integers between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= row <= n and all(1 <= height <= 10**6 for height in row) for row in (line.split() for line in stdin.splitlines()[3:3+n]))\",\n      \"description\": \"The land plot is an n x m grid where each cell's height is a positive integer up to 10^6. The input is read as n lines of m space-separated integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(stdin.splitlines()) == 3 + n\",\n      \"description\": \"The input consists of exactly 3 + n lines: first line with n, m, t; second line with tp, tu, td; followed by n lines of m integers each.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() != '' and all(part.isdigit() for part in stdout.strip().split())\",\n      \"description\": \"The output is a single line containing four positive integers: row1, col1, row2, col2, representing the upper-left and lower-right corners of the chosen rectangle.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"let corners = list(map(int, stdout.strip().split())); let (r1, c1, r2, c2) = corners; let grid = [list(map(int, line.split())) for line in stdin.splitlines()[3:3+n]]; let heights = [grid[i-1][j-1] for i in range(r1, r2+1) for j in range(c1, c2+1)]; let perimeter = [(r1, c) for c in range(c1, c2+1)] + [(r, c2) for r in range(r1+1, r2+1)] + [(r2, c) for c in range(c2, c1-1, -1)] + [(r, c1) for r in range(r2-1, r1, -1)]; let time = 0; let prev = (r1, c1); for (i, curr) in enumerate(perimeter): time += tu if heights[prev[0]*m + prev[1]-1] < heights[curr[0]*m + curr[1]-1] else td if heights[prev[0]*m + prev[1]-1] > heights[curr[0]*m + curr[1]-1] else tp; prev = curr; abs(time - t) == min(abs(calculate_time(r, c, r2, c2, grid) - t) for r in range(1, n-1) for c in range(1, m-1) for r2 in range(r+2, n+1) for c2 in range(c+2, m+1))\",\n      \"description\": \"The chosen rectangle's perimeter time is the closest to t among all possible rectangles with sides of at least 3 squares. The time is calculated by summing the time for each move along the perimeter in clockwise order, where moves are classified as ascent (tu), descent (td), or flat (tp) based on height differences between adjacent cells.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"let corners = list(map(int, stdout.strip().split())); let (r1, c1, r2, c2) = corners; r1 >= 1 and c1 >= 1 and r2 <= n and c2 <= m and r2 - r1 + 1 >= 3 and c2 - c1 + 1 >= 3\",\n      \"description\": \"The chosen rectangle is entirely within the land plot, and each side of the rectangle has at least 3 squares (i.e., height >= 3 and width >= 3).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1934,
+  "generated_tokens": 1081,
+  "hit_output_limit": false,
+  "generation_seconds": 50.67,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:03:35.733630+00:00"
+}

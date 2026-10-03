@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19788",
+  "task_index": 64,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_19788.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    input_data = sys.stdin.read().split()\n    idx = 0\n    \n    if idx >= len(input_data):\n        return\n    \n    n = int(input_data[idx])\n    idx += 1\n    e = int(input_data[idx])\n    idx += 1\n    \n    A = []\n    for _ in range(2 * e):\n        if idx < len(input_data):\n            A.append(int(input_data[idx]))\n            idx += 1\n    \n    B = []\n    for _ in range(2 * e):\n        idx += 1\n        if idx < len(input_data):\n            B.append(int(input_data[idx]))\n            idx += 1\n    \n    adjA = defaultdict(list)\n    for i in range(0, 2 * e, 2):\n        u = A[i]\n        v = A[i+1]\n        adjA[u].append(v)\n    \n    adjB = defaultdict(list)\n    for i in range(0, 2*e, 2):\n        u = B[i]\n        v = B[i+1]\n        adjB[u].append(v)\n    \n    def get_children(node, adj):\n        return sorted(adj.get(node, []))\n    \n    def check_mirror(u, v):\n        children_u = get_children(u, adjA)\n        children_v = get_children(v, adjB)\n        \n        if len(children_u) != len(children_v):\n            return False\n        \n        children_v_reversed = children_v[::-1]\n        \n        for i in range(len(children_u)):\n            if not check_mirror(children_u[i], children_v_reversed[i]):\n                return False\n        \n        return True\n    \n    root = 1\n    if not check_mirror(root, root):\n        print(0)\n    else:\n        print(1)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 38.706,
+  "generated_at": "2026-09-26T21:15:48.813160+00:00"
+}

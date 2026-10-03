@@ -1,0 +1,321 @@
+{
+  "task_id": "taco_train_8103",
+  "task_index": 320,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 3 * 10**5",
+        "description": "The integer n must satisfy 2 ≤ n ≤ 300,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[1:1+n]) == n and all(1 <= int(w) <= 10**12 for w in stdin.split()[1:1+n])",
+        "description": "The first line after n contains exactly n integers w_{1,2}, w_{3,4}, ..., w_{2n-1,2n}, each between 1 and 10^12."
+      },
+      {
+        "id": "P3",
+        "expression": "n - 1 == sum(1 for _ in stdin.split()[1+n:].split() if _ == '\\n')",
+        "description": "There are exactly n-1 lines describing edges between odd and even vertices."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 4 for line in stdin.split()[1+n:].split('\\n') if line.strip())",
+        "description": "Each of the n-1 lines contains exactly four integers: x_i, y_i, w_{i,1}, w_{i,2}."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= n and int(x) != int(y) for line in stdin.split()[1+n:].split('\\n') if line.strip() for x, y, _, _ in [line.split()])",
+        "description": "For each edge line, x_i and y_i are distinct integers between 1 and n."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(w) <= 10**12 for line in stdin.split()[1+n:].split('\\n') if line.strip() for _, _, w1, w2 in [line.split()])",
+        "description": "For each edge line, w_{i,1} and w_{i,2} are integers between 1 and 10^12."
+      },
+      {
+        "id": "P7",
+        "expression": "1 <= int(stdin.split()[1+n + (n-1) + 1]) <= 6 * 10**5",
+        "description": "The number of queries q satisfies 1 ≤ q ≤ 600,000."
+      },
+      {
+        "id": "P8",
+        "expression": "all(1 <= int(u) <= 2 * int(stdin.split()[0]) and 1 <= int(v) <= 2 * int(stdin.split()[0]) and int(u) != int(v) for line in stdin.split()[1+n + (n-1) + 2:].split('\\n') if line.strip() for u, v in [line.split()])",
+        "description": "Each query contains two distinct integers u_i and v_i between 1 and 2n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(str(compute_shortest_path(u, v, n, w_odd_even, w_odd_odd, w_even_even)) for u, v in queries) + '\\n'",
+        "description": "For each query (u_i, v_i), the output must be the length of the shortest path between u_i and v_i in the graph, computed as the minimum sum of edge weights along any simple path from u_i to v_i."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(answer) <= 10**12 * (2 * n - 1) for answer in stdout.split())",
+        "description": "Each answer is a positive integer representing a valid path length, bounded by the maximum possible sum of edge weights."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 3 * 10**5",
+        "description": "The integer n must satisfy 2 ≤ n ≤ 300,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[1:1+n]) == n and all(1 <= int(w) <= 10**12 for w in stdin.split()[1:1+n])",
+        "description": "The first line after n contains exactly n integers w_{1,2}, w_{3,4}, ..., w_{2n-1,2n}, each between 1 and 10^12."
+      },
+      {
+        "id": "P3",
+        "expression": "n - 1 == sum(1 for _ in stdin.split()[1+n:].split() if _ == '\\n')",
+        "description": "There are exactly n-1 lines describing edges between odd and even vertices."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 4 for line in stdin.split()[1+n:].split('\\n') if line.strip())",
+        "description": "Each of the n-1 lines contains exactly four integers: x_i, y_i, w_{i,1}, w_{i,2}."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= n and int(x) != int(y) for line in stdin.split()[1+n:].split('\\n') if line.strip() for x, y, _, _ in [line.split()])",
+        "description": "For each edge line, x_i and y_i are distinct integers between 1 and n."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(w) <= 10**12 for line in stdin.split()[1+n:].split('\\n') if line.strip() for _, _, w1, w2 in [line.split()])",
+        "description": "For each edge line, w_{i,1} and w_{i,2} are integers between 1 and 10^12."
+      },
+      {
+        "id": "P7",
+        "expression": "1 <= int(stdin.split()[1+n + (n-1) + 1]) <= 6 * 10**5",
+        "description": "The number of queries q satisfies 1 ≤ q ≤ 600,000."
+      },
+      {
+        "id": "P8",
+        "expression": "all(1 <= int(u) <= 2 * int(stdin.split()[0]) and 1 <= int(v) <= 2 * int(stdin.split()[0]) and int(u) != int(v) for line in stdin.split()[1+n + (n-1) + 2:].split('\\n') if line.strip() for u, v in [line.split()])",
+        "description": "Each query contains two distinct integers u_i and v_i between 1 and 2n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(str(compute_shortest_path(u, v, n, w_odd_even, w_odd_odd, w_even_even)) for u, v in queries) + '\\n'",
+        "description": "For each query (u_i, v_i), the output must be the length of the shortest path between u_i and v_i in the graph, computed as the minimum sum of edge weights along any simple path from u_i to v_i."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(answer) <= 10**12 * (2 * n - 1) for answer in stdout.split())",
+        "description": "Each answer is a positive integer representing a valid path length, bounded by the maximum possible sum of edge weights."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "5c27effadf4779fffb8b098d7977358efde24a674858ae5b6f954df1841300ab",
+  "selected_contract_fingerprint": "5c27effadf4779fffb8b098d7977358efde24a674858ae5b6f954df1841300ab",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_8103.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly captures the requirement to compute the shortest path in the graph as described in the task, including the graph's structure (two trees with corresponding edges) and the path length definition.",
+        "task_evidence": "the graph can be represented as two trees having the same structure, and n edges connecting each vertex of the first tree to the corresponding vertex of the second tree. ... The length of some simple path in the graph is the sum of weights of traversed edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the shortest path is computed correctly for all possible pairs of vertices (u_i, v_i), including cases where the path may traverse edges between odd-even, odd-odd, or even-even vertices.",
+        "task_evidence": "You are given q queries to this graph; in each query, you are asked to compute the length of the shortest path between some pair of vertices in this graph.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly define the computation of the shortest path for each query (u_i, v_i) in the graph, including the graph's structure and edge weights.",
+        "task_evidence": "the graph can be represented as two trees having the same structure, and n edges connecting each vertex of the first tree to the corresponding vertex of the second tree. ... The length of some simple path in the graph is the sum of weights of traversed edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly captures the requirement to compute the shortest path in the graph as described in the task, including the graph's structure (two trees with corresponding edges) and the path length definition.",
+        "task_evidence": "the graph can be represented as two trees having the same structure, and n edges connecting each vertex of the first tree to the corresponding vertex of the second tree. ... The length of some simple path in the graph is the sum of weights of traversed edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the shortest path is computed correctly for all possible pairs of vertices (u_i, v_i), including cases where the path may traverse edges between odd-even, odd-odd, or even-even vertices.",
+        "task_evidence": "You are given q queries to this graph; in each query, you are asked to compute the length of the shortest path between some pair of vertices in this graph.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly define the computation of the shortest path for each query (u_i, v_i) in the graph, including the graph's structure and edge weights.",
+        "task_evidence": "the graph can be represented as two trees having the same structure, and n edges connecting each vertex of the first tree to the corresponding vertex of the second tree. ... The length of some simple path in the graph is the sum of weights of traversed edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 51.811,
+  "processing_error": null,
+  "finished_at": "2026-09-04T09:22:44.462938+00:00"
+}

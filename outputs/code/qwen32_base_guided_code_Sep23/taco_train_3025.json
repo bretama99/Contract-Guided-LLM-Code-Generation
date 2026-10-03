@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_3025",
+  "task_index": 739,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_3025.json",
+  "code": "import sys\n\ndef main():\n    import sys\n    import collections\n    import bisect\n\n    def z_function(s):\n        n = len(s)\n        z = [0] * n\n        l, r = 0, 0\n        for i in range(1, n):\n            if i <= r:\n                z[i] = min(r - i + 1, z[i - l])\n            while i + z[i] < n and s[z[i]] == s[i + z[i]]:\n                z[i] += 1\n            if i + z[i] - 1 > r:\n                l, r = i, i + z[i] - 1\n        return z\n\n    def count_occurrences(s, t):\n        concat = t + '#' + s\n        z = z_function(concat)\n        return sum(1 for x in z[len(t)+1:] if x >= len(t))\n\n    def max_occurrences(s, t):\n        n, m = len(s), len(t)\n        freq_s = collections.Counter(s.replace('?', ''))\n        freq_t = collections.Counter(t)\n        matches = count_occurrences(s, t)\n\n        for i in range(n - m + 1):\n            if '?' in s[i:i+m]:\n                matches -= sum(min(freq_t[c], freq_s[c]) for c in set(t) & set(s[i:i+m]))\n                freq_s.subtract(s[i:i+m])\n                freq_s += collections.Counter(s[i:i+m].replace('?', ''))\n                matches += sum(min(freq_t[c], freq_s[c]) for c in set(t))\n        return matches\n\n    input = sys.stdin.read().split()\n    s = input[0]\n    t = input[1]\n    print(max_occurrences(s, t))\n\nmain()",
+  "generation_seconds": 33.753,
+  "generated_at": "2026-09-23T21:24:08.483366+00:00"
+}

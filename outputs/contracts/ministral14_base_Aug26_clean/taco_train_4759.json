@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_4759",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= N <= 10**5 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip()])",
+        "description": "N is the number of vertices in the tree and satisfies 1 ≤ N ≤ 10^5."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= Q <= 10**5 for Q in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line and line.split()[0].isdigit()])",
+        "description": "Q is the number of queries and satisfies 1 ≤ Q ≤ 10^5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdin.splitlines()[1:N])",
+        "description": "The first N-1 lines represent undirected edges of the tree, each with two distinct integers between 1 and N."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == N for line in stdin.splitlines()[N:N+1])",
+        "description": "The N-th line contains exactly N integers representing the array A, where each A[v] satisfies 1 ≤ A[v] ≤ 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(line.split()) == 1 or (len(line.split()) == 2 and line.split()[0].isdigit() and (line.split()[0] == '1' or line.split()[0] == '2')) for line in stdin.splitlines()[N+1:N+1+Q])",
+        "description": "Each of the Q queries is either of type 1 (update A[v] = x) or type 2 (compute sum for subtree of v), where 1 ≤ v ≤ N and 1 ≤ x ≤ 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= v <= N for line in stdin.splitlines()[N+1:N+1+Q] if line.strip() and line.split()[0] == '2' and line.split()[0].isdigit() and len(line.split()) == 1)",
+        "description": "For type 2 queries, v is a vertex in the tree (1 ≤ v ≤ N)."
+      },
+      {
+        "id": "P7",
+        "expression": "all(1 <= v <= N and 1 <= x <= 10**9 for line in stdin.splitlines()[N+1:N+1+Q] if line.strip() and line.split()[0] == '1' and len(line.split()) == 2)",
+        "description": "For type 1 queries, v is a vertex in the tree (1 ≤ v ≤ N) and x is an integer satisfying 1 ≤ x ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() == str(sum_vis_mod) for stdout_line, query in zip(stdout.splitlines(), queries) if query.startswith('2') and (sum_vis_mod := compute_sum_vis_mod(query, A, G, N)) is not None)",
+        "description": "For each type 2 query 'v', the output line is the sum of vis[u] for all u in the subtree of v (including v) after running the modified DFS algorithm with vis initialized to 0, computed modulo 10^9+7. The modified DFS algorithm increments vis[v] by 1 for each of the A[v] iterations, and recursively processes all children of v (excluding parent p) in each iteration."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout_line.strip()) <= 10 for stdout_line in stdout.splitlines() if stdout_line.strip().isdigit())",
+        "description": "Each output line for a type 2 query is a non-negative integer represented as a string with at most 10 digits (to accommodate modulo 10^9+7)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= N <= 10**5 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip()])\",\n      \"description\": \"N is the number of vertices in the tree and satisfies 1 ≤ N ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= Q <= 10**5 for Q in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line and line.split()[0].isdigit()])\",\n      \"description\": \"Q is the number of queries and satisfies 1 ≤ Q ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdin.splitlines()[1:N])\",\n      \"description\": \"The first N-1 lines represent undirected edges of the tree, each with two distinct integers between 1 and N.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == N for line in stdin.splitlines()[N:N+1])\",\n      \"description\": \"The N-th line contains exactly N integers representing the array A, where each A[v] satisfies 1 ≤ A[v] ≤ 10^9.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(line.split()) == 1 or (len(line.split()) == 2 and line.split()[0].isdigit() and (line.split()[0] == '1' or line.split()[0] == '2')) for line in stdin.splitlines()[N+1:N+1+Q])\",\n      \"description\": \"Each of the Q queries is either of type 1 (update A[v] = x) or type 2 (compute sum for subtree of v), where 1 ≤ v ≤ N and 1 ≤ x ≤ 10^9.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= v <= N for line in stdin.splitlines()[N+1:N+1+Q] if line.strip() and line.split()[0] == '2' and line.split()[0].isdigit() and len(line.split()) == 1)\",\n      \"description\": \"For type 2 queries, v is a vertex in the tree (1 ≤ v ≤ N).\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(1 <= v <= N and 1 <= x <= 10**9 for line in stdin.splitlines()[N+1:N+1+Q] if line.strip() and line.split()[0] == '1' and len(line.split()) == 2)\",\n      \"description\": \"For type 1 queries, v is a vertex in the tree (1 ≤ v ≤ N) and x is an integer satisfying 1 ≤ x ≤ 10^9.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() == str(sum_vis_mod) for stdout_line, query in zip(stdout.splitlines(), queries) if query.startswith('2') and (sum_vis_mod := compute_sum_vis_mod(query, A, G, N)) is not None)\",\n      \"description\": \"For each type 2 query 'v', the output line is the sum of vis[u] for all u in the subtree of v (including v) after running the modified DFS algorithm with vis initialized to 0, computed modulo 10^9+7. The modified DFS algorithm increments vis[v] by 1 for each of the A[v] iterations, and recursively processes all children of v (excluding parent p) in each iteration.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout_line.strip()) <= 10 for stdout_line in stdout.splitlines() if stdout_line.strip().isdigit())\",\n      \"description\": \"Each output line for a type 2 query is a non-negative integer represented as a string with at most 10 digits (to accommodate modulo 10^9+7).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1586,
+  "generated_tokens": 1006,
+  "hit_output_limit": false,
+  "generation_seconds": 44.427,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:46:51.587851+00:00"
+}

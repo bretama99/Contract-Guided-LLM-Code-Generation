@@ -1,0 +1,75 @@
+{
+  "task_id": "taco_train_4116",
+  "task_index": 295,
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "createTree",
+      "signature": "def createTree(parent: list[int], N: int) -> Optional[TreeNode]"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(parent, list) and len(parent) == N",
+        "description": "parent is a list of integers with length exactly N."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(x, int) for x in parent)",
+        "description": "Every element in parent is an integer."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= x < N or x == -1 for x in parent)",
+        "description": "Each parent value is either -1 (root) or a valid node index between 0 and N-1."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(1 for x in parent if x == -1) == 1",
+        "description": "Exactly one node has -1 as its parent, representing the unique root."
+      },
+      {
+        "id": "P5",
+        "expression": "1 <= N <= 1000",
+        "description": "N is within the specified constraint range."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value is not None",
+        "description": "The function returns a non-null root node."
+      },
+      {
+        "id": "Q2",
+        "expression": "return_value.data == parent.index(-1)",
+        "description": "The returned root node's data value matches the index of the -1 entry in the parent array."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(hasattr(n, 'data') and hasattr(n, 'left') and hasattr(n, 'right') for n in _collect_nodes(return_value))",
+        "description": "Every node in the constructed tree has 'data', 'left', and 'right' attributes."
+      },
+      {
+        "id": "Q4",
+        "expression": "set(_collect_data(return_value)) == set(range(N))",
+        "description": "The set of data values in the tree exactly matches the set of all node indices from 0 to N-1."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(_check_parent_relation(n, parent) for n in _collect_nodes(return_value))",
+        "description": "For every node, its parent relationship in the tree structure matches the parent array, respecting the left-child-first rule for siblings."
+      }
+    ],
+    "invariants": [],
+    "helpers": {
+      "_collect_nodes": "def _collect_nodes(root): nodes = []; stack = [root] if root else []; \n    while stack: n = stack.pop(); nodes.append(n); \n    if n.right: stack.append(n.right); \n    if n.left: stack.append(n.left); \n    return nodes",
+      "_collect_data": "def _collect_data(root): return [n.data for n in _collect_nodes(root)]",
+      "_check_parent_relation": "def _check_parent_relation(node, parent): \n    if node.left: \n        if parent[node.left.data] != node.data: return False \n    if node.right: \n        if parent[node.right.data] != node.data: return False \n    return True"
+    }
+  },
+  "generation_seconds": 75.704,
+  "seed": 337,
+  "generated_at": "2026-09-21T09:56:31.659278+00:00"
+}

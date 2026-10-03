@@ -1,0 +1,87 @@
+{
+  "task_id": "taco_train_24334",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= n for x in stdin.split() if x.isdigit())",
+        "description": "All city indices in input (n, m, q, roads, queries) are integers between 1 and n (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "m < n",
+        "description": "The number of initial roads m is strictly less than the number of cities n."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= q <= 3e5 and 1 <= n <= 3e5)",
+        "description": "The constraints on n and q are satisfied: 1 ≤ n ≤ 3·10^5 and 1 ≤ q ≤ 3·10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 and line.split()[0] != line.split()[1] for line in stdin.splitlines()[1:m+1])",
+        "description": "Each initial road connects two distinct cities (ai ≠ bi)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(line.split()) in (1, 2) for line in stdin.splitlines()[m+1:m+1+q])",
+        "description": "Each query is either of type 1 (single integer xi) or type 2 (two integers xi, yi)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(x) <= n for line in stdin.splitlines()[m+1:m+1+q] for x in line.split() if x.isdigit())",
+        "description": "All city indices in queries are integers between 1 and n (inclusive)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() == str(max_path_length) for stdout_line, max_path_length in zip(output_lines, expected_outputs))",
+        "description": "For each query of type 1 (xi), the output line is the length of the longest path in the region containing city xi. The longest path is defined as the maximum number of roads (edges) in any simple path (sequence of distinct cities) within the region."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(line.split()) == 1 and line.split()[0] == '1' for line, output_line in zip(input_queries, output_lines) if output_line.strip())",
+        "description": "Output lines are only produced for queries of type 1 (xi). No output is produced for queries of type 2 (xi, yi)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= int(stdout_line.strip()) <= n-1 for stdout_line in output_lines)",
+        "description": "The output for each type 1 query is a non-negative integer representing the longest path length in the region, which cannot exceed n-1 (the maximum possible path length in a connected graph with n cities)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(region_connected(xi, yi) or (region_connected(xi, yi) and max_path_length_after_merge <= max_path_length_before_merge) for xi, yi in merge_queries)",
+        "description": "For each merge query (type 2), if xi and yi are in different regions, the regions are merged by adding a road between some city in xi's region and some city in yi's region such that the longest path in the resulting region is minimized. If xi and yi are already in the same region, no action is taken."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(region_connected(x, y) or not region_connected(x, y) for x in range(1, n+1) for y in range(1, n+1))",
+        "description": "The graph's connectivity is preserved such that any two cities are either in the same connected region (connected by a path) or not, with no ambiguity."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= len(region) <= n for region in connected_regions)",
+        "description": "Each connected region contains at least one city and at most all cities, and regions are disjoint."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdin.split() if x.isdigit())\",\n      \"description\": \"All city indices in input (n, m, q, roads, queries) are integers between 1 and n (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"m < n\",\n      \"description\": \"The number of initial roads m is strictly less than the number of cities n.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= q <= 3e5 and 1 <= n <= 3e5)\",\n      \"description\": \"The constraints on n and q are satisfied: 1 ≤ n ≤ 3·10^5 and 1 ≤ q ≤ 3·10^5.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 2 and line.split()[0] != line.split()[1] for line in stdin.splitlines()[1:m+1])\",\n      \"description\": \"Each initial road connects two distinct cities (ai ≠ bi).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(line.split()) in (1, 2) for line in stdin.splitlines()[m+1:m+1+q])\",\n      \"description\": \"Each query is either of type 1 (single integer xi) or type 2 (two integers xi, yi).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= int(x) <= n for line in stdin.splitlines()[m+1:m+1+q] for x in line.split() if x.isdigit())\",\n      \"description\": \"All city indices in queries are integers between 1 and n (inclusive).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() == str(max_path_length) for stdout_line, max_path_length in zip(output_lines, expected_outputs))\",\n      \"description\": \"For each query of type 1 (xi), the output line is the length of the longest path in the region containing city xi. The longest path is defined as the maximum number of roads (edges) in any simple path (sequence of distinct cities) within the region.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(line.split()) == 1 and line.split()[0] == '1' for line, output_line in zip(input_queries, output_lines) if output_line.strip())\",\n      \"description\": \"Output lines are only produced for queries of type 1 (xi). No output is produced for queries of type 2 (xi, yi).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= int(stdout_line.strip()) <= n-1 for stdout_line in output_lines)\",\n      \"description\": \"The output for each type 1 query is a non-negative integer representing the longest path length in the region, which cannot exceed n-1 (the maximum possible path length in a connected graph with n cities).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(region_connected(xi, yi) or (region_connected(xi, yi) and max_path_length_after_merge <= max_path_length_before_merge) for xi, yi in merge_queries)\",\n      \"description\": \"For each merge query (type 2), if xi and yi are in different regions, the regions are merged by adding a road between some city in xi's region and some city in yi's region such that the longest path in the resulting region is minimized. If xi and yi are already in the same region, no action is taken.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(region_connected(x, y) or not region_connected(x, y) for x in range(1, n+1) for y in range(1, n+1))\",\n      \"description\": \"The graph's connectivity is preserved such that any two cities are either in the same connected region (connected by a path) or not, with no ambiguity.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(1 <= len(region) <= n for region in connected_regions)\",\n      \"description\": \"Each connected region contains at least one city and at most all cities, and regions are disjoint.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1658,
+  "generated_tokens": 1061,
+  "hit_output_limit": false,
+  "generation_seconds": 46.569,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:36:55.137380+00:00"
+}

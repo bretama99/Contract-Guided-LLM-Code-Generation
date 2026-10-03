@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_1221",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= a <= 1000 and 1 <= b <= 1000",
+        "description": "a and b are integers within the range [1, 1000]"
+      },
+      {
+        "id": "P2",
+        "expression": "-10000 <= Ax <= 10000 and -10000 <= Ay <= 10000 and -10000 <= Bx <= 10000 and -10000 <= By <= 10000",
+        "description": "Coordinates of points A and B are within the range [-10000, 10000]"
+      },
+      {
+        "id": "P3",
+        "expression": "1 <= n <= 1000",
+        "description": "Number of trenches n is within the range [1, 1000]"
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(trench) == 4 for trench in trenches) and all(-10000 <= x <= 10000 for trench in trenches for x in trench[:2])",
+        "description": "Each trench is represented by four integers (x1, y1, x2, y2) with coordinates in [-10000, 10000]"
+      },
+      {
+        "id": "P5",
+        "expression": "all((x1 == x2 or y1 == y2) for trench in trenches)",
+        "description": "Each trench is either horizontal or vertical (axis-aligned)"
+      },
+      {
+        "id": "P6",
+        "expression": "all(abs(x2 - x1) + abs(y2 - y1) <= b for trench in trenches)",
+        "description": "Length of each trench (Manhattan distance) does not exceed b"
+      },
+      {
+        "id": "P7",
+        "expression": "not any((Ax == x1 and Ay == y1) or (Ax == x2 and Ay == y2) or (Bx == x1 and By == y1) or (Bx == x2 and By == y2) for trench in trenches)",
+        "description": "Points A and B do not lie on any trench"
+      },
+      {
+        "id": "P8",
+        "expression": "all(not intersects(trench1, trench2) for i in range(len(trenches)) for j in range(i + 1, len(trenches)) for trench1, trench2 in [(trenches[i], trenches[j])])",
+        "description": "No two trenches intersect (helper: intersects(x1,y1,x2,y2, x3,y3,x4,y4) checks if two axis-aligned segments intersect)"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (stdout != '-1' and 0 <= float(stdout) <= 1e6)",
+        "description": "Output is either -1 (impossible) or a non-negative time (≤ 1e6) representing the minimum time required"
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout != '-1' implies exists_path_with_time(Ax, Ay, Bx, By, a, b, trenches, float(stdout))",
+        "description": "If output is not -1, there exists a valid path from A to B within the computed time, respecting laser constraints (helper: exists_path_with_time checks feasibility)"
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == '-1' or (stdout != '-1' and all(not exists_path_with_time(Ax, Ay, Bx, By, a, b, trenches, t) for t in [0, float(stdout) - 1e-6]))",
+        "description": "If output is not -1, no valid path exists for any time strictly less than the computed time (optimality)"
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= a <= 1000 and 1 <= b <= 1000\",\n      \"description\": \"a and b are integers within the range [1, 1000]\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"-10000 <= Ax <= 10000 and -10000 <= Ay <= 10000 and -10000 <= Bx <= 10000 and -10000 <= By <= 10000\",\n      \"description\": \"Coordinates of points A and B are within the range [-10000, 10000]\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"1 <= n <= 1000\",\n      \"description\": \"Number of trenches n is within the range [1, 1000]\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(trench) == 4 for trench in trenches) and all(-10000 <= x <= 10000 for trench in trenches for x in trench[:2])\",\n      \"description\": \"Each trench is represented by four integers (x1, y1, x2, y2) with coordinates in [-10000, 10000]\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all((x1 == x2 or y1 == y2) for trench in trenches)\",\n      \"description\": \"Each trench is either horizontal or vertical (axis-aligned)\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(abs(x2 - x1) + abs(y2 - y1) <= b for trench in trenches)\",\n      \"description\": \"Length of each trench (Manhattan distance) does not exceed b\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"not any((Ax == x1 and Ay == y1) or (Ax == x2 and Ay == y2) or (Bx == x1 and By == y1) or (Bx == x2 and By == y2) for trench in trenches)\",\n      \"description\": \"Points A and B do not lie on any trench\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"all(not intersects(trench1, trench2) for i in range(len(trenches)) for j in range(i + 1, len(trenches)) for trench1, trench2 in [(trenches[i], trenches[j])])\",\n      \"description\": \"No two trenches intersect (helper: intersects(x1,y1,x2,y2, x3,y3,x4,y4) checks if two axis-aligned segments intersect)\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '-1' or (stdout != '-1' and 0 <= float(stdout) <= 1e6)\",\n      \"description\": \"Output is either -1 (impossible) or a non-negative time (≤ 1e6) representing the minimum time required\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout != '-1' implies exists_path_with_time(Ax, Ay, Bx, By, a, b, trenches, float(stdout))\",\n      \"description\": \"If output is not -1, there exists a valid path from A to B within the computed time, respecting laser constraints (helper: exists_path_with_time checks feasibility)\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout == '-1' or (stdout != '-1' and all(not exists_path_with_time(Ax, Ay, Bx, By, a, b, trenches, t) for t in [0, float(stdout) - 1e-6]))\",\n      \"description\": \"If output is not -1, no valid path exists for any time strictly less than the computed time (optimality)\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1787,
+  "generated_tokens": 970,
+  "hit_output_limit": false,
+  "generation_seconds": 42.945,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:26:08.430602+00:00"
+}

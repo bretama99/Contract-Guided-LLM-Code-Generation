@@ -1,0 +1,257 @@
+{
+  "task_id": "taco_train_24334",
+  "task_index": 273,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 300000 and 0 <= m < n and 1 <= q <= 300000",
+        "description": "Input constraints: number of cities n, initial roads m, and queries q must satisfy given bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b for a, b in roads)",
+        "description": "Each road connects two distinct cities within the valid range."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x <= n for x in query_x) and all(1 <= x <= n and 1 <= y <= n for x, y in query_xy)",
+        "description": "All city references in queries are within valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 and line.split()[0] == '2' for line in query_lines if line.startswith('2')) or all(len(line.split()) == 1 and line.split()[0] == '1' for line in query_lines if line.startswith('1'))",
+        "description": "Each query is either a type-1 (single city) or type-2 (two cities) request, properly formatted."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line) > 0 and stdout_line.isdigit() for stdout_line in stdout_lines if stdout_line.strip() != '')",
+        "description": "For each type-1 query, the output is a non-empty integer representing the length of the longest path in the region containing the queried city."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(stdout_line) <= n - 1 for stdout_line in stdout_lines if stdout_line.strip() != '')",
+        "description": "The output for each type-1 query is a valid path length (between 0 and n-1)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(region_contains(x, region_x) and region_contains(y, region_y) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y))",
+        "description": "For each type-2 query, the regions of cities x and y are correctly identified before merging."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(region_contains(x, region_y) or region_contains(y, region_x) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y) if region_x != region_y)",
+        "description": "After a type-2 query, the regions of cities x and y are merged into a single region."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(max_path_length(region) <= max_path_length(region_x) + max_path_length(region_y) + 1 for (x, y), region_x, region_y, region in zip(query_xy, regions_x, regions_y, merged_regions) if region_x != region_y)",
+        "description": "After merging regions, the longest path in the new region does not exceed the sum of the longest paths in the original regions plus one."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(connected_components(roads) == regions)",
+        "description": "The set of roads always defines the current regions (connected components) of cities."
+      },
+      {
+        "id": "I2",
+        "expression": "all(region_contains(x, region) for x, region in zip(cities, regions))",
+        "description": "Every city is always contained in exactly one region."
+      }
+    ]
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 300000 and 0 <= m < n and 1 <= q <= 300000",
+        "description": "Input constraints: number of cities n, initial roads m, and queries q must satisfy given bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b for a, b in roads)",
+        "description": "Each road connects two distinct cities within the valid range."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x <= n for x in query_x) and all(1 <= x <= n and 1 <= y <= n for x, y in query_xy)",
+        "description": "All city references in queries are within valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 and line.split()[0] == '2' for line in query_lines if line.startswith('2')) or all(len(line.split()) == 1 and line.split()[0] == '1' for line in query_lines if line.startswith('1'))",
+        "description": "Each query is either a type-1 (single city) or type-2 (two cities) request, properly formatted."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line) > 0 and stdout_line.isdigit() for stdout_line in stdout_lines if stdout_line.strip() != '')",
+        "description": "For each type-1 query, the output is a non-empty integer representing the length of the longest path in the region containing the queried city."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(stdout_line) <= n - 1 for stdout_line in stdout_lines if stdout_line.strip() != '')",
+        "description": "The output for each type-1 query is a valid path length (between 0 and n-1)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(region_contains(x, region_x) and region_contains(y, region_y) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y))",
+        "description": "For each type-2 query, the regions of cities x and y are correctly identified before merging."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(region_contains(x, region_y) or region_contains(y, region_x) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y) if region_x != region_y)",
+        "description": "After a type-2 query, the regions of cities x and y are merged into a single region."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(max_path_length(region) <= max_path_length(region_x) + max_path_length(region_y) + 1 for (x, y), region_x, region_y, region in zip(query_xy, regions_x, regions_y, merged_regions) if region_x != region_y)",
+        "description": "After merging regions, the longest path in the new region does not exceed the sum of the longest paths in the original regions plus one."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(connected_components(roads) == regions)",
+        "description": "The set of roads always defines the current regions (connected components) of cities."
+      },
+      {
+        "id": "I2",
+        "expression": "all(region_contains(x, region) for x, region in zip(cities, regions))",
+        "description": "Every city is always contained in exactly one region."
+      }
+    ]
+  },
+  "original_contract_fingerprint": "66b0aab519ff72a650e63a4b48bdb2d0e0d8a0fc555983bc0a0fe8aaed75204b",
+  "selected_contract_fingerprint": "66b0aab519ff72a650e63a4b48bdb2d0e0d8a0fc555983bc0a0fe8aaed75204b",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_24334.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "invariants[0].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "invariants[0].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 63.136,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:32:12.916794+00:00"
+}

@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_20078",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1]) and all(1 <= int(x) <= int(n) and 1 <= int(y) <= int(n) and int(x) != int(y) for line in stdin.splitlines()[1:] for x, y in [line.split()])",
+        "description": "The first line contains two integers n (number of cities) and m (number of roads) where 2 ≤ n ≤ 10^5 and n-1 ≤ m ≤ 10^5. Each subsequent line contains two integers x_i and y_i (1 ≤ x_i, y_i ≤ n, x_i ≠ y_i) representing bidirectional roads, with no duplicate roads between the same pair of cities."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m+1 lines: one line for n and m, and m lines for roads."
+      },
+      {
+        "id": "P3",
+        "expression": "all(any((x == a and y == b) or (x == b and y == a) for a, b in [(int(stdin.splitlines()[i+1].split()[0]), int(stdin.splitlines()[i+1].split()[1])) for i in range(m)]) for i in range(m) for x, y in [(int(stdin.splitlines()[i+1].split()[0]), int(stdin.splitlines()[i+1].split()[1]))])",
+        "description": "No duplicate roads exist between the same pair of cities (undirected)."
+      },
+      {
+        "id": "P4",
+        "expression": "is_connected := lambda graph, n: all(any(bfs(graph, start, n) == set(range(1, n+1)) for start in [1]) for graph in [build_graph(stdin)])",
+        "description": "The graph is connected, meaning there is a path between any two cities. (Note: This is a logical precondition, not a direct expression; the graph is guaranteed connected by problem statement.)"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == [str(min_path_number % (10**9 + 7)) for min_path_number in [find_min_path_number(stdin, i+1) for i in range(n-1)]]",
+        "description": "For each destination city i+1 (where i ranges from 1 to n-1), the output contains the smallest possible concatenated road number sequence from city 1 to city i+1, modulo 10^9+7. The sequence is formed by concatenating the road numbers in the order they are traversed, and the smallest number is determined lexicographically (i.e., the smallest string representation when compared as numbers)."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.strip().split()) == n - 1",
+        "description": "The output contains exactly n-1 integers, one for each destination city from 2 to n."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1]) and all(1 <= int(x) <= int(n) and 1 <= int(y) <= int(n) and int(x) != int(y) for line in stdin.splitlines()[1:] for x, y in [line.split()])\",\n      \"description\": \"The first line contains two integers n (number of cities) and m (number of roads) where 2 ≤ n ≤ 10^5 and n-1 ≤ m ≤ 10^5. Each subsequent line contains two integers x_i and y_i (1 ≤ x_i, y_i ≤ n, x_i ≠ y_i) representing bidirectional roads, with no duplicate roads between the same pair of cities.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m+1 lines: one line for n and m, and m lines for roads.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(any((x == a and y == b) or (x == b and y == a) for a, b in [(int(stdin.splitlines()[i+1].split()[0]), int(stdin.splitlines()[i+1].split()[1])) for i in range(m)]) for i in range(m) for x, y in [(int(stdin.splitlines()[i+1].split()[0]), int(stdin.splitlines()[i+1].split()[1]))])\",\n      \"description\": \"No duplicate roads exist between the same pair of cities (undirected).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"is_connected := lambda graph, n: all(any(bfs(graph, start, n) == set(range(1, n+1)) for start in [1]) for graph in [build_graph(stdin)])\",\n      \"description\": \"The graph is connected, meaning there is a path between any two cities. (Note: This is a logical precondition, not a direct expression; the graph is guaranteed connected by problem statement.)\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().split() == [str(min_path_number % (10**9 + 7)) for min_path_number in [find_min_path_number(stdin, i+1) for i in range(n-1)]]\",\n      \"description\": \"For each destination city i+1 (where i ranges from 1 to n-1), the output contains the smallest possible concatenated road number sequence from city 1 to city i+1, modulo 10^9+7. The sequence is formed by concatenating the road numbers in the order they are traversed, and the smallest number is determined lexicographically (i.e., the smallest string representation when compared as numbers).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.strip().split()) == n - 1\",\n      \"description\": \"The output contains exactly n-1 integers, one for each destination city from 2 to n.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1784,
+  "generated_tokens": 783,
+  "hit_output_limit": false,
+  "generation_seconds": 35.035,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:23:31.138688+00:00"
+}

@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_24560",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 20",
+        "description": "The first line of input is an integer T (1 ≤ T ≤ 20) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 1 for line in stdin.splitlines()[1:])",
+        "description": "Each test case starts with a line containing a single integer N (1 ≤ N ≤ 10³), followed by two lines each containing a single string of length N, with only lowercase English letters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(A) == len(B) == N for N, A, B in parse_test_cases(stdin))",
+        "description": "For each test case, the strings A and B have equal length N, and each character in A and B is a lowercase English letter."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(output_line in ['-1'] or (output_line.isdigit() and int(output_line) >= 0) for output_line in stdout.splitlines() if output_line.strip() != '')",
+        "description": "For each test case, the first line of output is either '-1' (impossible) or a non-negative integer K (minimum operations)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((K == -1 and len(operations) == 0) or (K >= 1 and len(operations) == K) for K, operations in parse_output(stdout))",
+        "description": "If K is -1, no operations are printed. Otherwise, exactly K lines follow, each describing one operation with a valid subset S of indices."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(0 <= x < N for x in S.split()) for S in operations if K != -1)",
+        "description": "Each operation's subset S contains distinct indices in the range [0, N-1]."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(S.split()) == Z for Z, S in parse_operations(operations))",
+        "description": "Each operation line starts with an integer Z (the size of S) followed by Z distinct indices."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(apply_operations(A, operations) == B if K != -1 else False for A, B, operations in zip(parse_A(stdin), parse_B(stdin), parse_operations(stdout)))",
+        "description": "If K is not -1, applying the operations to A must yield B. The operations must be valid (each operation replaces characters in S with the alphabetically smallest character in A[S] at the time of operation)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(min_operations(A, B) == K if K != -1 else min_operations(A, B) == -1 for A, B, K in zip(parse_A(stdin), parse_B(stdin), parse_K(stdout)))",
+        "description": "The output K is the minimum number of operations required to convert A to B, or -1 if it is impossible."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 20\",\n      \"description\": \"The first line of input is an integer T (1 ≤ T ≤ 20) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 1 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each test case starts with a line containing a single integer N (1 ≤ N ≤ 10³), followed by two lines each containing a single string of length N, with only lowercase English letters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(A) == len(B) == N for N, A, B in parse_test_cases(stdin))\",\n      \"description\": \"For each test case, the strings A and B have equal length N, and each character in A and B is a lowercase English letter.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(output_line in ['-1'] or (output_line.isdigit() and int(output_line) >= 0) for output_line in stdout.splitlines() if output_line.strip() != '')\",\n      \"description\": \"For each test case, the first line of output is either '-1' (impossible) or a non-negative integer K (minimum operations).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((K == -1 and len(operations) == 0) or (K >= 1 and len(operations) == K) for K, operations in parse_output(stdout))\",\n      \"description\": \"If K is -1, no operations are printed. Otherwise, exactly K lines follow, each describing one operation with a valid subset S of indices.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(all(0 <= x < N for x in S.split()) for S in operations if K != -1)\",\n      \"description\": \"Each operation's subset S contains distinct indices in the range [0, N-1].\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(len(S.split()) == Z for Z, S in parse_operations(operations))\",\n      \"description\": \"Each operation line starts with an integer Z (the size of S) followed by Z distinct indices.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(apply_operations(A, operations) == B if K != -1 else False for A, B, operations in zip(parse_A(stdin), parse_B(stdin), parse_operations(stdout)))\",\n      \"description\": \"If K is not -1, applying the operations to A must yield B. The operations must be valid (each operation replaces characters in S with the alphabetically smallest character in A[S] at the time of operation).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(min_operations(A, B) == K if K != -1 else min_operations(A, B) == -1 for A, B, K in zip(parse_A(stdin), parse_B(stdin), parse_K(stdout)))\",\n      \"description\": \"The output K is the minimum number of operations required to convert A to B, or -1 if it is impossible.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1832,
+  "generated_tokens": 814,
+  "hit_output_limit": false,
+  "generation_seconds": 51.032,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:01:08.637278+00:00"
+}

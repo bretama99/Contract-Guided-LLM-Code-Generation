@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_12379",
+  "task_index": 474,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_12379.json",
+  "code": "import sys\nfrom collections import deque\n\ndef bfs(start, goal, n):\n    queue = deque([(start, '')])\n    visited = set()\n    visited.add(tuple(start))\n    while queue:\n        state, path = queue.popleft()\n        if state == goal:\n            return path\n        e_row, e_col = next((r, c) for r in range(2) for c in range(n) if state[r][c] == 'E')\n        for dr, dc, move in [(-1, 0, 'u'), (1, 0, 'd'), (0, -1, 'l'), (0, 1, 'r')]:\n            nr, nc = e_row + dr, e_col + dc\n            if 0 <= nr < 2 and 0 <= nc < n and (nr == 0 or nr == 1 or nc == n // 2):\n                new_state = [row[:] for row in state]\n                new_state[e_row][e_col], new_state[nr][nc] = new_state[nr][nc], new_state[e_row][e_col]\n                new_tuple = tuple(map(tuple, new_state))\n                if new_tuple not in visited:\n                    visited.add(new_tuple)\n                    queue.append((new_state, path + move))\n    return None\n\ndef solve(grid, k):\n    n = 2 * k + 1\n    start = [grid[0].copy(), grid[1].copy()]\n    goal = [[str(i) for i in range(1, n + 1)], [str(i) for i in range(n + 1, 4 * k + 2)]]\n    goal[1] += ['E']\n    path = bfs(start, goal, n)\n    if path is None:\n        return \"SURGERY FAILED\", []\n    return \"SURGERY COMPLETE\", [path]\n\ndef main():\n    import sys\n    input = sys.stdin.read().strip().split('\\n')\n    t = int(input[0])\n    idx = 1\n    results = []\n    for _ in range(t):\n        k = int(input[idx])\n        grid = [input[idx + 1].split(), input[idx + 2].split()]\n        idx += 3\n        result, moves = solve(grid, k)\n        results.append(result)\n        if result == \"SURGERY COMPLETE\":\n            results.extend(moves)\n    results.append(\"DONE\")\n    print(\"\\n\".join(results))\n\nmain()",
+  "generation_seconds": 48.268,
+  "generated_at": "2026-09-23T21:06:28.858747+00:00"
+}

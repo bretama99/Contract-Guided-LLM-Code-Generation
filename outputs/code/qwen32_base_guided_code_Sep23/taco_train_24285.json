@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_24285",
+  "task_index": 331,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_24285.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef find_cycle(graph, start):\n    visited = set()\n    parent = {start: None}\n    stack = [start]\n    while stack:\n        node = stack.pop()\n        if node in visited:\n            cycle = []\n            while node is not None:\n                cycle.append(node)\n                node = parent[node]\n            return cycle[::-1]\n        visited.add(node)\n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                parent[neighbor] = node\n                stack.append(neighbor)\n    return []\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    m = int(input[1])\n    edges = [(int(input[2 + 2 * i]) - 1, int(input[3 + 2 * i]) - 1) for i in range(m)]\n    \n    graph = defaultdict(list)\n    for u, v in edges:\n        graph[u].append(v)\n        graph[v].append(u)\n    \n    cycle = []\n    for i in range(n):\n        cycle = find_cycle(graph, i)\n        if len(cycle) > 2:\n            break\n    \n    if len(cycle) <= 2:\n        print(\"NO\")\n        return\n    \n    if len(cycle) < 5:\n        print(\"NO\")\n        return\n    \n    routes = [\n        [cycle[0]] + cycle[2::-1] + [cycle[0]],\n        [cycle[0]] + cycle[3:1:-1] + [cycle[0]],\n        [cycle[0]] + [cycle[4]] + [cycle[0]]\n    ]\n    \n    print(\"YES\")\n    for route in routes:\n        print(len(route), *(x + 1 for x in route))\n\nmain()",
+  "generation_seconds": 34.532,
+  "generated_at": "2026-09-23T21:51:40.961936+00:00"
+}

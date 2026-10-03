@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_11352",
+  "task_index": 821,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_11352.json",
+  "code": "import sys\n\ndef resolve_type(t, definitions):\n    while t in definitions:\n        t = definitions[t]\n        if t == 'void' or t == 'errtype':\n            break\n        if t.startswith('&'):\n            if t[1:] == 'void' or t[1:] == 'errtype':\n                t = 'errtype'\n                break\n        elif t.endswith('*'):\n            if t[:-1] == 'void' or t[:-1] == 'errtype':\n                t = 'errtype'\n                break\n    return t\n\ndef main():\n    import sys\n    input = sys.stdin.read().splitlines()\n    n = int(input[0])\n    operators = input[1:]\n    definitions = {}\n    results = []\n\n    for operator in operators:\n        if operator.startswith('typedef'):\n            _, a, b = operator.split()\n            resolved_a = resolve_type(a, definitions)\n            definitions[b] = resolved_a\n        elif operator.startswith('typeof'):\n            _, a = operator.split()\n            resolved_a = resolve_type(a, definitions)\n            if resolved_a == 'void' or resolved_a == 'errtype':\n                final_type = resolved_a\n            else:\n                count_asterisks = resolved_a.count('*')\n                final_type = 'void' + '*' * count_asterisks\n            results.append(final_type)\n\n    for result in results:\n        print(result)\n\nmain()",
+  "generation_seconds": 27.022,
+  "generated_at": "2026-09-23T19:20:44.795927+00:00"
+}

@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_19000",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T06:38:25.106710+00:00",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    n = int(input_data[0])\n    a = []\n    for i in range(n):\n        a.append(int(input_data[i + 1]))\n    \n    if n == 1:\n        print(-1)\n        return\n    \n    total_sum = sum(a)\n    \n    # Try to find a subset for Grigory such that sum != total_sum - sum\n    # Since n is small (up to 10), we can iterate through all non-empty proper subsets.\n    # A proper subset means size >= 1 and size <= n-1.\n    \n    found = False\n    result_indices = []\n    \n    # Iterate over all possible masks from 1 to 2^n - 2 (excluding empty and full set)\n    # Actually, since we just need ANY valid split, we can try simple heuristics first.\n    # Heuristic 1: Give first element to Grigory. Check if sum != remaining.\n    # If that fails, try giving all but first to Grigory.\n    # If that fails, try giving first two elements...\n    \n    # Given constraints n <= 10, 2^10 = 1024 iterations is trivial.\n    \n    limit = 1 << n\n    for mask in range(1, limit - 1):\n        current_sum = 0\n        indices = []\n        for i in range(n):\n            if (mask >> i) & 1:\n                current_sum += a[i]\n                indices.append(i + 1) # 1-based index\n        \n        if current_sum != total_sum - current_sum:\n            found = True\n            result_indices = indices\n            break\n    \n    if found:\n        print(len(result_indices))\n        print(*(result_indices))\n    else:\n        print(-1)\n\nif __name__ == \"__main__\":\n    solve()"
+}

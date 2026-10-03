@@ -1,0 +1,403 @@
+{
+  "task_id": "taco_train_6255",
+  "task_index": 785,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "0 <= n < m <= 200000",
+        "description": "n is the count of forbidden prefix products, m is the modulus, and they satisfy 0 ≤ n < m ≤ 200000"
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= x < m for x in forbidden) if n > 0 else True",
+        "description": "if n > 0, the forbidden list contains n distinct integers between 0 and m - 1"
+      },
+      {
+        "id": "P3",
+        "expression": "forbidden == [] if n == 0 else True",
+        "description": "if n is zero, the forbidden list is empty"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "k == len(sequence)",
+        "description": "k is the length of the output sequence"
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= x < m for x in sequence)",
+        "description": "every element in the sequence is an integer between 0 and m - 1"
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(prefix_products)) == k",
+        "description": "all prefix products modulo m are distinct, where prefix_products = [sequence[0] % m] + [prefix_products[i] * sequence[i+1] % m for i in range(k-1)]"
+      },
+      {
+        "id": "Q4",
+        "expression": "all(x not in forbidden for x in prefix_products)",
+        "description": "no prefix product modulo m appears in the forbidden list"
+      },
+      {
+        "id": "Q5",
+        "expression": "not any(0 <= (prefix_products[-1] * x) % m < m and (prefix_products[-1] * x) % m not in forbidden and (prefix_products[-1] * x) % m not in prefix_products for x in range(m))",
+        "description": "the sequence cannot be extended by any integer x in [0, m-1] without violating Q2, Q3, or Q4"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "0 <= n < m <= 200000",
+        "description": "n is the count of forbidden prefix products, m is the modulus, and they satisfy 0 ≤ n < m ≤ 200000"
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= x < m for x in forbidden) if n > 0 else True",
+        "description": "if n > 0, the forbidden list contains n distinct integers between 0 and m - 1"
+      },
+      {
+        "id": "P3",
+        "expression": "forbidden == [] if n == 0 else True",
+        "description": "if n is zero, the forbidden list is empty"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "k == len(sequence)",
+        "description": "k is the length of the output sequence"
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= x < m for x in sequence)",
+        "description": "every element in the sequence is an integer between 0 and m - 1"
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(prefix_products)) == k",
+        "description": "all prefix products modulo m are distinct, where prefix_products = [sequence[0] % m] + [prefix_products[i] * sequence[i+1] % m for i in range(k-1)]"
+      },
+      {
+        "id": "Q4",
+        "expression": "all(x not in forbidden for x in prefix_products)",
+        "description": "no prefix product modulo m appears in the forbidden list"
+      },
+      {
+        "id": "Q5",
+        "expression": "k == max_possible_length(forbidden, m)",
+        "description": "k is the maximum possible length of a sequence satisfying Q2, Q3, and Q4"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "ccab501b2e9a0e563eda4e1001875116ce26fd4f3c293e570c3d55a8178da417",
+  "selected_contract_fingerprint": "b6767ac19417f6b86e0ad7d313cd0509b1a45f42c202953fc0b6d8dfb89f499e",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_6255.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "Replace `k == max_possible_length(forbidden, m)` with a verifiable expression. The task does not provide a computable definition of `max_possible_length`, so this cannot be expressed in the contract. Instead, use a constructive approach: the sequence must be maximal under the constraints, but this cannot be directly expressed as a postcondition. Remove this clause or replace it with a verifiable property (e.g., the sequence cannot be extended further without violating Q2, Q3, or Q4).",
+      "task_evidence": "",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "Replace `k == max_possible_length(forbidden, m)` with a verifiable expression. The task does not provide a computable definition of `max_possible_length`, so this cannot be expressed in the contract. Instead, use a constructive approach: the sequence must be maximal under the constraints, but this cannot be directly expressed as a postcondition. Remove this clause or replace it with a verifiable property (e.g., the sequence cannot be extended further without violating Q2, Q3, or Q4).",
+      "task_evidence": "",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace `k == max_possible_length(forbidden, m)` with a verifiable expression. The task does not provide a computable definition of `max_possible_length`, so this cannot be expressed in the contract. Instead, use a constructive approach: the sequence must be maximal under the constraints, but this cannot be directly expressed as a postcondition. Remove this clause or replace it with a verifiable property (e.g., the sequence cannot be extended further without violating Q2, Q3, or Q4).",
+        "task_evidence": "",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace `k == max_possible_length(forbidden, m)` with a verifiable expression. The task does not provide a computable definition of `max_possible_length`, so this cannot be expressed in the contract. Instead, use a constructive approach: the sequence must be maximal under the constraints, but this cannot be directly expressed as a postcondition. Remove this clause or replace it with a verifiable property (e.g., the sequence cannot be extended further without violating Q2, Q3, or Q4).",
+        "task_evidence": "",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the sequence is non-empty when possible (i.e., when `m > 0` and `forbidden` does not contain all possible residues). The task implies the sequence should be as long as possible, and an empty sequence is only valid if no valid sequence exists (e.g., `m = 1` and `forbidden = [0]`).",
+        "task_evidence": "The length of the sequence is maximized.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace `k == max_possible_length(forbidden, m)` with a verifiable expression. The task does not provide a computable definition of `max_possible_length`, so this cannot be expressed in the contract. Instead, use a constructive approach: the sequence must be maximal under the constraints, but this cannot be directly expressed as a postcondition. Remove this clause or replace it with a verifiable property (e.g., the sequence cannot be extended further without violating Q2, Q3, or Q4).",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the sequence cannot be extended further without violating Q2, Q3, or Q4. This is a constructive way to express maximality without relying on an undefined `max_possible_length`. For example: `not exists x in [0..m-1] such that (all(prefix_products + [prefix_products[-1] * x % m]) satisfies Q3 and Q4)`.",
+        "task_evidence": "The length of the sequence is maximized.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "0 <= n < m <= 200000",
+          "description": "n is the count of forbidden prefix products, m is the modulus, and they satisfy 0 ≤ n < m ≤ 200000"
+        },
+        {
+          "id": "P2",
+          "expression": "all(0 <= x < m for x in forbidden) if n > 0 else True",
+          "description": "if n > 0, the forbidden list contains n distinct integers between 0 and m - 1"
+        },
+        {
+          "id": "P3",
+          "expression": "forbidden == [] if n == 0 else True",
+          "description": "if n is zero, the forbidden list is empty"
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "k == len(sequence)",
+          "description": "k is the length of the output sequence"
+        },
+        {
+          "id": "Q2",
+          "expression": "all(0 <= x < m for x in sequence)",
+          "description": "every element in the sequence is an integer between 0 and m - 1"
+        },
+        {
+          "id": "Q3",
+          "expression": "len(set(prefix_products)) == k",
+          "description": "all prefix products modulo m are distinct, where prefix_products = [sequence[0] % m] + [prefix_products[i] * sequence[i+1] % m for i in range(k-1)]"
+        },
+        {
+          "id": "Q4",
+          "expression": "all(x not in forbidden for x in prefix_products)",
+          "description": "no prefix product modulo m appears in the forbidden list"
+        },
+        {
+          "id": "Q5",
+          "expression": "not any(0 <= (prefix_products[-1] * x) % m < m and (prefix_products[-1] * x) % m not in forbidden and (prefix_products[-1] * x) % m not in prefix_products for x in range(m))",
+          "description": "the sequence cannot be extended by any integer x in [0, m-1] without violating Q2, Q3, or Q4"
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "Replace `k == max_possible_length(forbidden, m)` with a verifiable expression. The task does not provide a computable definition of `max_possible_length`, so this cannot be expressed in the contract. Instead, use a constructive approach: the sequence must be maximal under the constraints, but this cannot be directly expressed as a postcondition. Remove this clause or replace it with a verifiable property (e.g., the sequence cannot be extended further without violating Q2, Q3, or Q4).",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "expression": "not any(0 <= (prefix_products[-1] * x) % m < m and (prefix_products[-1] * x) % m not in forbidden and (prefix_products[-1] * x) % m not in prefix_products for x in range(m))",
+          "description": "the sequence cannot be extended by any integer x in [0, m-1] without violating Q2, Q3, or Q4"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "b6767ac19417f6b86e0ad7d313cd0509b1a45f42c202953fc0b6d8dfb89f499e",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 1
+  },
+  "repair_attempts_used": 1,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 28.874,
+  "processing_error": null,
+  "finished_at": "2026-09-04T08:13:11.924430+00:00"
+}

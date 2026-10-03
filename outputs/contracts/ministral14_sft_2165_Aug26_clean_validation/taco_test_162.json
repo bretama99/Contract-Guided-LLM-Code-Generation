@@ -1,0 +1,643 @@
+{
+  "task_id": "taco_test_162",
+  "task_index": 159,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= n for x in [i, j] for line in stdin.splitlines()[1:] for i, j, b in [line.split()] if int(i) != int(j))",
+        "description": "All vertex indices in friendships are within valid bounds (1 to n)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(b) <= 1 for line in stdin.splitlines()[1:] for i, j, b in [line.split()])",
+        "description": "Each friendship's envy direction flag b is either 0 or 1."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input has exactly m + 1 lines (n, m followed by m friendships)."
+      },
+      {
+        "id": "P4",
+        "expression": "n >= 1 and m >= n - 1 and m <= 2000",
+        "description": "The graph is connected (n-1 ≤ m ≤ 2000) and n is within bounds (1 ≤ n ≤ 200)."
+      }
+    ],
+    "postconditions": [
+      {
+        "description": "The first line of output is either 'YES' or 'NO'.",
+        "expression": "stdout.strip() == 'YES' or stdout.strip() == 'NO'",
+        "id": "Q1"
+      },
+      {
+        "description": "Output 'YES' if and only if there exists a valid income assignment satisfying all envy constraints.",
+        "expression": "(stdout.strip() == 'YES') == (any_solution_exists(n, m, friendships))",
+        "id": "Q2"
+      },
+      {
+        "description": "If 'YES', output must include exactly two additional lines (inequality and incomes).",
+        "expression": "(stdout.strip() == 'YES') == (stdout.count('\\n') == 2)",
+        "id": "Q3"
+      },
+      {
+        "description": "If 'YES', all incomes are within the valid range [0, 10^6].",
+        "expression": "(stdout.strip() == 'YES') == (all(0 <= int(a_i) <= 10**6 for a_i in stdout.splitlines()[2].split()))",
+        "id": "Q4"
+      },
+      {
+        "description": "If 'YES', the first additional line is the maximum possible income inequality (max(a_i) - min(a_i)) among all valid assignments.",
+        "expression": "(stdout.strip() == 'YES') == (max_income - min_income == int(stdout.splitlines()[1]) and is_maximal_inequality(n, m, friendships, max_income, min_income))",
+        "id": "Q5"
+      },
+      {
+        "description": "If 'YES', the income assignment satisfies all envy constraints: for every friendship (i,j) with b=1, a_j == a_i + 1; for every friendship (i,j) with b=0, |a_i - a_j| == 1.",
+        "expression": "(stdout.strip() == 'YES') == (all((b == 1 and a_j == a_i + 1) or (b == 0 and abs(a_i - a_j) == 1) for (i, j, b) in friendships for a_i, a_j in [(int(stdout.splitlines()[2].split()[i-1]), int(stdout.splitlines()[2].split()[j-1]))]))",
+        "id": "Q6"
+      },
+      {
+        "description": "If 'NO', no additional lines are printed.",
+        "expression": "(stdout.strip() == 'NO') == (stdout.count('\\n') == 0)",
+        "id": "Q7"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= n for x in [i, j] for line in stdin.splitlines()[1:] for i, j, b in [line.split()] if int(i) != int(j))",
+        "description": "All vertex indices in friendships are within valid bounds (1 to n)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(b) <= 1 for line in stdin.splitlines()[1:] for i, j, b in [line.split()])",
+        "description": "Each friendship's envy direction flag b is either 0 or 1."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input has exactly m + 1 lines (n, m followed by m friendships)."
+      },
+      {
+        "id": "P4",
+        "expression": "n >= 1 and m >= n - 1 and m <= 2000",
+        "description": "The graph is connected (n-1 ≤ m ≤ 2000) and n is within bounds (1 ≤ n ≤ 200)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' or stdout.strip() == 'NO'",
+        "description": "The first line of output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "(stdout.strip() == 'YES') == (any_solution_exists(n, m, friendships))",
+        "description": "Output 'YES' if and only if there exists a valid income assignment satisfying all envy constraints."
+      },
+      {
+        "id": "Q3",
+        "expression": "(stdout.strip() == 'YES') == (stdout.count('\\n') == 2)",
+        "description": "If 'YES', output must include exactly two additional lines (inequality and incomes)."
+      },
+      {
+        "id": "Q4",
+        "expression": "(stdout.strip() == 'YES') == (all(0 <= int(a_i) <= 10**6 for a_i in stdout.splitlines()[2].split()))",
+        "description": "If 'YES', all incomes are within the valid range [0, 10^6]."
+      },
+      {
+        "id": "Q5",
+        "expression": "(stdout.strip() == 'YES') == (max_income - min_income == int(stdout.splitlines()[1]))",
+        "description": "If 'YES', the first additional line is the maximum possible income inequality (max(a_i) - min(a_i))."
+      },
+      {
+        "id": "Q6",
+        "expression": "(stdout.strip() == 'YES') == (all(is_capitalist(a_i, friendships) for a_i in [int(x) for x in stdout.splitlines()[2].split()]))",
+        "description": "If 'YES', the income assignment satisfies all envy constraints for the given friendships."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "9bf95daed3bd875ae9a7af3600088f2892ed8fd230d75891a2fb6c407a40599e",
+  "selected_contract_fingerprint": "107f9c2d62c45a9acf3386ce90b7558bbc80ee4dd188e11b8e3db8f9d21388b7",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_test_162.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that if 'NO' is output, no additional lines are printed.",
+      "task_evidence": "Output \"YES\" if it is possible that the society is capitalist, or \"NO\" otherwise. If the answer is \"YES\", you should print two additional lines.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that if 'NO' is output, no additional lines are printed.",
+      "task_evidence": "Output \"YES\" if it is possible that the society is capitalist, or \"NO\" otherwise. If the answer is \"YES\", you should print two additional lines.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if 'NO' is output, no additional lines are printed.",
+        "task_evidence": "Output \"YES\" if it is possible that the society is capitalist, or \"NO\" otherwise. If the answer is \"YES\", you should print two additional lines.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if 'NO' is output, no additional lines are printed.",
+        "task_evidence": "Output \"YES\" if it is possible that the society is capitalist, or \"NO\" otherwise. If the answer is \"YES\", you should print two additional lines.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if 'NO' is output, no additional lines are printed.",
+        "task_evidence": "Output \"YES\" if it is possible that the society is capitalist, or \"NO\" otherwise. If the answer is \"YES\", you should print two additional lines.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the envy constraints for undirected edges (b=0) are satisfied in the income assignment (i.e., for every such edge (i,j), either a_i = a_j + 1 or a_j = a_i + 1).",
+        "task_evidence": "For some friendships, you know which friend is envious of the other. For the remaining friendships, you do not know the direction of envy. The society is called capitalist if for every pair of friends one is envious of the other.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the income inequality (max(a_i) - min(a_i)) is maximized among all valid assignments.",
+        "task_evidence": "Otherwise, you should find an assignment of incomes in which the society is capitalist, and the income inequality is maximized.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly check that for every friendship (i,j) with b=0, either a_i = a_j + 1 or a_j = a_i + 1.",
+        "task_evidence": "For the remaining friendships, you do not know the direction of envy. The society is called capitalist if for every pair of friends one is envious of the other.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to ensure that the inequality is the maximum possible among all valid assignments, not just any valid assignment.",
+        "task_evidence": "Otherwise, you should find an assignment of incomes in which the society is capitalist, and the income inequality is maximized.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[5].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "all(1 <= int(x) <= n for x in [i, j] for line in stdin.splitlines()[1:] for i, j, b in [line.split()] if int(i) != int(j))",
+          "description": "All vertex indices in friendships are within valid bounds (1 to n)."
+        },
+        {
+          "id": "P2",
+          "expression": "all(0 <= int(b) <= 1 for line in stdin.splitlines()[1:] for i, j, b in [line.split()])",
+          "description": "Each friendship's envy direction flag b is either 0 or 1."
+        },
+        {
+          "id": "P3",
+          "expression": "len(stdin.splitlines()) == m + 1",
+          "description": "The input has exactly m + 1 lines (n, m followed by m friendships)."
+        },
+        {
+          "id": "P4",
+          "expression": "n >= 1 and m >= n - 1 and m <= 2000",
+          "description": "The graph is connected (n-1 ≤ m ≤ 2000) and n is within bounds (1 ≤ n ≤ 200)."
+        }
+      ],
+      "postconditions": [
+        {
+          "description": "The first line of output is either 'YES' or 'NO'.",
+          "expression": "stdout.strip() == 'YES' or stdout.strip() == 'NO'",
+          "id": "Q1"
+        },
+        {
+          "description": "Output 'YES' if and only if there exists a valid income assignment satisfying all envy constraints.",
+          "expression": "(stdout.strip() == 'YES') == (any_solution_exists(n, m, friendships))",
+          "id": "Q2"
+        },
+        {
+          "description": "If 'YES', output must include exactly two additional lines (inequality and incomes).",
+          "expression": "(stdout.strip() == 'YES') == (stdout.count('\\n') == 2)",
+          "id": "Q3"
+        },
+        {
+          "description": "If 'YES', all incomes are within the valid range [0, 10^6].",
+          "expression": "(stdout.strip() == 'YES') == (all(0 <= int(a_i) <= 10**6 for a_i in stdout.splitlines()[2].split()))",
+          "id": "Q4"
+        },
+        {
+          "description": "If 'YES', the first additional line is the maximum possible income inequality (max(a_i) - min(a_i)) among all valid assignments.",
+          "expression": "(stdout.strip() == 'YES') == (max_income - min_income == int(stdout.splitlines()[1]) and is_maximal_inequality(n, m, friendships, max_income, min_income))",
+          "id": "Q5"
+        },
+        {
+          "description": "If 'YES', the income assignment satisfies all envy constraints: for every friendship (i,j) with b=1, a_j == a_i + 1; for every friendship (i,j) with b=0, |a_i - a_j| == 1.",
+          "expression": "(stdout.strip() == 'YES') == (all((b == 1 and a_j == a_i + 1) or (b == 0 and abs(a_i - a_j) == 1) for (i, j, b) in friendships for a_i, a_j in [(int(stdout.splitlines()[2].split()[i-1]), int(stdout.splitlines()[2].split()[j-1]))]))",
+          "id": "Q6"
+        },
+        {
+          "description": "If 'NO', no additional lines are printed.",
+          "expression": "(stdout.strip() == 'NO') == (stdout.count('\\n') == 0)",
+          "id": "Q7"
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: audit keys must be exactly checks,issues"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that if 'NO' is output, no additional lines are printed.",
+          "task_evidence": "Output \"YES\" if it is possible that the society is capitalist, or \"NO\" otherwise. If the answer is \"YES\", you should print two additional lines.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q7",
+          "expression": "(stdout.strip() == 'NO') == (stdout.count('\\n') == 0)",
+          "description": "If 'NO', no additional lines are printed."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "222b9da9b9479f9e59defaf3f43011869a877c56148c2a63e34145b722598e5e",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the envy constraints for friendships with b=1 are strictly enforced in the income assignment (i.e., if b=1 for (i,j), then a_j must equal a_i + 1).",
+            "task_evidence": "If b=1, we require that person i is envious of person j. That is if person j has exactly 1 more unit of income than person i.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the envy constraints for friendships with b=1 are strictly enforced in the income assignment (i.e., if b=1 for (i,j), then a_j must equal a_i + 1).",
+            "task_evidence": "If b=1, we require that person i is envious of person j. That is if person j has exactly 1 more unit of income than person i.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the income inequality (max(a_i) - min(a_i)) is maximized among all valid assignments. The current contract does not enforce this as a requirement.",
+            "task_evidence": "Otherwise, you should find an assignment of incomes in which the society is capitalist, and the income inequality is maximized.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the income assignment satisfies the capitalist condition for all friendships: for every pair of friends, one must be envious of the other (i.e., |a_i - a_j| == 1).",
+            "task_evidence": "The society is called capitalist if for every pair of friends one is envious of the other.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to explicitly check that for all friendships with b=0, |a_i - a_j| == 1, and for b=1, a_j == a_i + 1.",
+            "task_evidence": "If b=1, we require that person i is envious of person j. That is if person j has exactly 1 more unit of income than person i. For b=0, one friend should be envious of the other in either direction.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to ensure that the inequality is indeed the maximum possible among all valid assignments. The current expression does not enforce maximality.",
+            "task_evidence": "Otherwise, you should find an assignment of incomes in which the society is capitalist, and the income inequality is maximized.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[5].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the envy constraints for friendships with b=1 are strictly enforced in the income assignment (i.e., if b=1 for (i,j), then a_j must equal a_i + 1).",
+          "task_evidence": "If b=1, we require that person i is envious of person j. That is if person j has exactly 1 more unit of income than person i.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "If b=1, we require that person i is envious of person j. That is if person j has exactly 1 more unit of income than person i.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the envy constraints for friendships with b=1 are strictly enforced in the income assignment (i.e., if b=1 for (i,j), then a_j must equal a_i + 1).",
+            "task_evidence": "If b=1, we require that person i is envious of person j. That is if person j has exactly 1 more unit of income than person i.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The first line of output is either 'YES' or 'NO'.",
+            "expression": "stdout.strip() == 'YES' or stdout.strip() == 'NO'",
+            "id": "Q1"
+          },
+          {
+            "description": "Output 'YES' if and only if there exists a valid income assignment satisfying all envy constraints.",
+            "expression": "(stdout.strip() == 'YES') == (any_solution_exists(n, m, friendships))",
+            "id": "Q2"
+          },
+          {
+            "description": "If 'YES', output must include exactly two additional lines (inequality and incomes).",
+            "expression": "(stdout.strip() == 'YES') == (stdout.count('\\n') == 2)",
+            "id": "Q3"
+          },
+          {
+            "description": "If 'YES', all incomes are within the valid range [0, 10^6].",
+            "expression": "(stdout.strip() == 'YES') == (all(0 <= int(a_i) <= 10**6 for a_i in stdout.splitlines()[2].split()))",
+            "id": "Q4"
+          },
+          {
+            "description": "If 'YES', the first additional line is the maximum possible income inequality (max(a_i) - min(a_i)) among all valid assignments.",
+            "expression": "(stdout.strip() == 'YES') == (max_income - min_income == int(stdout.splitlines()[1]) and is_maximal_inequality(n, m, friendships, max_income, min_income))",
+            "id": "Q5"
+          },
+          {
+            "description": "If 'YES', the income assignment satisfies all envy constraints: for every friendship (i,j) with b=1, a_j == a_i + 1; for every friendship (i,j) with b=0, |a_i - a_j| == 1.",
+            "expression": "(stdout.strip() == 'YES') == (all((b == 1 and a_j == a_i + 1) or (b == 0 and abs(a_i - a_j) == 1) for (i, j, b) in friendships for a_i, a_j in [(int(stdout.splitlines()[2].split()[i-1]), int(stdout.splitlines()[2].split()[j-1]))]))",
+            "id": "Q6"
+          },
+          {
+            "description": "If 'NO', no additional lines are printed.",
+            "expression": "(stdout.strip() == 'NO') == (stdout.count('\\n') == 0)",
+            "id": "Q7"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "107f9c2d62c45a9acf3386ce90b7558bbc80ee4dd188e11b8e3db8f9d21388b7",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 138.537,
+  "processing_error": null,
+  "finished_at": "2026-09-04T03:12:32.584119+00:00"
+}

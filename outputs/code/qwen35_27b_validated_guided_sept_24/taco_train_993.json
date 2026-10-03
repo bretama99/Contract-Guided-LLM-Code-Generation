@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_993",
+  "task_index": 956,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_993.json",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n        m = int(next(iterator))\n    except StopIteration:\n        return\n\n    adj = [[] for _ in range(n + 1)]\n    \n    for _ in range(m):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        w = int(next(iterator))\n        adj[u].append((v, w))\n        adj[v].append((u, w))\n\n    dist_matrix = [[float('inf')] * (n + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        dist_matrix[i][i] = 0\n\n    for start_node in range(1, n + 1):\n        d = [float('inf')] * (n + 1)\n        d[start_node] = 0\n        q = deque([start_node])\n        \n        while q:\n            u = q.popleft()\n            current_dist = d[u]\n            \n            for v, w in adj[u]:\n                if d[v] > current_dist + w:\n                    d[v] = current_dist + w\n                    q.append(v)\n        \n        for i in range(1, n + 1):\n            dist_matrix[start_node][i] = d[i]\n\n    result = []\n    \n    for s in range(1, n + 1):\n        for t in range(s + 1, n + 1):\n            if dist_matrix[s][t] == float('inf'):\n                result.append(0)\n                continue\n            \n            count = 0\n            for u in range(1, n + 1):\n                for v, w in adj[u]:\n                    if v < u:\n                        continue\n                    if dist_matrix[s][u] + w + dist_matrix[v][t] == dist_matrix[s][t]:\n                        count += 1\n                    elif dist_matrix[s][v] + w + dist_matrix[u][t] == dist_matrix[s][t]:\n                        count += 0\n            \n            result.append(count)\n\n    print(\" \".join(map(str, result)))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 45.282,
+  "generated_at": "2026-09-25T09:40:02.076754+00:00"
+}

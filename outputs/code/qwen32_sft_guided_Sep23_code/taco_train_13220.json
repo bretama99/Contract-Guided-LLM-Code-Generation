@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13220",
+  "task_index": 842,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_13220.json",
+  "code": "import sys\nfrom collections import deque, defaultdict\n\ndef bfs_shortest_paths(n, edges, start):\n    dist = [float('inf')] * (n + 1)\n    paths = [[] for _ in range(n + 1)]\n    dist[start] = 0\n    paths[start].append([start])\n    queue = deque([start])\n    while queue:\n        u = queue.popleft()\n        for v in edges[u]:\n            if dist[v] > dist[u] + 1:\n                dist[v] = dist[u] + 1\n                paths[v] = [path + [v] for path in paths[u]]\n                queue.append(v)\n            elif dist[v] == dist[u] + 1:\n                paths[v].extend(path + [v] for path in paths[u])\n    return paths[n]\n\ndef max_safe_roads_average(n, edges):\n    paths_to_n = bfs_shortest_paths(n, edges, 1)\n    max_avg = 0\n    for station in range(1, n + 1):\n        safe_road_count = 0\n        for path in paths_to_n:\n            safe_road_count += sum(1 for u, v in zip(path, path[1:]) if station in (u, v))\n        avg_safe_roads = safe_road_count / len(paths_to_n)\n        max_avg = max(max_avg, avg_safe_roads)\n    return max_avg\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nm = int(input[1])\nedges = defaultdict(list)\nfor i in range(m):\n    u = int(input[2 + 2 * i])\n    v = int(input[3 + 2 * i])\n    edges[u].append(v)\n    edges[v].append(u)\n\nprint(f\"{max_safe_roads_average(n, edges):.12f}\")",
+  "generation_seconds": 35.034,
+  "generated_at": "2026-09-23T19:29:35.431553+00:00"
+}

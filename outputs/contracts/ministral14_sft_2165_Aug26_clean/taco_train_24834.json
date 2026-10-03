@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_24834",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "shoot",
+      "signature": "shoot(x: list[tuple[dict[str, str], bool]]) -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(round_data, tuple) and len(round_data) == 2 for round_data in x)",
+        "description": "Each round is a tuple of (shot_results, explosive_flag) where shot_results is a dict and explosive_flag is a bool."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(round_data[0], dict) and round_data[0].keys() == {'P1', 'P2'} for round_data in x)",
+        "description": "Each shot_results dict must contain exactly 'P1' and 'P2' keys with string values."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(round_data[0]['P1']) == 2 and len(round_data[0]['P2']) == 2 for round_data in x)",
+        "description": "Each player's shot string must have exactly 2 characters ('X' or 'O')."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in 'XO' for c in round_data[0]['P1']) and all(c in 'XO' for c in round_data[0]['P2']) for round_data in x)",
+        "description": "Each character in the shot strings must be either 'X' (hit) or 'O' (miss)."
+      },
+      {
+        "id": "P5",
+        "expression": "len(x) == 3",
+        "description": "There are exactly 3 rounds in the input."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == 'Pete Wins!' if (sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P1'] if _ == 'X') > sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P2'] if _ == 'X')) else 'Phil Wins!' if (sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P1'] if _ == 'X') < sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P2'] if _ == 'X')) else 'Draw!'",
+        "description": "The output is 'Pete Wins!' if Pete's total score is strictly greater than Phil's, 'Phil Wins!' if Phil's total score is strictly greater, or 'Draw!' if scores are equal. Scores are calculated by summing 2 for each hit in explosive rounds (boolean true) and 1 for each hit in non-explosive rounds (boolean false)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"shoot\",\n    \"signature\": \"shoot(x: list[tuple[dict[str, str], bool]]) -> str\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(round_data, tuple) and len(round_data) == 2 for round_data in x)\",\n      \"description\": \"Each round is a tuple of (shot_results, explosive_flag) where shot_results is a dict and explosive_flag is a bool.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(isinstance(round_data[0], dict) and round_data[0].keys() == {'P1', 'P2'} for round_data in x)\",\n      \"description\": \"Each shot_results dict must contain exactly 'P1' and 'P2' keys with string values.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(round_data[0]['P1']) == 2 and len(round_data[0]['P2']) == 2 for round_data in x)\",\n      \"description\": \"Each player's shot string must have exactly 2 characters ('X' or 'O').\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(c in 'XO' for c in round_data[0]['P1']) and all(c in 'XO' for c in round_data[0]['P2']) for round_data in x)\",\n      \"description\": \"Each character in the shot strings must be either 'X' (hit) or 'O' (miss).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(x) == 3\",\n      \"description\": \"There are exactly 3 rounds in the input.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == 'Pete Wins!' if (sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P1'] if _ == 'X') > sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P2'] if _ == 'X')) else 'Phil Wins!' if (sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P1'] if _ == 'X') < sum(2 if round_data[1] else 1 for round_data in x for _ in round_data[0]['P2'] if _ == 'X')) else 'Draw!'\",\n      \"description\": \"The output is 'Pete Wins!' if Pete's total score is strictly greater than Phil's, 'Phil Wins!' if Phil's total score is strictly greater, or 'Draw!' if scores are equal. Scores are calculated by summing 2 for each hit in explosive rounds (boolean true) and 1 for each hit in non-explosive rounds (boolean false).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1351,
+  "generated_tokens": 689,
+  "hit_output_limit": false,
+  "generation_seconds": 28.411,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:15:17.414664+00:00"
+}

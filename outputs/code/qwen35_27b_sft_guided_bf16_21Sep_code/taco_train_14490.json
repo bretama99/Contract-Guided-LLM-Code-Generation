@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_14490",
+  "task_index": 179,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_14490.json",
+  "code": "import sys\n\ndef main():\n    s = sys.stdin.read().strip()\n    if not s:\n        return\n    \n    present = [False] * 26\n    for c in s:\n        idx = ord(c) - ord('A')\n        present[idx] = True\n    \n    best_len = 0\n    best_diff = float('inf')\n    best_start_idx = -1\n    \n    n = 26\n    for start in range(n - 1, -1, -1):\n        if not present[start]:\n            continue\n        for diff in range(1, n):\n            current_len = 0\n            curr = start\n            while curr >= 0 and present[curr]:\n                current_len += 1\n                curr -= diff\n            \n            if current_len > best_len:\n                best_len = current_len\n                best_diff = diff\n                best_start_idx = start\n            elif current_len == best_len:\n                if current_len == 1:\n                    if start > best_start_idx:\n                        best_diff = diff\n                        best_start_idx = start\n                else:\n                    if diff < best_diff:\n                        best_diff = diff\n                        best_start_idx = start\n                    elif diff == best_diff:\n                        if start > best_start_idx:\n                            best_start_idx = start\n    \n    result_chars = []\n    curr = best_start_idx\n    for _ in range(best_len):\n        result_chars.append(chr(curr + ord('A')))\n        curr -= best_diff\n    \n    print(\"\".join(result_chars))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 30.024,
+  "generated_at": "2026-09-22T15:06:35.040449+00:00"
+}

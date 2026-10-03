@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_162",
+  "task_index": 159,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_test_162.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    m = int(input[1])\n    edges = []\n    index = 2\n    for _ in range(m):\n        i = int(input[index]) - 1\n        j = int(input[index + 1]) - 1\n        b = int(input[index + 2])\n        edges.append((i, j, b))\n        index += 3\n\n    graph = defaultdict(list)\n    for i, j, b in edges:\n        graph[i].append((j, b))\n        graph[j].append((i, b))\n\n    def bfs(start):\n        queue = deque([(start, 0)])\n        visited = [False] * n\n        incomes = [-1] * n\n        incomes[start] = 0\n        visited[start] = True\n        while queue:\n            u, income = queue.popleft()\n            for v, b in graph[u]:\n                if not visited[v]:\n                    if b == 1:\n                        incomes[v] = income + 1\n                    elif b == 0:\n                        incomes[v] = income + 1 if incomes[u] == -1 else income - 1\n                    visited[v] = True\n                    queue.append((v, incomes[v]))\n                else:\n                    if (b == 1 and incomes[v] != income + 1) or (b == 0 and abs(incomes[v] - income) != 1):\n                        return None\n        return incomes\n\n    incomes = bfs(0)\n    if incomes is None:\n        print(\"NO\")\n        return\n\n    min_income = min(incomes)\n    incomes = [x - min_income for x in incomes]\n    max_income = max(incomes)\n\n    print(\"YES\")\n    print(max_income)\n    print(\" \".join(map(str, incomes)))\n\nmain()",
+  "generation_seconds": 36.708,
+  "generated_at": "2026-09-23T18:09:02.000589+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "task_id": "taco_train_6629",
+  "dataset": "taco",
+  "workflow": "contract_guided",
+  "provider": "local_transformers",
+  "model": "qwen14-base-from-base-Aug28-clean",
+  "model_type": "qwen2",
+  "attention_implementation": "sdpa",
+  "starter_code_included": false,
+  "reference_solution_included": false,
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen14_base_Aug28_clean/taco_train_6629.json",
+  "contract_source": "parsed_contract",
+  "contract_schema_ok": true,
+  "raw_response": "```python\nMOD = 998244353\n\ndef mod_inverse(a, m):\n    m0, x0, x1 = m, 0, 1\n    if m == 1:\n        return 0\n    while a > 1:\n        # q is quotient\n        q = a // m\n        m, a = a % m, m\n        x0, x1 = x1 - q * x0, x0\n    # Make x1 positive\n    if x1 < 0:\n        x1 += m0\n    return x1\n\ndef main():\n    import sys\n    input = sys.stdin.read\n    data = input().split()\n    \n    n = int(data[0])\n    m = int(data[1])\n    k = int(data[2])\n    \n    f = list(map(int, data[3:3+n]))\n    p = list(map(int, data[3+n:3+n+m]))\n    \n    # Normalize probabilities\n    total_p = sum(p)\n    p = [x * mod_inverse(total_p, MOD) % MOD for x in p]\n    \n    # Initial probability distribution\n    prob = [mod_inverse(n, MOD)] * n\n    \n    # Matrix exponentiation\n    def matrix_mult(A, B):\n        return [[sum(A[i][k] * B[k][j] % MOD for k in range(n)) % MOD for j in range(n)] for i in range(n)]\n    \n    def matrix_pow(matrix, exp):\n        result = [[1 if i == j else 0 for j in range(n)] for i in range(n)]\n        base = matrix\n        while exp > 0:\n            if exp % 2 == 1:\n                result = matrix_mult(result, base)\n            base = matrix_mult(base, base)\n            exp //= 2\n        return result\n    \n    # Transition matrix\n    transition_matrix = [[0] * n for _ in range(n)]\n    for i in range(n):\n        for j in range(m):\n            transition_matrix[i][f[i]-1] = (transition_matrix[i][f[i]-1] + p[j]) % MOD\n    \n    # Raise transition matrix to the power of k\n    final_matrix = matrix_pow(transition_matrix, k)\n    \n    # Calculate final probabilities\n    final_prob = [sum(prob[i] * final_matrix[i][j] % MOD for i in range(n)) % MOD for j in range(n)]\n    \n    # Print results\n    for prob in final_prob:\n        print(prob)\n\nif __name__ == \"__main__\":\n    main()\n```",
+  "code": "MOD = 998244353\n\ndef mod_inverse(a, m):\n    m0, x0, x1 = m, 0, 1\n    if m == 1:\n        return 0\n    while a > 1:\n        # q is quotient\n        q = a // m\n        m, a = a % m, m\n        x0, x1 = x1 - q * x0, x0\n    # Make x1 positive\n    if x1 < 0:\n        x1 += m0\n    return x1\n\ndef main():\n    import sys\n    input = sys.stdin.read\n    data = input().split()\n    \n    n = int(data[0])\n    m = int(data[1])\n    k = int(data[2])\n    \n    f = list(map(int, data[3:3+n]))\n    p = list(map(int, data[3+n:3+n+m]))\n    \n    # Normalize probabilities\n    total_p = sum(p)\n    p = [x * mod_inverse(total_p, MOD) % MOD for x in p]\n    \n    # Initial probability distribution\n    prob = [mod_inverse(n, MOD)] * n\n    \n    # Matrix exponentiation\n    def matrix_mult(A, B):\n        return [[sum(A[i][k] * B[k][j] % MOD for k in range(n)) % MOD for j in range(n)] for i in range(n)]\n    \n    def matrix_pow(matrix, exp):\n        result = [[1 if i == j else 0 for j in range(n)] for i in range(n)]\n        base = matrix\n        while exp > 0:\n            if exp % 2 == 1:\n                result = matrix_mult(result, base)\n            base = matrix_mult(base, base)\n            exp //= 2\n        return result\n    \n    # Transition matrix\n    transition_matrix = [[0] * n for _ in range(n)]\n    for i in range(n):\n        for j in range(m):\n            transition_matrix[i][f[i]-1] = (transition_matrix[i][f[i]-1] + p[j]) % MOD\n    \n    # Raise transition matrix to the power of k\n    final_matrix = matrix_pow(transition_matrix, k)\n    \n    # Calculate final probabilities\n    final_prob = [sum(prob[i] * final_matrix[i][j] % MOD for i in range(n)) % MOD for j in range(n)]\n    \n    # Print results\n    for prob in final_prob:\n        print(prob)\n\nif __name__ == \"__main__\":\n    main()",
+  "prompt_tokens": 2223,
+  "generated_tokens": 547,
+  "max_new_tokens_used": 4096,
+  "hit_output_limit": false,
+  "generation_seconds": 24.905,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T07:21:14.142525+00:00"
+}

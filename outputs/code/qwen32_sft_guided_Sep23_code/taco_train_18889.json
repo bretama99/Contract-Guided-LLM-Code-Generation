@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18889",
+  "task_index": 505,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_18889.json",
+  "code": "import sys\n\ndef lnds(sub):\n    if not sub:\n        return 0\n    dp = [1] * len(sub)\n    for i in range(1, len(sub)):\n        for j in range(i):\n            if sub[i] >= sub[j]:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)\n\ndef solve(s):\n    n = len(s)\n    dp = [[0] * (n + 1) for _ in range(n + 1)]\n    for l in range(n - 1, -1, -1):\n        for r in range(l + 1, n + 1):\n            dp[l][r] = lnds(s[l:r])\n    \n    def backtrack(l, r, zeros):\n        if l == r:\n            return '0' if zeros > 0 else '1'\n        if dp[l][r] == dp[l + 1][r]:\n            return '0' + backtrack(l + 1, r, zeros - 1)\n        if dp[l][r] == dp[l][r - 1]:\n            return backtrack(l, r - 1, zeros)\n        if dp[l][r] == dp[l + 1][r - 1] + 1 and s[l] <= s[r - 1]:\n            return '0' + backtrack(l + 1, r - 1, zeros - 1) if zeros > 0 else '1' + backtrack(l + 1, r - 1, zeros)\n        return '1' + backtrack(l + 1, r, zeros)\n    \n    max_zeros = sum(c == '0' for c in s)\n    return backtrack(0, n, max_zeros)\n\ns = sys.stdin.read().strip()\nprint(solve(s))",
+  "generation_seconds": 34.571,
+  "generated_at": "2026-09-23T16:58:25.960729+00:00"
+}

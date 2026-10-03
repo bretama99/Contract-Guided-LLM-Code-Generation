@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_14880",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 10**3",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 10³) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:]) and all(line.split()[0].isdigit() and line.split()[1].isdigit() and line.split()[2].isdigit() for line in stdin.splitlines()[1:])",
+        "description": "Each test case starts with a line containing three space-separated integers R, C, X (2 ≤ R,C ≤ 10³, 2 ≤ X ≤ min(R,C)) representing matrix dimensions and operation window size."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == C for line in stdin.splitlines()[2:2+R]) and all(len(line.split()) == C for line in stdin.splitlines()[2+R:2+2*R])",
+        "description": "For each test case, the next R lines represent matrix A (R rows, C columns), followed by R lines representing matrix B (R rows, C columns)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(abs(int(x)) <= 10**9 for x in line.split()) for line in stdin.splitlines()[2:2+R]) and all(all(abs(int(x)) <= 10**9 for x in line.split()) for line in stdin.splitlines()[2+R:2+2*R])",
+        "description": "All elements in matrices A and B satisfy |Aᵢⱼ|, |Bᵢⱼ| ≤ 10⁹."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip() in ['Yes', 'No'] for stdout in output_lines)",
+        "description": "For each test case, the output is either 'Yes' or 'No', indicating whether matrix A can be transformed into matrix B using the allowed operations."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout == 'Yes') == (all(all((B[i][j] - A[i][j]) % d == 0 for j in range(C)) for i in range(R)) and (all(all((B[i][j] - A[i][j]) % d == 0 for i in range(R)) for j in range(C)))) for (stdout, A, B, R, C, X, d) in zip(output_lines, parsed_A, parsed_B, parsed_R, parsed_C, parsed_X, parsed_d))",
+        "description": "For each test case, 'Yes' is output if and only if for every element (i,j), (Bᵢⱼ - Aᵢⱼ) is divisible by the greatest common divisor (d) of all possible differences in rows and columns, where d is the GCD of all (Bᵢⱼ - Aᵢⱼ) for all i,j, and the differences in each row and column can be expressed as linear combinations of operations of size X."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout == 'No') == (any(all((B[i][j] - A[i][j]) % d != 0 for j in range(C)) for i in range(R)) or any(all((B[i][j] - A[i][j]) % d != 0 for i in range(R)) for j in range(C))) for (stdout, A, B, R, C, X, d) in zip(output_lines, parsed_A, parsed_B, parsed_R, parsed_C, parsed_X, parsed_d))",
+        "description": "For each test case, 'No' is output if there exists at least one row or column where the differences (Bᵢⱼ - Aᵢⱼ) are not all divisible by the GCD of all differences, making transformation impossible."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 10**3\",\n      \"description\": \"The first line of input is a single integer T (1 ≤ T ≤ 10³) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:]) and all(line.split()[0].isdigit() and line.split()[1].isdigit() and line.split()[2].isdigit() for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each test case starts with a line containing three space-separated integers R, C, X (2 ≤ R,C ≤ 10³, 2 ≤ X ≤ min(R,C)) representing matrix dimensions and operation window size.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == C for line in stdin.splitlines()[2:2+R]) and all(len(line.split()) == C for line in stdin.splitlines()[2+R:2+2*R])\",\n      \"description\": \"For each test case, the next R lines represent matrix A (R rows, C columns), followed by R lines representing matrix B (R rows, C columns).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(abs(int(x)) <= 10**9 for x in line.split()) for line in stdin.splitlines()[2:2+R]) and all(all(abs(int(x)) <= 10**9 for x in line.split()) for line in stdin.splitlines()[2+R:2+2*R])\",\n      \"description\": \"All elements in matrices A and B satisfy |Aᵢⱼ|, |Bᵢⱼ| ≤ 10⁹.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout.strip() in ['Yes', 'No'] for stdout in output_lines)\",\n      \"description\": \"For each test case, the output is either 'Yes' or 'No', indicating whether matrix A can be transformed into matrix B using the allowed operations.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout == 'Yes') == (all(all((B[i][j] - A[i][j]) % d == 0 for j in range(C)) for i in range(R)) and (all(all((B[i][j] - A[i][j]) % d == 0 for i in range(R)) for j in range(C)))) for (stdout, A, B, R, C, X, d) in zip(output_lines, parsed_A, parsed_B, parsed_R, parsed_C, parsed_X, parsed_d))\",\n      \"description\": \"For each test case, 'Yes' is output if and only if for every element (i,j), (Bᵢⱼ - Aᵢⱼ) is divisible by the greatest common divisor (d) of all possible differences in rows and columns, where d is the GCD of all (Bᵢⱼ - Aᵢⱼ) for all i,j, and the differences in each row and column can be expressed as linear combinations of operations of size X.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout == 'No') == (any(all((B[i][j] - A[i][j]) % d != 0 for j in range(C)) for i in range(R)) or any(all((B[i][j] - A[i][j]) % d != 0 for i in range(R)) for j in range(C))) for (stdout, A, B, R, C, X, d) in zip(output_lines, parsed_A, parsed_B, parsed_R, parsed_C, parsed_X, parsed_d))\",\n      \"description\": \"For each test case, 'No' is output if there exists at least one row or column where the differences (Bᵢⱼ - Aᵢⱼ) are not all divisible by the GCD of all differences, making transformation impossible.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1816,
+  "generated_tokens": 1004,
+  "hit_output_limit": false,
+  "generation_seconds": 42.967,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:28:17.365714+00:00"
+}

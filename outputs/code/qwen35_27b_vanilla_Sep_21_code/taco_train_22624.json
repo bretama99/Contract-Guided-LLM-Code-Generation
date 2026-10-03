@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_22624",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T07:31:19.219540+00:00",
+  "code": "import sys\n\ndef doctorStrange(N, M, arr):\n    if N <= 1:\n        return 0\n    \n    adj = [[] for _ in range(N + 1)]\n    for u, v in arr:\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    disc = [-1] * (N + 1)\n    low = [-1] * (N + 1)\n    parent = [-1] * (N + 1)\n    ap = [False] * (N + 1)\n    timer = 0\n    \n    def dfs(u):\n        nonlocal timer\n        disc[u] = low[u] = timer\n        timer += 1\n        children = 0\n        \n        for v in adj[u]:\n            if disc[v] == -1:\n                children += 1\n                parent[v] = u\n                dfs(v)\n                low[u] = min(low[u], low[v])\n                \n                if parent[u] != -1 and low[v] >= disc[u]:\n                    ap[u] = True\n            elif v != parent[u]:\n                low[u] = min(low[u], disc[v])\n        \n        if parent[u] == -1 and children > 1:\n            ap[u] = True\n    \n    for i in range(1, N + 1):\n        if disc[i] == -1:\n            dfs(i)\n    \n    count = sum(1 for i in range(1, N + 1) if ap[i])\n    return count\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        N = int(next(iterator))\n        M = int(next(iterator))\n    except StopIteration:\n        return\n    \n    arr = []\n    for _ in range(M):\n        try:\n            u = int(next(iterator))\n            v = int(next(iterator))\n            arr.append((u, v))\n        except StopIteration:\n            break\n    \n    result = doctorStrange(N, M, arr)\n    print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

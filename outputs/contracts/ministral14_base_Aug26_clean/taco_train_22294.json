@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_22294",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "q == int(stdin.split()[0]) and 1 <= q <= 500000",
+        "description": "The first line of input is an integer q (1 ≤ q ≤ 500 000) representing the number of queries."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each of the next q lines contains exactly two integers: type_i and v_i, separated by whitespace."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(type_i) <= 2 for type_i, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each query type_i is either 1 (add vertex) or 2 (query expected penalty)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(v_i) <= current_max_vertex_before_query for v_i, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "For each query, the vertex v_i exists just before the query is processed. The tree starts with vertex 1, and new vertices are numbered sequentially starting from 2."
+      },
+      {
+        "id": "P5",
+        "expression": "any(int(type_i) == 2 for type_i, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "There is at least one query of type 2 (output is non-empty)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all('0.0000000000' <= line.strip() <= '1000000000.0000000000' for line in stdout.splitlines() if line.strip())",
+        "description": "For each query of type 2, the output is a real number representing the expected penalty, formatted as a string with exactly 10 decimal places (e.g., '0.7500000000')."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout.splitlines()) == num_type2_queries for _ in range(num_type2_queries))",
+        "description": "The number of output lines equals the number of type 2 queries in the input."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= float(line.strip()) <= max_possible_height for line in stdout.splitlines() if line.strip())",
+        "description": "Each output value is a non-negative real number, where max_possible_height is the maximum possible height of any subtree in the tree at the time of the query."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(abs(float(stdout_line) - expected_penalty) <= 1e-6 * max(1.0, abs(expected_penalty)) for stdout_line, expected_penalty in zip(stdout.splitlines(), expected_penalties))",
+        "description": "For each type 2 query, the output value is the expected penalty of the subtree rooted at v_i, where the expected penalty is computed as the expected height of the subtree after each edge in the subtree is destroyed with probability 0.5 (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree after the attack. The output must satisfy the absolute or relative error constraint of 1e-6."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"q == int(stdin.split()[0]) and 1 <= q <= 500000\",\n      \"description\": \"The first line of input is an integer q (1 ≤ q ≤ 500 000) representing the number of queries.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the next q lines contains exactly two integers: type_i and v_i, separated by whitespace.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(type_i) <= 2 for type_i, _ in (line.split() for line in stdin.splitlines()[1:]))\",\n      \"description\": \"Each query type_i is either 1 (add vertex) or 2 (query expected penalty).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(v_i) <= current_max_vertex_before_query for v_i, _ in (line.split() for line in stdin.splitlines()[1:]))\",\n      \"description\": \"For each query, the vertex v_i exists just before the query is processed. The tree starts with vertex 1, and new vertices are numbered sequentially starting from 2.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"any(int(type_i) == 2 for type_i, _ in (line.split() for line in stdin.splitlines()[1:]))\",\n      \"description\": \"There is at least one query of type 2 (output is non-empty).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all('0.0000000000' <= line.strip() <= '1000000000.0000000000' for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"For each query of type 2, the output is a real number representing the expected penalty, formatted as a string with exactly 10 decimal places (e.g., '0.7500000000').\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout.splitlines()) == num_type2_queries for _ in range(num_type2_queries))\",\n      \"description\": \"The number of output lines equals the number of type 2 queries in the input.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= float(line.strip()) <= max_possible_height for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"Each output value is a non-negative real number, where max_possible_height is the maximum possible height of any subtree in the tree at the time of the query.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(abs(float(stdout_line) - expected_penalty) <= 1e-6 * max(1.0, abs(expected_penalty)) for stdout_line, expected_penalty in zip(stdout.splitlines(), expected_penalties))\",\n      \"description\": \"For each type 2 query, the output value is the expected penalty of the subtree rooted at v_i, where the expected penalty is computed as the expected height of the subtree after each edge in the subtree is destroyed with probability 0.5 (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree after the attack. The output must satisfy the absolute or relative error constraint of 1e-6.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1748,
+  "generated_tokens": 891,
+  "hit_output_limit": false,
+  "generation_seconds": 40.343,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:53:09.050433+00:00"
+}

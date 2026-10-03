@@ -1,0 +1,514 @@
+{
+  "task_id": "taco_train_999",
+  "task_index": 994,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 10**5",
+        "description": "The first line of input is an integer q (2 ≤ q ≤ 10^5) representing the number of tasks."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and line.split()[0] == '1' and 1 <= int(line.split()[1]) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '1')",
+        "description": "For type 1 tasks, the input line must contain exactly two integers: t_i = 1 and u_i (1 ≤ u_i ≤ 10^5)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 4 and line.split()[0] == '2' and 1 <= int(line.split()[1]) <= 10**5 and 1 <= int(line.split()[2]) <= 10**5 and 1 <= int(line.split()[3]) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '2')",
+        "description": "For type 2 tasks, the input line must contain exactly four integers: t_i = 2, x_i, k_i, and s_i (1 ≤ x_i, k_i, s_i ≤ 10^5)."
+      },
+      {
+        "id": "P4",
+        "expression": "stdin.splitlines()[0].split()[0] == '1'",
+        "description": "The first task must be of type 1."
+      },
+      {
+        "id": "P5",
+        "expression": "any(line.split()[0] == '2' for line in stdin.splitlines()[1:])",
+        "description": "There must be at least one task of type 2."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(line.strip() in ['-1'] or (1 <= int(line.strip()) <= 10**5 and int(line.strip()) in [int(u) for u in a]) for line in stdout.splitlines() if line.strip() != '')",
+        "description": "For each type 2 task, the output line must be either -1 or a valid number v existing in the array a at the time of the query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((lambda: (lambda x_i, k_i, s_i: any((k_i == 0 or k_i != 0 and k_i % math.gcd(int(x_i), v) == 0) and (int(x_i) + v <= int(s_i)) for v in a))(line.split()[1], line.split()[2], line.split()[3]) or line.strip() == '-1') for line in stdin.splitlines()[1:] if line.split()[0] == '2')",
+        "description": "For each type 2 task, if there exists a v in a such that k_i divides GCD(x_i, v) and x_i + v ≤ s_i, the output must be such a v that maximizes x_i XOR v; otherwise, output -1."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda: (lambda x_i, k_i, s_i: max((x_i ^ v for v in a if (k_i == 0 or k_i != 0 and k_i % math.gcd(int(x_i), v) == 0) and (int(x_i) + v <= int(s_i))), default=-1) == (x_i ^ int(line.strip())) if line.strip() != '-1' else True) for line, x_i, k_i, s_i in zip(stdout.splitlines(), [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == '2'], [line.split()[2] for line in stdin.splitlines()[1:] if line.split()[0] == '2'], [line.split()[3] for line in stdin.splitlines()[1:] if line.split()[0] == '2']))",
+        "description": "For each type 2 task, if the output is not -1, it must be the v in a that maximizes x_i XOR v among all valid v."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 10**5",
+        "description": "The first line of input is an integer q (2 ≤ q ≤ 10^5) representing the number of tasks."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and line.split()[0] == '1' and 1 <= int(line.split()[1]) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '1')",
+        "description": "For type 1 tasks, the input line must contain exactly two integers: t_i = 1 and u_i (1 ≤ u_i ≤ 10^5)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 4 and line.split()[0] == '2' and 1 <= int(line.split()[1]) <= 10**5 and 1 <= int(line.split()[2]) <= 10**5 and 1 <= int(line.split()[3]) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '2')",
+        "description": "For type 2 tasks, the input line must contain exactly four integers: t_i = 2, x_i, k_i, and s_i (1 ≤ x_i, k_i, s_i ≤ 10^5)."
+      },
+      {
+        "id": "P4",
+        "expression": "stdin.splitlines()[0].split()[0] == '1'",
+        "description": "The first task must be of type 1."
+      },
+      {
+        "id": "P5",
+        "expression": "any(line.split()[0] == '2' for line in stdin.splitlines()[1:])",
+        "description": "There must be at least one task of type 2."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(line.strip() in ['-1'] or (1 <= int(line.strip()) <= 10**5 and int(line.strip()) in [int(u) for u in a]) for line in stdout.splitlines() if line.strip() != '')",
+        "description": "For each type 2 task, the output line must be either -1 or a valid number v existing in the array a at the time of the query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((lambda: (lambda x_i, k_i, s_i: any((k_i == 0 or k_i != 0 and k_i % math.gcd(int(x_i), v) == 0) and (int(x_i) + v <= int(s_i)) for v in a))(line.split()[1], line.split()[2], line.split()[3]) or line.strip() == '-1') for line in stdin.splitlines()[1:] if line.split()[0] == '2')",
+        "description": "For each type 2 task, if there exists a v in a such that k_i divides GCD(x_i, v) and x_i + v ≤ s_i, the output must be such a v that maximizes x_i XOR v; otherwise, output -1."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda: (lambda x_i, k_i, s_i: max((x_i ^ v for v in a if (k_i == 0 or k_i != 0 and k_i % math.gcd(int(x_i), v) == 0) and (int(x_i) + v <= int(s_i))), default=-1) == (x_i ^ int(line.strip())) if line.strip() != '-1' else True) for line, x_i, k_i, s_i in zip(stdout.splitlines(), [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == '2'], [line.split()[2] for line in stdin.splitlines()[1:] if line.split()[0] == '2'], [line.split()[3] for line in stdin.splitlines()[1:] if line.split()[0] == '2']))",
+        "description": "For each type 2 task, if the output is not -1, it must be the v in a that maximizes x_i XOR v among all valid v."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "a6c6dbdcca7a74a79253ad82ca132acf0534ae17f1b868e55153b855f8bc2511",
+  "selected_contract_fingerprint": "a6c6dbdcca7a74a79253ad82ca132acf0534ae17f1b868e55153b855f8bc2511",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_999.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+      "task_evidence": "k_i ∣ GCD(x_i, v)",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+      "task_evidence": "k_i ∣ GCD(x_i, v)",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+        "task_evidence": "k_i ∣ GCD(x_i, v)",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+        "task_evidence": "k_i ∣ GCD(x_i, v)",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+        "task_evidence": "k_i ∣ GCD(x_i, v)",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the entire expression to correctly capture the maximization of `x_i XOR v` among all valid `v` in `a`. The current expression incorrectly uses `x_i` as a string and fails to properly align with the task's requirements.",
+        "task_evidence": "x_i ⊕ v is maximized",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output for type 2 tasks is derived from the array `a` as it exists at the time of the query (i.e., after all preceding type 1 tasks). The current contract does not explicitly enforce this.",
+        "task_evidence": "find a number v existing in a such that...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "'(' was never closed (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+      "task_evidence": "k_i ∣ GCD(x_i, v)",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+      "task_evidence": "k_i ∣ GCD(x_i, v)",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+        "task_evidence": "k_i ∣ GCD(x_i, v)",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+        "task_evidence": "k_i ∣ GCD(x_i, v)",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+        "task_evidence": "k_i ∣ GCD(x_i, v)",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the entire expression to correctly capture the maximization of `x_i XOR v` among all valid `v` in `a`. The current expression incorrectly uses `x_i` as a string and fails to properly align with the task's requirements.",
+        "task_evidence": "x_i ⊕ v is maximized",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output for type 2 tasks is derived from the array `a` as it exists at the time of the query (i.e., after all preceding type 1 tasks). The current contract does not explicitly enforce this.",
+        "task_evidence": "find a number v existing in a such that...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "'(' was never closed (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+          "task_evidence": "k_i ∣ GCD(x_i, v)",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"'(' was never closed (<unknown>, line 1)\",\"location\":\"postconditions[2].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"'(' was never closed (<unknown>, line 1)\",\"location\":\"postconditions[2].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+          "task_evidence": "k_i ∣ GCD(x_i, v)",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"'(' was never closed (<unknown>, line 1)\",\"location\":\"postconditions[2].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"'(' was never closed (<unknown>, line 1)\",\"location\":\"postconditions[2].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "k_i ∣ GCD(x_i, v)",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+            "task_evidence": "k_i ∣ GCD(x_i, v)",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "k_i ∣ GCD(x_i, v)",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+            "task_evidence": "k_i ∣ GCD(x_i, v)",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "k_i ∣ GCD(x_i, v)",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the GCD divisibility check to use `k_i divides GCD(x_i, v)` (i.e., `math.gcd(int(x_i), v) % k_i == 0`) instead of the current incorrect `k_i % math.gcd(int(x_i), v) == 0`.",
+            "task_evidence": "k_i ∣ GCD(x_i, v)",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 379.853,
+  "processing_error": null,
+  "finished_at": "2026-09-04T15:38:07.403089+00:00"
+}

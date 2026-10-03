@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18371",
+  "task_index": 184,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_18371.json",
+  "code": "import sys\nfrom itertools import permutations\nfrom collections import defaultdict\nimport heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float('inf') for node in graph}\n    distances[start] = 0\n    priority_queue = [(0, start)]\n    while priority_queue:\n        current_distance, current_node = heapq.heappop(priority_queue)\n        if current_distance > distances[current_node]:\n            continue\n        for neighbor, weight in graph[current_node].items():\n            distance = current_distance + weight\n            if distance < distances[neighbor]:\n                distances[neighbor] = distance\n                heapq.heappush(priority_queue, (distance, neighbor))\n    return distances\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    index += 1\n    edges = []\n    for _ in range(n - 1):\n        ui = int(input[index])\n        vi = int(input[index + 1])\n        wi = int(input[index + 2])\n        edges.append((ui, vi, wi))\n        index += 3\n    s = int(input[index])\n    index += 1\n    m = int(input[index])\n    index += 1\n    criminals = list(map(int, input[index:index + m]))\n\n    graph = defaultdict(dict)\n    for u, v, w in edges:\n        graph[u][v] = w\n        graph[v][u] = w\n\n    distances_from_s = dijkstra(graph, s)\n\n    max_time = 0\n    for perm in permutations(criminals):\n        current_time = 0\n        current_position = s\n        for criminal in perm:\n            current_time += dijkstra(graph, current_position)[criminal]\n            current_position = criminal\n        max_time = max(max_time, current_time)\n\n    if max_time == float('inf'):\n        print(\"Terrorists win\")\n    else:\n        print(max_time)\n\nmain()",
+  "generation_seconds": 37.207,
+  "generated_at": "2026-09-23T20:41:56.437735+00:00"
+}

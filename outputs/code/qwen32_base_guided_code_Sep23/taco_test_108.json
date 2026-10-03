@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_108",
+  "task_index": 391,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_108.json",
+  "code": "import sys\n\ndef is_L_R_continuous(n, m, roads, L, R):\n    dp = [float('inf')] * (n + 1)\n    dp[1] = 0\n    for _ in range(n - 1):\n        for a, b, c in roads:\n            if dp[a] != float('inf') and dp[a] + c < dp[b]:\n                dp[b] = dp[a] + c\n    path_lengths = set()\n    queue = [(1, 0)]\n    while queue:\n        current, dist = queue.pop()\n        if current == n:\n            path_lengths.add(dist)\n            continue\n        for a, b, c in roads:\n            if a == current and dp[b] == dist + c:\n                queue.append((b, dist + c))\n    return path_lengths == set(range(L, R + 1))\n\ndef generate_roads(n, m):\n    from itertools import combinations\n    edges = list(combinations(range(1, n + 1), 2))\n    for comb in combinations(edges, m):\n        yield list(comb)\n\ndef main():\n    import sys\n    L, R = map(int, sys.stdin.read().strip().split())\n    for n in range(2, 33):\n        for m in range(1, n * (n - 1) // 2 + 1):\n            for roads in generate_roads(n, m):\n                roads = [(a, b, 1) for a, b in roads]\n                current_length = 0\n                for i in range(m):\n                    roads[i] = (roads[i][0], roads[i][1], current_length + 1)\n                    current_length += 1\n                if is_L_R_continuous(n, m, roads, L, R):\n                    print(\"YES\")\n                    print(n, m)\n                    for a, b, c in roads:\n                        print(a, b, c)\n                    return\n    print(\"NO\")\n\nmain()",
+  "generation_seconds": 37.386,
+  "generated_at": "2026-09-23T20:30:00.492380+00:00"
+}

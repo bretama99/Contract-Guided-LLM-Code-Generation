@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_13667",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 50 and 1 <= m <= 50 and n * m >= 2 and 1 <= k <= 4",
+        "description": "Grid dimensions n and m are within bounds, and k is a valid constraint on plot types."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line) == m for line in stdin.splitlines()[1:])",
+        "description": "Each of the n lines in the grid has exactly m characters."
+      },
+      {
+        "id": "P3",
+        "expression": "stdin.count('S') == 1 and stdin.count('T') == 1",
+        "description": "The grid contains exactly one 'S' (start) and one 'T' (target)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyzST' for line in stdin.splitlines()[1:] for c in line)",
+        "description": "Each cell in the grid is a lowercase letter, 'S', or 'T'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '' or stdout == '-1' or (stdout != '-1' and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in stdout))",
+        "description": "Output is either empty, '-1', or a sequence of lowercase letters representing plot types."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == '-1' or (stdout != '' and any(len(path) == len(stdout) and path[0] == 'S' and path[-1] == 'T' and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in path[1:-1]) and is_valid_path(path, k) for path in generate_all_paths(stdin)))",
+        "description": "If output is not '-1', there exists at least one valid path from 'S' to 'T' with ≤ k distinct plot types (excluding 'S' and 'T'), and the output is the lexicographically smallest shortest path."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == '-1' or (stdout != '' and len(stdout) == min(len(path) - 2 for path in generate_all_paths(stdin) if is_valid_path(path, k)))",
+        "description": "If output is not '-1', it is the shortest path (minimum time) among all valid paths."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout == '-1' or (stdout != '' and len(set(stdout)) <= k)",
+        "description": "If output is not '-1', the path uses at most k distinct plot types (excluding 'S' and 'T')."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout == '-1' or (stdout != '' and not any(other_path < stdout and len(other_path) == len(stdout) and is_valid_path(other_path, k) for other_path in generate_all_paths(stdin)))",
+        "description": "If output is not '-1', it is lexicographically smallest among all shortest valid paths."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 50 and 1 <= m <= 50 and n * m >= 2 and 1 <= k <= 4\",\n      \"description\": \"Grid dimensions n and m are within bounds, and k is a valid constraint on plot types.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line) == m for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n lines in the grid has exactly m characters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"stdin.count('S') == 1 and stdin.count('T') == 1\",\n      \"description\": \"The grid contains exactly one 'S' (start) and one 'T' (target).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(c in 'abcdefghijklmnopqrstuvwxyzST' for line in stdin.splitlines()[1:] for c in line)\",\n      \"description\": \"Each cell in the grid is a lowercase letter, 'S', or 'T'.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '' or stdout == '-1' or (stdout != '-1' and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in stdout))\",\n      \"description\": \"Output is either empty, '-1', or a sequence of lowercase letters representing plot types.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout == '-1' or (stdout != '' and any(len(path) == len(stdout) and path[0] == 'S' and path[-1] == 'T' and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in path[1:-1]) and is_valid_path(path, k) for path in generate_all_paths(stdin)))\",\n      \"description\": \"If output is not '-1', there exists at least one valid path from 'S' to 'T' with ≤ k distinct plot types (excluding 'S' and 'T'), and the output is the lexicographically smallest shortest path.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout == '-1' or (stdout != '' and len(stdout) == min(len(path) - 2 for path in generate_all_paths(stdin) if is_valid_path(path, k)))\",\n      \"description\": \"If output is not '-1', it is the shortest path (minimum time) among all valid paths.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout == '-1' or (stdout != '' and len(set(stdout)) <= k)\",\n      \"description\": \"If output is not '-1', the path uses at most k distinct plot types (excluding 'S' and 'T').\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout == '-1' or (stdout != '' and not any(other_path < stdout and len(other_path) == len(stdout) and is_valid_path(other_path, k) for other_path in generate_all_paths(stdin)))\",\n      \"description\": \"If output is not '-1', it is lexicographically smallest among all shortest valid paths.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1650,
+  "generated_tokens": 812,
+  "hit_output_limit": false,
+  "generation_seconds": 37.3,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:02:53.737175+00:00"
+}

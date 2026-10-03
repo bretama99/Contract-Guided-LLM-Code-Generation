@@ -1,0 +1,51 @@
+{
+  "task_id": "taco_train_24774",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(n) <= 50 and 1 <= int(k) <= 10**18",
+        "description": "Input consists of two integers n (1 ≤ n ≤ 50) and k (1 ≤ k ≤ min{10^18, l}), where l is the number of valid permutations for n."
+      },
+      {
+        "id": "P2",
+        "expression": "stdin.strip().split() == [str(n), str(k)]",
+        "description": "Input is a single line containing exactly two space-separated integers n and k."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(1 <= int(x) <= int(n) for x in stdout.strip().split()) and len(stdout.strip().split()) == int(n)",
+        "description": "Output is a permutation of length n, where each element is an integer between 1 and n (inclusive)."
+      },
+      {
+        "id": "Q2",
+        "expression": "def is_fixed_permutation(p):\n    n = len(p)\n    p = [int(x) - 1 for x in p]  # convert to 0-based\n    cycles = []\n    visited = [False] * n\n    for i in range(n):\n        if not visited[i]:\n            cycle = []\n            x = i\n            while not visited[x]:\n                visited[x] = True\n                cycle.append(x)\n                x = p[x]\n            if len(cycle) > 1:\n                cycle_sorted = sorted(cycle, key=lambda x: -p[x])\n                cycle_reordered = [p[x] for x in cycle_sorted]\n                cycle_reordered_sorted = sorted(cycle_reordered)\n                cycle_reordered_sorted_str = ''.join(map(str, cycle_reordered_sorted))\n                cycle_original_str = ''.join(map(str, cycle))\n                if cycle_reordered_sorted_str != cycle_original_str:\n                    return False\n    return True\n\nis_fixed_permutation(stdout.strip().split())",
+        "description": "The output permutation p satisfies the condition that its standard cyclic representation, when parentheses are removed, equals p itself. This means p is invariant under the described transformation."
+      },
+      {
+        "id": "Q3",
+        "expression": "def get_permutation_rank(p):\n    n = len(p)\n    p = [int(x) for x in p]\n    # Generate all permutations lexicographically and count those satisfying Q2\n    from itertools import permutations\n    count = 0\n    for candidate in permutations(range(1, n + 1)):\n        if is_fixed_permutation(candidate):\n            count += 1\n            if count == int(k):\n                return ' '.join(map(str, candidate))\n    return None\n\nstdout.strip() == get_permutation_rank(stdout.strip().split())",
+        "description": "The output permutation is the k-th permutation in lexicographic order that satisfies the invariant condition (Q2)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(n) <= 50 and 1 <= int(k) <= 10**18\",\n      \"description\": \"Input consists of two integers n (1 ≤ n ≤ 50) and k (1 ≤ k ≤ min{10^18, l}), where l is the number of valid permutations for n.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"stdin.strip().split() == [str(n), str(k)]\",\n      \"description\": \"Input is a single line containing exactly two space-separated integers n and k.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(1 <= int(x) <= int(n) for x in stdout.strip().split()) and len(stdout.strip().split()) == int(n)\",\n      \"description\": \"Output is a permutation of length n, where each element is an integer between 1 and n (inclusive).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"def is_fixed_permutation(p):\\n    n = len(p)\\n    p = [int(x) - 1 for x in p]  # convert to 0-based\\n    cycles = []\\n    visited = [False] * n\\n    for i in range(n):\\n        if not visited[i]:\\n            cycle = []\\n            x = i\\n            while not visited[x]:\\n                visited[x] = True\\n                cycle.append(x)\\n                x = p[x]\\n            if len(cycle) > 1:\\n                cycle_sorted = sorted(cycle, key=lambda x: -p[x])\\n                cycle_reordered = [p[x] for x in cycle_sorted]\\n                cycle_reordered_sorted = sorted(cycle_reordered)\\n                cycle_reordered_sorted_str = ''.join(map(str, cycle_reordered_sorted))\\n                cycle_original_str = ''.join(map(str, cycle))\\n                if cycle_reordered_sorted_str != cycle_original_str:\\n                    return False\\n    return True\\n\\nis_fixed_permutation(stdout.strip().split())\",\n      \"description\": \"The output permutation p satisfies the condition that its standard cyclic representation, when parentheses are removed, equals p itself. This means p is invariant under the described transformation.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"def get_permutation_rank(p):\\n    n = len(p)\\n    p = [int(x) for x in p]\\n    # Generate all permutations lexicographically and count those satisfying Q2\\n    from itertools import permutations\\n    count = 0\\n    for candidate in permutations(range(1, n + 1)):\\n        if is_fixed_permutation(candidate):\\n            count += 1\\n            if count == int(k):\\n                return ' '.join(map(str, candidate))\\n    return None\\n\\nstdout.strip() == get_permutation_rank(stdout.strip().split())\",\n      \"description\": \"The output permutation is the k-th permutation in lexicographic order that satisfies the invariant condition (Q2).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1708,
+  "generated_tokens": 765,
+  "hit_output_limit": false,
+  "generation_seconds": 33.939,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:10:38.934299+00:00"
+}

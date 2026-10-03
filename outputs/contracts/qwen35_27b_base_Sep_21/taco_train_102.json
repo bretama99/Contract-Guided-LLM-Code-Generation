@@ -1,0 +1,70 @@
+{
+  "task_id": "taco_train_102",
+  "task_index": 291,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= k <= n <= 100000",
+        "description": "The number of main courses k and total courses n satisfy 1 <= k <= n <= 10^5."
+      },
+      {
+        "id": "P2",
+        "expression": "len(main_courses) == k and all(1 <= x <= n for x in main_courses) and len(set(main_courses)) == k",
+        "description": "The list of main courses contains exactly k distinct integers between 1 and n."
+      },
+      {
+        "id": "P3",
+        "expression": "len(dependencies) == n and all(0 <= t <= n-1 for t in [len(d) for d in dependencies]) and all(all(1 <= x <= n and x != i+1 for x in d) for i, d in enumerate(dependencies))",
+        "description": "There are n dependency lists; each list contains distinct integers from 1 to n excluding the course itself."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(len(d) for d in dependencies) <= 100000",
+        "description": "The sum of all dependency counts does not exceed 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "is_impossible or (len(result_lines) == 2 and result_lines[0].strip() == str(len(result_courses)) and len(result_courses) == int(result_lines[0].strip()) and all(1 <= x <= n for x in result_courses) and len(set(result_courses)) == len(result_courses))",
+        "description": "If impossible, output is '-1'. Otherwise, output has two lines: the count m and m distinct course IDs."
+      },
+      {
+        "id": "Q2",
+        "expression": "is_impossible or (all(x in result_courses for x in main_courses))",
+        "description": "If a solution exists, the output sequence must include all main courses."
+      },
+      {
+        "id": "Q3",
+        "expression": "is_impossible or (all(all(dep in result_courses and result_courses.index(dep) < result_courses.index(course) for dep in dependencies[course-1]) for course in result_courses))",
+        "description": "If a solution exists, for every course in the output, all its dependencies must appear earlier in the sequence."
+      },
+      {
+        "id": "Q4",
+        "expression": "is_impossible or (all(all(dep in result_courses for dep in dependencies[course-1]) for course in result_courses))",
+        "description": "If a solution exists, the set of courses in the output is closed under dependencies (all required prerequisites are included)."
+      },
+      {
+        "id": "Q5",
+        "expression": "is_impossible or (len(result_courses) == len(set(c for c in range(1, n+1) if any(c in main_courses or any(c in dependencies[x-1] for x in range(1, n+1) if x in result_courses or any(x in dependencies[y-1] for y in range(1, n+1) if y in result_courses)))))",
+        "description": "The output sequence contains exactly the minimal set of courses required: all main courses and all their transitive dependencies, and no others."
+      },
+      {
+        "id": "Q6",
+        "expression": "not is_impossible or (any(all(dep in result_courses for dep in dependencies[course-1]) for course in range(1, n+1) if course in main_courses) == False)",
+        "description": "If output is -1, it is impossible to satisfy dependencies for at least one main course (cycle or missing path)."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 85.415,
+  "seed": 333,
+  "generated_at": "2026-09-21T09:51:39.539256+00:00"
+}

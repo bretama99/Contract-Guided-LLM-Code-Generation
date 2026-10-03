@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13694",
+  "task_index": 193,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_13694.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nq = int(sys.stdin.readline())\nassignments = {}\npriority_count = defaultdict(int)\nhistory = []\n\nfor _ in range(q):\n    command = sys.stdin.readline().strip().split()\n    if command[0] == \"set\":\n        ai, xi = command[1], int(command[2])\n        if ai in assignments:\n            old_xi = assignments[ai]\n            priority_count[old_xi] -= 1\n        assignments[ai] = xi\n        priority_count[xi] += 1\n        history.append((\"set\", ai, xi))\n    elif command[0] == \"remove\":\n        ai = command[1]\n        if ai in assignments:\n            xi = assignments.pop(ai)\n            priority_count[xi] -= 1\n            history.append((\"remove\", ai, xi))\n    elif command[0] == \"query\":\n        ai = command[1]\n        if ai not in assignments:\n            print(-1)\n        else:\n            xi = assignments[ai]\n            count = sum(priority_count[p] for p in priority_count if p < xi)\n            print(count)\n    elif command[0] == \"undo\":\n        di = int(command[1])\n        for _ in range(di):\n            if history:\n                op, ai, xi = history.pop()\n                if op == \"set\":\n                    if assignments[ai] == xi:\n                        del assignments[ai]\n                    else:\n                        assignments[ai] = xi\n                    priority_count[xi] -= 1\n                    if assignments.get(ai):\n                        priority_count[assignments[ai]] += 1\n                elif op == \"remove\":\n                    assignments[ai] = xi\n                    priority_count[xi] += 1",
+  "generation_seconds": 32.762,
+  "generated_at": "2026-09-23T18:22:52.223693+00:00"
+}

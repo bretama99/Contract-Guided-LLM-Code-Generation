@@ -1,0 +1,72 @@
+{
+  "task_id": "taco_test_790",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and n <= 200000",
+        "description": "The number of vertices n is an integer between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a_i <= n for a_i in a)",
+        "description": "Each element a_i in the input sequence is an integer between 1 and n inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "len(a) == n",
+        "description": "The input sequence a has exactly n elements."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "min_changes >= 0",
+        "description": "The minimum number of changes required to make the sequence valid is a non-negative integer."
+      },
+      {
+        "id": "Q2",
+        "expression": "is_valid_sequence(valid_sequence) and sum(1 for i in range(n) if valid_sequence[i] != a[i]) == min_changes",
+        "description": "The output sequence valid_sequence is valid (as defined by the task) and requires exactly min_changes modifications from the input sequence a."
+      },
+      {
+        "id": "Q3",
+        "expression": "not any(sum(1 for i in range(n) if candidate[i] != a[i]) < min_changes for candidate in valid_sequences) if valid_sequences else True",
+        "description": "There is no valid sequence achievable with fewer than min_changes modifications from the input sequence a."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "is_valid_sequence := (any(p_r == r for r in range(1, n + 1)) and all(has_path_to_root(p, r) for r in range(1, n + 1) if p[r - 1] == r) and len(set(p)) == n)",
+        "description": "A sequence p is valid if and only if there exists exactly one root r (p[r-1] == r) and the graph formed by edges (i, p[i-1]) for all i is a tree (connected and acyclic). The helper has_path_to_root(p, r) checks if every node can reach the root r without cycles."
+      },
+      {
+        "id": "I2",
+        "expression": "has_path_to_root := lambda p, r: all(has_path(p, i, r) for i in range(1, n + 1))",
+        "description": "For a given root r, every node i must have a path to r in the graph defined by p. The helper has_path(p, i, r) checks if there is a path from node i to root r."
+      },
+      {
+        "id": "I3",
+        "expression": "has_path := lambda p, i, r: (i == r) or (p[i - 1] != i and has_path(p, p[i - 1], r))",
+        "description": "There is a path from node i to root r if either i is the root, or there is a path from p[i-1] to r and p[i-1] is not i (to avoid cycles)."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and n <= 200000\",\n      \"description\": \"The number of vertices n is an integer between 2 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= a_i <= n for a_i in a)\",\n      \"description\": \"Each element a_i in the input sequence is an integer between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(a) == n\",\n      \"description\": \"The input sequence a has exactly n elements.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"min_changes >= 0\",\n      \"description\": \"The minimum number of changes required to make the sequence valid is a non-negative integer.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"is_valid_sequence(valid_sequence) and sum(1 for i in range(n) if valid_sequence[i] != a[i]) == min_changes\",\n      \"description\": \"The output sequence valid_sequence is valid (as defined by the task) and requires exactly min_changes modifications from the input sequence a.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"not any(sum(1 for i in range(n) if candidate[i] != a[i]) < min_changes for candidate in valid_sequences) if valid_sequences else True\",\n      \"description\": \"There is no valid sequence achievable with fewer than min_changes modifications from the input sequence a.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"is_valid_sequence := (any(p_r == r for r in range(1, n + 1)) and all(has_path_to_root(p, r) for r in range(1, n + 1) if p[r - 1] == r) and len(set(p)) == n)\",\n      \"description\": \"A sequence p is valid if and only if there exists exactly one root r (p[r-1] == r) and the graph formed by edges (i, p[i-1]) for all i is a tree (connected and acyclic). The helper has_path_to_root(p, r) checks if every node can reach the root r without cycles.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"has_path_to_root := lambda p, r: all(has_path(p, i, r) for i in range(1, n + 1))\",\n      \"description\": \"For a given root r, every node i must have a path to r in the graph defined by p. The helper has_path(p, i, r) checks if there is a path from node i to root r.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"has_path := lambda p, i, r: (i == r) or (p[i - 1] != i and has_path(p, p[i - 1], r))\",\n      \"description\": \"There is a path from node i to root r if either i is the root, or there is a path from p[i-1] to r and p[i-1] is not i (to avoid cycles).\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1742,
+  "generated_tokens": 793,
+  "hit_output_limit": false,
+  "generation_seconds": 38.488,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:42:34.742216+00:00"
+}

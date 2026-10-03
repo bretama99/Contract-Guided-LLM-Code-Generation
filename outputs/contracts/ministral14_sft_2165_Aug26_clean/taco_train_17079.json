@@ -1,0 +1,51 @@
+{
+  "task_id": "taco_train_17079",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "maskPII",
+      "signature": "str -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(S) <= 40",
+        "description": "The input string S has a length of at most 40 characters."
+      },
+      {
+        "id": "P2",
+        "expression": "S.count('@') == 1 or all(c.isdigit() or c in {'+', '-', '(', ')', ' '} for c in S)",
+        "description": "The input string S is either a valid email address (contains exactly one '@') or a valid phone number (contains only digits, '+', '-', '(', ')', or ' ')."
+      },
+      {
+        "id": "P3",
+        "expression": "S.count('@') == 1 and len(S) >= 8 or all(c.isdigit() or c in {'+', '-', '(', ')', ' '} for c in S) and len(S) >= 10",
+        "description": "If S is an email, its length is at least 8; if S is a phone number, its length is at least 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "S.count('@') == 1 and (lambda s: (lambda name1, name2, name3: f\"{name1[0]}{'*'*max(0, len(name1)-2)}{name1[-1]}@{name2.lower()}.{name3.lower()}\")(*(s.split('@') + [s.split('@')[1].split('.')[1], s.split('@')[1].split('.')[2]])))(S) == return_value",
+        "description": "If S is an email, the output is the masked email where the first name is converted to lowercase, the letters between the first and last letter of the first name are replaced by 5 asterisks, and the rest of the email is in lowercase."
+      },
+      {
+        "id": "Q2",
+        "expression": "S.count('@') == 0 and (lambda s: (lambda digits: f\"{'+' if len(digits) > 10 else ''}{'*'*(len(digits)-10) if len(digits) > 10 else ''}***-***-{digits[-4:]}\")(''.join(c for c in s if c.isdigit())))(S) == return_value",
+        "description": "If S is a phone number, the output is the masked phone number where only the last 4 digits are exposed, formatted as '***-***-1111', and the country code (if present) is masked with asterisks, preserving the '+' sign if it exists."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"maskPII\",\n    \"signature\": \"str -> str\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(S) <= 40\",\n      \"description\": \"The input string S has a length of at most 40 characters.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"S.count('@') == 1 or all(c.isdigit() or c in {'+', '-', '(', ')', ' '} for c in S)\",\n      \"description\": \"The input string S is either a valid email address (contains exactly one '@') or a valid phone number (contains only digits, '+', '-', '(', ')', or ' ').\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"S.count('@') == 1 and len(S) >= 8 or all(c.isdigit() or c in {'+', '-', '(', ')', ' '} for c in S) and len(S) >= 10\",\n      \"description\": \"If S is an email, its length is at least 8; if S is a phone number, its length is at least 10.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"S.count('@') == 1 and (lambda s: (lambda name1, name2, name3: f\\\"{name1[0]}{'*'*max(0, len(name1)-2)}{name1[-1]}@{name2.lower()}.{name3.lower()}\\\")(*(s.split('@') + [s.split('@')[1].split('.')[1], s.split('@')[1].split('.')[2]])))(S) == return_value\",\n      \"description\": \"If S is an email, the output is the masked email where the first name is converted to lowercase, the letters between the first and last letter of the first name are replaced by 5 asterisks, and the rest of the email is in lowercase.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"S.count('@') == 0 and (lambda s: (lambda digits: f\\\"{'+' if len(digits) > 10 else ''}{'*'*(len(digits)-10) if len(digits) > 10 else ''}***-***-{digits[-4:]}\\\")(''.join(c for c in s if c.isdigit())))(S) == return_value\",\n      \"description\": \"If S is a phone number, the output is the masked phone number where only the last 4 digits are exposed, formatted as '***-***-1111', and the country code (if present) is masked with asterisks, preserving the '+' sign if it exists.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1769,
+  "generated_tokens": 652,
+  "hit_output_limit": false,
+  "generation_seconds": 28.549,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:02:42.059064+00:00"
+}

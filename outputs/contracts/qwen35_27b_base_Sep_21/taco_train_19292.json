@@ -1,0 +1,65 @@
+{
+  "task_id": "taco_train_19292",
+  "task_index": 6,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200 and 2 <= m <= 100000",
+        "description": "The number of time-steps n is between 1 and 200, and the target count m is between 2 and 100,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(operations) == n and all(isinstance(op, tuple) and len(op) == 3 for op in operations)",
+        "description": "There are exactly n operations, each represented as a tuple of three integers (t_i, x'_i, y_i)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= t <= 2 and 1 <= y <= m for t, x_prime, y in operations)",
+        "description": "For each operation, t_i is 1 or 2, and y_i is between 1 and m."
+      },
+      {
+        "id": "P4",
+        "expression": "all((1 <= x_prime <= 100000 * m) if t == 1 else (100000 < x_prime <= 100000 * m) for t, x_prime, y in operations)",
+        "description": "For type 1 operations, x'_i is between 1 and 10^5 * m; for type 2, x'_i is strictly greater than 10^5 and at most 10^5 * m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_values) == m",
+        "description": "The output contains exactly m integers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(v == -1 or (1 <= v <= n) for v in output_values)",
+        "description": "Each output value is either -1 (impossible) or an integer between 1 and n representing a time-step."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output_values[j-1] == -1) == (j not in reachable_at_step) for j in range(1, m + 1))",
+        "description": "For each target j, the output is -1 if and only if j is never reachable at any time-step; otherwise, it is the earliest time-step."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output_values[j-1] == t) == (t == min(reachable_at_step[j]) if j in reachable_at_step else False) for j in range(1, m + 1))",
+        "description": "If j is reachable, the output value is the minimum time-step t at which j can be achieved."
+      },
+      {
+        "id": "Q5",
+        "expression": "reachable_at_step == {j: t for t, ops in enumerate(operations, 1) for j in get_reachable_bananas(ops, t)}",
+        "description": "The set of reachable banana counts at each time-step is derived by applying the operations sequentially, where get_reachable_bananas computes all possible k values after applying the t-th operation with any valid a_i (0 <= a_i <= y_i) to the set of reachable values from the previous step."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 79.031,
+  "seed": 48,
+  "generated_at": "2026-09-21T05:36:25.348048+00:00"
+}

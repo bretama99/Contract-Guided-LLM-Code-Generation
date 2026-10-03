@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_16675",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 10**5",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10^5) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n == int(n) and 1 <= n <= 10**5 for n in (line.split()[0] for line in stdin.splitlines()[1::2]))",
+        "description": "For each test case, the first line is an integer n (1 ≤ n ≤ 10^5) representing the length of the permutation."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(a) == n and all(int(x) == x and 1 <= x <= n for x in a) and len(set(a)) == n for a, n in zip((line.split() for line in stdin.splitlines()[2::2]), (int(line.split()[0]) for line in stdin.splitlines()[1::2])))",
+        "description": "For each test case, the second line contains n distinct integers a_i (1 ≤ a_i ≤ n) representing a permutation of length n."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(int(line.split()[0]) for line in stdin.splitlines()[1::2]) <= 10**5",
+        "description": "The sum of n over all test cases does not exceed 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_lines) == 1 + k for k, stdout_lines in zip((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1)), [stdout.splitlines()[i+1:i+1+k] for i, k in enumerate((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1)))]))",
+        "description": "For each test case, the output consists of k+1 lines: the first line is k (1 ≤ k ≤ f(n)), followed by k lines describing subsequences, where each subsequence line starts with its length l_i (1 ≤ l_i ≤ n) followed by l_i integers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(1 <= int(x) <= n for x in line.split()[1:]) for line in stdout.splitlines()[1:])",
+        "description": "Each subsequence contains integers from the original permutation, each between 1 and n."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(set(line.split()[1:])) == len(line.split()[1:]) for line in stdout.splitlines()[1:])",
+        "description": "Each subsequence contains distinct integers (no duplicates)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(a[i] in line.split()[1:] for i, a in enumerate(permutation)) for permutation, line in zip(([int(x) for x in stdin.splitlines()[i+1]] for i in range(0, len(stdin.splitlines()), 2)), stdout.splitlines()[1:]))",
+        "description": "Every element of the permutation appears in exactly one subsequence."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all((line.split()[1:][i] < line.split()[1:][i+1] for i in range(len(line.split()[1:])-1)) or all(line.split()[1:][i] > line.split()[1:][i+1] for i in range(len(line.split()[1:])-1))) for line in stdout.splitlines()[1:])",
+        "description": "Each subsequence is either strictly increasing or strictly decreasing."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(len(set.union(*(set(line.split()[1:]) for line in stdout.splitlines()[i+1:i+1+k]))) == n for i, k in enumerate((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1))))",
+        "description": "The union of all subsequences for a test case contains all elements of the permutation exactly once."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(k <= f(n) for k, n in zip((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1)), (int(line.split()[0]) for line in stdin.splitlines()[1::2])))",
+        "description": "The number of subsequences k for each test case is at most f(n), where f(n) is the minimum integer such that every permutation of length n can be partitioned into at most k monotonic subsequences."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and 1 <= t <= 10**5\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10^5) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(n == int(n) and 1 <= n <= 10**5 for n in (line.split()[0] for line in stdin.splitlines()[1::2]))\",\n      \"description\": \"For each test case, the first line is an integer n (1 ≤ n ≤ 10^5) representing the length of the permutation.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(a) == n and all(int(x) == x and 1 <= x <= n for x in a) and len(set(a)) == n for a, n in zip((line.split() for line in stdin.splitlines()[2::2]), (int(line.split()[0]) for line in stdin.splitlines()[1::2])))\",\n      \"description\": \"For each test case, the second line contains n distinct integers a_i (1 ≤ a_i ≤ n) representing a permutation of length n.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"sum(int(line.split()[0]) for line in stdin.splitlines()[1::2]) <= 10**5\",\n      \"description\": \"The sum of n over all test cases does not exceed 10^5.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_lines) == 1 + k for k, stdout_lines in zip((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1)), [stdout.splitlines()[i+1:i+1+k] for i, k in enumerate((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1)))]))\",\n      \"description\": \"For each test case, the output consists of k+1 lines: the first line is k (1 ≤ k ≤ f(n)), followed by k lines describing subsequences, where each subsequence line starts with its length l_i (1 ≤ l_i ≤ n) followed by l_i integers.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(all(1 <= int(x) <= n for x in line.split()[1:]) for line in stdout.splitlines()[1:])\",\n      \"description\": \"Each subsequence contains integers from the original permutation, each between 1 and n.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(set(line.split()[1:])) == len(line.split()[1:]) for line in stdout.splitlines()[1:])\",\n      \"description\": \"Each subsequence contains distinct integers (no duplicates).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(all(a[i] in line.split()[1:] for i, a in enumerate(permutation)) for permutation, line in zip(([int(x) for x in stdin.splitlines()[i+1]] for i in range(0, len(stdin.splitlines()), 2)), stdout.splitlines()[1:]))\",\n      \"description\": \"Every element of the permutation appears in exactly one subsequence.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(all((line.split()[1:][i] < line.split()[1:][i+1] for i in range(len(line.split()[1:])-1)) or all(line.split()[1:][i] > line.split()[1:][i+1] for i in range(len(line.split()[1:])-1))) for line in stdout.splitlines()[1:])\",\n      \"description\": \"Each subsequence is either strictly increasing or strictly decreasing.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(len(set.union(*(set(line.split()[1:]) for line in stdout.splitlines()[i+1:i+1+k]))) == n for i, k in enumerate((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1))))\",\n      \"description\": \"The union of all subsequences for a test case contains all elements of the permutation exactly once.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(k <= f(n) for k, n in zip((int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), k+1)), (int(line.split()[0]) for line in stdin.splitlines()[1::2])))\",\n      \"description\": \"The number of subsequences k for each test case is at most f(n), where f(n) is the minimum integer such that every permutation of length n can be partitioned into at most k monotonic subsequences.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1855,
+  "generated_tokens": 1159,
+  "hit_output_limit": false,
+  "generation_seconds": 52.254,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:22:59.504500+00:00"
+}

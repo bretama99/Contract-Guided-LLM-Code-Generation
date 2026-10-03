@@ -1,0 +1,82 @@
+{
+  "task_id": "taco_train_20134",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 10**6 for line in stdin.splitlines() for x in line.split() if x.isdigit())",
+        "description": "All integers in input are within the bounds 1 ≤ n ≤ 10^6 and 0 ≤ m ≤ 10^6."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m + 1 lines: one line with n and m, followed by m lines of edges."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each of the m edge lines contains exactly two integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for line in stdin.splitlines()[1:] for a, b in [line.split()])",
+        "description": "Each edge (a, b) satisfies 1 ≤ a, b ≤ n and a ≠ b."
+      },
+      {
+        "id": "P5",
+        "expression": "len({(int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()]}) == m",
+        "description": "Alice's graph has no multiple edges or self-loops."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= n * (n - 1) * (n - 2) // 6",
+        "description": "The output is a non-negative integer representing the total number of triangles in Alice's and Bob's graphs combined."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= u < v < w <= n and ((u, v) in alice_edges or (u, v) in bob_edges) and ((v, w) in alice_edges or (v, w) in bob_edges) and ((u, w) in alice_edges or (u, w) in bob_edges) for u, v, w in triangles)",
+        "description": "For every triangle (u, v, w) counted in the output, all three edges (u, v), (v, w), and (u, w) must exist in either Alice's or Bob's graph, where bob_edges is the complement of alice_edges in the complete graph."
+      },
+      {
+        "id": "Q3",
+        "expression": "int(stdout.strip()) == sum(1 for u in range(1, n + 1) for v in range(u + 1, n + 1) for w in range(v + 1, n + 1) if ((u, v) in alice_edges or (u, v) in bob_edges) and ((v, w) in alice_edges or (v, w) in bob_edges) and ((u, w) in alice_edges or (u, w) in bob_edges))",
+        "description": "The output is the total number of triangles in Alice's and Bob's graphs combined, where a triangle is a set of three distinct vertices {u, v, w} such that all three edges (u, v), (v, w), and (u, w) exist in either Alice's or Bob's graph."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "alice_edges := {(int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()]}",
+        "description": "alice_edges is the set of edges in Alice's graph, derived from the input."
+      },
+      {
+        "id": "I2",
+        "expression": "bob_edges := {(u, v) for u in range(1, n + 1) for v in range(u + 1, n + 1) if (u, v) not in alice_edges}",
+        "description": "bob_edges is the set of edges in Bob's graph, which are all possible edges in the complete graph not present in Alice's graph."
+      },
+      {
+        "id": "I3",
+        "expression": "n := int(stdin.splitlines()[0].split()[0])",
+        "description": "n is the number of vertices in the complete graph, derived from the first line of input."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 10**6 for line in stdin.splitlines() for x in line.split() if x.isdigit())\",\n      \"description\": \"All integers in input are within the bounds 1 ≤ n ≤ 10^6 and 0 ≤ m ≤ 10^6.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m + 1 lines: one line with n and m, followed by m lines of edges.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the m edge lines contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for line in stdin.splitlines()[1:] for a, b in [line.split()])\",\n      \"description\": \"Each edge (a, b) satisfies 1 ≤ a, b ≤ n and a ≠ b.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len({(int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()]}) == m\",\n      \"description\": \"Alice's graph has no multiple edges or self-loops.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= n * (n - 1) * (n - 2) // 6\",\n      \"description\": \"The output is a non-negative integer representing the total number of triangles in Alice's and Bob's graphs combined.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= u < v < w <= n and ((u, v) in alice_edges or (u, v) in bob_edges) and ((v, w) in alice_edges or (v, w) in bob_edges) and ((u, w) in alice_edges or (u, w) in bob_edges) for u, v, w in triangles)\",\n      \"description\": \"For every triangle (u, v, w) counted in the output, all three edges (u, v), (v, w), and (u, w) must exist in either Alice's or Bob's graph, where bob_edges is the complement of alice_edges in the complete graph.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"int(stdout.strip()) == sum(1 for u in range(1, n + 1) for v in range(u + 1, n + 1) for w in range(v + 1, n + 1) if ((u, v) in alice_edges or (u, v) in bob_edges) and ((v, w) in alice_edges or (v, w) in bob_edges) and ((u, w) in alice_edges or (u, w) in bob_edges))\",\n      \"description\": \"The output is the total number of triangles in Alice's and Bob's graphs combined, where a triangle is a set of three distinct vertices {u, v, w} such that all three edges (u, v), (v, w), and (u, w) exist in either Alice's or Bob's graph.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"alice_edges := {(int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()]}\",\n      \"description\": \"alice_edges is the set of edges in Alice's graph, derived from the input.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"bob_edges := {(u, v) for u in range(1, n + 1) for v in range(u + 1, n + 1) if (u, v) not in alice_edges}\",\n      \"description\": \"bob_edges is the set of edges in Bob's graph, which are all possible edges in the complete graph not present in Alice's graph.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"n := int(stdin.splitlines()[0].split()[0])\",\n      \"description\": \"n is the number of vertices in the complete graph, derived from the first line of input.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1574,
+  "generated_tokens": 1089,
+  "hit_output_limit": false,
+  "generation_seconds": 48.993,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:47:57.161949+00:00"
+}

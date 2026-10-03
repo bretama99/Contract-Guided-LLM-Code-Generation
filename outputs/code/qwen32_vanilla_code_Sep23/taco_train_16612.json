@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_16612",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T13:10:07.924391+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    edges = [(int(input[i*2+1])-1, input[i*2+2]) for i in range(n-1)]\n\n    children = defaultdict(list)\n    for i in range(1, n):\n        p, c = edges[i-1]\n        children[p].append((i, c))\n\n    def dfs(node):\n        odd_counts = [0] * 26\n        max_path = 0\n        for child, char in children[node]:\n            child_odd_counts, child_max_path = dfs(child)\n            max_path = max(max_path, child_max_path)\n            for i in range(26):\n                odd_counts[i] += child_odd_counts[i]\n        \n        current_max_path = 0\n        odd_used = False\n        for count in odd_counts:\n            if count % 2 == 1:\n                if not odd_used:\n                    odd_used = True\n                else:\n                    current_max_path -= 1\n            current_max_path += count // 2\n        \n        return odd_counts, max(current_max_path * 2 + odd_used, max_path)\n\n    results = [0] * n\n    for i in range(n):\n        odd_counts, path_length = dfs(i)\n        results[i] = path_length\n\n    print(\" \".join(map(str, results)))\n\nif __name__ == \"__main__\":\n    main()"
+}

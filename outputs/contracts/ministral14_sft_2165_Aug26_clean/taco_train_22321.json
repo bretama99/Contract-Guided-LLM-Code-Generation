@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_22321",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 5000",
+        "description": "The number of test cases t is an integer between 1 and 5000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 100 and 2 <= m <= 100 for n, m in (map(int, line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))",
+        "description": "For each test case, n and m are integers between 2 and 100 inclusive, representing the dimensions of the binary table."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line) == m for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1'))",
+        "description": "Each row of the binary table has exactly m characters."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in '01' for c in line) for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1'))",
+        "description": "Each character in the binary table is either '0' or '1'."
+      },
+      {
+        "id": "P5",
+        "expression": "sum(n * m for n, m in (map(int, line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1'))) <= 20000",
+        "description": "The sum of n*m for all test cases does not exceed 20000."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_lines) == 1 + k for k in (int(stdout_lines[0]) if stdout_lines else 0) for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))",
+        "description": "For each test case, the output consists of k+1 lines: the first line is the integer k (number of operations), followed by k lines of 6 integers each."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= k <= n * m for k in (int(stdout_lines[0]) if stdout_lines else 0) for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))",
+        "description": "The number of operations k for each test case is between 0 and n*m inclusive."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(1 <= int(x) <= n and 1 <= int(y) <= m for x, y in (line.split()[::2], line.split()[1::2]) for line in stdout_lines[1:]) for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))",
+        "description": "Each operation's coordinates (x, y) are within the bounds of the table (1 ≤ x ≤ n, 1 ≤ y ≤ m)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(set((int(x1), int(y1), int(x2), int(y2), int(x3), int(y3))) & {(int(x1), int(y1)), (int(x2), int(y2)), (int(x3), int(y3))}) == 3 for line in stdout_lines[1:] for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))",
+        "description": "Each operation selects three distinct cells."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any((abs(int(x1) - int(x2)) <= 1 and abs(int(y1) - int(y2)) <= 1) for x1, y1, x2, y2 in [(line.split()[0], line.split()[1], line.split()[2], line.split()[3]), (line.split()[0], line.split()[1], line.split()[4], line.split()[5]), (line.split()[2], line.split()[3], line.split()[4], line.split()[5])]) for line in stdout_lines[1:] for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))",
+        "description": "The three cells in each operation belong to some 2×2 square."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(line[i] == '0' for line in table) for table in (apply_operations(initial_table, operations) for initial_table, operations in (parse_table_and_operations(stdout_lines, stdin_lines) for stdin_lines, stdout_lines in (split_input_output(stdin, stdout)))))",
+        "description": "After applying all operations, every cell in the table is '0'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and 1 <= t <= 5000\",\n      \"description\": \"The number of test cases t is an integer between 1 and 5000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= n <= 100 and 2 <= m <= 100 for n, m in (map(int, line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))\",\n      \"description\": \"For each test case, n and m are integers between 2 and 100 inclusive, representing the dimensions of the binary table.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line) == m for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1'))\",\n      \"description\": \"Each row of the binary table has exactly m characters.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(c in '01' for c in line) for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1'))\",\n      \"description\": \"Each character in the binary table is either '0' or '1'.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"sum(n * m for n, m in (map(int, line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1'))) <= 20000\",\n      \"description\": \"The sum of n*m for all test cases does not exceed 20000.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_lines) == 1 + k for k in (int(stdout_lines[0]) if stdout_lines else 0) for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))\",\n      \"description\": \"For each test case, the output consists of k+1 lines: the first line is the integer k (number of operations), followed by k lines of 6 integers each.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= k <= n * m for k in (int(stdout_lines[0]) if stdout_lines else 0) for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))\",\n      \"description\": \"The number of operations k for each test case is between 0 and n*m inclusive.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(all(1 <= int(x) <= n and 1 <= int(y) <= m for x, y in (line.split()[::2], line.split()[1::2]) for line in stdout_lines[1:]) for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))\",\n      \"description\": \"Each operation's coordinates (x, y) are within the bounds of the table (1 ≤ x ≤ n, 1 ≤ y ≤ m).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(len(set((int(x1), int(y1), int(x2), int(y2), int(x3), int(y3))) & {(int(x1), int(y1)), (int(x2), int(y2)), (int(x3), int(y3))}) == 3 for line in stdout_lines[1:] for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))\",\n      \"description\": \"Each operation selects three distinct cells.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any((abs(int(x1) - int(x2)) <= 1 and abs(int(y1) - int(y2)) <= 1) for x1, y1, x2, y2 in [(line.split()[0], line.split()[1], line.split()[2], line.split()[3]), (line.split()[0], line.split()[1], line.split()[4], line.split()[5]), (line.split()[2], line.split()[3], line.split()[4], line.split()[5])]) for line in stdout_lines[1:] for stdout_lines in (line.splitlines() for line in stdin.splitlines() if line.strip() and not line.startswith('0') and not line.startswith('1')))\",\n      \"description\": \"The three cells in each operation belong to some 2×2 square.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(all(line[i] == '0' for line in table) for table in (apply_operations(initial_table, operations) for initial_table, operations in (parse_table_and_operations(stdout_lines, stdin_lines) for stdin_lines, stdout_lines in (split_input_output(stdin, stdout)))))\",\n      \"description\": \"After applying all operations, every cell in the table is '0'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2040,
+  "generated_tokens": 1250,
+  "hit_output_limit": false,
+  "generation_seconds": 51.983,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:30:06.445011+00:00"
+}

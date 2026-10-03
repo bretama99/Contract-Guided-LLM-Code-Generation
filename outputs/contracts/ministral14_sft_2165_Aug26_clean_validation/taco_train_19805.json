@@ -1,0 +1,349 @@
+{
+  "task_id": "taco_train_19805",
+  "task_index": 862,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100000",
+        "description": "The number of test cases t is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= m <= 10**6 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each test case, n (number of residents/cats) and m (number of friendships) satisfy 1 ≤ n ≤ m ≤ 10^6."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)",
+        "description": "Each friendship pair (a_i, b_i) has resident and cat indices between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any(a_i == b_i == i for i in range(1, n+1)) for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each resident i, there exists a friendship pair (i, i) (i.e., each resident is acquainted with their own cat)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and any('Yes' in line for line in stdout.splitlines()))",
+        "description": "Output is either 'No' (impossible) or starts with 'Yes' (possible) followed by valid jury and contestant selections."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and len(stdout.strip().splitlines()) >= 4)",
+        "description": "If 'Yes', the output must include exactly 4 lines: 'Yes', j and p, jury members, and contestant cats."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and (j := int(stdout.strip().splitlines()[1].split()[0])) >= 1 and (p := int(stdout.strip().splitlines()[1].split()[1])) >= 1 and j + p == n)",
+        "description": "If 'Yes', the number of jury members (j) and contestants (p) must satisfy j ≥ 1, p ≥ 1, and j + p = n."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and (jury := set(map(int, stdout.strip().splitlines()[2].split()))) and (contestants := set(map(int, stdout.strip().splitlines()[3].split()))) and len(jury) == j and len(contestants) == p)",
+        "description": "If 'Yes', the jury and contestant lists must contain exactly j and p distinct integers, respectively."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and all(a_i not in contestants for a_i in jury) and all(b_i not in jury for b_i in contestants))",
+        "description": "If 'Yes', no jury member is acquainted with any contestant cat, and no contestant cat is owned by a jury member (i.e., no resident in jury is acquainted with any cat in contestants)."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and all(1 <= x <= n for x in jury) and all(1 <= x <= n for x in contestants))",
+        "description": "If 'Yes', all jury members and contestant cats are within the valid range [1, n]."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100000",
+        "description": "The number of test cases t is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= m <= 10**6 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each test case, n (number of residents/cats) and m (number of friendships) satisfy 1 ≤ n ≤ m ≤ 10^6."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)",
+        "description": "Each friendship pair (a_i, b_i) has resident and cat indices between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any(a_i == b_i == i for i in range(1, n+1)) for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each resident i, there exists a friendship pair (i, i) (i.e., each resident is acquainted with their own cat)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and any('Yes' in line for line in stdout.splitlines()))",
+        "description": "Output is either 'No' (impossible) or starts with 'Yes' (possible) followed by valid jury and contestant selections."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and len(stdout.strip().splitlines()) >= 4)",
+        "description": "If 'Yes', the output must include exactly 4 lines: 'Yes', j and p, jury members, and contestant cats."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and (j := int(stdout.strip().splitlines()[1].split()[0])) >= 1 and (p := int(stdout.strip().splitlines()[1].split()[1])) >= 1 and j + p == n)",
+        "description": "If 'Yes', the number of jury members (j) and contestants (p) must satisfy j ≥ 1, p ≥ 1, and j + p = n."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and (jury := set(map(int, stdout.strip().splitlines()[2].split()))) and (contestants := set(map(int, stdout.strip().splitlines()[3].split()))) and len(jury) == j and len(contestants) == p)",
+        "description": "If 'Yes', the jury and contestant lists must contain exactly j and p distinct integers, respectively."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and all(a_i not in contestants for a_i in jury) and all(b_i not in jury for b_i in contestants))",
+        "description": "If 'Yes', no jury member is acquainted with any contestant cat, and no contestant cat is owned by a jury member (i.e., no resident in jury is acquainted with any cat in contestants)."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'No' or (stdout.strip().splitlines()[0] == 'Yes' and all(1 <= x <= n for x in jury) and all(1 <= x <= n for x in contestants))",
+        "description": "If 'Yes', all jury members and contestant cats are within the valid range [1, n]."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "e91cd0d542f9d4a19ba04335e4aaeebe199e391f65a93dd4aef1e8e095354eff",
+  "selected_contract_fingerprint": "e91cd0d542f9d4a19ba04335e4aaeebe199e391f65a93dd4aef1e8e095354eff",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_19805.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the jury members and contestant cats are distinct sets (no overlap between jury members and contestant cats). The task requires that jury members and contestants are disjoint groups (no resident can be both a jury member and a contestant, and no cat can be both owned by a jury member and a contestant).",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the contestant cats are not owned by any jury member. The task states that no contestant cat can be owned by a jury member (i.e., no resident in the jury can be acquainted with any contestant cat). The current Q5 is incomplete as it does not explicitly enforce this constraint for all possible (resident, cat) pairs in the input.",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly enforce that no jury member is acquainted with any contestant cat (not just that the sets are disjoint). The current expression does not check the acquaintance relationship between jury members and contestant cats.",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the contestant cats are not owned by any jury member (i.e., no contestant cat is the i-th cat for any jury member i). This is a stricter requirement than just disjointness and is implied by the task's constraints.",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 4
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the jury members and contestant cats are distinct sets (no overlap between jury members and contestant cats). The task requires that jury members and contestants are disjoint groups (no resident can be both a jury member and a contestant, and no cat can be both owned by a jury member and a contestant).",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the contestant cats are not owned by any jury member. The task states that no contestant cat can be owned by a jury member (i.e., no resident in the jury can be acquainted with any contestant cat). The current Q5 is incomplete as it does not explicitly enforce this constraint for all possible (resident, cat) pairs in the input.",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly enforce that no jury member is acquainted with any contestant cat (not just that the sets are disjoint). The current expression does not check the acquaintance relationship between jury members and contestant cats.",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the contestant cats are not owned by any jury member (i.e., no contestant cat is the i-th cat for any jury member i). This is a stricter requirement than just disjointness and is implied by the task's constraints.",
+        "task_evidence": "every jury member should know none of the contestants",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 4
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 22.703,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:27:16.244151+00:00"
+}

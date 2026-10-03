@@ -1,0 +1,86 @@
+{
+  "task_id": "taco_train_3636",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t.is_integer() and 1 <= t <= 20000",
+        "description": "The number of test cases `t` is an integer between 1 and 20000 (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(n, int) and isinstance(m, int) and 2 <= n <= 200000 and 1 <= m <= min(200000, n*(n-1)//2) for n, m in (line.split() for line in stdin.splitlines()[1:]) if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit())",
+        "description": "For each test case, `n` (number of vertices) and `m` (number of edges) are integers where `2 <= n <= 200000` and `1 <= m <= min(200000, n*(n-1)/2)`."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edge) == 3 and edge[0] in (0, 1) and 1 <= int(edge[1]) <= n and 1 <= int(edge[2]) <= n for edge in (line.split() for line in stdin.splitlines()[2:]) if line.strip())",
+        "description": "Each edge is described by three integers: `t_i` (0 for undirected, 1 for directed), `x_i`, and `y_i` where `1 <= x_i, y_i <= n` and `x_i != y_i`."
+      },
+      {
+        "id": "P4",
+        "expression": "all(int(edge[1]) != int(edge[2]) for edge in (line.split() for line in stdin.splitlines()[2:]) if line.strip())",
+        "description": "No self-loops exist in the graph (i.e., `x_i != y_i` for all edges)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(not any((int(x1) == int(x2) and int(y1) == int(y2)) or (int(x1) == int(y2) and int(y1) == int(x2)) for edge1 in (line.split() for line in stdin.splitlines()[2:]) if line.strip() for edge2 in (line.split() for line in stdin.splitlines()[2:]) if line.strip() if edge1 != edge2))",
+        "description": "No multiple edges exist between the same pair of vertices (i.e., no duplicate edges in any direction)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and all(line.strip() in stdout.splitlines()[1:] for line in (line for line in stdin.splitlines()[2:] if line.strip())))",
+        "description": "If the answer is 'NO', the output is exactly 'NO'. If the answer is 'YES', the output must start with 'YES' followed by exactly `m` lines, each describing a directed edge (either original directed edges or newly directed undirected edges)."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'YES' and all(line.split()[0] == '1' for line in stdout.splitlines()[1:])",
+        "description": "If the answer is 'YES', all edges in the output must be directed (i.e., each line must start with '1' as the type indicator)."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'YES' and not any((int(line.split()[1]) == int(line.split()[2]) for line in stdout.splitlines()[1:]))",
+        "description": "If the answer is 'YES', no self-loops exist in the output (i.e., `x_i != y_i` for all output edges)."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'YES' and not any((int(line1.split()[1]) == int(line2.split()[1]) and int(line1.split()[2]) == int(line2.split()[2])) or (int(line1.split()[1]) == int(line2.split()[2]) and int(line1.split()[2]) == int(line2.split()[1])) for i, line1 in enumerate(stdout.splitlines()[1:]) for line2 in stdout.splitlines()[1:][i+1:]))",
+        "description": "If the answer is 'YES', no multiple edges exist between the same pair of vertices in the output (i.e., no duplicate edges in any direction)."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'YES' and not any((int(line.split()[1]) == int(line.split()[2]) for line in stdout.splitlines()[1:]))",
+        "description": "If the answer is 'YES', the output graph has no self-loops (redundant with Q3 but emphasized for clarity)."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'YES' and all((int(line.split()[0]) == 1 and (int(line.split()[1]) != int(line.split()[2]))) for line in stdout.splitlines()[1:])",
+        "description": "If the answer is 'YES', all output edges are directed (i.e., each line must be of the form 'x y' where `x != y`)."
+      },
+      {
+        "id": "Q7",
+        "expression": "stdout.strip() == 'YES' and not any((int(line1.split()[1]) == int(line2.split()[2]) and int(line1.split()[2]) == int(line2.split()[1])) for i, line1 in enumerate(stdout.splitlines()[1:]) for line2 in stdout.splitlines()[1:][i+1:])",
+        "description": "If the answer is 'YES', the output graph is acyclic (i.e., no directed cycles exist). This is implicitly checked by the correctness of the algorithm, but the output must satisfy this property."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t.is_integer() and 1 <= t <= 20000\",\n      \"description\": \"The number of test cases `t` is an integer between 1 and 20000 (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(isinstance(n, int) and isinstance(m, int) and 2 <= n <= 200000 and 1 <= m <= min(200000, n*(n-1)//2) for n, m in (line.split() for line in stdin.splitlines()[1:]) if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit())\",\n      \"description\": \"For each test case, `n` (number of vertices) and `m` (number of edges) are integers where `2 <= n <= 200000` and `1 <= m <= min(200000, n*(n-1)/2)`.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(edge) == 3 and edge[0] in (0, 1) and 1 <= int(edge[1]) <= n and 1 <= int(edge[2]) <= n for edge in (line.split() for line in stdin.splitlines()[2:]) if line.strip())\",\n      \"description\": \"Each edge is described by three integers: `t_i` (0 for undirected, 1 for directed), `x_i`, and `y_i` where `1 <= x_i, y_i <= n` and `x_i != y_i`.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(int(edge[1]) != int(edge[2]) for edge in (line.split() for line in stdin.splitlines()[2:]) if line.strip())\",\n      \"description\": \"No self-loops exist in the graph (i.e., `x_i != y_i` for all edges).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(not any((int(x1) == int(x2) and int(y1) == int(y2)) or (int(x1) == int(y2) and int(y1) == int(x2)) for edge1 in (line.split() for line in stdin.splitlines()[2:]) if line.strip() for edge2 in (line.split() for line in stdin.splitlines()[2:]) if line.strip() if edge1 != edge2))\",\n      \"description\": \"No multiple edges exist between the same pair of vertices (i.e., no duplicate edges in any direction).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'NO' or (stdout.strip() == 'YES' and all(line.strip() in stdout.splitlines()[1:] for line in (line for line in stdin.splitlines()[2:] if line.strip())))\",\n      \"description\": \"If the answer is 'NO', the output is exactly 'NO'. If the answer is 'YES', the output must start with 'YES' followed by exactly `m` lines, each describing a directed edge (either original directed edges or newly directed undirected edges).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'YES' and all(line.split()[0] == '1' for line in stdout.splitlines()[1:])\",\n      \"description\": \"If the answer is 'YES', all edges in the output must be directed (i.e., each line must start with '1' as the type indicator).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'YES' and not any((int(line.split()[1]) == int(line.split()[2]) for line in stdout.splitlines()[1:]))\",\n      \"description\": \"If the answer is 'YES', no self-loops exist in the output (i.e., `x_i != y_i` for all output edges).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout.strip() == 'YES' and not any((int(line1.split()[1]) == int(line2.split()[1]) and int(line1.split()[2]) == int(line2.split()[2])) or (int(line1.split()[1]) == int(line2.split()[2]) and int(line1.split()[2]) == int(line2.split()[1])) for i, line1 in enumerate(stdout.splitlines()[1:]) for line2 in stdout.splitlines()[1:][i+1:]))\",\n      \"description\": \"If the answer is 'YES', no multiple edges exist between the same pair of vertices in the output (i.e., no duplicate edges in any direction).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout.strip() == 'YES' and not any((int(line.split()[1]) == int(line.split()[2]) for line in stdout.splitlines()[1:]))\",\n      \"description\": \"If the answer is 'YES', the output graph has no self-loops (redundant with Q3 but emphasized for clarity).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"stdout.strip() == 'YES' and all((int(line.split()[0]) == 1 and (int(line.split()[1]) != int(line.split()[2]))) for line in stdout.splitlines()[1:])\",\n      \"description\": \"If the answer is 'YES', all output edges are directed (i.e., each line must be of the form 'x y' where `x != y`).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"stdout.strip() == 'YES' and not any((int(line1.split()[1]) == int(line2.split()[2]) and int(line1.split()[2]) == int(line2.split()[1])) for i, line1 in enumerate(stdout.splitlines()[1:]) for line2 in stdout.splitlines()[1:][i+1:])\",\n      \"description\": \"If the answer is 'YES', the output graph is acyclic (i.e., no directed cycles exist). This is implicitly checked by the correctness of the algorithm, but the output must satisfy this property.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1859,
+  "generated_tokens": 1468,
+  "hit_output_limit": false,
+  "generation_seconds": 68.867,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:43:45.192143+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_973",
+  "task_index": 602,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_test_973.json",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    iterator = iter(input_data)\n    \n    try:\n        n = int(next(iterator))\n        m = int(next(iterator))\n        k = int(next(iterator))\n    except StopIteration:\n        return\n\n    grid = []\n    for _ in range(n):\n        grid.append(next(iterator))\n\n    visited = [[False] * m for _ in range(n)]\n    component_pictures = {}\n    component_id = 0\n\n    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]\n\n    for r in range(n):\n        for c in range(m):\n            if grid[r][c] == '.' and not visited[r][c]:\n                q = deque()\n                q.append((r, c))\n                visited[r][c] = True\n                pictures = 0\n                \n                while q:\n                    cr, cc = q.popleft()\n                    \n                    for dr, dc in directions:\n                        nr, nc = cr + dr, cc + dc\n                        if 0 <= nr < n and 0 <= nc < m:\n                            if grid[nr][nc] == '*':\n                                pictures += 1\n                            elif grid[nr][nc] == '.' and not visited[nr][nc]:\n                                visited[nr][nc] = True\n                                q.append((nr, nc))\n                \n                component_id += 1\n                component_pictures[(r, c)] = pictures\n\n    results = []\n    for _ in range(k):\n        x = int(next(iterator))\n        y = int(next(iterator))\n        r, c = x - 1, y - 1\n        \n        if grid[r][c] == '.':\n            results.append(component_pictures.get((r, c), 0))\n        else:\n            results.append(0)\n\n    print('\\n'.join(map(str, results)))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 42.395,
+  "generated_at": "2026-09-25T08:46:17.853624+00:00"
+}

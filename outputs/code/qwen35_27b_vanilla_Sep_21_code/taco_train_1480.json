@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_1480",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T03:15:20.412169+00:00",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef findOrder(dict_words, N, K):\n    graph = defaultdict(list)\n    in_degree = {chr(ord('a') + i): 0 for i in range(K)}\n    \n    for i in range(len(dict_words) - 1):\n        w1, w2 = dict_words[i], dict_words[i+1]\n        min_len = min(len(w1), len(w2))\n        for j in range(min_len):\n            if w1[j] != w2[j]:\n                graph[w1[j]].append(w2[j])\n                break\n    \n    for node in graph:\n        for neighbor in graph[node]:\n            in_degree[neighbor] += 1\n            \n    queue = deque()\n    for char in in_degree:\n        if in_degree[char] == 0:\n            queue.append(char)\n            \n    result = []\n    while queue:\n        node = queue.popleft()\n        result.append(node)\n        for neighbor in graph[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n                \n    if len(result) < K:\n        return \"\"\n        \n    return \"\".join(result)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n        \n    iterator = iter(input_data)\n    try:\n        N = int(next(iterator))\n        K = int(next(iterator))\n        dict_words = []\n        for _ in range(N):\n            dict_words.append(next(iterator))\n    except StopIteration:\n        return\n        \n    result = findOrder(dict_words, N, K)\n    print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

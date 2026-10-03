@@ -1,0 +1,293 @@
+{
+  "task_id": "taco_train_2210",
+  "task_index": 422,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 10**5 for N, _, _ in test_cases)",
+        "description": "For each test case, the number of friends N is between 2 and 10^5 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N-1 <= M <= N*(N-1)/2 for _, M, _ in test_cases)",
+        "description": "For each test case, the number of roads M satisfies N-1 ≤ M ≤ N*(N-1)/2."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= K <= M for _, _, K in test_cases)",
+        "description": "For each test case, the road index K is between 1 and M inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= A <= N and 1 <= B <= N and A != B for A, B, _ in roads)",
+        "description": "For each road, A and B are distinct friends between 1 and N inclusive."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= C <= 10**9 for _, _, C in roads)",
+        "description": "For each road, the length C is between 1 and 10^9 inclusive."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(roads) == M for roads in test_cases)",
+        "description": "Each test case contains exactly M roads."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line) == 2 for output_line in output_lines)",
+        "description": "Each output line contains exactly two space-separated values."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(c.isdigit() or c == '.' for c in value) for line in output_lines for value in line.split())",
+        "description": "Each output value is a valid decimal number."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(value.split('.')[1]) == 5 for line in output_lines for value in line.split())",
+        "description": "Each output value is rounded to exactly 5 decimal places."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(0 <= distance_A <= 10**9 for line in output_lines for distance_A in [float(line.split()[0])])",
+        "description": "The first output value (distance from A) is non-negative and ≤ 10^9."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(0 <= max_dist <= 10**9 for line in output_lines for max_dist in [float(line.split()[1])])",
+        "description": "The second output value (max distance) is non-negative and ≤ 10^9."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(0 <= distance_A <= C for line, (A, B, C), _ in zip(output_lines, roads, test_cases) if K == 1)",
+        "description": "The distance from A to P is within the length of the K-th road (C)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(0 <= distance_A <= C for line, (A, B, C), K in zip(output_lines, roads, test_cases) if K == index + 1)",
+        "description": "The distance from A to P is within the length of the K-th road (C)."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(max_dist == max(dist(i) for i in range(1, N+1)) for line, (N, _, _), _ in zip(output_lines, test_cases, roads))",
+        "description": "The second output value is the maximum shortest distance from P to any friend."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(distance_A == min(distance_A_candidate for distance_A_candidate in possible_distances) for line, possible_distances in zip(output_lines, possible_distances_list))",
+        "description": "The first output value is the smallest possible distance from A to P among all optimal solutions."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 10**5 for N, _, _ in test_cases)",
+        "description": "For each test case, the number of friends N is between 2 and 10^5 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N-1 <= M <= N*(N-1)/2 for _, M, _ in test_cases)",
+        "description": "For each test case, the number of roads M satisfies N-1 ≤ M ≤ N*(N-1)/2."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= K <= M for _, _, K in test_cases)",
+        "description": "For each test case, the road index K is between 1 and M inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= A <= N and 1 <= B <= N and A != B for A, B, _ in roads)",
+        "description": "For each road, A and B are distinct friends between 1 and N inclusive."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= C <= 10**9 for _, _, C in roads)",
+        "description": "For each road, the length C is between 1 and 10^9 inclusive."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(roads) == M for roads in test_cases)",
+        "description": "Each test case contains exactly M roads."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line) == 2 for output_line in output_lines)",
+        "description": "Each output line contains exactly two space-separated values."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(c.isdigit() or c == '.' for c in value) for line in output_lines for value in line.split())",
+        "description": "Each output value is a valid decimal number."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(value.split('.')[1]) == 5 for line in output_lines for value in line.split())",
+        "description": "Each output value is rounded to exactly 5 decimal places."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(0 <= distance_A <= 10**9 for line in output_lines for distance_A in [float(line.split()[0])])",
+        "description": "The first output value (distance from A) is non-negative and ≤ 10^9."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(0 <= max_dist <= 10**9 for line in output_lines for max_dist in [float(line.split()[1])])",
+        "description": "The second output value (max distance) is non-negative and ≤ 10^9."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(0 <= distance_A <= C for line, (A, B, C), _ in zip(output_lines, roads, test_cases) if K == 1)",
+        "description": "The distance from A to P is within the length of the K-th road (C)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(0 <= distance_A <= C for line, (A, B, C), K in zip(output_lines, roads, test_cases) if K == index + 1)",
+        "description": "The distance from A to P is within the length of the K-th road (C)."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(max_dist == max(dist(i) for i in range(1, N+1)) for line, (N, _, _), _ in zip(output_lines, test_cases, roads))",
+        "description": "The second output value is the maximum shortest distance from P to any friend."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(distance_A == min(distance_A_candidate for distance_A_candidate in possible_distances) for line, possible_distances in zip(output_lines, possible_distances_list))",
+        "description": "The first output value is the smallest possible distance from A to P among all optimal solutions."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "1aa0eac8652845e2a75ad9ddcf803843ee2d7af1e1dd688dbdf2222fbeb91a82",
+  "selected_contract_fingerprint": "1aa0eac8652845e2a75ad9ddcf803843ee2d7af1e1dd688dbdf2222fbeb91a82",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_2210.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: issue[0] schema invalid: invalid location 'postconditions[9].expression'"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: issue[4] schema invalid: invalid location 'postconditions[9].expression'",
+      "semantic_audit: issue[0] schema invalid: invalid location 'postconditions[9].expression'"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: issue[0] schema invalid: invalid location 'postconditions[9].expression'"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: issue[4] schema invalid: invalid location 'postconditions[9].expression'",
+      "semantic_audit: issue[0] schema invalid: invalid location 'postconditions[9].expression'"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 39.389,
+  "processing_error": null,
+  "finished_at": "2026-09-04T12:28:20.993088+00:00"
+}

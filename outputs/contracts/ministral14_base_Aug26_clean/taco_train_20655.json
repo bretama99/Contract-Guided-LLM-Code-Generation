@@ -1,0 +1,72 @@
+{
+  "task_id": "taco_train_20655",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= n for x in stdin.split()[:3]) and len(stdin.split()) >= 3",
+        "description": "The first line contains three integers n, m, q where 1 ≤ n ≤ 2e5, 1 ≤ m ≤ 3e5, and 1 ≤ q ≤ 5e5."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[3:3+n]) == n and all(1 <= int(x) <= n for x in stdin.split()[3:3+n]) and len(set(stdin.split()[3:3+n])) == n",
+        "description": "The second line contains n distinct integers p_1, ..., p_n where each p_i is in [1, n]."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin.split()) >= 3 + n + m and all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in zip(stdin.split()[3+n::2], stdin.split()[4+n::2]))",
+        "description": "The next m lines describe edges (a_i, b_i) where 1 ≤ a_i, b_i ≤ n and a_i ≠ b_i, with no multi-edges."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 and (line.split()[0] == '1' or line.split()[0] == '2') for line in stdin.split()[3+n+m:].split('\\n') if line.strip())",
+        "description": "The next q lines are queries: type 1 v (1 ≤ v ≤ n) or type 2 i (1 ≤ i ≤ m), with no duplicate edge deletions."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in [str(p) for p in p_initial + [0]] for stdout_line in stdout.split() if stdout_line.strip())",
+        "description": "For each query of type 1, the output is a value p_u from the current p array (including 0) of a reachable vertex u from v in the current graph."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_line.strip() == '0' or (int(stdout_line.strip()) in p_initial and p_initial.index(int(stdout_line.strip())) in reachable_vertices)) for stdout_line, query in zip(stdout.split(), stdin.split()[3+n+m:].split('\\n')) if query.strip().startswith('1'))",
+        "description": "For each query 1 v, the output p_u is the maximum p value in the connected component of v (or 0 if all are 0), and p_u is set to 0 afterward."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout_line.strip() == '0' or (int(stdout_line.strip()) in p_initial and p_initial.index(int(stdout_line.strip())) in reachable_vertices)) for stdout_line, query in zip(stdout.split(), stdin.split()[3+n+m:].split('\\n')) if query.strip().startswith('1'))",
+        "description": "If all reachable vertices from v have p_u = 0, the output is 0 (no requirement on which vertex is chosen)."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= p_i <= n for p_i in p_current) and len(set(p_current)) <= n and sum(p_current) <= n * n",
+        "description": "At all times, p_current is a list of length n where each p_i is in [0, n] (initially distinct and in [1, n])."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= i <= m and (a_i, b_i) in edges_remaining for i in range(1, m+1))",
+        "description": "Edges_remaining is a set of undirected edges (a_i, b_i) where 1 ≤ i ≤ m, and only edges not deleted by type-2 queries remain."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdin.split()[:3]) and len(stdin.split()) >= 3\",\n      \"description\": \"The first line contains three integers n, m, q where 1 ≤ n ≤ 2e5, 1 ≤ m ≤ 3e5, and 1 ≤ q ≤ 5e5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()[3:3+n]) == n and all(1 <= int(x) <= n for x in stdin.split()[3:3+n]) and len(set(stdin.split()[3:3+n])) == n\",\n      \"description\": \"The second line contains n distinct integers p_1, ..., p_n where each p_i is in [1, n].\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(stdin.split()) >= 3 + n + m and all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in zip(stdin.split()[3+n::2], stdin.split()[4+n::2]))\",\n      \"description\": \"The next m lines describe edges (a_i, b_i) where 1 ≤ a_i, b_i ≤ n and a_i ≠ b_i, with no multi-edges.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 2 and (line.split()[0] == '1' or line.split()[0] == '2') for line in stdin.split()[3+n+m:].split('\\\\n') if line.strip())\",\n      \"description\": \"The next q lines are queries: type 1 v (1 ≤ v ≤ n) or type 2 i (1 ≤ i ≤ m), with no duplicate edge deletions.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in [str(p) for p in p_initial + [0]] for stdout_line in stdout.split() if stdout_line.strip())\",\n      \"description\": \"For each query of type 1, the output is a value p_u from the current p array (including 0) of a reachable vertex u from v in the current graph.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout_line.strip() == '0' or (int(stdout_line.strip()) in p_initial and p_initial.index(int(stdout_line.strip())) in reachable_vertices)) for stdout_line, query in zip(stdout.split(), stdin.split()[3+n+m:].split('\\\\n')) if query.strip().startswith('1'))\",\n      \"description\": \"For each query 1 v, the output p_u is the maximum p value in the connected component of v (or 0 if all are 0), and p_u is set to 0 afterward.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout_line.strip() == '0' or (int(stdout_line.strip()) in p_initial and p_initial.index(int(stdout_line.strip())) in reachable_vertices)) for stdout_line, query in zip(stdout.split(), stdin.split()[3+n+m:].split('\\\\n')) if query.strip().startswith('1'))\",\n      \"description\": \"If all reachable vertices from v have p_u = 0, the output is 0 (no requirement on which vertex is chosen).\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(1 <= p_i <= n for p_i in p_current) and len(set(p_current)) <= n and sum(p_current) <= n * n\",\n      \"description\": \"At all times, p_current is a list of length n where each p_i is in [0, n] (initially distinct and in [1, n]).\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(1 <= i <= m and (a_i, b_i) in edges_remaining for i in range(1, m+1))\",\n      \"description\": \"Edges_remaining is a set of undirected edges (a_i, b_i) where 1 ≤ i ≤ m, and only edges not deleted by type-2 queries remain.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1615,
+  "generated_tokens": 1022,
+  "hit_output_limit": false,
+  "generation_seconds": 54.462,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:53:47.468365+00:00"
+}

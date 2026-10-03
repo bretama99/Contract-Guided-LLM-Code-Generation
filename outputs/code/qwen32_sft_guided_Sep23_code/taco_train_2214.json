@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_2214",
+  "task_index": 218,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_2214.json",
+  "code": "import sys\nimport heapq\n\ndef find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, x, y):\n    rootX = find(parent, x)\n    rootY = find(parent, y)\n    if rootX != rootY:\n        if rank[rootX] > rank[rootY]:\n            parent[rootY] = rootX\n        elif rank[rootX] < rank[rootY]:\n            parent[rootX] = rootY\n        else:\n            parent[rootY] = rootX\n            rank[rootX] += 1\n\ndef kruskal(n, edges, skip_edge):\n    parent = list(range(n + 1))\n    rank = [0] * (n + 1)\n    mst_weight = 0\n    mst_edges = []\n    for weight, u, v in edges:\n        if (u, v) == skip_edge or (v, u) == skip_edge:\n            continue\n        if find(parent, u) != find(parent, v):\n            union(parent, rank, u, v)\n            mst_weight += weight\n            mst_edges.append((weight, u, v))\n    return mst_weight, mst_edges\n\ndef second_mst(n, edges, first_edge):\n    original_weight, _ = kruskal(n, edges, None)\n    max_energy = -1\n    for weight, u, v in edges:\n        if (u, w) == first_edge or (v, u) == first_edge:\n            continue\n        new_weight, _ = kruskal(n, edges, (u, v))\n        if new_weight == original_weight:\n            max_energy = max(max_energy, weight)\n    return max_energy\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nm = int(input[1])\nedges = []\nfor i in range(m):\n    a = int(input[3 * i + 2])\n    b = int(input[3 * i + 3])\n    e = int(input[3 * i + 4])\n    edges.append((e, a, b))\n\nedges.sort()\nfirst_edge = edges[0]\noriginal_weight, mst_edges = kruskal(n, edges, None)\n\nif len(mst_edges) == n - 1:\n    max_energy = second_mst(n, edges, first_edge)\nelse:\n    max_energy = first_edge[0]\n\nprint(max_energy)",
+  "generation_seconds": 46.733,
+  "generated_at": "2026-09-23T18:34:22.864425+00:00"
+}

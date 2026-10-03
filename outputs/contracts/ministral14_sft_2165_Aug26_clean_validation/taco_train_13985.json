@@ -1,0 +1,736 @@
+{
+  "task_id": "taco_train_13985",
+  "task_index": 849,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "isMatch",
+      "signature": "isMatch(s: str, p: str) -> bool"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz' or c in '?*' for c in s)",
+        "description": "Every character in input string s is a lowercase letter or a wildcard (none present in this task)"
+      },
+      {
+        "id": "P2",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz' or c in '?*' for c in p)",
+        "description": "Every character in pattern p is a lowercase letter, '?', or '*'"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(s) == len(p) or any(c == '*' for c in p)",
+        "description": "If pattern p has no '*', then its length must equal the length of s (for exact matching or '?' substitution)"
+      },
+      {
+        "id": "Q2",
+        "expression": "all(s[i] == p[i] or p[i] == '?' for i in range(len(s))) if len(s) == len(p) else False",
+        "description": "If pattern p has no '*', then every character in s must match the corresponding character in p (or be replaced by '?')"
+      },
+      {
+        "id": "Q3",
+        "expression": "any(all(s[i] == p[j] or p[j] == '?' for i in range(start, end)) and (start == 0 or p[start-1] == '*') and (end == len(s) or p[end] == '*') for start in range(len(s)+1) for end in range(start, len(s)+1) if all(p[i] == '*' or p[i] == s[i] or p[i] == '?' for i in range(len(p)) if i < start or i >= end))",
+        "description": "If pattern p contains '*', then there exists a way to split s into segments where each segment matches a contiguous subsequence of p (with '*' matching any sequence, including empty)"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "isMatch",
+      "signature": "isMatch(s: str, p: str) -> bool"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz' or c in '?*' for c in s)",
+        "description": "Every character in input string s is a lowercase letter or a wildcard (none present in this task)"
+      },
+      {
+        "id": "P2",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz' or c in '?*' for c in p)",
+        "description": "Every character in pattern p is a lowercase letter, '?', or '*'"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(s) == len(p) or any(c == '*' for c in p)",
+        "description": "If pattern p has no '*', then its length must equal the length of s (for exact matching or '?' substitution)"
+      },
+      {
+        "id": "Q2",
+        "expression": "all(s[i] == p[i] or p[i] == '?' for i in range(len(s))) if len(s) == len(p) else False",
+        "description": "If pattern p has no '*', then every character in s must match the corresponding character in p (or be replaced by '?')"
+      },
+      {
+        "id": "Q3",
+        "expression": "any(all(s[i] == p[j] or p[j] == '?' for i in range(start, end)) and (start == 0 or p[start-1] == '*') and (end == len(s) or p[end] == '*') for start in range(len(s)+1) for end in range(start, len(s)+1) if all(p[i] == '*' or p[i] == s[i] or p[i] == '?' for i in range(len(p)) if i < start or i >= end))",
+        "description": "If pattern p contains '*', then there exists a way to split s into segments where each segment matches a contiguous subsequence of p (with '*' matching any sequence, including empty)"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "9804f98532be7194d6bf204de7d1f5d28480f205190b136ac64a5a1790bae9b3",
+  "selected_contract_fingerprint": "9804f98532be7194d6bf204de7d1f5d28480f205190b136ac64a5a1790bae9b3",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_13985.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+      "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+      "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression is incomplete and incorrect. It only handles the case where `len(s) == len(p)` (ignoring `'*'`), but the task requires full wildcard matching semantics, including `'*'` and `?`. The expression does not account for `'*'` in `p` or the full input-output relation.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is overly restrictive and incorrect. It does not correctly model the semantics of `'*'` (e.g., it enforces `p[start-1] == '*'` and `p[end] == '*'` in a way that is not aligned with the task's requirements). The logic for splitting `s` into segments and matching against `p` is flawed and does not capture the full wildcard semantics. The expression also incorrectly assumes `p` can be split into contiguous subsequences without considering overlapping or nested `'*'` matches.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract lacks a postcondition that captures the full wildcard matching semantics for the entire input string. A correct expression should recursively or iteratively check all possible ways `p` can match `s` using `?` and `'*'` (including empty sequences for `'*'`).",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+      "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+      "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression is incomplete and incorrect. It only handles the case where `len(s) == len(p)` (ignoring `'*'`), but the task requires full wildcard matching semantics, including `'*'` and `?`. The expression does not account for `'*'` in `p` or the full input-output relation.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is overly restrictive and incorrect. It does not correctly model the semantics of `'*'` (e.g., it enforces `p[start-1] == '*'` and `p[end] == '*'` in a way that is not aligned with the task's requirements). The logic for splitting `s` into segments and matching against `p` is flawed and does not capture the full wildcard semantics. The expression also incorrectly assumes `p` can be split into contiguous subsequences without considering overlapping or nested `'*'` matches.",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract lacks a postcondition that captures the full wildcard matching semantics for the entire input string. A correct expression should recursively or iteratively check all possible ways `p` can match `s` using `?` and `'*'` (including empty sequences for `'*'`).",
+        "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression is logically flawed. It incorrectly allows `len(s) == len(p)` to hold even when `p` contains `'*'` (e.g., `s = 'a'`, `p = '*'`), and the `any(c == '*' for c in p)` condition is not sufficient to capture the full semantics of `'*'` matching. The expression should not mix length constraints with `'*'` presence checks.",
+          "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "len(s) == len(p) or any(c == '*' for c in p) or len(s) == 0",
+          "description": "If pattern p has no '*', then its length must equal the length of s (for exact matching or '?' substitution); otherwise, the pattern may contain '*' which can match any sequence (including empty)"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "d24bb958410283765dba5ac16bbe6da87a96069abd33e12e850105897e8e839a",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the requirement that the entire string must be matched. The condition `len(s) == len(p) or any(c == '*' for c in p) or len(s) == 0` is insufficient and incorrect for cases where `*` is present but the rest of the pattern does not align with the string.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the requirement that the entire string must be matched. The condition `len(s) == len(p) or any(c == '*' for c in p) or len(s) == 0` is insufficient and incorrect for cases where `*` is present but the rest of the pattern does not align with the string.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "The expression only handles the case where there are no `*` in the pattern and the lengths are equal, but it does not account for the full semantics of `?` and `*` when combined or when the pattern contains `*`.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression is overly complex and does not correctly model the recursive or dynamic programming approach required for wildcard matching. It fails to capture the full semantics of `*` matching any sequence (including empty) and the correct alignment of segments.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract lacks a unified expression that correctly captures the entire wildcard matching logic, including handling `?` and `*` in all combinations and ensuring the entire string is matched.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression does not correctly capture the requirement that the entire string must be matched. The condition `len(s) == len(p) or any(c == '*' for c in p) or len(s) == 0` is insufficient and incorrect for cases where `*` is present but the rest of the pattern does not align with the string.",
+          "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "len(s) == 0 and len(p) == 0 or (len(s) > 0 and len(p) > 0 and (p[0] == '*' or p[0] == '?' or p[0] == s[0]))",
+          "description": "The pattern p must either be empty only if s is empty, or the first characters of s and p must match (or p's first character is '?' or '*'), enabling recursive wildcard matching for the entire string."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "6845572812b8d0d3c8f762b45e92b6a6349c6efed555e9abbed335cdac14a41b",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce the entire string coverage or handle '*' correctly in all cases.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce the entire string coverage or handle '*' correctly in all cases.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "This expression only handles the case where there are no '*' in the pattern and the lengths of s and p are equal, which is insufficient for the full wildcard matching problem. It does not account for partial matches or '*' wildcards.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "This expression is overly complex and does not correctly model the recursive wildcard matching logic. It fails to capture the full semantics of '*' (matching any sequence, including empty) and does not enforce the entire string coverage requirement.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract lacks a postcondition that captures the full recursive wildcard matching logic, including handling '*' for any sequence (including empty) and ensuring the entire string is matched.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce the entire string coverage or handle '*' correctly in all cases.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "len(s) == 0 and len(p) == 0 or (len(s) > 0 and len(p) > 0 and (p[0] == '*' or p[0] == '?' or p[0] == s[0]))",
+            "description": "The pattern p must either be empty only if s is empty, or the first characters of s and p must match (or p's first character is '?' or '*'), enabling recursive wildcard matching for the entire string."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(s[i] == p[i] or p[i] == '?' for i in range(len(s))) if len(s) == len(p) else False",
+            "description": "If pattern p contains no '*', then every character in s must match the corresponding character in p (or be replaced by '?') and the lengths of s and p must be equal."
+          },
+          {
+            "id": "Q3",
+            "expression": "any(isMatch(s[start:end], p[j:]) for j in range(len(p)+1) for start in range(len(s)+1) for end in range(start, len(s)+1) if (j == 0 or p[j-1] == '*') and (j == len(p) or p[j] == '*'))",
+            "description": "If pattern p contains '*', then there exists a way to split s into segments where each segment matches a contiguous subsequence of p (with '*' matching any sequence, including empty), and the entire string s must be matched."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "51d6b75872ce5eabeb0f37b22e0de1a4cefc2a305f4523a61ec519c9f1fcd0d5",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce full string coverage or handle '*' semantics properly.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce full string coverage or handle '*' semantics properly.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "The expression is incomplete. It only handles the case where there are no '*' in the pattern and the lengths are equal, but it does not account for the full wildcard matching logic, including '*' and '?' in the pattern.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression is overly complex and incorrect. It does not correctly implement the wildcard matching logic for '*' and '?'. The recursive splitting logic is flawed and does not enforce full string coverage or handle '*' semantics properly.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the full recursive wildcard matching logic, including handling '*' and '?' correctly and ensuring the entire string is matched.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce full string coverage or handle '*' semantics properly.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "len(s) == 0 and len(p) == 0 or (len(s) > 0 and len(p) > 0 and (p[0] == s[0] or p[0] == '?' or p[0] == '*'))",
+            "description": "The pattern p must either be empty only if s is empty, or the first characters of s and p must match (or p's first character is '?' or '*'), enabling recursive wildcard matching for the entire string."
+          },
+          {
+            "id": "Q2",
+            "expression": "len(s) == len(p) and all(s[i] == p[i] or p[i] == '?' for i in range(len(s)))",
+            "description": "If pattern p contains no '*', then every character in s must match the corresponding character in p (or be replaced by '?') and the lengths of s and p must be equal."
+          },
+          {
+            "id": "Q3",
+            "expression": "any(isMatch(s[i:], p) for i in range(len(s) + 1)) if '*' in p else False",
+            "description": "If pattern p contains '*', then there exists a way to split s into segments where each segment matches a contiguous subsequence of p (with '*' matching any sequence, including empty), and the entire string s must be matched."
+          },
+          {
+            "id": "Q4",
+            "expression": "any(isMatch(s, p[j:]) for j in range(len(p) + 1) if j == 0 or p[j - 1] == '*')",
+            "description": "If pattern p contains '*', then there exists a way to split p into segments where each segment matches a contiguous subsequence of s (with '*' matching any sequence, including empty), and the entire pattern p must be matched."
+          },
+          {
+            "id": "Q5",
+            "expression": "len(s) == 0 and len(p) == 0 or (len(s) > 0 and len(p) > 0 and (p[0] == '*' or (p[0] == '?' or p[0] == s[0]) and isMatch(s[1:], p[1:])))",
+            "description": "The pattern p must match the entire string s recursively, where '?' matches any single character and '*' matches any sequence of characters (including empty)."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "3c236e452907af9118602a52303ea8815462a0172aae1155c03303503b10d650",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_audit_structured_output_unresolved",
+        "verification_model_calls": 2,
+        "checks": null,
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_failed",
+            "detail": "semantic_audit: audit keys must be exactly checks,issues"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the full recursive wildcard matching logic. It only checks the first character match and does not enforce full string coverage or handle '*' semantics properly.",
+            "task_evidence": "'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "len(s) == 0 and len(p) == 0 or (len(s) > 0 and len(p) > 0 and (p[0] == '*' or p[0] == '?' or p[0] == s[0]))",
+            "description": "The pattern p must either be empty only if s is empty, or the first characters of s and p must match (or p's first character is '?' or '*'), enabling recursive wildcard matching for the entire string."
+          },
+          {
+            "id": "Q2",
+            "expression": "len(s) == len(p) and all(s[i] == p[i] or p[i] == '?' for i in range(len(s)))",
+            "description": "If pattern p contains no '*', then every character in s must match the corresponding character in p (or be replaced by '?') and the lengths of s and p must be equal."
+          },
+          {
+            "id": "Q3",
+            "expression": "any(isMatch(s[i:], p) for i in range(len(s) + 1)) if '*' in p else False",
+            "description": "If pattern p contains '*', then there exists a way to split s into segments where each segment matches a contiguous subsequence of p (with '*' matching any sequence, including empty), and the entire string s must be matched."
+          },
+          {
+            "id": "Q4",
+            "expression": "any(isMatch(s, p[j:]) for j in range(len(p) + 1) if j == 0 or p[j - 1] == '*')",
+            "description": "If pattern p contains '*', then there exists a way to split p into segments where each segment matches a contiguous subsequence of s (with '*' matching any sequence, including empty), and the entire pattern p must be matched."
+          },
+          {
+            "id": "Q5",
+            "expression": "len(s) == 0 and len(p) == 0 or (len(s) > 0 and len(p) > 0 and (p[0] == '*' and isMatch(s, p[1:]) or (p[0] == '?' or p[0] == s[0]) and isMatch(s[1:], p[1:])))",
+            "description": "The pattern p must match the entire string s recursively, where '?' matches any single character and '*' matches any sequence of characters (including empty)."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "7cef6a4d6cf596d74f08f662d88ec6db6db02b6d1db401b746ace249b51cb523",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_audit_structured_output_unresolved",
+        "verification_model_calls": 2,
+        "checks": null,
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_failed",
+            "detail": "semantic_audit: audit keys must be exactly checks,issues"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 328.635,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:05:36.675245+00:00"
+}

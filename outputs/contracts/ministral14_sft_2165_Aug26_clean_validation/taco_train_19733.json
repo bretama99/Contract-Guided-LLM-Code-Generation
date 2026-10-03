@@ -1,0 +1,233 @@
+{
+  "task_id": "taco_train_19733",
+  "task_index": 47,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 5",
+        "description": "The number of test cases T is between 1 and 5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 5 * 10**5 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, N is the number of points and is between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 < c <= 10**9 for c in [int(line.split()[1]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, c is a positive integer between 1 and 1,000,000,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(abs(int(x)) <= 10**9 and abs(int(y)) <= 10**9 for line in stdin.splitlines() if line.strip() and not ' ' in line and line != '' and line != '1' and line != '2' and line != '3')",
+        "description": "For each point, the coordinates (x_i, y_i) satisfy |x_i| ≤ 10^9 and |y_i| ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdout.splitlines() if line.strip())",
+        "description": "Each line of output contains exactly two integers separated by a space."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.splitlines()[i].split()[0]) >= 1 and int(stdout.splitlines()[i].split()[0]) <= N for i in range(len(stdout.splitlines())))",
+        "description": "For each test case, the first output integer (number of checkpoints) is between 1 and N inclusive."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(stdout.splitlines()[i].split()[1]) >= 0 for i in range(len(stdout.splitlines())))",
+        "description": "For each test case, the second output integer (number of operations) is non-negative."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any((x_i - x_j) % c == 0 and (y_i - y_j) % c == 0 for j in range(N)) for i in range(N))",
+        "description": "For each test case, the solution ensures that all points can be moved to checkpoints by operations of adding or subtracting c from both coordinates, meaning (x_i - x_j) and (y_i - y_j) are multiples of c for some j."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(min_operations >= 0 for min_operations in [int(stdout.splitlines()[i].split()[1]) for i in range(len(stdout.splitlines()))])",
+        "description": "The number of operations is the minimal possible for the given number of checkpoints."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(min_checkpoints == len(set((x_i // c, y_i // c) for x_i, y_i in points)) for min_checkpoints, points in zip([int(line.split()[0]) for line in stdout.splitlines()], [parse_points(stdin) for stdin in split_input(stdin) if stdin]))",
+        "description": "The number of checkpoints is the minimal possible, which is the number of distinct (x_i // c, y_i // c) pairs after grouping points by their coordinates modulo c."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 5",
+        "description": "The number of test cases T is between 1 and 5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 5 * 10**5 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, N is the number of points and is between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 < c <= 10**9 for c in [int(line.split()[1]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, c is a positive integer between 1 and 1,000,000,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(abs(int(x)) <= 10**9 and abs(int(y)) <= 10**9 for line in stdin.splitlines() if line.strip() and not ' ' in line and line != '' and line != '1' and line != '2' and line != '3')",
+        "description": "For each point, the coordinates (x_i, y_i) satisfy |x_i| ≤ 10^9 and |y_i| ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdout.splitlines() if line.strip())",
+        "description": "Each line of output contains exactly two integers separated by a space."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.splitlines()[i].split()[0]) >= 1 and int(stdout.splitlines()[i].split()[0]) <= N for i in range(len(stdout.splitlines())))",
+        "description": "For each test case, the first output integer (number of checkpoints) is between 1 and N inclusive."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(stdout.splitlines()[i].split()[1]) >= 0 for i in range(len(stdout.splitlines())))",
+        "description": "For each test case, the second output integer (number of operations) is non-negative."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any((x_i - x_j) % c == 0 and (y_i - y_j) % c == 0 for j in range(N)) for i in range(N))",
+        "description": "For each test case, the solution ensures that all points can be moved to checkpoints by operations of adding or subtracting c from both coordinates, meaning (x_i - x_j) and (y_i - y_j) are multiples of c for some j."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(min_operations >= 0 for min_operations in [int(stdout.splitlines()[i].split()[1]) for i in range(len(stdout.splitlines()))])",
+        "description": "The number of operations is the minimal possible for the given number of checkpoints."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(min_checkpoints == len(set((x_i // c, y_i // c) for x_i, y_i in points)) for min_checkpoints, points in zip([int(line.split()[0]) for line in stdout.splitlines()], [parse_points(stdin) for stdin in split_input(stdin) if stdin]))",
+        "description": "The number of checkpoints is the minimal possible, which is the number of distinct (x_i // c, y_i // c) pairs after grouping points by their coordinates modulo c."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "4533ba4e987cdd53c3d3d635091b6dd5e871afdf8c2108378de1672f0a52cad9",
+  "selected_contract_fingerprint": "4533ba4e987cdd53c3d3d635091b6dd5e871afdf8c2108378de1672f0a52cad9",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_19733.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 63.96,
+  "processing_error": null,
+  "finished_at": "2026-09-03T23:48:13.807668+00:00"
+}

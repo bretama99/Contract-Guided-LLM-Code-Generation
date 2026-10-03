@@ -1,0 +1,91 @@
+{
+  "task_id": "taco_train_13993",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(n) <= 300 and 2 <= int(m) <= 300 for n, m in [line.split() for line in stdin.splitlines()[:1]])",
+        "description": "The input must contain exactly two integers n and m (2 ≤ n, m ≤ 300) representing the number of rows and columns of the table."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 2 * int(n) + 1 and all(len(line.split()) == int(m) for line in stdin.splitlines()[1:2*int(n)+1])",
+        "description": "The input must contain exactly n lines for the initial state and n lines for the final state, each line containing exactly m non-empty strings of '0's and '1's."
+      },
+      {
+        "id": "P3",
+        "expression": "all(all(cell != '' for cell in line.split()) for line in stdin.splitlines()[1:2*int(n)+1])",
+        "description": "Each cell in the initial and final states must be a non-empty string of '0's and '1's."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(len(cell) for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split()) == sum(len(cell) for line in stdin.splitlines()[2*int(n)+1:] for cell in line.split())",
+        "description": "The total number of characters (sum of lengths of all cell strings) in the initial state must equal that in the final state."
+      },
+      {
+        "id": "P5",
+        "expression": "sum(cell.count('0') for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split()) == sum(cell.count('0') for line in stdin.splitlines()[2*int(n)+1:] for cell in line.split()) and sum(cell.count('1') for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split()) == sum(cell.count('1') for line in stdin.splitlines()[2*int(n)+1:] for cell in line.split())",
+        "description": "The total number of '0's and '1's in the initial state must match those in the final state."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().splitlines()[0].isdigit() and 0 <= int(stdout.strip().splitlines()[0]) <= 4 * sum(len(cell) for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split())",
+        "description": "The first line of stdout must be a non-negative integer q (0 ≤ q ≤ 4s), where s is the total number of characters in the initial state."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.strip().splitlines()) == int(stdout.strip().splitlines()[0]) + 1",
+        "description": "The number of lines in stdout must equal q + 1 (the first line is q, followed by q operation lines)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(line.split()) == 4 for line in stdout.strip().splitlines()[1:])",
+        "description": "Each of the q operation lines must contain exactly four integers x1, y1, x2, y2."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= int(x1) <= int(n) and 1 <= int(y1) <= int(m) and 1 <= int(x2) <= int(n) and 1 <= int(y2) <= int(m) for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])",
+        "description": "For each operation, the coordinates (x1, y1) and (x2, y2) must be within the bounds of the table (1 ≤ x1, x2 ≤ n, 1 ≤ y1, y2 ≤ m)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((int(x1) != int(x2) or int(y1) != int(y2)) for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])",
+        "description": "For each operation, the cells (x1, y1) and (x2, y2) must be different."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((int(x1) == int(x2) or int(y1) == int(y2)) for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])",
+        "description": "For each operation, the cells (x1, y1) and (x2, y2) must be in the same row or the same column."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(len(get_cell(stdin.splitlines()[1:2*int(n)+1], int(x1)-1, int(y1)-1)) > 0 for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])",
+        "description": "For each operation, the cell (x1, y1) must have a non-empty string (i.e., the operation is valid)."
+      },
+      {
+        "id": "Q8",
+        "expression": "apply_operations(stdin.splitlines()[1:2*int(n)+1], stdout.strip().splitlines()[1:]) == stdin.splitlines()[2*int(n)+1:]",
+        "description": "The sequence of operations must transform the initial state into the final state, where apply_operations simulates the operations on the initial state and returns the resulting table."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(n) <= 300 and 2 <= int(m) <= 300 for n, m in [line.split() for line in stdin.splitlines()[:1]])\",\n      \"description\": \"The input must contain exactly two integers n and m (2 ≤ n, m ≤ 300) representing the number of rows and columns of the table.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 2 * int(n) + 1 and all(len(line.split()) == int(m) for line in stdin.splitlines()[1:2*int(n)+1])\",\n      \"description\": \"The input must contain exactly n lines for the initial state and n lines for the final state, each line containing exactly m non-empty strings of '0's and '1's.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(all(cell != '' for cell in line.split()) for line in stdin.splitlines()[1:2*int(n)+1])\",\n      \"description\": \"Each cell in the initial and final states must be a non-empty string of '0's and '1's.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"sum(len(cell) for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split()) == sum(len(cell) for line in stdin.splitlines()[2*int(n)+1:] for cell in line.split())\",\n      \"description\": \"The total number of characters (sum of lengths of all cell strings) in the initial state must equal that in the final state.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"sum(cell.count('0') for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split()) == sum(cell.count('0') for line in stdin.splitlines()[2*int(n)+1:] for cell in line.split()) and sum(cell.count('1') for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split()) == sum(cell.count('1') for line in stdin.splitlines()[2*int(n)+1:] for cell in line.split())\",\n      \"description\": \"The total number of '0's and '1's in the initial state must match those in the final state.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().splitlines()[0].isdigit() and 0 <= int(stdout.strip().splitlines()[0]) <= 4 * sum(len(cell) for line in stdin.splitlines()[1:2*int(n)+1] for cell in line.split())\",\n      \"description\": \"The first line of stdout must be a non-negative integer q (0 ≤ q ≤ 4s), where s is the total number of characters in the initial state.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.strip().splitlines()) == int(stdout.strip().splitlines()[0]) + 1\",\n      \"description\": \"The number of lines in stdout must equal q + 1 (the first line is q, followed by q operation lines).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(line.split()) == 4 for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"Each of the q operation lines must contain exactly four integers x1, y1, x2, y2.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= int(x1) <= int(n) and 1 <= int(y1) <= int(m) and 1 <= int(x2) <= int(n) and 1 <= int(y2) <= int(m) for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])\",\n      \"description\": \"For each operation, the coordinates (x1, y1) and (x2, y2) must be within the bounds of the table (1 ≤ x1, x2 ≤ n, 1 ≤ y1, y2 ≤ m).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((int(x1) != int(x2) or int(y1) != int(y2)) for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])\",\n      \"description\": \"For each operation, the cells (x1, y1) and (x2, y2) must be different.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all((int(x1) == int(x2) or int(y1) == int(y2)) for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])\",\n      \"description\": \"For each operation, the cells (x1, y1) and (x2, y2) must be in the same row or the same column.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(len(get_cell(stdin.splitlines()[1:2*int(n)+1], int(x1)-1, int(y1)-1)) > 0 for line in stdout.strip().splitlines()[1:] for x1, y1, x2, y2 in [line.split()])\",\n      \"description\": \"For each operation, the cell (x1, y1) must have a non-empty string (i.e., the operation is valid).\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"apply_operations(stdin.splitlines()[1:2*int(n)+1], stdout.strip().splitlines()[1:]) == stdin.splitlines()[2*int(n)+1:]\",\n      \"description\": \"The sequence of operations must transform the initial state into the final state, where apply_operations simulates the operations on the initial state and returns the resulting table.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2397,
+  "generated_tokens": 1415,
+  "hit_output_limit": false,
+  "generation_seconds": 67.9,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:14:49.579036+00:00"
+}

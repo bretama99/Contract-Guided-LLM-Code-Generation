@@ -1,0 +1,907 @@
+{
+  "task_id": "taco_train_10043",
+  "task_index": 622,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 10",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 10) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(6 <= int(line.split()[0]) <= 1000 for line in stdin.splitlines()[1::2])",
+        "description": "For each test case, the first line after T is an integer N (6 ≤ N ≤ 1000) representing the number of integers on the blackboard."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == N for line, N in zip(stdin.splitlines()[2::2], [int(line.split()[0]) for line in stdin.splitlines()[1::2]]))",
+        "description": "For each test case, the second line contains exactly N space-separated integers (0 ≤ A_i ≤ 10^9) representing the numbers on the blackboard."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 2 * T for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "For each test case, the output consists of exactly two lines: the first line is M (0 ≤ M ≤ 11111), and the next M lines are the operations."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(output_lines[0]) <= 11111 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "For each test case, M is the number of operations (0 ≤ M ≤ 11111)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(output_lines) == int(output_lines[0]) + 1 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "For each test case, the number of operation lines matches M."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(0 <= int(num) <= 10**9 for num in line.split()) for line in stdout.splitlines()[1::2])",
+        "description": "Each operation line contains three integers A, B, and C (0 ≤ A, B, C ≤ 10^9) that are present on the blackboard at the time of the operation."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all(int(num) in current_board for num in line.split()) for line, current_board in zip(stdout.splitlines()[1::2], [parse_board(stdin, test_case_idx) for test_case_idx in range(T)]))",
+        "description": "Each operation's A, B, and C must be present on the blackboard at the time of the operation, where the board evolves according to the operations."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(int(num) == 0 for num in parse_board(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+        "description": "After performing all operations for each test case, all numbers on the blackboard are 0."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 10",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 10) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(6 <= int(line.split()[0]) <= 1000 for line in stdin.splitlines()[1::2])",
+        "description": "For each test case, the first line after T is an integer N (6 ≤ N ≤ 1000) representing the number of integers on the blackboard."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == N for line, N in zip(stdin.splitlines()[2::2], [int(line.split()[0]) for line in stdin.splitlines()[1::2]]))",
+        "description": "For each test case, the second line contains exactly N space-separated integers (0 ≤ A_i ≤ 10^9) representing the numbers on the blackboard."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 2 * T for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "For each test case, the output consists of exactly two lines: the first line is M (0 ≤ M ≤ 11111), and the next M lines are the operations."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(output_lines[0]) <= 11111 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "For each test case, M is the number of operations (0 ≤ M ≤ 11111)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(output_lines) == int(output_lines[0]) + 1 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "For each test case, the number of operation lines matches M."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(0 <= int(num) <= 10**9 for num in line.split()) for line in stdout.splitlines()[1::2])",
+        "description": "Each operation line contains three integers A, B, and C (0 ≤ A, B, C ≤ 10^9) that are present on the blackboard at the time of the operation."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all(int(num) in current_board for num in line.split()) for line, current_board in zip(stdout.splitlines()[1::2], [parse_board(stdin, test_case_idx) for test_case_idx in range(T)]))",
+        "description": "Each operation's A, B, and C must be present on the blackboard at the time of the operation, where the board evolves according to the operations."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(int(num) == 0 for num in parse_board(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+        "description": "After performing all operations for each test case, all numbers on the blackboard are 0."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "37fd44136c37244ebb492b5f59f3b46f7515c7c812ff7260a8cee94ddc0f474c",
+  "selected_contract_fingerprint": "37fd44136c37244ebb492b5f59f3b46f7515c7c812ff7260a8cee94ddc0f474c",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_10043.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+      "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+      "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+        "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+        "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+        "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence of operations is **valid** (i.e., each operation's A, B, C must be present on the blackboard **at the time of the operation**, considering the evolving state after each operation). The current Q5 incorrectly assumes a static board state (parse_board(stdin, test_case_idx)) instead of tracking the board's state dynamically after each operation.",
+        "task_evidence": "Each operation line contains 3 space-separated integers A, B, and C (A, B, C should be present on the blackboard at the time of operation).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the **number of operations M is sufficient to reduce the board to all zeros** (i.e., the operations must be **constructively valid** and not just a placeholder). The current Q6 does not verify that the operations are the correct sequence to achieve the goal.",
+        "task_evidence": "It is guaranteed that all the numbers on the blackboard can be made 0 under the given constraints.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+      "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+      "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+        "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+        "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+        "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence of operations is **valid** (i.e., each operation's A, B, C must be present on the blackboard **at the time of the operation**, considering the evolving state after each operation). The current Q5 incorrectly assumes a static board state (parse_board(stdin, test_case_idx)) instead of tracking the board's state dynamically after each operation.",
+        "task_evidence": "Each operation line contains 3 space-separated integers A, B, and C (A, B, C should be present on the blackboard at the time of operation).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the **number of operations M is sufficient to reduce the board to all zeros** (i.e., the operations must be **constructively valid** and not just a placeholder). The current Q6 does not verify that the operations are the correct sequence to achieve the goal.",
+        "task_evidence": "It is guaranteed that all the numbers on the blackboard can be made 0 under the given constraints.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the operations transform the blackboard state to all zeros **using the allowed operation** (i.e., replacing A, B, C with A⊕B, B⊕C, C⊕A). The current Q6 does not enforce the operation's correctness; it only checks the final state without validating the operation's validity.",
+          "task_evidence": "Your task is to make all the numbers written on the blackboard equal to 0 using at most 11111 operations. In one operation, Chef can: Choose any 3 integers A, B, and C written on the blackboard. Erase them from the blackboard. Write A⊕B, B⊕C, and C⊕A on the blackboard.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q7",
+          "expression": "all(all(len(parse_board(stdin, test_case_idx, operations[:i])) == len(parse_board(stdin, test_case_idx, operations[:i-1])) - 3 + 3 for i in range(1, len(operations)+1)) and all(all(int(num) in parse_board(stdin, test_case_idx, operations[:i-1]) for num in line.split()) and all(int(num) == (int(a) ^ int(b)) or int(num) == (int(b) ^ int(c)) or int(num) == (int(c) ^ int(a)) for num in parse_board(stdin, test_case_idx, operations[:i])[parse_board(stdin, test_case_idx, operations[:i-1]).index(int(line.split()[0])):parse_board(stdin, test_case_idx, operations[:i-1]).index(int(line.split()[0]))+3]) for i, line in enumerate(operations, 1)) and all(int(num) == 0 for num in parse_board(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+          "description": "For each test case, every operation must correctly replace three numbers A, B, C on the blackboard with A⊕B, B⊕C, and C⊕A, and the final state must be all zeros."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "c4c079ae56c3c31e55b42b04131002b6f78e38f3938a3bccd997c30e06463b9b",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is overly complex and incorrect. It does not correctly model the evolving state of the blackboard after each operation, nor does it correctly verify the XOR replacement logic or the final state. The expression should be split into smaller, verifiable parts: (1) the board size remains constant after each operation, (2) the three chosen numbers are present at the time of the operation, (3) the replacement is done correctly (A⊕B, B⊕C, C⊕A), and (4) the final state is all zeros.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression for Q5 is incorrect because it does not account for the evolving state of the blackboard after each operation. The current_board should be updated dynamically after each operation, not just initialized once per test case.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is overly complex and incorrect. It does not correctly model the evolving state of the blackboard after each operation, nor does it correctly verify the XOR replacement logic or the final state. The expression should be split into smaller, verifiable parts: (1) the board size remains constant after each operation, (2) the three chosen numbers are present at the time of the operation, (3) the replacement is done correctly (A⊕B, B⊕C, C⊕A), and (4) the final state is all zeros.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the operations do not exceed the limit of 11111 operations per test case.",
+            "task_evidence": "using at most 11111 operations",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression for Q5 is incorrect because it does not verify that the numbers A, B, and C are present on the blackboard at the time of the operation. The current_board should be updated after each operation, and the check should be performed on the board state immediately before the operation.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is incorrect because it does not correctly verify the XOR replacement logic. The expression should ensure that the three numbers A, B, and C are replaced by A⊕B, B⊕C, and C⊕A, and that the final state of the board is all zeros.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[5].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[5].expression",
+          "action": "replace",
+          "instruction": "The expression for Q6 is overly complex and incorrect. It does not correctly model the evolving state of the blackboard after each operation, nor does it correctly verify the XOR replacement logic or the final state. The expression should be split into smaller, verifiable parts: (1) the board size remains constant after each operation, (2) the three chosen numbers are present at the time of the operation, (3) the replacement is done correctly (A⊕B, B⊕C, C⊕A), and (4) the final state is all zeros.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(all(int(num) == 0 for num in parse_board(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+          "description": "After performing all operations for each test case, all numbers on the blackboard are 0."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "c4c079ae56c3c31e55b42b04131002b6f78e38f3938a3bccd997c30e06463b9b",
+        "verification_status": null,
+        "decision_reason": "duplicate_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is overly complex and incorrect. It does not correctly model the evolving state of the blackboard after each operation, nor does it correctly verify the XOR replacement logic or the final state. The expression should be split into smaller, verifiable parts: (1) the board size remains constant after each operation, (2) the three chosen numbers are present at the time of the operation, (3) the replacement is done correctly (A⊕B, B⊕C, C⊕A), and (4) the final state is all zeros.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output_lines) == 2 * T for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, the output consists of exactly two lines: the first line is M (0 ≤ M ≤ 11111), and the next M lines are the operations."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(0 <= int(output_lines[0]) <= 11111 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, M is the number of operations (0 ≤ M ≤ 11111)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(len(output_lines) == int(output_lines[0]) + 1 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, the number of operation lines matches M."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(all(0 <= int(num) <= 10**9 for num in line.split()) for line in stdout.splitlines()[1::2])",
+            "description": "Each operation line contains three integers A, B, and C (0 ≤ A, B, C ≤ 10^9)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(all(int(num) in current_board for num in line.split()) for line, current_board in zip(stdout.splitlines()[1::2], [get_board_state(stdin, test_case_idx, operations[:i]) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]) for i, line in enumerate(operations)]))",
+            "description": "Each operation's A, B, and C must be present on the blackboard at the time of the operation."
+          },
+          {
+            "id": "Q6",
+            "expression": "all(len(get_board_state(stdin, test_case_idx, operations)) == len(get_board_state(stdin, test_case_idx, [])) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+            "description": "The number of elements on the blackboard remains constant after each operation."
+          },
+          {
+            "id": "Q7",
+            "expression": "all(all((int(a) ^ int(b)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(b) ^ int(c)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(c) ^ int(a)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(a) ^ int(b)) != int(c) ^ int(a) and (int(b) ^ int(c)) != int(c) ^ int(a) for a, b, c in [tuple(map(int, line.split())) for line in operations[:i]]) for i, test_case_idx in enumerate(range(T)))",
+            "description": "For each operation, the three chosen numbers A, B, and C are replaced by A⊕B, B⊕C, and C⊕A."
+          },
+          {
+            "id": "Q8",
+            "expression": "all(all(int(num) == 0 for num in get_board_state(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+            "description": "After performing all operations for each test case, all numbers on the blackboard are 0."
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": "02546329d07ddf819065d1856330d6c49273ec1d62c3fb0f6c0138ce1f4bdf12",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for verifying the replacement of A, B, C with A⊕B, B⊕C, and C⊕A. The current expression is incorrect and does not properly enforce the replacement rule.",
+            "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for verifying the replacement of A, B, C with A⊕B, B⊕C, and C⊕A. The current expression is incorrect and does not properly enforce the replacement rule.",
+            "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the total number of operations across all test cases does not exceed 11111.",
+            "task_evidence": "using at most 11111 operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[7].expression",
+            "action": "replace",
+            "instruction": "Fix the expression to correctly verify that all numbers on the blackboard are 0 after all operations for each test case. The current expression does not properly account for the state after all operations.",
+            "task_evidence": "make all the numbers written on the blackboard equal to 0",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[6].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for verifying the replacement of A, B, C with A⊕B, B⊕C, and C⊕A. The current expression is incorrect and does not properly enforce the replacement rule.",
+            "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output_lines) == 2 * T for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, the output consists of exactly two lines: the first line is M (0 ≤ M ≤ 11111), and the next M lines are the operations."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(0 <= int(output_lines[0]) <= 11111 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, M is the number of operations (0 ≤ M ≤ 11111)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(len(output_lines) == int(output_lines[0]) + 1 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, the number of operation lines matches M."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(all(0 <= int(num) <= 10**9 for num in line.split()) for line in stdout.splitlines()[1::2])",
+            "description": "Each operation line contains three integers A, B, and C (0 ≤ A, B, C ≤ 10^9)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(all(int(num) in get_board_state(stdin, test_case_idx, operations[:i]) for num in line.split()) for i, (test_case_idx, operations) in enumerate(zip(range(T), [stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)])) for i, line in enumerate(operations))",
+            "description": "Each operation's A, B, and C must be present on the blackboard at the time of the operation."
+          },
+          {
+            "id": "Q6",
+            "expression": "all(len(get_board_state(stdin, test_case_idx, operations)) == len(get_board_state(stdin, test_case_idx, [])) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+            "description": "The number of elements on the blackboard remains constant after each operation."
+          },
+          {
+            "id": "Q7",
+            "expression": "all(all((int(a) ^ int(b)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(b) ^ int(c)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(c) ^ int(a)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and not (int(a) ^ int(b) in get_board_state(stdin, test_case_idx, operations[:i]) and int(b) ^ int(c) in get_board_state(stdin, test_case_idx, operations[:i]) and int(c) ^ int(a) in get_board_state(stdin, test_case_idx, operations[:i])) for a, b, c in [tuple(map(int, line.split())) for line in operations[:i]]) for i, test_case_idx in enumerate(range(T)))",
+            "description": "For each operation, the three chosen numbers A, B, and C are erased and replaced by A⊕B, B⊕C, and C⊕A."
+          },
+          {
+            "id": "Q8",
+            "expression": "all(all(int(num) == 0 for num in get_board_state(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+            "description": "After performing all operations for each test case, all numbers on the blackboard are 0."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "4bfb7d038177b5c92e3602477a435d754d02ec88a2730dafd376e12d85510ca4",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the total number of operations across all test cases does not exceed 11111 (as per the task's constraint).",
+            "task_evidence": "using at most 11111 operations",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the operations are performed in a way that guarantees all numbers on the blackboard can be made 0 (as per the task's guarantee).",
+            "task_evidence": "It is guaranteed that all the numbers on the blackboard can be made 0 under the given constraints.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[7].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly verify that the final state of the blackboard for each test case is all zeros, accounting for the fact that operations are applied sequentially and the board state evolves.",
+            "task_evidence": "make all the numbers written on the blackboard equal to 0",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly verify that the three chosen numbers A, B, and C are replaced by A⊕B, B⊕C, and C⊕A in the next state of the board, not just their presence.",
+            "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly verify that the number of elements on the blackboard remains constant (N) after each operation, not just the initial and final counts.",
+            "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[6].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 5
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for verifying the replacement of A, B, C with A⊕B, B⊕C, and C⊕A. The current expression is incorrect and does not properly enforce the replacement rule.",
+            "task_evidence": "Erase them from the blackboard. Write A ⊕ B, B ⊕ C, and C ⊕ A on the blackboard.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output_lines) == 2 * T for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, the output consists of exactly two lines: the first line is M (0 ≤ M ≤ 11111), and the next M lines are the operations."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(0 <= int(output_lines[0]) <= 11111 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, M is the number of operations (0 ≤ M ≤ 11111)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(len(output_lines) == int(output_lines[0]) + 1 for output_lines in [stdout.splitlines()[i:i+2] for i in range(0, len(stdout.splitlines()), 2)])",
+            "description": "For each test case, the number of operation lines matches M."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(all(0 <= int(num) <= 10**9 for num in line.split()) for line in stdout.splitlines()[1::2])",
+            "description": "Each operation line contains three integers A, B, and C (0 ≤ A, B, C ≤ 10^9)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(all(int(num) in get_board_state(stdin, test_case_idx, operations[:i]) for num in line.split()) for i, (test_case_idx, operations) in enumerate(zip(range(T), [stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)])) for i, line in enumerate(operations))",
+            "description": "Each operation's A, B, and C must be present on the blackboard at the time of the operation."
+          },
+          {
+            "id": "Q6",
+            "expression": "all(len(get_board_state(stdin, test_case_idx, operations)) == len(get_board_state(stdin, test_case_idx, [])) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+            "description": "The number of elements on the blackboard remains constant (N) after each operation."
+          },
+          {
+            "id": "Q7",
+            "expression": "all(all((int(a) ^ int(b)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(b) ^ int(c)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and (int(c) ^ int(a)) in get_board_state(stdin, test_case_idx, operations[:i+1]) and int(a) not in get_board_state(stdin, test_case_idx, operations[:i+1]) and int(b) not in get_board_state(stdin, test_case_idx, operations[:i+1]) and int(c) not in get_board_state(stdin, test_case_idx, operations[:i+1]) for a, b, c in [tuple(map(int, line.split())) for line in operations[:i]]) for i, test_case_idx in enumerate(range(T)))",
+            "description": "For each operation, the three chosen numbers A, B, and C are erased and replaced by A⊕B, B⊕C, and C⊕A."
+          },
+          {
+            "id": "Q8",
+            "expression": "all(all(int(num) == 0 for num in get_board_state(stdin, test_case_idx, operations)) for test_case_idx, operations in enumerate([stdout.splitlines()[i+1:i+1+int(stdout.splitlines()[i])] for i in range(0, len(stdout.splitlines()), 2)]))",
+            "description": "After performing all operations for each test case, all numbers on the blackboard are 0."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "47a90cb685667521a37192a6e856bc19949169bec975df566fc54b19fac587f9",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the total number of operations across all test cases does not exceed 11111 (as per the task's constraint).",
+            "task_evidence": "using at most 11111 operations",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[7].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly verify that the total number of operations across all test cases does not exceed 11111. The current expression does not enforce this constraint.",
+            "task_evidence": "using at most 11111 operations",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the operations are performed in a way that guarantees all numbers on the blackboard can be made 0 (as per the task's guarantee). The current contract does not explicitly verify this logical correctness.",
+            "task_evidence": "It is guaranteed that all the numbers on the blackboard can be made 0 under the given constraints.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 339.903,
+  "processing_error": null,
+  "finished_at": "2026-09-04T02:36:11.584120+00:00"
+}

@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_16086",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "maxCandies",
+      "signature": "def maxCandies(status: List[int], candies: List[int], keys: List[List[int]], containedBoxes: List[List[int]], initialBoxes: List[int]) -> int:"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(status) == len(candies) == len(keys) == len(containedBoxes) and 1 <= len(status) <= 1000",
+        "description": "All input lists have the same length, and the length is between 1 and 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(status[i] in {0, 1} for i in range(len(status)))",
+        "description": "Each status[i] is either 0 (closed) or 1 (open)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= candies[i] <= 1000 for i in range(len(candies)))",
+        "description": "Each candies[i] is between 1 and 1000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= len(keys[i]) <= len(status) and all(0 <= keys[i][j] < len(status) for j in range(len(keys[i]))) and len(set(keys[i])) == len(keys[i]) for i in range(len(keys)))",
+        "description": "Each keys[i] contains unique indices of boxes, and all indices are within bounds."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= len(containedBoxes[i]) <= len(status) and all(0 <= containedBoxes[i][j] < len(status) for j in range(len(containedBoxes[i]))) and len(set(containedBoxes[i])) == len(containedBoxes[i]) for i in range(len(containedBoxes)))",
+        "description": "Each containedBoxes[i] contains unique indices of boxes, and all indices are within bounds."
+      },
+      {
+        "id": "P6",
+        "expression": "all(0 <= initialBoxes[i] < len(status) for i in range(len(initialBoxes)))",
+        "description": "All indices in initialBoxes are within bounds."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == sum(candies[i] for i in range(len(status)) if i in accessible_boxes)",
+        "description": "The returned value is the sum of candies in all accessible boxes, where accessible_boxes is the set of all boxes that can be opened starting from initialBoxes."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(i in accessible_boxes or status[i] == 0 for i in range(len(status)))",
+        "description": "A box is either accessible or closed (status[i] == 0)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(i in accessible_boxes for i in initialBoxes)",
+        "description": "All boxes in initialBoxes are accessible."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(i in accessible_boxes for i in containedBoxes[j] if j in accessible_boxes)",
+        "description": "If a box j is accessible, all boxes contained in j are also accessible."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(i in accessible_boxes for i in keys[j] if j in accessible_boxes and status[i] == 0)",
+        "description": "If a box j is accessible and contains a key for box i, then box i is accessible (if it was closed)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"maxCandies\",\n    \"signature\": \"def maxCandies(status: List[int], candies: List[int], keys: List[List[int]], containedBoxes: List[List[int]], initialBoxes: List[int]) -> int:\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(status) == len(candies) == len(keys) == len(containedBoxes) and 1 <= len(status) <= 1000\",\n      \"description\": \"All input lists have the same length, and the length is between 1 and 1000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(status[i] in {0, 1} for i in range(len(status)))\",\n      \"description\": \"Each status[i] is either 0 (closed) or 1 (open).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= candies[i] <= 1000 for i in range(len(candies)))\",\n      \"description\": \"Each candies[i] is between 1 and 1000.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= len(keys[i]) <= len(status) and all(0 <= keys[i][j] < len(status) for j in range(len(keys[i]))) and len(set(keys[i])) == len(keys[i]) for i in range(len(keys)))\",\n      \"description\": \"Each keys[i] contains unique indices of boxes, and all indices are within bounds.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(0 <= len(containedBoxes[i]) <= len(status) and all(0 <= containedBoxes[i][j] < len(status) for j in range(len(containedBoxes[i]))) and len(set(containedBoxes[i])) == len(containedBoxes[i]) for i in range(len(containedBoxes)))\",\n      \"description\": \"Each containedBoxes[i] contains unique indices of boxes, and all indices are within bounds.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(0 <= initialBoxes[i] < len(status) for i in range(len(initialBoxes)))\",\n      \"description\": \"All indices in initialBoxes are within bounds.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == sum(candies[i] for i in range(len(status)) if i in accessible_boxes)\",\n      \"description\": \"The returned value is the sum of candies in all accessible boxes, where accessible_boxes is the set of all boxes that can be opened starting from initialBoxes.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(i in accessible_boxes or status[i] == 0 for i in range(len(status)))\",\n      \"description\": \"A box is either accessible or closed (status[i] == 0).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(i in accessible_boxes for i in initialBoxes)\",\n      \"description\": \"All boxes in initialBoxes are accessible.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(i in accessible_boxes for i in containedBoxes[j] if j in accessible_boxes)\",\n      \"description\": \"If a box j is accessible, all boxes contained in j are also accessible.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(i in accessible_boxes for i in keys[j] if j in accessible_boxes and status[i] == 0)\",\n      \"description\": \"If a box j is accessible and contains a key for box i, then box i is accessible (if it was closed).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1859,
+  "generated_tokens": 878,
+  "hit_output_limit": false,
+  "generation_seconds": 38.509,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:36:11.021379+00:00"
+}

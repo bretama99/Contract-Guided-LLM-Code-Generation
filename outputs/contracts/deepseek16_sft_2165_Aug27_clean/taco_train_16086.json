@@ -1,0 +1,116 @@
+{
+  "task_id": "taco_train_16086",
+  "model": "deepseek16-sft-2165-Aug27-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "maxCandies",
+      "signature": "maxCandies(status, candies, keys, containedBoxes, initialBoxes) -> int"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(status) == len(candies) == len(keys) == len(containedBoxes)",
+        "description": "The lengths of status, candies, keys, and containedBoxes are all equal."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= i < len(status) for i in initialBoxes)",
+        "description": "All initialBoxes indices are within the range of status."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= i < len(status) for j in keys[i] for i in range(len(keys)))",
+        "description": "All keys are within the range of status."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= i < len(status) for j in containedBoxes[i] for i in range(len(containedBoxes)))",
+        "description": "All containedBoxes are within the range of status."
+      },
+      {
+        "id": "P5",
+        "expression": "all(status[i] == 0 or status[i] == 1 for i in range(len(status)))",
+        "description": "All status values are either 0 or 1."
+      },
+      {
+        "id": "P6",
+        "expression": "all(0 <= candies[i] <= 1000 for i in range(len(candies)))",
+        "description": "All candies values are between 0 and 1000."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(keys[i]) <= len(status) for i in range(len(keys)))",
+        "description": "The number of keys in each box does not exceed the number of boxes."
+      },
+      {
+        "id": "P8",
+        "expression": "all(len(containedBoxes[i]) <= len(status) for i in range(len(containedBoxes)))",
+        "description": "The number of contained boxes in each box does not exceed the number of boxes."
+      },
+      {
+        "id": "P9",
+        "expression": "all(keys[i][j] != i for i in range(len(keys)) for j in range(len(keys[i])))",
+        "description": "Keys do not point to the box they are in."
+      },
+      {
+        "id": "P10",
+        "expression": "all(containedBoxes[i][j] != i for i in range(len(containedBoxes)) for j in range(len(containedBoxes[i])))",
+        "description": "Contained boxes do not include the box they are in."
+      },
+      {
+        "id": "P11",
+        "expression": "all(status[i] == 1 or keys[i] for i in range(len(status)))",
+        "description": "All boxes are either open or contain keys."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == sum(candies[i] for i in range(len(status)) if status[i] == 1 or i in open_boxes)",
+        "description": "The total number of candies collected is the sum of candies in open boxes and boxes with initial access."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "open_boxes == {i for i in range(len(status)) if status[i] == 1}",
+        "description": "The set of open boxes is the set of boxes with status 1."
+      },
+      {
+        "id": "I2",
+        "expression": "available_keys == set().union(*(keys[i] for i in open_boxes))",
+        "description": "The set of available keys is the union of keys from all open boxes."
+      },
+      {
+        "id": "I3",
+        "expression": "available_boxes == set().union(*(containedBoxes[i] for i in open_boxes))",
+        "description": "The set of available boxes is the union of contained boxes from all open boxes."
+      },
+      {
+        "id": "I4",
+        "expression": "open_boxes.issubset(set(range(len(status))))",
+        "description": "The set of open boxes is a subset of the range of status."
+      },
+      {
+        "id": "I5",
+        "expression": "available_keys.issubset(set(range(len(status))))",
+        "description": "The set of available keys is a subset of the range of status."
+      },
+      {
+        "id": "I6",
+        "expression": "available_boxes.issubset(set(range(len(status))))",
+        "description": "The set of available boxes is a subset of the range of status."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"maxCandies\",\n    \"signature\": \"maxCandies(status, candies, keys, containedBoxes, initialBoxes) -> int\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(status) == len(candies) == len(keys) == len(containedBoxes)\",\n      \"description\": \"The lengths of status, candies, keys, and containedBoxes are all equal.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= i < len(status) for i in initialBoxes)\",\n      \"description\": \"All initialBoxes indices are within the range of status.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= i < len(status) for j in keys[i] for i in range(len(keys)))\",\n      \"description\": \"All keys are within the range of status.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= i < len(status) for j in containedBoxes[i] for i in range(len(containedBoxes)))\",\n      \"description\": \"All containedBoxes are within the range of status.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(status[i] == 0 or status[i] == 1 for i in range(len(status)))\",\n      \"description\": \"All status values are either 0 or 1.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(0 <= candies[i] <= 1000 for i in range(len(candies)))\",\n      \"description\": \"All candies values are between 0 and 1000.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(len(keys[i]) <= len(status) for i in range(len(keys)))\",\n      \"description\": \"The number of keys in each box does not exceed the number of boxes.\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"all(len(containedBoxes[i]) <= len(status) for i in range(len(containedBoxes)))\",\n      \"description\": \"The number of contained boxes in each box does not exceed the number of boxes.\"\n    },\n    {\n      \"id\": \"P9\",\n      \"expression\": \"all(keys[i][j] != i for i in range(len(keys)) for j in range(len(keys[i])))\",\n      \"description\": \"Keys do not point to the box they are in.\"\n    },\n    {\n      \"id\": \"P10\",\n      \"expression\": \"all(containedBoxes[i][j] != i for i in range(len(containedBoxes)) for j in range(len(containedBoxes[i])))\",\n      \"description\": \"Contained boxes do not include the box they are in.\"\n    },\n    {\n      \"id\": \"P11\",\n      \"expression\": \"all(status[i] == 1 or keys[i] for i in range(len(status)))\",\n      \"description\": \"All boxes are either open or contain keys.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == sum(candies[i] for i in range(len(status)) if status[i] == 1 or i in open_boxes)\",\n      \"description\": \"The total number of candies collected is the sum of candies in open boxes and boxes with initial access.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"open_boxes == {i for i in range(len(status)) if status[i] == 1}\",\n      \"description\": \"The set of open boxes is the set of boxes with status 1.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"available_keys == set().union(*(keys[i] for i in open_boxes))\",\n      \"description\": \"The set of available keys is the union of keys from all open boxes.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"available_boxes == set().union(*(containedBoxes[i] for i in open_boxes))\",\n      \"description\": \"The set of available boxes is the union of contained boxes from all open boxes.\"\n    },\n    {\n      \"id\": \"I4\",\n      \"expression\": \"open_boxes.issubset(set(range(len(status))))\",\n      \"description\": \"The set of open boxes is a subset of the range of status.\"\n    },\n    {\n      \"id\": \"I5\",\n      \"expression\": \"available_keys.issubset(set(range(len(status))))\",\n      \"description\": \"The set of available keys is a subset of the range of status.\"\n    },\n    {\n      \"id\": \"I6\",\n      \"expression\": \"available_boxes.issubset(set(range(len(status))))\",\n      \"description\": \"The set of available boxes is a subset of the range of status.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2017,
+  "generated_tokens": 1284,
+  "hit_output_limit": false,
+  "generation_issue": null,
+  "generated_at": "2026-08-28T03:30:38.967446+00:00"
+}

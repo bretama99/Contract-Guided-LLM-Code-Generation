@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_3456",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 7000 and isinstance(n, int) and 1 <= m <= 7000 and isinstance(m, int)",
+        "description": "The input consists of integers n (number of levels) and m (number of operations), each between 1 and 7000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(op, list) and len(op) in {3, 5} for op in [line.split() for line in stdin.splitlines()[1:1+m]])",
+        "description": "Each of the m operations is either a 5-tuple (1, t, l, r, x) or a 3-tuple (2, t, v), where all elements are integers."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= t <= n for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '1' else (1 <= t <= n for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '2'))",
+        "description": "For operations of type 1 or 2, the level t must satisfy 1 ≤ t ≤ n."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= l <= r <= cnt[t] for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '1' for t, l, r, x in [(int(op[1]), int(op[2]), int(op[3]), int(op[4]))])",
+        "description": "For operations of type 1, the range l ≤ r must be valid for level t, where cnt[t] is the number of vertices on level t."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= v <= cnt[t] for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '2' for t, v in [(int(op[1]), int(op[2]))])",
+        "description": "For operations of type 2, the vertex position v must be valid for level t."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x <= 10**6 for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '1' for x in [int(op[4])])",
+        "description": "For operations of type 1, the value x must be between 1 and 1,000,000 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() == str(len(set.union(*subtree_sets))) for stdout_line, (op, t, v) in zip(stdout.splitlines(), [(line.split(), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:1+m] if line.split()[0] == '2']))",
+        "description": "For each operation of type 2 (query), the output line must be the size of the union of all sets in the subtree rooted at vertex (t, v). The subtree is defined by the tree construction rules, and the sets are accumulated from all type 1 operations."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(isinstance(int(stdout_line.strip()), int) for stdout_line in stdout.splitlines())",
+        "description": "Each output line for a type 2 operation must be a non-negative integer representing the size of the union of sets in the subtree."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 7000 and isinstance(n, int) and 1 <= m <= 7000 and isinstance(m, int)\",\n      \"description\": \"The input consists of integers n (number of levels) and m (number of operations), each between 1 and 7000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(isinstance(op, list) and len(op) in {3, 5} for op in [line.split() for line in stdin.splitlines()[1:1+m]])\",\n      \"description\": \"Each of the m operations is either a 5-tuple (1, t, l, r, x) or a 3-tuple (2, t, v), where all elements are integers.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= t <= n for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '1' else (1 <= t <= n for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '2'))\",\n      \"description\": \"For operations of type 1 or 2, the level t must satisfy 1 ≤ t ≤ n.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= l <= r <= cnt[t] for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '1' for t, l, r, x in [(int(op[1]), int(op[2]), int(op[3]), int(op[4]))])\",\n      \"description\": \"For operations of type 1, the range l ≤ r must be valid for level t, where cnt[t] is the number of vertices on level t.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= v <= cnt[t] for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '2' for t, v in [(int(op[1]), int(op[2]))])\",\n      \"description\": \"For operations of type 2, the vertex position v must be valid for level t.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= x <= 10**6 for op in [line.split() for line in stdin.splitlines()[1:1+m]] if op[0] == '1' for x in [int(op[4])])\",\n      \"description\": \"For operations of type 1, the value x must be between 1 and 1,000,000 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() == str(len(set.union(*subtree_sets))) for stdout_line, (op, t, v) in zip(stdout.splitlines(), [(line.split(), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:1+m] if line.split()[0] == '2']))\",\n      \"description\": \"For each operation of type 2 (query), the output line must be the size of the union of all sets in the subtree rooted at vertex (t, v). The subtree is defined by the tree construction rules, and the sets are accumulated from all type 1 operations.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(isinstance(int(stdout_line.strip()), int) for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line for a type 2 operation must be a non-negative integer representing the size of the union of sets in the subtree.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1926,
+  "generated_tokens": 919,
+  "hit_output_limit": false,
+  "generation_seconds": 43.721,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:07:03.021140+00:00"
+}

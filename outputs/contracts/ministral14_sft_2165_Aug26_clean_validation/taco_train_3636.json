@@ -1,0 +1,582 @@
+{
+  "task_id": "taco_train_3636",
+  "task_index": 237,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t > 0 and t <= 20000",
+        "description": "The number of test cases t is between 1 and 20000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 200000 for n, m in test_cases) and all(1 <= m <= min(200000, n*(n-1)//2) for n, m in test_cases)",
+        "description": "For each test case, n is between 2 and 200000 inclusive, and m is between 1 and min(200000, n*(n-1)//2) inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= t_i <= 1 for edge in edges for t_i in edge) and all(1 <= x_i <= n and 1 <= y_i <= n for edge in edges for x_i, y_i in edge[1:])",
+        "description": "Each edge has a type t_i (0 for undirected, 1 for directed) and connects vertices x_i and y_i within the valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "all(x_i != y_i for edge in edges for x_i, y_i in edge[1:])",
+        "description": "No self-loops exist in the graph."
+      },
+      {
+        "id": "P5",
+        "expression": "all(not any((x1 == x2 and y1 == y2) or (x1 == y2 and y1 == x2) for i in range(len(edges)) for j in range(i+1, len(edges)) for edge1 in [edges[i]] for edge2 in [edges[j]] for x1, y1 in edge1[1:] for x2, y2 in edge2[1:]))",
+        "description": "No multiple edges exist between the same pair of vertices."
+      },
+      {
+        "id": "P6",
+        "expression": "sum(n for n, m in test_cases) <= 200000 and sum(m for n, m in test_cases) <= 200000",
+        "description": "The sum of n and the sum of m across all test cases do not exceed 200000."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == 'NO' or (stdout.startswith('YES') and len(edges_output) == m)",
+        "description": "If the answer is 'NO', output only 'NO'. If the answer is 'YES', output 'YES' followed by exactly m lines describing the directed edges."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= x <= n and 1 <= y <= n for x, y in edges_output) and all(x != y for x, y in edges_output)",
+        "description": "Each directed edge in the output connects distinct vertices within the valid range."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(t_i == 1 or (t_i == 0 and (x_i, y_i) in edges_output or (y_i, x_i) in edges_output) for edge in edges for t_i, x_i, y_i in edge)",
+        "description": "All directed edges in the input are preserved in the output. All undirected edges are directed in one of the two possible ways."
+      },
+      {
+        "id": "Q4",
+        "expression": "not any((x, y) in edges_output and (y, x) in edges_output for x, y in edges_output)",
+        "description": "No directed cycles exist in the resulting graph."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout == 'NO' or (stdout.startswith('YES') and is_dag(edges_output))",
+        "description": "If the answer is 'YES', the resulting graph is a directed acyclic graph (DAG)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t > 0 and t <= 20000",
+        "description": "The number of test cases t is between 1 and 20000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 200000 for n, m in test_cases) and all(1 <= m <= min(200000, n*(n-1)//2) for n, m in test_cases)",
+        "description": "For each test case, n is between 2 and 200000 inclusive, and m is between 1 and min(200000, n*(n-1)//2) inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= t_i <= 1 for edge in edges for t_i in edge) and all(1 <= x_i <= n and 1 <= y_i <= n for edge in edges for x_i, y_i in edge[1:])",
+        "description": "Each edge has a type t_i (0 for undirected, 1 for directed) and connects vertices x_i and y_i within the valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "all(x_i != y_i for edge in edges for x_i, y_i in edge[1:])",
+        "description": "No self-loops exist in the graph."
+      },
+      {
+        "id": "P5",
+        "expression": "all(not any((x1 == x2 and y1 == y2) or (x1 == y2 and y1 == x2) for i in range(len(edges)) for j in range(i+1, len(edges)) for edge1 in [edges[i]] for edge2 in [edges[j]] for x1, y1 in edge1[1:] for x2, y2 in edge2[1:]))",
+        "description": "No multiple edges exist between the same pair of vertices."
+      },
+      {
+        "id": "P6",
+        "expression": "sum(n for n, m in test_cases) <= 200000 and sum(m for n, m in test_cases) <= 200000",
+        "description": "The sum of n and the sum of m across all test cases do not exceed 200000."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == 'NO' or (stdout.startswith('YES') and len(edges_output) == m)",
+        "description": "If the answer is 'NO', output only 'NO'. If the answer is 'YES', output 'YES' followed by exactly m lines describing the directed edges."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= x <= n and 1 <= y <= n for x, y in edges_output) and all(x != y for x, y in edges_output)",
+        "description": "Each directed edge in the output connects distinct vertices within the valid range."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(t_i == 1 or (t_i == 0 and (x_i, y_i) in edges_output or (y_i, x_i) in edges_output) for edge in edges for t_i, x_i, y_i in edge)",
+        "description": "All directed edges in the input are preserved in the output. All undirected edges are directed in one of the two possible ways."
+      },
+      {
+        "id": "Q4",
+        "expression": "not any((x, y) in edges_output and (y, x) in edges_output for x, y in edges_output)",
+        "description": "No directed cycles exist in the resulting graph."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout == 'NO' or (stdout.startswith('YES') and is_dag(edges_output))",
+        "description": "If the answer is 'YES', the resulting graph is a directed acyclic graph (DAG)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "ae3684fd119bdcaa0bf6c8593e96f91940d8a731e9605355c48dd75693be25cd",
+  "selected_contract_fingerprint": "ae3684fd119bdcaa0bf6c8593e96f91940d8a731e9605355c48dd75693be25cd",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_3636.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+      "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+      "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output edges exactly match the input edges in type (directed/undirected) and direction (for directed edges) or direction choice (for undirected edges).",
+        "task_evidence": "You cannot change the direction of the already directed edges. You have to direct all undirected edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the DAG property (no directed cycles) without relying on an undefined `is_dag` helper.",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output edges are exactly the same as the input edges in terms of their original undirected/directed status and that all undirected edges are directed in one of the two possible ways.",
+        "task_evidence": "You have to direct all undirected edges. You cannot change the direction of the already directed edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "preconditions[4].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+      "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+      "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output edges exactly match the input edges in type (directed/undirected) and direction (for directed edges) or direction choice (for undirected edges).",
+        "task_evidence": "You cannot change the direction of the already directed edges. You have to direct all undirected edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that correctly captures the DAG property (no directed cycles) without relying on an undefined `is_dag` helper.",
+        "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output edges are exactly the same as the input edges in terms of their original undirected/directed status and that all undirected edges are directed in one of the two possible ways.",
+        "task_evidence": "You have to direct all undirected edges. You cannot change the direction of the already directed edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "preconditions[4].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+          "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+          "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+            "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+            "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with one that correctly captures the absence of directed cycles in the resulting graph (not just mutual exclusion of (x,y) and (y,x) edges).",
+            "task_evidence": "You have to direct undirected edges in such a way that the resulting graph is directed and acyclic (i.e. the graph with all edges directed and having no directed cycles).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"preconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 149.974,
+  "processing_error": null,
+  "finished_at": "2026-09-04T06:16:38.949058+00:00"
+}

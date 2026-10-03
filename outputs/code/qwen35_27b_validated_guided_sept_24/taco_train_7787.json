@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_7787",
+  "task_index": 800,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_7787.json",
+  "code": "import sys\nfrom sys import stdin\n\ndef compute_z(s):\n    n = len(s)\n    z = [0] * n\n    z[0] = n\n    l, r = 0, 0\n    for i in range(1, n):\n        if i < r:\n            z[i] = min(r - i, z[i - l])\n        while i + z[i] < n and s[z[i]] == s[i + z[i]]:\n            z[i] += 1\n        if i + z[i] > r:\n            l, r = i, i + z[i]\n    return z\n\ndef main():\n    s = stdin.readline().strip()\n    if not s:\n        return\n    n = len(s)\n    z_full = compute_z(s)\n    \n    q_line = stdin.readline()\n    if not q_line:\n        return\n    q = int(q_line)\n    \n    queries = []\n    for _ in range(q):\n        line = stdin.readline()\n        while line and not line.strip():\n            line = stdin.readline()\n        if not line:\n            break\n        parts = list(map(int, line.split()))\n        l, r = parts[0], parts[1]\n        queries.append((l, r))\n    \n    results = []\n    for l, r in queries:\n        sub_len = r - l + 1\n        total = 0\n        idx_start = l - 1\n        for i in range(sub_len):\n            pos = idx_start + i\n            val = z_full[pos]\n            if val > sub_len - i:\n                val = sub_len - i\n            total += val\n        results.append(str(total))\n    \n    sys.stdout.write('\\n'.join(results) + '\\n')\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 38.634,
+  "generated_at": "2026-09-25T09:51:15.879804+00:00"
+}

@@ -1,0 +1,377 @@
+{
+  "task_id": "taco_train_3077",
+  "task_index": 417,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": null,
+      "signature": "def solve(test_cases: list) -> list: ..."
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(t, tuple) and len(t) == 5 for t in test_cases)",
+        "description": "Each test case is a tuple of (N, S, edges, Q, queries), where N is the number of nodes, S is the string of node characters, edges is a list of (x, y) pairs representing tree edges, Q is the number of queries, and queries is a list of (U, V) pairs."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 2e5 for N, _, _, _, _ in test_cases)",
+        "description": "N is the number of nodes in the tree, where 2 ≤ N ≤ 2e5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(S) == N and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in S) for N, S, _, _, _ in test_cases)",
+        "description": "S is a string of length N where each character is a lowercase English letter."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(edges) == N - 1 and all(1 <= x != y <= N for x, y in edges) for _, _, edges, _, _ in test_cases)",
+        "description": "The tree has N-1 edges, each connecting two distinct nodes between 1 and N."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= Q <= 2e5 for _, _, _, Q, _ in test_cases)",
+        "description": "Q is the number of queries, where 1 ≤ Q ≤ 2e5."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= U != V <= N for _, _, _, _, queries in test_cases for U, V in queries)",
+        "description": "Each query consists of two distinct nodes U and V between 1 and N."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == sum(Q for _, _, _, Q, _ in test_cases)",
+        "description": "The output contains exactly Q answers for each test case, in the order of the queries."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(answer in ['YES', 'NO'] for answer in output)",
+        "description": "Each answer is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((U, V) in queries for i, (U, V) in enumerate(queries) for queries in [tc[4] for tc in test_cases] for tc in test_cases if i < len(tc[4]))",
+        "description": "The answers correspond to the queries in the order they appear in the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output[i] == 'YES') == any((any(c1 in s1 for c1 in s1) and any(c2 in s2 for c2 in s2) and (s1 + s2) == (s1 + s2)[::-1]) for s1 in subsequences(DIS(V, LCA(U, V)), non_empty=True) for s2 in subsequences(DIS(V, LCA(U, V)), non_empty=True)) for i, (U, V) in enumerate(queries) for queries in [tc[4] for tc in test_cases] for tc in test_cases if i < len(tc[4]))",
+        "description": "For each query (U, V), the answer is 'YES' if there exist non-empty subsequences s1 and s2 of DIS(V, LCA(U, V)) such that their concatenation s1 + s2 is a palindrome. Otherwise, the answer is 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": null,
+      "signature": "def solve(test_cases: list) -> list: ..."
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(t, tuple) and len(t) == 5 for t in test_cases)",
+        "description": "Each test case is a tuple of (N, S, edges, Q, queries), where N is the number of nodes, S is the string of node characters, edges is a list of (x, y) pairs representing tree edges, Q is the number of queries, and queries is a list of (U, V) pairs."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 2e5 for N, _, _, _, _ in test_cases)",
+        "description": "N is the number of nodes in the tree, where 2 ≤ N ≤ 2e5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(S) == N and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in S) for N, S, _, _, _ in test_cases)",
+        "description": "S is a string of length N where each character is a lowercase English letter."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(edges) == N - 1 and all(1 <= x != y <= N for x, y in edges) for _, _, edges, _, _ in test_cases)",
+        "description": "The tree has N-1 edges, each connecting two distinct nodes between 1 and N."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= Q <= 2e5 for _, _, _, Q, _ in test_cases)",
+        "description": "Q is the number of queries, where 1 ≤ Q ≤ 2e5."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= U != V <= N for _, _, _, _, queries in test_cases for U, V in queries)",
+        "description": "Each query consists of two distinct nodes U and V between 1 and N."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == sum(Q for _, _, _, Q, _ in test_cases)",
+        "description": "The output contains exactly Q answers for each test case, in the order of the queries."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(answer in ['YES', 'NO'] for answer in output)",
+        "description": "Each answer is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((U, V) in queries for i, (U, V) in enumerate(queries) for queries in [tc[4] for tc in test_cases] for tc in test_cases if i < len(tc[4]))",
+        "description": "The answers correspond to the queries in the order they appear in the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output[i] == 'YES') == any((any(c1 in s1 for c1 in s1) and any(c2 in s2 for c2 in s2) and (s1 + s2) == (s1 + s2)[::-1]) for s1 in subsequences(DIS(V, LCA(U, V)), non_empty=True) for s2 in subsequences(DIS(V, LCA(U, V)), non_empty=True)) for i, (U, V) in enumerate(queries) for queries in [tc[4] for tc in test_cases] for tc in test_cases if i < len(tc[4]))",
+        "description": "For each query (U, V), the answer is 'YES' if there exist non-empty subsequences s1 and s2 of DIS(V, LCA(U, V)) such that their concatenation s1 + s2 is a palindrome. Otherwise, the answer is 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "d03f46cdeb0afdb5e1ad926ac9ad00aaf4c4e133a9d60cde81d373583739ce9f",
+  "selected_contract_fingerprint": "d03f46cdeb0afdb5e1ad926ac9ad00aaf4c4e133a9d60cde81d373583739ce9f",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_3077.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "deterministic_task_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "checks": null,
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "semantic_structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 0,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "deterministic_task_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "checks": null,
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "semantic_structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 0,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "interface",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "interface",
+          "action": "replace",
+          "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+          "task_evidence": "",
+          "source": "deterministic"
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "mode": "stdin_stdout",
+          "signature": "stdin -> stdout",
+          "input_channel": "stdin",
+          "output_channel": "stdout"
+        },
+        "repair_model_calls": 0,
+        "generation_errors": [],
+        "candidate_fingerprint": "2c1ae32d8490f6f89267bf104f374bde8bd2fd727fd61df09a1445c0cd4b6598",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_audit_structured_output_unresolved",
+        "verification_model_calls": 2,
+        "checks": null,
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_failed",
+            "detail": "semantic_audit: audit keys must be exactly checks,issues"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 1
+  },
+  "repair_attempts_used": 1,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 63.373,
+  "processing_error": null,
+  "finished_at": "2026-09-04T12:15:41.142126+00:00"
+}

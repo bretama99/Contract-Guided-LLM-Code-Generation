@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_13023",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and m >= n - 1 and m <= 2 * 10**5",
+        "description": "The graph has at least 2 vertices and at least n-1 edges (connected), with no more than 200,000 edges."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= ai <= n and 1 <= bi <= n and ai != bi and 1 <= ci <= 10**4 for ai, bi, ci in edges)",
+        "description": "Each edge (ai, bi) connects distinct vertices within bounds, and each flow volume ci is between 1 and 10,000."
+      },
+      {
+        "id": "P3",
+        "expression": "len(edges) == m",
+        "description": "The input contains exactly m edges, each represented as a tuple (ai, bi, ci)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(ai != bi for ai, bi, _ in edges)",
+        "description": "No edge connects a vertex to itself."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_directions) == m",
+        "description": "The output contains exactly m integers, one for each input edge."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(di in {0, 1} for di in output_directions)",
+        "description": "Each output direction di is either 0 (ai → bi) or 1 (bi → ai)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= v <= n and v != 1 and v != n and sum(ci for (u, v, ci) in edges if (u == v and di == 0) or (v == u and di == 1)) == sum(ci for (u, v, ci) in edges if (v == v and di == 0) or (u == v and di == 1)) for v in range(2, n))",
+        "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow."
+      },
+      {
+        "id": "Q4",
+        "expression": "sum(ci for (u, v, ci) in edges if (u == 1 and di == 0) or (v == 1 and di == 1)) == sum(ci for (u, v, ci) in edges if (u == n and di == 1) or (v == n and di == 0))",
+        "description": "The total flow out of the source (vertex 1) equals the total flow into the sink (vertex n)."
+      },
+      {
+        "id": "Q5",
+        "expression": "not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)",
+        "description": "No directed edge forms a self-loop (though this is already implied by P4)."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)",
+        "description": "The directed graph has no cycles (implied by the problem's guarantee of a solution and the acyclic orientation requirement)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and m >= n - 1 and m <= 2 * 10**5\",\n      \"description\": \"The graph has at least 2 vertices and at least n-1 edges (connected), with no more than 200,000 edges.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= ai <= n and 1 <= bi <= n and ai != bi and 1 <= ci <= 10**4 for ai, bi, ci in edges)\",\n      \"description\": \"Each edge (ai, bi) connects distinct vertices within bounds, and each flow volume ci is between 1 and 10,000.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(edges) == m\",\n      \"description\": \"The input contains exactly m edges, each represented as a tuple (ai, bi, ci).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(ai != bi for ai, bi, _ in edges)\",\n      \"description\": \"No edge connects a vertex to itself.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output_directions) == m\",\n      \"description\": \"The output contains exactly m integers, one for each input edge.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(di in {0, 1} for di in output_directions)\",\n      \"description\": \"Each output direction di is either 0 (ai → bi) or 1 (bi → ai).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= v <= n and v != 1 and v != n and sum(ci for (u, v, ci) in edges if (u == v and di == 0) or (v == u and di == 1)) == sum(ci for (u, v, ci) in edges if (v == v and di == 0) or (u == v and di == 1)) for v in range(2, n))\",\n      \"description\": \"For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"sum(ci for (u, v, ci) in edges if (u == 1 and di == 0) or (v == 1 and di == 1)) == sum(ci for (u, v, ci) in edges if (u == n and di == 1) or (v == n and di == 0))\",\n      \"description\": \"The total flow out of the source (vertex 1) equals the total flow into the sink (vertex n).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)\",\n      \"description\": \"No directed edge forms a self-loop (though this is already implied by P4).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)\",\n      \"description\": \"The directed graph has no cycles (implied by the problem's guarantee of a solution and the acyclic orientation requirement).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1632,
+  "generated_tokens": 887,
+  "hit_output_limit": false,
+  "generation_seconds": 38.933,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:37:57.118224+00:00"
+}

@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_24830",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 10**5 for x in stdin.split()[:1])",
+        "description": "The first line of input is a single integer n (1 ≤ n ≤ 10^5) representing the number of planks."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(x) <= 10**9 for x in stdin.split()[1:1+n])",
+        "description": "The second line contains n space-separated integers h1, h2, ..., hn (1 ≤ hi ≤ 10^9) representing the heights of the planks."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= 10**5 for x in stdin.split()[1+n:1+n+1])",
+        "description": "The third line is a single integer q (1 ≤ q ≤ 10^5) representing the number of queries."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(x) <= n for x in stdin.split()[1+n+1:1+n+1+2*q:2]) and all(int(x) >= int(y) for x, y in zip(stdin.split()[1+n+1:1+n+1+2*q:2], stdin.split()[1+n+2:1+n+1+2*q:2]))",
+        "description": "Each query consists of two integers li and ri (1 ≤ li ≤ ri ≤ n) representing the boundaries of a piece of the fence."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.split()) == q) and all(stdout.split()[i].isdigit() for i in range(q))",
+        "description": "The output consists of exactly q integers, one per query, representing the number of distinct matching pieces for each query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(stdout.split()[i]) <= n for i in range(q))",
+        "description": "Each output integer is a non-negative count of matching pieces, bounded by the total number of planks n."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda: (h := [int(x) for x in stdin.split()[1:1+n]]), (queries := [(int(x), int(y)) for x, y in zip(stdin.split()[1+n+1:1+n+1+2*q:2], stdin.split()[1+n+2:1+n+1+2*q:2])]), (outputs := [int(x) for x in stdout.split()]), all((lambda l, r: (width := r - l + 1), (target := h[l-1:r]), (sum_target := sum(target)), (avg_target := sum_target / width), (all(h[l-1+i] == avg_target for i in range(width))), (all((lambda l2, r2: (width2 := r2 - l2 + 1), (width == width2), (l2 < l or r2 > r), (all(h[l2-1+i] == avg_target - h[l+i] for i in range(width))))(l2, r2) for l2 in range(1, n+1) for r2 in range(l2, n+1) if (l2 < l or r2 > r) and (r2 - l2 + 1 == width)) == outputs[i]))(queries[i][0], queries[i][1]) for i in range(q))",
+        "description": "For each query (li, ri), the output is the count of distinct pieces (l2, r2) such that:\n1. The piece (l2, r2) does not intersect with (li, ri).\n2. The piece (l2, r2) has the same width as (li, ri).\n3. For all i (0 ≤ i ≤ width-1), the sum of heights at positions li+i and l2+i equals the sum of heights at positions li and l2 (i.e., hl1+i + hl2+i = hl1 + hl2).\nThis is equivalent to the heights of the piece (l2, r2) being the reflection of the heights of (li, ri) around the average height of (li, ri)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 10**5 for x in stdin.split()[:1])\",\n      \"description\": \"The first line of input is a single integer n (1 ≤ n ≤ 10^5) representing the number of planks.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(x) <= 10**9 for x in stdin.split()[1:1+n])\",\n      \"description\": \"The second line contains n space-separated integers h1, h2, ..., hn (1 ≤ hi ≤ 10^9) representing the heights of the planks.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= 10**5 for x in stdin.split()[1+n:1+n+1])\",\n      \"description\": \"The third line is a single integer q (1 ≤ q ≤ 10^5) representing the number of queries.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdin.split()[1+n+1:1+n+1+2*q:2]) and all(int(x) >= int(y) for x, y in zip(stdin.split()[1+n+1:1+n+1+2*q:2], stdin.split()[1+n+2:1+n+1+2*q:2]))\",\n      \"description\": \"Each query consists of two integers li and ri (1 ≤ li ≤ ri ≤ n) representing the boundaries of a piece of the fence.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.split()) == q) and all(stdout.split()[i].isdigit() for i in range(q))\",\n      \"description\": \"The output consists of exactly q integers, one per query, representing the number of distinct matching pieces for each query.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(stdout.split()[i]) <= n for i in range(q))\",\n      \"description\": \"Each output integer is a non-negative count of matching pieces, bounded by the total number of planks n.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((lambda: (h := [int(x) for x in stdin.split()[1:1+n]]), (queries := [(int(x), int(y)) for x, y in zip(stdin.split()[1+n+1:1+n+1+2*q:2], stdin.split()[1+n+2:1+n+1+2*q:2])]), (outputs := [int(x) for x in stdout.split()]), all((lambda l, r: (width := r - l + 1), (target := h[l-1:r]), (sum_target := sum(target)), (avg_target := sum_target / width), (all(h[l-1+i] == avg_target for i in range(width))), (all((lambda l2, r2: (width2 := r2 - l2 + 1), (width == width2), (l2 < l or r2 > r), (all(h[l2-1+i] == avg_target - h[l+i] for i in range(width))))(l2, r2) for l2 in range(1, n+1) for r2 in range(l2, n+1) if (l2 < l or r2 > r) and (r2 - l2 + 1 == width)) == outputs[i]))(queries[i][0], queries[i][1]) for i in range(q))\",\n      \"description\": \"For each query (li, ri), the output is the count of distinct pieces (l2, r2) such that:\\n1. The piece (l2, r2) does not intersect with (li, ri).\\n2. The piece (l2, r2) has the same width as (li, ri).\\n3. For all i (0 ≤ i ≤ width-1), the sum of heights at positions li+i and l2+i equals the sum of heights at positions li and l2 (i.e., hl1+i + hl2+i = hl1 + hl2).\\nThis is equivalent to the heights of the piece (l2, r2) being the reflection of the heights of (li, ri) around the average height of (li, ri).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1629,
+  "generated_tokens": 1063,
+  "hit_output_limit": false,
+  "generation_seconds": 49.727,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:31:57.302795+00:00"
+}

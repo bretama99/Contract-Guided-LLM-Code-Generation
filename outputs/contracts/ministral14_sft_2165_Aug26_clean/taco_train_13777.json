@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_13777",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(32 <= ord(c) <= 127 for line in stdin.splitlines() for c in line)",
+        "description": "Every character in each line has ASCII code between 32 and 127 (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin) <= 1048576",
+        "description": "The total input size (including newlines) does not exceed 1,048,576 bytes."
+      },
+      {
+        "id": "P3",
+        "expression": "stdin.endswith('\\n')",
+        "description": "The input ends with a newline character."
+      },
+      {
+        "id": "P4",
+        "expression": "any(c != '\\n' for c in stdin)",
+        "description": "The input contains at least one non-newline character."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(line == '' or line[0] != '#' or line[0] == ' ' for line in stdout.splitlines())",
+        "description": "Every non-empty line in the output either starts with a non-space character or is an amplifying line (starts with '#' possibly after spaces)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(' ' not in line for line in stdout.splitlines() if not any(line.strip().startswith('#')))",
+        "description": "All spaces are removed from non-amplifying lines in the output."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(line == '' or (line.strip().startswith('#') and line.strip() == '#' or line.strip().startswith('#') and line.strip()[1:].strip() != '' and line.strip()[1:].strip().startswith('#') is False) for line in stdout.splitlines())",
+        "description": "Amplifying lines in the output are either empty or start with '#' (possibly after spaces) and are not followed by another amplifying line in the same line (i.e., no concatenation of amplifying lines)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(line == '' or (line.strip().startswith('#') or (line.strip().startswith('#') is False and line.strip() != '')) for line in stdout.splitlines())",
+        "description": "Every non-empty line in the output is either an amplifying line or a non-amplifying line."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(line == '' or (line.strip().startswith('#') or (line.strip().startswith('#') is False and line.strip() != '')) for line in stdout.splitlines())",
+        "description": "Non-amplifying lines in the output are concatenated only if they are consecutive and not separated by amplifying lines."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(line == '' or (line.strip().startswith('#') or (line.strip().startswith('#') is False and line.strip() != '')) for line in stdout.splitlines())",
+        "description": "Empty lines in the output are preserved only if they are surrounded by amplifying lines on both sides, or if they are the only line in the output."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(32 <= ord(c) <= 127 for line in stdin.splitlines() for c in line)\",\n      \"description\": \"Every character in each line has ASCII code between 32 and 127 (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin) <= 1048576\",\n      \"description\": \"The total input size (including newlines) does not exceed 1,048,576 bytes.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"stdin.endswith('\\\\n')\",\n      \"description\": \"The input ends with a newline character.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"any(c != '\\\\n' for c in stdin)\",\n      \"description\": \"The input contains at least one non-newline character.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(line == '' or line[0] != '#' or line[0] == ' ' for line in stdout.splitlines())\",\n      \"description\": \"Every non-empty line in the output either starts with a non-space character or is an amplifying line (starts with '#' possibly after spaces).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(' ' not in line for line in stdout.splitlines() if not any(line.strip().startswith('#')))\",\n      \"description\": \"All spaces are removed from non-amplifying lines in the output.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(line == '' or (line.strip().startswith('#') and line.strip() == '#' or line.strip().startswith('#') and line.strip()[1:].strip() != '' and line.strip()[1:].strip().startswith('#') is False) for line in stdout.splitlines())\",\n      \"description\": \"Amplifying lines in the output are either empty or start with '#' (possibly after spaces) and are not followed by another amplifying line in the same line (i.e., no concatenation of amplifying lines).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(line == '' or (line.strip().startswith('#') or (line.strip().startswith('#') is False and line.strip() != '')) for line in stdout.splitlines())\",\n      \"description\": \"Every non-empty line in the output is either an amplifying line or a non-amplifying line.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(line == '' or (line.strip().startswith('#') or (line.strip().startswith('#') is False and line.strip() != '')) for line in stdout.splitlines())\",\n      \"description\": \"Non-amplifying lines in the output are concatenated only if they are consecutive and not separated by amplifying lines.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(line == '' or (line.strip().startswith('#') or (line.strip().startswith('#') is False and line.strip() != '')) for line in stdout.splitlines())\",\n      \"description\": \"Empty lines in the output are preserved only if they are surrounded by amplifying lines on both sides, or if they are the only line in the output.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1842,
+  "generated_tokens": 817,
+  "hit_output_limit": false,
+  "generation_seconds": 34.788,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:31:38.378834+00:00"
+}

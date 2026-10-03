@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_7271",
+  "task_index": 354,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_7271.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nMOD = 1000000007\n\ndef find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, x, y):\n    rootX = find(parent, x)\n    rootY = find(parent, y)\n    if rootX != rootY:\n        if rank[rootX] > rank[rootY]:\n            parent[rootY] = rootX\n        elif rank[rootX] < rank[rootY]:\n            parent[rootX] = rootY\n        else:\n            parent[rootY] = rootX\n            rank[rootX] += 1\n\ndef count_trees_with_k_shared_edges(n, edges, k):\n    total_trees = pow(n, n - 2, MOD)\n    result = [0] * n\n    parent = list(range(n))\n    rank = [0] * n\n    \n    for edge in edges:\n        union(parent, rank, edge[0] - 1, edge[1] - 1)\n    \n    components = sum(1 for i in range(n) if parent[i] == i)\n    result[n - components] = 1\n    \n    for i in range(k + 1, n):\n        result[i] = (total_trees - sum(result)) % MOD\n        total_trees = (total_trees * (n - i)) % MOD\n        total_trees = (total_trees * pow(i + 1, MOD - 2, MOD)) % MOD\n    \n    return result\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    edges = [(int(input[2 * i + 1]), int(input[2 * i + 2])) for i in range(n - 1)]\n    result = [0] * n\n    for k in range(n):\n        result[k] = count_trees_with_k_shared_edges(n, edges, k)\n    print(\" \".join(map(str, result)))\n\nmain()",
+  "generation_seconds": 24.572,
+  "generated_at": "2026-09-23T20:14:40.787145+00:00"
+}

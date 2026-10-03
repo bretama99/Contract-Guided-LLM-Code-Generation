@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_148",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and n <= 250000",
+        "description": "The number of users n is an integer between 2 and 250,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(T1_edges) == n - 1 and len(T2_edges) == n - 1 and all(1 <= u <= n and 1 <= v <= n for u, v in T1_edges) and all(1 <= u <= n and 1 <= v <= n for u, v in T2_edges)",
+        "description": "T1_edges and T2_edges are lists of exactly n-1 edges each, where each edge is a pair of integers between 1 and n inclusive, representing the edges of trees T1 and T2 respectively."
+      },
+      {
+        "id": "P3",
+        "expression": "is_tree(T1_edges, n) and is_tree(T2_edges, n)",
+        "description": "Both T1_edges and T2_edges form valid trees on n nodes, where is_tree(edges, n) checks if edges form a connected acyclic graph on n nodes."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "m == len(matched_pairs) and all(0 <= m < n)",
+        "description": "m is the count of matched edge pairs, where each pair consists of one edge from T1 and one from T2, and m is strictly less than n."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and 1 <= c <= n and 1 <= d <= n for a, b, c, d in matched_pairs) and all((a, b) in T1_edges and (c, d) in T2_edges for a, b, c, d in matched_pairs)",
+        "description": "Each matched pair (a, b, c, d) contains valid edges from T1 and T2, where (a, b) is in T1_edges and (c, d) is in T2_edges."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((a, b) != (c, d) for a, b, c, d in matched_pairs) and all((a, b) != (a', b') for (a, b, c, d) in matched_pairs for (a', b', c', d') in matched_pairs if (a, b) != (a', b')) and all((c, d) != (c', d') for (a, b, c, d) in matched_pairs for (a', b', c', d') in matched_pairs if (c, d) != (c'))",
+        "description": "All edges in T1 and T2 are used at most once in the matched_pairs."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(is_connected(T1_edges - {(a, b)}, T2_edges + {(c, d)}) for a, b, c, d in matched_pairs)",
+        "description": "For each matched pair (a, b, c, d), removing (a, b) from T1 and adding (c, d) from T2 results in a connected graph, where is_connected(edges, n) checks if the graph formed by edges is connected on n nodes."
+      },
+      {
+        "id": "Q5",
+        "expression": "m == max_matching_size(T1_edges, T2_edges, n)",
+        "description": "m is the size of a maximum matching in the bipartite graph where edges connect (e, f) if T1 - {e} + {f} is connected, and max_matching_size(T1_edges, T2_edges, n) computes this maximum matching size."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and n <= 250000\",\n      \"description\": \"The number of users n is an integer between 2 and 250,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(T1_edges) == n - 1 and len(T2_edges) == n - 1 and all(1 <= u <= n and 1 <= v <= n for u, v in T1_edges) and all(1 <= u <= n and 1 <= v <= n for u, v in T2_edges)\",\n      \"description\": \"T1_edges and T2_edges are lists of exactly n-1 edges each, where each edge is a pair of integers between 1 and n inclusive, representing the edges of trees T1 and T2 respectively.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"is_tree(T1_edges, n) and is_tree(T2_edges, n)\",\n      \"description\": \"Both T1_edges and T2_edges form valid trees on n nodes, where is_tree(edges, n) checks if edges form a connected acyclic graph on n nodes.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"m == len(matched_pairs) and all(0 <= m < n)\",\n      \"description\": \"m is the count of matched edge pairs, where each pair consists of one edge from T1 and one from T2, and m is strictly less than n.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and 1 <= c <= n and 1 <= d <= n for a, b, c, d in matched_pairs) and all((a, b) in T1_edges and (c, d) in T2_edges for a, b, c, d in matched_pairs)\",\n      \"description\": \"Each matched pair (a, b, c, d) contains valid edges from T1 and T2, where (a, b) is in T1_edges and (c, d) is in T2_edges.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((a, b) != (c, d) for a, b, c, d in matched_pairs) and all((a, b) != (a', b') for (a, b, c, d) in matched_pairs for (a', b', c', d') in matched_pairs if (a, b) != (a', b')) and all((c, d) != (c', d') for (a, b, c, d) in matched_pairs for (a', b', c', d') in matched_pairs if (c, d) != (c'))\",\n      \"description\": \"All edges in T1 and T2 are used at most once in the matched_pairs.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(is_connected(T1_edges - {(a, b)}, T2_edges + {(c, d)}) for a, b, c, d in matched_pairs)\",\n      \"description\": \"For each matched pair (a, b, c, d), removing (a, b) from T1 and adding (c, d) from T2 results in a connected graph, where is_connected(edges, n) checks if the graph formed by edges is connected on n nodes.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"m == max_matching_size(T1_edges, T2_edges, n)\",\n      \"description\": \"m is the size of a maximum matching in the bipartite graph where edges connect (e, f) if T1 - {e} + {f} is connected, and max_matching_size(T1_edges, T2_edges, n) computes this maximum matching size.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1993,
+  "generated_tokens": 941,
+  "hit_output_limit": false,
+  "generation_seconds": 40.55,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:58:27.301391+00:00"
+}

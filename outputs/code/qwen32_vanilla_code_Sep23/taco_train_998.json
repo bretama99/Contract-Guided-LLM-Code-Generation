@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_998",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T14:13:17.609990+00:00",
+  "code": "import sys\n\ndef is_hill_number(n):\n    s = str(n)\n    i = 0\n    while i < len(s) - 1 and s[i] <= s[i + 1]:\n        i += 1\n    while i < len(s) - 1 and s[i] >= s[i + 1]:\n        i += 1\n    return i == len(s) - 1\n\ndef count_hill_numbers(limit):\n    dp = [[[0 for _ in range(2)] for _ in range(10)] for _ in range(20)]\n    dp[0][0][0] = 1\n    result = 0\n\n    def dfs(pos, last_digit, is_limit, is_increasing):\n        nonlocal result\n        if pos == 0:\n            result += 1\n            return\n        up_limit = int(limit[pos - 1]) if is_limit else 9\n        for digit in range(up_limit + 1):\n            if is_increasing and digit < last_digit:\n                continue\n            new_is_limit = is_limit and (digit == up_limit)\n            if digit == last_digit:\n                dfs(pos - 1, digit, new_is_limit, is_increasing)\n            else:\n                dfs(pos - 1, digit, new_is_limit, False)\n\n    limit_str = str(limit)\n    length = len(limit_str)\n    for i in range(1, length):\n        for d in range(1, 10):\n            dfs(i - 1, d, False, True)\n    for d in range(1, int(limit_str[0])):\n        dfs(length - 1, d, False, True)\n    if is_hill_number(limit):\n        result -= 1\n        result += 1\n    return result\n\ndef main():\n    n = int(sys.stdin.read().strip())\n    if is_hill_number(n):\n        print(count_hill_numbers(n))\n    else:\n        print(-1)\n\nmain()"
+}

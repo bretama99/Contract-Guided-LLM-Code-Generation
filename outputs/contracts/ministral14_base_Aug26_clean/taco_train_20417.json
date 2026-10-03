@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_20417",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and T > 0 and T <= 10**4",
+        "description": "T is a positive integer representing the number of test cases, with 1 ≤ T ≤ 10⁴."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N.is_integer() and N > 0 and N <= 2*10**5 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and len(line.split()) == 1])",
+        "description": "Each test case starts with a positive integer N (1 ≤ N ≤ 2×10⁵) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(C) == N for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and len(line.split()) == 2 and line.split()[1].isalpha()])",
+        "description": "For each test case, the string C has length N, where each character in C is 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in {'R', 'G', 'B'} for c in C) for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and len(line.split()) == 2 and line.split()[1].isalpha()])",
+        "description": "Each character in C is one of 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(edges) == N - 1 for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split()[1:])) for line in stdin.splitlines()[i+2:i+2+N-1]]) for i, line in enumerate(stdin.splitlines()) if line.strip() and line.split()[0].isdigit() and len(line.split()) == 1])",
+        "description": "Each test case has exactly N-1 edges, forming a tree (connected and acyclic)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(1 <= u <= N and 1 <= v <= N and u != v for u, v in edges) for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split()[1:])) for line in stdin.splitlines()[i+2:i+2+N-1]]) for i, line in enumerate(stdin.splitlines()) if line.strip() and line.split()[0].isdigit() and len(line.split()) == 1])",
+        "description": "Each edge (u, v) has 1 ≤ u, v ≤ N and u ≠ v."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((stdout.strip().lower() == 'yes' if (not any(C[i-1] == 'B' for i in range(1, N+1)) or all(any(C[j-1] == 'R' and C[k-1] == 'G' for j in path for k in path) for u in blue_vertices for v in blue_vertices if u != v for path in [get_path(u, v, edges)]) else stdout.strip().lower() == 'no') for N, C, edges in parse_test_cases(stdin))",
+        "description": "For each test case, output 'Yes' if there are no two distinct Blue vertices (u, v) such that the path between them lacks at least one Red and one Green vertex. Otherwise, output 'No'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout.strip()) == 1 and stdout.strip().lower() in {'yes', 'no'} for stdout in [line.strip() for line in stdout.splitlines()])",
+        "description": "Each output line is exactly one of 'Yes' or 'No' (case-insensitive)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T.is_integer() and T > 0 and T <= 10**4\",\n      \"description\": \"T is a positive integer representing the number of test cases, with 1 ≤ T ≤ 10⁴.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(N.is_integer() and N > 0 and N <= 2*10**5 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and len(line.split()) == 1])\",\n      \"description\": \"Each test case starts with a positive integer N (1 ≤ N ≤ 2×10⁵) representing the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(C) == N for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and len(line.split()) == 2 and line.split()[1].isalpha()])\",\n      \"description\": \"For each test case, the string C has length N, where each character in C is 'R', 'G', or 'B'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(c in {'R', 'G', 'B'} for c in C) for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and len(line.split()) == 2 and line.split()[1].isalpha()])\",\n      \"description\": \"Each character in C is one of 'R', 'G', or 'B'.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(edges) == N - 1 for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split()[1:])) for line in stdin.splitlines()[i+2:i+2+N-1]]) for i, line in enumerate(stdin.splitlines()) if line.strip() and line.split()[0].isdigit() and len(line.split()) == 1])\",\n      \"description\": \"Each test case has exactly N-1 edges, forming a tree (connected and acyclic).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(all(1 <= u <= N and 1 <= v <= N and u != v for u, v in edges) for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split()[1:])) for line in stdin.splitlines()[i+2:i+2+N-1]]) for i, line in enumerate(stdin.splitlines()) if line.strip() and line.split()[0].isdigit() and len(line.split()) == 1])\",\n      \"description\": \"Each edge (u, v) has 1 ≤ u, v ≤ N and u ≠ v.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all((stdout.strip().lower() == 'yes' if (not any(C[i-1] == 'B' for i in range(1, N+1)) or all(any(C[j-1] == 'R' and C[k-1] == 'G' for j in path for k in path) for u in blue_vertices for v in blue_vertices if u != v for path in [get_path(u, v, edges)]) else stdout.strip().lower() == 'no') for N, C, edges in parse_test_cases(stdin))\",\n      \"description\": \"For each test case, output 'Yes' if there are no two distinct Blue vertices (u, v) such that the path between them lacks at least one Red and one Green vertex. Otherwise, output 'No'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout.strip()) == 1 and stdout.strip().lower() in {'yes', 'no'} for stdout in [line.strip() for line in stdout.splitlines()])\",\n      \"description\": \"Each output line is exactly one of 'Yes' or 'No' (case-insensitive).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1678,
+  "generated_tokens": 1002,
+  "hit_output_limit": false,
+  "generation_seconds": 43.921,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:45:52.381301+00:00"
+}

@@ -1,0 +1,269 @@
+{
+  "task_id": "taco_train_24285",
+  "task_index": 331,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000 and 1 <= m <= 200000",
+        "description": "The number of junctions (n) and roads (m) must be within the given bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in roads)",
+        "description": "Each road connects two distinct junctions within the valid range."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set(roads)) == m",
+        "description": "No duplicate roads exist between the same pair of junctions."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and len(routes) == 3)",
+        "description": "Output is either 'NO' or 'YES' followed by exactly three routes."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(route) >= 3 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "Each route must have at least 3 junctions (start, at least one intermediate, and finish)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(routes[0][0] == routes[1][0] == routes[2][0] and routes[0][-1] == routes[1][-1] == routes[2][-1] for routes in [[routes[0], routes[1], routes[2]]]) if stdout.strip() == 'YES' else True",
+        "description": "All routes must start and end at the same junction, and the start and finish junctions must differ."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(routes[0][0] != routes[0][-1] and routes[1][0] != routes[1][-1] and routes[2][0] != routes[2][-1]) if stdout.strip() == 'YES' else True",
+        "description": "The start and finish junctions of each route must be distinct."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(route) - {route[0], route[-1]}) == len(route) - 2 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "No intermediate junction is visited more than once in any route."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(len(set((route[i], route[i+1]) for i in range(len(route)-1))) == len(route) - 1 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "No road is traversed more than once in any route (regardless of direction)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(len(set(route) & set(other_route) - {route[0], route[-1]}) == 0 for i in range(3) for other_route in [routes[(i+1)%3], routes[(i+2)%3]]) if stdout.strip() == 'YES' else True",
+        "description": "No two routes share any intermediate junction."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(len(set((routes[i][j], routes[i][j+1]) for j in range(len(routes[i])-1)) & set((routes[k][l], routes[k][l+1]) for l in range(len(routes[k])-1))) == 0 for i in range(3) for k in range(i+1, 3)) if stdout.strip() == 'YES' else True",
+        "description": "No two routes traverse the same road in the same or opposite direction."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000 and 1 <= m <= 200000",
+        "description": "The number of junctions (n) and roads (m) must be within the given bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in roads)",
+        "description": "Each road connects two distinct junctions within the valid range."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set(roads)) == m",
+        "description": "No duplicate roads exist between the same pair of junctions."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and len(routes) == 3)",
+        "description": "Output is either 'NO' or 'YES' followed by exactly three routes."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(route) >= 3 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "Each route must have at least 3 junctions (start, at least one intermediate, and finish)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(routes[0][0] == routes[1][0] == routes[2][0] and routes[0][-1] == routes[1][-1] == routes[2][-1] for routes in [[routes[0], routes[1], routes[2]]]) if stdout.strip() == 'YES' else True",
+        "description": "All routes must start and end at the same junction, and the start and finish junctions must differ."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(routes[0][0] != routes[0][-1] and routes[1][0] != routes[1][-1] and routes[2][0] != routes[2][-1]) if stdout.strip() == 'YES' else True",
+        "description": "The start and finish junctions of each route must be distinct."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(route) - {route[0], route[-1]}) == len(route) - 2 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "No intermediate junction is visited more than once in any route."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(len(set((route[i], route[i+1]) for i in range(len(route)-1))) == len(route) - 1 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "No road is traversed more than once in any route (regardless of direction)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(len(set(route) & set(other_route) - {route[0], route[-1]}) == 0 for i in range(3) for other_route in [routes[(i+1)%3], routes[(i+2)%3]]) if stdout.strip() == 'YES' else True",
+        "description": "No two routes share any intermediate junction."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(len(set((routes[i][j], routes[i][j+1]) for j in range(len(routes[i])-1)) & set((routes[k][l], routes[k][l+1]) for l in range(len(routes[k])-1))) == 0 for i in range(3) for k in range(i+1, 3)) if stdout.strip() == 'YES' else True",
+        "description": "No two routes traverse the same road in the same or opposite direction."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "476beac4f922548e12e70bea558e7b0f293cc0d72a69bb4953db1b5f30e30bfc",
+  "selected_contract_fingerprint": "476beac4f922548e12e70bea558e7b0f293cc0d72a69bb4953db1b5f30e30bfc",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_24285.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_or_representation_uncertainty",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "postconditions[3].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "representation_issues_block_correct_certification",
+        "count": 1,
+        "codes": [
+          "all_any_requires_iterable_expression"
+        ]
+      }
+    ],
+    "model_calls": 1,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_or_representation_uncertainty",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "postconditions[3].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "representation_issues_block_correct_certification",
+        "count": 1,
+        "codes": [
+          "all_any_requires_iterable_expression"
+        ]
+      }
+    ],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 3.097,
+  "processing_error": null,
+  "finished_at": "2026-09-04T09:41:38.154920+00:00"
+}

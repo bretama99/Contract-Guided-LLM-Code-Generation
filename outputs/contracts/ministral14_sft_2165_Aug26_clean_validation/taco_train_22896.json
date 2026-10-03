@@ -1,0 +1,829 @@
+{
+  "task_id": "taco_train_22896",
+  "task_index": 210,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 1000 and 1 <= k <= 1000",
+        "description": "Input integers n (number of teams) and k (number of wins per team against each other team) are within bounds 1 to 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "n >= 1",
+        "description": "There is at least one team."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in matches) and len(matches) == m and all(1 <= int(m) <= n * (n - 1) // 2 if n > 1 else 0 for m in [int(stdout.splitlines()[0])]) and all(win_counts[team] == k * (n - 1) for team in range(1, n + 1)))",
+        "description": "If a valid tournament exists, output m (number of matches) followed by m lines of match results (a_i, b_i) where team a_i beats team b_i. Each team must have exactly k wins against every other team. If no valid tournament exists, output -1."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == '-1' or (all(win_counts[team] == k * (n - 1) for team in range(1, n + 1)) if n > 1 else True)",
+        "description": "Each team must have exactly k wins against every other team (k*(n-1) total wins). If n=1, no matches are needed."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == '-1' or (all(1 <= int(stdout.splitlines()[0]) <= n * (n - 1) // 2 if n > 1 else 0 for _ in [stdout]) and all(int(a) != int(b) for a, b in matches))",
+        "description": "The number of matches m must be between 0 and n*(n-1)/2 (inclusive), and no team plays against itself."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 1000 and 1 <= k <= 1000",
+        "description": "Input integers n (number of teams) and k (number of wins per team against each other team) are within bounds 1 to 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "n >= 1",
+        "description": "There is at least one team."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in matches) and len(matches) == m and all(1 <= int(m) <= n * (n - 1) // 2 if n > 1 else 0 for m in [int(stdout.splitlines()[0])]) and all(win_counts[team] == k * (n - 1) for team in range(1, n + 1)))",
+        "description": "If a valid tournament exists, output m (number of matches) followed by m lines of match results (a_i, b_i) where team a_i beats team b_i. Each team must have exactly k wins against every other team. If no valid tournament exists, output -1."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == '-1' or (all(win_counts[team] == k * (n - 1) for team in range(1, n + 1)) if n > 1 else True)",
+        "description": "Each team must have exactly k wins against every other team (k*(n-1) total wins). If n=1, no matches are needed."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == '-1' or (all(1 <= int(stdout.splitlines()[0]) <= n * (n - 1) // 2 if n > 1 else 0 for _ in [stdout]) and all(int(a) != int(b) for a, b in matches))",
+        "description": "The number of matches m must be between 0 and n*(n-1)/2 (inclusive), and no team plays against itself."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "55444f224105f12cb9e7befabfdd8d11d221b82b6f32585a48c39de6460ee2d8",
+  "selected_contract_fingerprint": "55444f224105f12cb9e7befabfdd8d11d221b82b6f32585a48c39de6460ee2d8",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_22896.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+      "task_evidence": "each team beat the other teams exactly k times",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+      "task_evidence": "each team beat the other teams exactly k times",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly verify that each team beats every other team exactly k times, not just total wins. The current expression does not enforce per-opponent win counts.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly verify per-opponent win counts (not just total wins). The current expression is redundant and does not enforce the required per-opponent constraint.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to remove the redundant check for `int(a) != int(b)` (already covered by the problem's constraints) and ensure the match count is derived from the actual matches output (not just the first line). The current expression does not verify per-opponent win counts.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+      "task_evidence": "each team beat the other teams exactly k times",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+      "task_evidence": "each team beat the other teams exactly k times",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly verify that each team beats every other team exactly k times, not just total wins. The current expression does not enforce per-opponent win counts.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly verify per-opponent win counts (not just total wins). The current expression is redundant and does not enforce the required per-opponent constraint.",
+        "task_evidence": "each team beat the other teams exactly k times",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to remove the redundant check for `int(a) != int(b)` (already covered by the problem's constraints) and ensure the match count is derived from the actual matches output (not just the first line). The current expression does not verify per-opponent win counts.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to enforce that each team beats every other team exactly k times (not just total wins). The current contract only checks total wins, not per-opponent wins.",
+          "task_evidence": "each team beat the other teams exactly k times",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "stdout == '-1' or (all(all(win_counts[team][opponent] == k for opponent in range(1, n + 1) if opponent != team) for team in range(1, n + 1)) if n > 1 else True)",
+          "description": "Each team must have exactly k wins against every other team (per-opponent wins). If n=1, no matches are needed."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "9c3cd3c5964c6c4a2742d3c5566c4b22b57209931c935a13b46920b5df9d4697",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove redundant and incorrect constraints (e.g., `len(matches) == m` and `win_counts[team] == k * (n - 1)`). The expression must enforce **per-opponent wins** (k wins against each other team) and **no duplicate matches** (no team plays against itself).",
+            "task_evidence": "each team beat the other teams exactly k times",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove redundant and incorrect constraints (e.g., `len(matches) == m` and `win_counts[team] == k * (n - 1)`). The expression must enforce **per-opponent wins** (k wins against each other team) and **no duplicate matches** (no team plays against itself).",
+            "task_evidence": "each team beat the other teams exactly k times",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely; it is redundant and does not enforce per-opponent wins. Use postcondition[3] instead.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely; it is redundant and does not enforce per-opponent wins. Use postcondition[3] instead.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace with: `stdout == '-1' or (all(all(win_counts[team][opponent] == k for opponent in range(1, n + 1) if opponent != team) for team in range(1, n + 1)) if n > 1 else True)` and ensure `win_counts` is derived from the output matches (not assumed as input).",
+            "task_evidence": "each team beat the other teams exactly k times",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to enforce that no two teams play against each other more than once (no duplicate matches).",
+            "task_evidence": "two teams could not play against each other more than once",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[2].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "Remove redundant and incorrect constraints (e.g., `len(matches) == m` and `win_counts[team] == k * (n - 1)`). The expression must enforce **per-opponent wins** (k wins against each other team) and **no duplicate matches** (no team plays against itself).",
+          "task_evidence": "each team beat the other teams exactly k times",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "stdout == '-1' or (all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in matches) and all(all(win_counts[team][opponent] == k for opponent in range(1, n + 1) if opponent != team) for team in range(1, n + 1)) if n > 1 else True)",
+          "description": "If a valid tournament exists, output m (number of matches) followed by m lines of match results (a_i, b_i) where team a_i beats team b_i. Each team must have exactly k wins against every other team. If no valid tournament exists, output -1. No team plays against itself, and no duplicate matches exist."
+        },
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[0].expression\"}]"
+        ],
+        "candidate_fingerprint": "818e72d685a0bc8943eaae5debe5d13902f6c5f6ec4ef98804568f74f309dbf0",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant `win_counts` logic (it is already covered by Q4) and ensure the expression correctly enforces the per-opponent win requirement (k wins per team against every other team) without redundant checks.",
+            "task_evidence": "each team beat the other teams exactly k times",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is redundant (total wins are implied by per-opponent wins).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is redundant (the number of matches is implied by the per-opponent win requirement and the constraint that no team plays against itself more than once).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is a duplicate of Q4.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to enforce that no team plays against itself more than once (i.e., no duplicate matches exist).",
+            "task_evidence": "two teams could not play against each other more than once",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 6
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "each team beat the other teams exactly k times",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove redundant and incorrect constraints (e.g., `len(matches) == m` and `win_counts[team] == k * (n - 1)`). The expression must enforce **per-opponent wins** (k wins against each other team) and **no duplicate matches** (no team plays against itself).",
+            "task_evidence": "each team beat the other teams exactly k times",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout == '-1' or (n == 1 and stdout == '0') or (all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in matches) and all(len([(x, y) for x, y in matches if x == team and y == opponent]) == k for team in range(1, n + 1) for opponent in range(1, n + 1) if opponent != team))",
+            "description": "If a valid tournament exists, output m (number of matches) followed by m lines of match results (a_i, b_i) where team a_i beats team b_i. Each team must have exactly k wins against every other team. If no valid tournament exists, output -1. For n=1, output 0 matches."
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[2].expression\"}]"
+        ],
+        "candidate_fingerprint": "4846d41ebfad56e03778eb73a40bc1aa13b617c4bf792c1ab3e34a6ca5b44958",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not enforce that the total number of matches `m` is consistent with the input `n` and `k`. Specifically, it does not ensure that the total number of wins across all teams matches the total number of matches (i.e., `m = n * (n - 1) * k / 2` when `n > 1`). Additionally, the expression does not explicitly enforce that the tournament is possible (e.g., `k` must be such that a valid tournament exists, which is not always true for arbitrary `n` and `k`).",
+            "task_evidence": "Each team must have exactly k wins against every other team.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not enforce that the total number of matches `m` is consistent with the input `n` and `k`. Specifically, it does not ensure that the total number of wins across all teams matches the total number of matches (i.e., `m = n * (n - 1) * k / 2` when `n > 1`). Additionally, the expression does not explicitly enforce that the tournament is possible (e.g., `k` must be such that a valid tournament exists, which is not always true for arbitrary `n` and `k`).",
+            "task_evidence": "Each team must have exactly k wins against every other team.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the total number of matches `m` is consistent with the input `n` and `k`. Specifically, if a valid tournament exists, `m` must equal `n * (n - 1) * k / 2` (since each pair of teams plays `k` matches, and there are `n * (n - 1) / 2` unique pairs).",
+            "task_evidence": "If a tournir that meets the conditions of the problem does not exist, then print -1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the tournament is only possible if `k` is such that a valid tournament exists. For example, if `n > 1`, `k` must be a non-negative integer, and the total number of wins must be consistent with the total number of matches (i.e., `n * (n - 1) * k` must be even).",
+            "task_evidence": "If a tournir that meets the conditions of the problem does not exist, then print -1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[0].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Each team must have exactly k wins against every other team.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not enforce that the total number of matches `m` is consistent with the input `n` and `k`. Specifically, it does not ensure that the total number of wins across all teams matches the total number of matches (i.e., `m = n * (n - 1) * k / 2` when `n > 1`). Additionally, the expression does not explicitly enforce that the tournament is possible (e.g., `k` must be such that a valid tournament exists, which is not always true for arbitrary `n` and `k`).",
+            "task_evidence": "Each team must have exactly k wins against every other team.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout == '-1' or (n == 1 and stdout == '0') or (all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in matches) and all(len([(x, y) for x, y in matches if x == team and y == opponent]) == k for team in range(1, n + 1) for opponent in range(1, n + 1) if opponent != team) and len(matches) == n * (n - 1) * k // 2 if n > 1 else 0)",
+            "description": "If a valid tournament exists, output m (number of matches) followed by m lines of match results (a_i, b_i) where team a_i beats team b_i. Each team must have exactly k wins against every other team, and the total number of matches must equal n*(n-1)*k/2. If no valid tournament exists, output -1. For n=1, output 0 matches."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "fba45c068204d854126a0d0f941dcb1642a113c433533714d7c4c13c7698f591",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that the matches are stored in a variable `matches` and that `m` is derived from `len(matches)`. The task requires outputting `m` first, followed by the matches. The expression must reflect that the output is a sequence of lines where the first line is `m` and the subsequent lines are the match results. Additionally, the expression does not account for the case where `n=1` and `k=0` (no matches) being a valid output, nor does it correctly enforce the requirement that each team beats every other team exactly `k` times (the current expression checks for `k` wins in the wrong direction and does not enforce the total number of matches).",
+            "task_evidence": "If a tournir that meets the conditions of the problem does not exist, then print -1. ... The i-th line should contain two integers a_i and b_i ... Each team must have exactly k wins against every other team, and the total number of matches must equal n*(n-1)*k/2.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that the matches are stored in a variable `matches` and that `m` is derived from `len(matches)`. The task requires outputting `m` first, followed by the matches. The expression must reflect that the output is a sequence of lines where the first line is `m` and the subsequent lines are the match results. Additionally, the expression does not account for the case where `n=1` and `k=0` (no matches) being a valid output, nor does it correctly enforce the requirement that each team beats every other team exactly `k` times (the current expression checks for `k` wins in the wrong direction and does not enforce the total number of matches).",
+            "task_evidence": "If a tournir that meets the conditions of the problem does not exist, then print -1. ... The i-th line should contain two integers a_i and b_i ... Each team must have exactly k wins against every other team, and the total number of matches must equal n*(n-1)*k/2.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that the output must be a valid sequence of matches where no two teams play more than once. The task requires that two teams cannot play against each other more than once.",
+            "task_evidence": "two teams could not play against each other more than once.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[0].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "If a tournir that meets the conditions of the problem does not exist, then print -1. ... The i-th line should contain two integers a_i and b_i ... Each team must have exactly k wins against every other team, and the total number of matches must equal n*(n-1)*k/2.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that the matches are stored in a variable `matches` and that `m` is derived from `len(matches)`. The task requires outputting `m` first, followed by the matches. The expression must reflect that the output is a sequence of lines where the first line is `m` and the subsequent lines are the match results. Additionally, the expression does not account for the case where `n=1` and `k=0` (no matches) being a valid output, nor does it correctly enforce the requirement that each team beats every other team exactly `k` times (the current expression checks for `k` wins in the wrong direction and does not enforce the total number of matches).",
+            "task_evidence": "If a tournir that meets the conditions of the problem does not exist, then print -1. ... The i-th line should contain two integers a_i and b_i ... Each team must have exactly k wins against every other team, and the total number of matches must equal n*(n-1)*k/2.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout == '-1' or (n == 1 and stdout == '0') or (stdout.split() and (int(stdout.split()[0]) == n * (n - 1) * k // 2 if n > 1 else 0) and all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for a, b in (line.split() for line in stdout.split()[1:])) and all(len([(x, y) for x, y in (line.split() for line in stdout.split()[1:]) if x == str(team) and y == str(opponent)]) == k for team in range(1, n + 1) for opponent in range(1, n + 1) if opponent != team) and all(len([(x, y) for x, y in (line.split() for line in stdout.split()[1:]) if y == str(team) and x == str(opponent)]) == k for team in range(1, n + 1) for opponent in range(1, n + 1) if opponent != team))",
+            "description": "If a valid tournament exists, output m (number of matches) followed by m lines of match results (a_i, b_i) where team a_i beats team b_i. Each team must have exactly k wins against every other team, and the total number of matches must equal n*(n-1)*k/2. If no valid tournament exists, output -1. For n=1, output 0 matches. No team plays against itself, and no duplicate matches exist between any two teams."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "e16b80e8a82282929b9e4459044e14ab0d2df62a25dcbae3252ff477e7257604",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions[0].expression",
+            "action": "add",
+            "instruction": "Add a check that ensures no duplicate matches exist between any two teams (i.e., no pair (a_i, b_i) appears more than once in the output).",
+            "task_evidence": "two teams could not play against each other more than once.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions[0].expression",
+            "action": "add",
+            "instruction": "Add a check that ensures the total number of matches is exactly n*(n-1)*k/2 (as stated in the task). The current expression only checks this for n > 1 but does not enforce it as a requirement for validity.",
+            "task_evidence": "the total number of matches must equal n*(n-1)*k/2",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Replace the current expression to ensure that for every pair of teams (team, opponent), exactly k matches exist where team beats opponent, and exactly k matches exist where opponent beats team. The current expression checks this but does not enforce uniqueness of matches (no duplicate matches).",
+            "task_evidence": "each team beat the other teams exactly k times",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions[0].expression",
+            "action": "add",
+            "instruction": "Add a check that ensures the output is valid only if the total number of matches is exactly n*(n-1)*k/2 (for n > 1) or 0 (for n = 1). The current expression checks this but does not enforce it as a requirement for validity in the case where n = 1.",
+            "task_evidence": "For n=1, output 0 matches.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 281.355,
+  "processing_error": null,
+  "finished_at": "2026-09-04T05:03:49.440218+00:00"
+}

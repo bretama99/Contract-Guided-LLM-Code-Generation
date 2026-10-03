@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_5486",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= n1 for line in stdin_lines[1:]) and all(1 <= int(line.split()[1]) <= n2 for line in stdin_lines[1:])",
+        "description": "Every edge in the input connects a valid vertex in U (1..n1) to a valid vertex in V (1..n2)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin_lines) == m + 1 and all(len(line.split()) == 2 for line in stdin_lines[1:])",
+        "description": "The input has exactly m+1 lines: the first line contains n1, n2, m, and each of the next m lines contains exactly two integers representing an edge."
+      },
+      {
+        "id": "P3",
+        "expression": "n1 >= 1 and n2 >= 1 and m >= 0 and n1 <= 2000 and n2 <= 2000 and m <= 2000",
+        "description": "The input dimensions satisfy 1 ≤ n1, n2 ≤ 2000 and 0 ≤ m ≤ 2000."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == 1 + cntk for line in stdout_lines) and all(int(stdout_lines[k].split()[0]) == cntk for k in range(1, minDegree + 1))",
+        "description": "For each k from 1 to minDegree, the k-th output line starts with cntk (the size of the minimal k-covering), followed by cntk distinct edge indices (1-based, original order)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(edge_idx) <= m for edge_idx in ' '.join(stdout_lines[k].split()[1:]).split()) for k in range(1, minDegree + 1))",
+        "description": "All edge indices in the output are valid (1 ≤ edge index ≤ m)."
+      },
+      {
+        "id": "Q3",
+        "expression": "(minDegree == 0) == (stdout_lines[0].strip() == '0')",
+        "description": "If minDegree is 0, the first output line is '0' (no edges needed). Otherwise, the first output line corresponds to k=1."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(edge_idx in ' '.join(stdout_lines[k].split()[1:]).split() for edge_idx in ' '.join(stdout_lines[k+1].split()[1:]).split()) for k in range(1, minDegree))",
+        "description": "For each k, the minimal (k+1)-covering includes all edges of the minimal k-covering (monotonicity)."
+      },
+      {
+        "id": "Q5",
+        "expression": "(lambda k: all(sum(1 for edge in edges if edge[0] == u or edge[1] == v) >= k for u in range(1, n1 + 1) for v in range(1, n2 + 1)))(' '.join(stdout_lines[k].split()[1:]).split())",
+        "description": "For each k, the edges in the k-th output line form a k-covering: every vertex in U and V is incident to at least k edges in the subset."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(not any(edge_idx in ' '.join(stdout_lines[k].split()[1:]).split() for edge_idx in ' '.join(stdout_lines[k].split()[1:]).split()[i+1:]) for k in range(1, minDegree + 1) for i in range(len(' '.join(stdout_lines[k].split()[1:]).split()) - 1))",
+        "description": "For each k, the edge indices in the k-th output line are pairwise distinct."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(len(' '.join(stdout_lines[k].split()[1:]).split()) == min(cntk for cntk in range(0, m + 1) if (lambda edges: all(sum(1 for edge in edges if edge[0] == u or edge[1] == v) >= k for u in range(1, n1 + 1) for v in range(1, n2 + 1)))([edges[i-1] for i in edges if i in ' '.join(stdout_lines[k].split()[1:]).split()])) for k in range(1, minDegree + 1))",
+        "description": "For each k, the size of the k-covering in the k-th output line is minimal possible."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= n1 for line in stdin_lines[1:]) and all(1 <= int(line.split()[1]) <= n2 for line in stdin_lines[1:])\",\n      \"description\": \"Every edge in the input connects a valid vertex in U (1..n1) to a valid vertex in V (1..n2).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin_lines) == m + 1 and all(len(line.split()) == 2 for line in stdin_lines[1:])\",\n      \"description\": \"The input has exactly m+1 lines: the first line contains n1, n2, m, and each of the next m lines contains exactly two integers representing an edge.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"n1 >= 1 and n2 >= 1 and m >= 0 and n1 <= 2000 and n2 <= 2000 and m <= 2000\",\n      \"description\": \"The input dimensions satisfy 1 ≤ n1, n2 ≤ 2000 and 0 ≤ m ≤ 2000.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.split()) == 1 + cntk for line in stdout_lines) and all(int(stdout_lines[k].split()[0]) == cntk for k in range(1, minDegree + 1))\",\n      \"description\": \"For each k from 1 to minDegree, the k-th output line starts with cntk (the size of the minimal k-covering), followed by cntk distinct edge indices (1-based, original order).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(edge_idx) <= m for edge_idx in ' '.join(stdout_lines[k].split()[1:]).split()) for k in range(1, minDegree + 1))\",\n      \"description\": \"All edge indices in the output are valid (1 ≤ edge index ≤ m).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"(minDegree == 0) == (stdout_lines[0].strip() == '0')\",\n      \"description\": \"If minDegree is 0, the first output line is '0' (no edges needed). Otherwise, the first output line corresponds to k=1.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(edge_idx in ' '.join(stdout_lines[k].split()[1:]).split() for edge_idx in ' '.join(stdout_lines[k+1].split()[1:]).split()) for k in range(1, minDegree))\",\n      \"description\": \"For each k, the minimal (k+1)-covering includes all edges of the minimal k-covering (monotonicity).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"(lambda k: all(sum(1 for edge in edges if edge[0] == u or edge[1] == v) >= k for u in range(1, n1 + 1) for v in range(1, n2 + 1)))(' '.join(stdout_lines[k].split()[1:]).split())\",\n      \"description\": \"For each k, the edges in the k-th output line form a k-covering: every vertex in U and V is incident to at least k edges in the subset.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(not any(edge_idx in ' '.join(stdout_lines[k].split()[1:]).split() for edge_idx in ' '.join(stdout_lines[k].split()[1:]).split()[i+1:]) for k in range(1, minDegree + 1) for i in range(len(' '.join(stdout_lines[k].split()[1:]).split()) - 1))\",\n      \"description\": \"For each k, the edge indices in the k-th output line are pairwise distinct.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(len(' '.join(stdout_lines[k].split()[1:]).split()) == min(cntk for cntk in range(0, m + 1) if (lambda edges: all(sum(1 for edge in edges if edge[0] == u or edge[1] == v) >= k for u in range(1, n1 + 1) for v in range(1, n2 + 1)))([edges[i-1] for i in edges if i in ' '.join(stdout_lines[k].split()[1:]).split()])) for k in range(1, minDegree + 1))\",\n      \"description\": \"For each k, the size of the k-covering in the k-th output line is minimal possible.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1572,
+  "generated_tokens": 1151,
+  "hit_output_limit": false,
+  "generation_seconds": 50.774,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:36:30.416376+00:00"
+}

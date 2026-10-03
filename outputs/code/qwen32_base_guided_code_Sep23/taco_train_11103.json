@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_11103",
+  "task_index": 171,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_11103.json",
+  "code": "import sys\n\ndef resolve_type(t, types):\n    while t in types:\n        t = types[t]\n    return t\n\ndef apply_dereference(t):\n    if t == 'void':\n        return 'errtype'\n    elif t == 'errtype':\n        return 'errtype'\n    elif t.endswith('*'):\n        return t[:-1]\n    else:\n        return 'errtype'\n\ndef apply_pointer(t):\n    return t + '*'\n\nn = int(sys.stdin.readline())\ntypes = {}\nresults = []\n\nfor _ in range(n):\n    line = sys.stdin.readline().strip()\n    if line.startswith('typedef'):\n        _, a, b = line.split()\n        a = resolve_type(a, types)\n        types[b] = a\n    elif line.startswith('typeof'):\n        _, a = line.split()\n        a = resolve_type(a, types)\n        asterisks = 0\n        while a.endswith('*'):\n            asterisks += 1\n            a = a[:-1]\n        if a == '&':\n            a = 'void'\n        if a != 'void':\n            results.append('errtype')\n        else:\n            results.append('void' + '*' * asterisks)\n\nfor result in results:\n    print(result)",
+  "generation_seconds": 24.214,
+  "generated_at": "2026-09-23T20:36:54.649882+00:00"
+}

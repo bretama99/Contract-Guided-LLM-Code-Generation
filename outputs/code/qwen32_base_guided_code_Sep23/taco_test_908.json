@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_908",
+  "task_index": 154,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_908.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef bfs(tree, start):\n    dist = [-1] * (len(tree) + 1)\n    dist[start] = 0\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbor in tree[node]:\n            if dist[neighbor] == -1:\n                dist[neighbor] = dist[node] + 1\n                queue.append(neighbor)\n    return dist\n\ndef max_cool_sequence_length(tree, dists, P, Q):\n    max_len = 0\n    for root in range(1, len(tree) + 1):\n        dp = [0] * (len(tree) + 1)\n        dp[root] = (dists[root][P], dists[root][Q])\n        for d in range(1, len(tree) + 1):\n            for node in range(1, len(tree) + 1):\n                if dp[node][0] == d:\n                    for neighbor in tree[node]:\n                        if dists[node][neighbor] == d + 1:\n                            dp[neighbor] = max(dp[neighbor], (dp[node][0] + 1, dp[node][1]))\n                            if neighbor == Q:\n                                max_len = max(max_len, dp[neighbor][0])\n    return max_len\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx])\n    M = int(input[idx + 1])\n    idx += 2\n    tree = defaultdict(list)\n    for _ in range(N - 1):\n        U = int(input[idx])\n        V = int(input[idx + 1])\n        tree[U].append(V)\n        tree[V].append(U)\n        idx += 2\n    dists = [bfs(tree, i) for i in range(1, N + 1)]\n    queries = []\n    for _ in range(M):\n        P = int(input[idx])\n        Q = int(input[idx + 1])\n        queries.append((P, Q))\n        idx += 2\n    results = []\n    for P, Q in queries:\n        results.append(max_cool_sequence_length(tree, dists, P, Q))\n    print('\\n'.join(map(str, results)))\n\nmain()",
+  "generation_seconds": 43.635,
+  "generated_at": "2026-09-23T20:29:37.199648+00:00"
+}

@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_19292",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200 and 2 <= m <= 10**5",
+        "description": "n is the number of time-steps (1 ≤ n ≤ 200) and m is the number of target banana counts (2 ≤ m ≤ 10^5)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t_i <= 2 for t_i, _, _ in operations) and all(1 <= y_i <= m for _, _, y_i in operations)",
+        "description": "Each operation has a type t_i (1 or 2) and a bound y_i (1 ≤ y_i ≤ m)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 1) and all(10**5 < x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 2)",
+        "description": "For type 1, x'_i is in [1, 10^5 * m]; for type 2, x'_i is in (10^5, 10^5 * m]."
+      },
+      {
+        "id": "P4",
+        "expression": "len(operations) == n",
+        "description": "The input contains exactly n operations."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == m and all(1 <= j <= m for j in range(1, m + 1))",
+        "description": "The output is a list of exactly m integers, one for each target banana count j from 1 to m."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output[j - 1] == -1 or (1 <= output[j - 1] <= n) for j in range(1, m + 1))",
+        "description": "For each target j, output[j - 1] is either -1 (impossible) or a valid time-step index (1 ≤ output[j - 1] ≤ n)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output[j - 1] == -1) or (exists(sequence, k_sequence) where (len(sequence) == output[j - 1]) and (k_sequence[0] == 0) and (all(k_sequence[i] == k_sequence[i - 1] if a_i == 0 else (k_sequence[i] == ceil(k_sequence[i - 1] + x_i) if t_i == 1 else k_sequence[i] == ceil(k_sequence[i - 1] * x_i)) for i in range(1, output[j - 1] + 1)) and (k_sequence[output[j - 1]] == j))) for j in range(1, m + 1))",
+        "description": "For each target j, if output[j - 1] is not -1, there exists a sequence of operations and choices of a_i such that after applying the first output[j - 1] operations, exactly j bananas are obtained."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output[j - 1] == -1) or (all(output[k - 1] == -1 or output[k - 1] > output[j - 1] for k in range(1, j))) for j in range(1, m + 1))",
+        "description": "If a target j is reachable, its earliest time-step is strictly before any later reachable target k > j."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 200 and 2 <= m <= 10**5\",\n      \"description\": \"n is the number of time-steps (1 ≤ n ≤ 200) and m is the number of target banana counts (2 ≤ m ≤ 10^5).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= t_i <= 2 for t_i, _, _ in operations) and all(1 <= y_i <= m for _, _, y_i in operations)\",\n      \"description\": \"Each operation has a type t_i (1 or 2) and a bound y_i (1 ≤ y_i ≤ m).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 1) and all(10**5 < x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 2)\",\n      \"description\": \"For type 1, x'_i is in [1, 10^5 * m]; for type 2, x'_i is in (10^5, 10^5 * m].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(operations) == n\",\n      \"description\": \"The input contains exactly n operations.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output) == m and all(1 <= j <= m for j in range(1, m + 1))\",\n      \"description\": \"The output is a list of exactly m integers, one for each target banana count j from 1 to m.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output[j - 1] == -1 or (1 <= output[j - 1] <= n) for j in range(1, m + 1))\",\n      \"description\": \"For each target j, output[j - 1] is either -1 (impossible) or a valid time-step index (1 ≤ output[j - 1] ≤ n).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((output[j - 1] == -1) or (exists(sequence, k_sequence) where (len(sequence) == output[j - 1]) and (k_sequence[0] == 0) and (all(k_sequence[i] == k_sequence[i - 1] if a_i == 0 else (k_sequence[i] == ceil(k_sequence[i - 1] + x_i) if t_i == 1 else k_sequence[i] == ceil(k_sequence[i - 1] * x_i)) for i in range(1, output[j - 1] + 1)) and (k_sequence[output[j - 1]] == j))) for j in range(1, m + 1))\",\n      \"description\": \"For each target j, if output[j - 1] is not -1, there exists a sequence of operations and choices of a_i such that after applying the first output[j - 1] operations, exactly j bananas are obtained.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((output[j - 1] == -1) or (all(output[k - 1] == -1 or output[k - 1] > output[j - 1] for k in range(1, j))) for j in range(1, m + 1))\",\n      \"description\": \"If a target j is reachable, its earliest time-step is strictly before any later reachable target k > j.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2123,
+  "generated_tokens": 915,
+  "hit_output_limit": false,
+  "generation_seconds": 41.226,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:04:57.649272+00:00"
+}

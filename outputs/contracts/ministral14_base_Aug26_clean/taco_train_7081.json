@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_7081",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(stdin, str) and len(stdin) >= 1 and len(stdin) <= 100000 and all(c in {'#', '_'} for c in stdin)",
+        "description": "The input is a non-empty string of length at most 100,000, consisting exclusively of '#' (filled) and '_' (empty) characters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "(stdout == '-1') or (stdout.count('\\n') == 1 and all(c.isdigit() for c in stdout.split('\\n')[0]) and all(c.isdigit() for c in stdout.split('\\n')[1].split()))",
+        "description": "If no valid profile exists, output is '-1'. Otherwise, the first line is an integer k ≥ 0, and the second line contains exactly k positive integers representing the profile p'."
+      },
+      {
+        "id": "Q2",
+        "expression": "(stdout == '-1') or (all(1 <= int(x) <= len(stdin) for x in stdout.split('\\n')[1].split()))",
+        "description": "Each integer in the profile p' is a positive integer not exceeding the total number of cells n."
+      },
+      {
+        "id": "Q3",
+        "expression": "(stdout == '-1') or (sum(int(x) for x in stdout.split('\\n')[1].split()) <= len(stdin))",
+        "description": "The sum of the profile p' does not exceed the total number of cells n."
+      },
+      {
+        "id": "Q4",
+        "expression": "(stdout == '-1') or (all(any(stdin[i] == '#' for i in range(start, start + int(x))) and (start == 0 or stdin[start - 1] == '_') and (start + int(x) == len(stdin) or stdin[start + int(x)] == '_') for start, x in enumerate(stdout.split('\\n')[1].split(), 0)))",
+        "description": "For each segment in the profile p', there exists a contiguous block of '#'s of length equal to the segment, with at least one '_' before and after (unless at the boundaries)."
+      },
+      {
+        "id": "Q5",
+        "expression": "(stdout == '-1') or (all(stdin[i] == '#' for i in range(len(stdin)) if any(start <= i < start + int(x) for start, x in enumerate(stdout.split('\\n')[1].split(), 0))))",
+        "description": "Every '#' in the mask m must be covered by at least one segment in the profile p'."
+      },
+      {
+        "id": "Q6",
+        "expression": "(stdout == '-1') or (all(stdin[i] == '_' or any(start <= i < start + int(x) for start, x in enumerate(stdout.split('\\n')[1].split(), 0)) for i in range(len(stdin))))",
+        "description": "No '_' in the mask m is forced to be '#' by the profile p'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"isinstance(stdin, str) and len(stdin) >= 1 and len(stdin) <= 100000 and all(c in {'#', '_'} for c in stdin)\",\n      \"description\": \"The input is a non-empty string of length at most 100,000, consisting exclusively of '#' (filled) and '_' (empty) characters.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"(stdout == '-1') or (stdout.count('\\\\n') == 1 and all(c.isdigit() for c in stdout.split('\\\\n')[0]) and all(c.isdigit() for c in stdout.split('\\\\n')[1].split()))\",\n      \"description\": \"If no valid profile exists, output is '-1'. Otherwise, the first line is an integer k ≥ 0, and the second line contains exactly k positive integers representing the profile p'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"(stdout == '-1') or (all(1 <= int(x) <= len(stdin) for x in stdout.split('\\\\n')[1].split()))\",\n      \"description\": \"Each integer in the profile p' is a positive integer not exceeding the total number of cells n.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"(stdout == '-1') or (sum(int(x) for x in stdout.split('\\\\n')[1].split()) <= len(stdin))\",\n      \"description\": \"The sum of the profile p' does not exceed the total number of cells n.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"(stdout == '-1') or (all(any(stdin[i] == '#' for i in range(start, start + int(x))) and (start == 0 or stdin[start - 1] == '_') and (start + int(x) == len(stdin) or stdin[start + int(x)] == '_') for start, x in enumerate(stdout.split('\\\\n')[1].split(), 0)))\",\n      \"description\": \"For each segment in the profile p', there exists a contiguous block of '#'s of length equal to the segment, with at least one '_' before and after (unless at the boundaries).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"(stdout == '-1') or (all(stdin[i] == '#' for i in range(len(stdin)) if any(start <= i < start + int(x) for start, x in enumerate(stdout.split('\\\\n')[1].split(), 0))))\",\n      \"description\": \"Every '#' in the mask m must be covered by at least one segment in the profile p'.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"(stdout == '-1') or (all(stdin[i] == '_' or any(start <= i < start + int(x) for start, x in enumerate(stdout.split('\\\\n')[1].split(), 0)) for i in range(len(stdin))))\",\n      \"description\": \"No '_' in the mask m is forced to be '#' by the profile p'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1566,
+  "generated_tokens": 781,
+  "hit_output_limit": false,
+  "generation_seconds": 35.468,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:58:36.172698+00:00"
+}

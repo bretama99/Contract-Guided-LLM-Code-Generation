@@ -1,0 +1,82 @@
+{
+  "task_id": "taco_train_24334",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 300000 and 0 <= m < n and 1 <= q <= 300000",
+        "description": "Input constraints: number of cities n, initial roads m, and queries q must satisfy given bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b for a, b in roads)",
+        "description": "Each road connects two distinct cities within the valid range."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x <= n for x in query_x) and all(1 <= x <= n and 1 <= y <= n for x, y in query_xy)",
+        "description": "All city references in queries are within valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 and line.split()[0] == '2' for line in query_lines if line.startswith('2')) or all(len(line.split()) == 1 and line.split()[0] == '1' for line in query_lines if line.startswith('1'))",
+        "description": "Each query is either a type-1 (single city) or type-2 (two cities) request, properly formatted."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line) > 0 and stdout_line.isdigit() for stdout_line in stdout_lines if stdout_line.strip() != '')",
+        "description": "For each type-1 query, the output is a non-empty integer representing the length of the longest path in the region containing the queried city."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(stdout_line) <= n - 1 for stdout_line in stdout_lines if stdout_line.strip() != '')",
+        "description": "The output for each type-1 query is a valid path length (between 0 and n-1)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(region_contains(x, region_x) and region_contains(y, region_y) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y))",
+        "description": "For each type-2 query, the regions of cities x and y are correctly identified before merging."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(region_contains(x, region_y) or region_contains(y, region_x) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y) if region_x != region_y)",
+        "description": "After a type-2 query, the regions of cities x and y are merged into a single region."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(max_path_length(region) <= max_path_length(region_x) + max_path_length(region_y) + 1 for (x, y), region_x, region_y, region in zip(query_xy, regions_x, regions_y, merged_regions) if region_x != region_y)",
+        "description": "After merging regions, the longest path in the new region does not exceed the sum of the longest paths in the original regions plus one."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(connected_components(roads) == regions)",
+        "description": "The set of roads always defines the current regions (connected components) of cities."
+      },
+      {
+        "id": "I2",
+        "expression": "all(region_contains(x, region) for x, region in zip(cities, regions))",
+        "description": "Every city is always contained in exactly one region."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 300000 and 0 <= m < n and 1 <= q <= 300000\",\n      \"description\": \"Input constraints: number of cities n, initial roads m, and queries q must satisfy given bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and a != b for a, b in roads)\",\n      \"description\": \"Each road connects two distinct cities within the valid range.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= x <= n for x in query_x) and all(1 <= x <= n and 1 <= y <= n for x, y in query_xy)\",\n      \"description\": \"All city references in queries are within valid range.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 2 and line.split()[0] == '2' for line in query_lines if line.startswith('2')) or all(len(line.split()) == 1 and line.split()[0] == '1' for line in query_lines if line.startswith('1'))\",\n      \"description\": \"Each query is either a type-1 (single city) or type-2 (two cities) request, properly formatted.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_line) > 0 and stdout_line.isdigit() for stdout_line in stdout_lines if stdout_line.strip() != '')\",\n      \"description\": \"For each type-1 query, the output is a non-empty integer representing the length of the longest path in the region containing the queried city.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(stdout_line) <= n - 1 for stdout_line in stdout_lines if stdout_line.strip() != '')\",\n      \"description\": \"The output for each type-1 query is a valid path length (between 0 and n-1).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(region_contains(x, region_x) and region_contains(y, region_y) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y))\",\n      \"description\": \"For each type-2 query, the regions of cities x and y are correctly identified before merging.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(region_contains(x, region_y) or region_contains(y, region_x) for (x, y), region_x, region_y in zip(query_xy, regions_x, regions_y) if region_x != region_y)\",\n      \"description\": \"After a type-2 query, the regions of cities x and y are merged into a single region.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(max_path_length(region) <= max_path_length(region_x) + max_path_length(region_y) + 1 for (x, y), region_x, region_y, region in zip(query_xy, regions_x, regions_y, merged_regions) if region_x != region_y)\",\n      \"description\": \"After merging regions, the longest path in the new region does not exceed the sum of the longest paths in the original regions plus one.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(connected_components(roads) == regions)\",\n      \"description\": \"The set of roads always defines the current regions (connected components) of cities.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(region_contains(x, region) for x, region in zip(cities, regions))\",\n      \"description\": \"Every city is always contained in exactly one region.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1658,
+  "generated_tokens": 926,
+  "hit_output_limit": false,
+  "generation_seconds": 41.459,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:13:31.742966+00:00"
+}

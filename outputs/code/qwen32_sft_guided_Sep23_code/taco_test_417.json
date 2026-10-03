@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_417",
+  "task_index": 486,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_test_417.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    nodes = []\n    index = 1\n    for i in range(n):\n        p_i = int(input[index])\n        c_i = int(input[index + 1])\n        nodes.append((p_i, c_i))\n        index += 2\n\n    tree = defaultdict(list)\n    root = None\n    for i, (p_i, c_i) in enumerate(nodes):\n        if p_i == 0:\n            root = i + 1\n        else:\n            tree[p_i].append(i + 1)\n\n    def dfs(node, available_values):\n        if node is None:\n            return True, []\n\n        children = tree[node]\n        children.sort(key=lambda x: nodes[x - 1][1])\n\n        used_values = []\n        for child in children:\n            child_c_i = nodes[child - 1][1]\n            if child_c_i > len(available_values):\n                return False, []\n            success, child_used_values = dfs(child, available_values[:child_c_i])\n            if not success:\n                return False, []\n            used_values.extend(child_used_values)\n            available_values = available_values[child_c_i:]\n\n        node_c_i = nodes[node - 1][1]\n        if node_c_i > len(available_values):\n            return False, []\n        used_values.extend(available_values[:node_c_i])\n        available_values = available_values[node_c_i:]\n\n        if available_values:\n            used_values.append(available_values[0])\n        else:\n            return False, []\n\n        return True, used_values\n\n    available_values = list(range(1, n + 1))\n    success, result = dfs(root, available_values)\n    if success:\n        a_i = [0] * n\n        for value, node in zip(result, sorted(nodes, key=lambda x: x[1], reverse=True)):\n            a_i[node - 1] = value\n        print(\"YES\")\n        print(\" \".join(map(str, a_i)))\n    else:\n        print(\"NO\")\n\nmain()",
+  "generation_seconds": 39.903,
+  "generated_at": "2026-09-23T20:35:38.121693+00:00"
+}

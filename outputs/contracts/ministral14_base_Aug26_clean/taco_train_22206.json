@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_22206",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 3",
+        "description": "The first line of input is an integer T (1 ≤ T ≤ 3) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 5 for line in stdin.splitlines()[1:1+T])",
+        "description": "Each test case starts with a line containing five integers N, K, X, M, S (2 ≤ K ≤ N ≤ 10^5, 0 ≤ M ≤ 10^5, 1 ≤ S ≤ N, 1 ≤ X ≤ 10^9) separated by spaces."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(a) <= N and 1 <= int(b) <= N and int(a) != int(b) for line in stdin.splitlines()[1+T:] for a, b, c in [line.split()[:3]])",
+        "description": "Each of the M lines for newer roads contains three integers a_i, b_i, c_i (1 ≤ a_i, b_i ≤ N, a_i ≠ b_i, 1 ≤ c_i ≤ 10^9) representing a road between cities a_i and b_i with length c_i."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1+T:])",
+        "description": "Each newer road is specified by exactly three integers (a_i, b_i, c_i)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(int(a) != int(b) for line in stdin.splitlines()[1+T:] for a, b, c in [line.split()[:3]])",
+        "description": "No road connects a city to itself (a_i ≠ b_i)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(c) <= 10**9 for line in stdin.splitlines()[1+T:] for a, b, c in [line.split()[:3]])",
+        "description": "Road lengths c_i satisfy 1 ≤ c_i ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == N for output_line in stdout.splitlines())",
+        "description": "For each test case, the output is a single line containing exactly N integers, where N is the number of cities."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(dist) <= 10**18 for output_line in stdout.splitlines() for dist in output_line.split())",
+        "description": "Each distance in the output is a non-negative integer (≤ 10^18) representing the minimum total length of a path from city S to city i."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(dist) == 0 for output_line in stdout.splitlines() if int(output_line.split()[S-1]) == 0)",
+        "description": "The distance from city S to itself is always 0."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(dist) == min(sum(c_i for a_i, b_i, c_i in path) for path in all_paths) if all_paths else 0 for output_line in stdout.splitlines() for dist in output_line.split())",
+        "description": "For each city i, the output distance is the minimum total length of any path from city S to city i, where paths are sequences of roads connecting S to i. The graph is guaranteed to be connected, so a path always exists."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(int(dist) <= int(dist2) for output_line in stdout.splitlines() for dist, dist2 in zip(output_line.split(), output_line.split()[1:])) if len(output_line.split()) > 1 else True",
+        "description": "The distances are computed correctly for all cities, including the old cities (1..K) which are fully connected with roads of length X."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 3\",\n      \"description\": \"The first line of input is an integer T (1 ≤ T ≤ 3) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 5 for line in stdin.splitlines()[1:1+T])\",\n      \"description\": \"Each test case starts with a line containing five integers N, K, X, M, S (2 ≤ K ≤ N ≤ 10^5, 0 ≤ M ≤ 10^5, 1 ≤ S ≤ N, 1 ≤ X ≤ 10^9) separated by spaces.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(a) <= N and 1 <= int(b) <= N and int(a) != int(b) for line in stdin.splitlines()[1+T:] for a, b, c in [line.split()[:3]])\",\n      \"description\": \"Each of the M lines for newer roads contains three integers a_i, b_i, c_i (1 ≤ a_i, b_i ≤ N, a_i ≠ b_i, 1 ≤ c_i ≤ 10^9) representing a road between cities a_i and b_i with length c_i.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1+T:])\",\n      \"description\": \"Each newer road is specified by exactly three integers (a_i, b_i, c_i).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(int(a) != int(b) for line in stdin.splitlines()[1+T:] for a, b, c in [line.split()[:3]])\",\n      \"description\": \"No road connects a city to itself (a_i ≠ b_i).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= int(c) <= 10**9 for line in stdin.splitlines()[1+T:] for a, b, c in [line.split()[:3]])\",\n      \"description\": \"Road lengths c_i satisfy 1 ≤ c_i ≤ 10^9.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line.split()) == N for output_line in stdout.splitlines())\",\n      \"description\": \"For each test case, the output is a single line containing exactly N integers, where N is the number of cities.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(dist) <= 10**18 for output_line in stdout.splitlines() for dist in output_line.split())\",\n      \"description\": \"Each distance in the output is a non-negative integer (≤ 10^18) representing the minimum total length of a path from city S to city i.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(dist) == 0 for output_line in stdout.splitlines() if int(output_line.split()[S-1]) == 0)\",\n      \"description\": \"The distance from city S to itself is always 0.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(dist) == min(sum(c_i for a_i, b_i, c_i in path) for path in all_paths) if all_paths else 0 for output_line in stdout.splitlines() for dist in output_line.split())\",\n      \"description\": \"For each city i, the output distance is the minimum total length of any path from city S to city i, where paths are sequences of roads connecting S to i. The graph is guaranteed to be connected, so a path always exists.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(int(dist) <= int(dist2) for output_line in stdout.splitlines() for dist, dist2 in zip(output_line.split(), output_line.split()[1:])) if len(output_line.split()) > 1 else True\",\n      \"description\": \"The distances are computed correctly for all cities, including the old cities (1..K) which are fully connected with roads of length X.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2004,
+  "generated_tokens": 1032,
+  "hit_output_limit": false,
+  "generation_seconds": 45.83,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:35:44.570430+00:00"
+}

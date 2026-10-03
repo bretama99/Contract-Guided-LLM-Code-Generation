@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18550",
+  "task_index": 1004,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_18550.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nMOD = 10**9 + 7\n\ndef z_function(s):\n    n = len(s)\n    z = [0] * n\n    l, r = 0, 0\n    for i in range(1, n):\n        if i <= r:\n            z[i] = min(r - i + 1, z[i - l])\n        while i + z[i] < n and s[z[i]] == s[i + z[i]]:\n            z[i] += 1\n        if i + z[i] - 1 > r:\n            l, r = i, i + z[i] - 1\n    return z\n\ndef count_occurrences(s, w):\n    combined = w + '#' + s\n    z_values = z_function(combined)\n    count = sum(1 for x in z_values[len(w) + 1:] if x == len(w))\n    return count\n\ndef preprocess(s_0, t):\n    n = len(t)\n    songs = [s_0]\n    for i in range(n):\n        next_song = songs[-1] + t[i] + songs[-1]\n        songs.append(next_song)\n    return songs\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    q = int(input[1])\n    s_0 = input[2]\n    t = input[3]\n    queries = []\n    idx = 4\n    for _ in range(q):\n        k = int(input[idx])\n        w = input[idx + 1]\n        queries.append((k, w))\n        idx += 2\n\n    results = []\n    for k, w in queries:\n        s_k = s_0\n        for i in range(k):\n            s_k = s_k + t[i] + s_k\n        count = count_occurrences(s_k, w)\n        results.append(count % MOD)\n\n    for result in results:\n        print(result)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 36.338,
+  "generated_at": "2026-09-23T21:41:15.801041+00:00"
+}

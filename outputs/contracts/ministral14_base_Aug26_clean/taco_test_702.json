@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_702",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= n <= 10**5 for line in stdin.splitlines() if line.strip().isdigit() and int(line.strip()) == n)",
+        "description": "Each test case starts with an integer n (2 ≤ n ≤ 10^5) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(edges) == n - 1 for n, edges in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "Each test case contains exactly n-1 edges describing an unweighted tree with n vertices."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b for n, edges in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]]) for i in range(1, len(stdin.splitlines()), n+1)] for a, b in edges)",
+        "description": "Each edge (a_i, b_i) connects two distinct vertices within the range [1, n]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(stdin.splitlines()) == 1 + sum(int(stdin.splitlines()[i]) for i in range(0, len(stdin.splitlines()), int(stdin.splitlines()[i]) + 1)))",
+        "description": "The input format is correct: t test cases, each with n followed by n-1 edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 2 * k + 1 for k, output_lines in [(int(line) if line.strip().isdigit() else None for line in stdout.splitlines()) for line in stdout.splitlines() if line.strip().isdigit()])",
+        "description": "For each test case, the first line of output is an integer k (the minimum number of operations), followed by exactly k lines of 4 integers each (x1, y1, x2, y2) representing the operations."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= x1 <= n and 1 <= y1 <= n and x1 != y1 and 1 <= x2 <= n and 1 <= y2 <= n and x2 != y2 for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]])",
+        "description": "Each operation (x1, y1, x2, y2) has valid vertex indices (1 ≤ x1, y1, x2, y2 ≤ n) and x1 ≠ y1, x2 ≠ y2."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((x1, y1) in edges or (y1, x1) in edges for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]] for (x1, y1, x2, y2) in ops)",
+        "description": "The edge (x1, y1) being removed must exist in the original tree (or be present at the time of removal, but the problem allows any order of operations)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(is_bamboo(n, edges, ops) for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]])",
+        "description": "After performing all k operations, the resulting graph is a bamboo (a tree where no node has degree > 2)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(k == min_operations(n, edges) for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]])",
+        "description": "The value k is the minimum number of operations required to transform the original tree into a bamboo."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= n <= 10**5 for line in stdin.splitlines() if line.strip().isdigit() and int(line.strip()) == n)\",\n      \"description\": \"Each test case starts with an integer n (2 ≤ n ≤ 10^5) representing the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(edges) == n - 1 for n, edges in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"Each test case contains exactly n-1 edges describing an unweighted tree with n vertices.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and a != b for n, edges in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]]) for i in range(1, len(stdin.splitlines()), n+1)] for a, b in edges)\",\n      \"description\": \"Each edge (a_i, b_i) connects two distinct vertices within the range [1, n].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(stdin.splitlines()) == 1 + sum(int(stdin.splitlines()[i]) for i in range(0, len(stdin.splitlines()), int(stdin.splitlines()[i]) + 1)))\",\n      \"description\": \"The input format is correct: t test cases, each with n followed by n-1 edges.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_lines) == 2 * k + 1 for k, output_lines in [(int(line) if line.strip().isdigit() else None for line in stdout.splitlines()) for line in stdout.splitlines() if line.strip().isdigit()])\",\n      \"description\": \"For each test case, the first line of output is an integer k (the minimum number of operations), followed by exactly k lines of 4 integers each (x1, y1, x2, y2) representing the operations.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= x1 <= n and 1 <= y1 <= n and x1 != y1 and 1 <= x2 <= n and 1 <= y2 <= n and x2 != y2 for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]])\",\n      \"description\": \"Each operation (x1, y1, x2, y2) has valid vertex indices (1 ≤ x1, y1, x2, y2 ≤ n) and x1 ≠ y1, x2 ≠ y2.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((x1, y1) in edges or (y1, x1) in edges for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]] for (x1, y1, x2, y2) in ops)\",\n      \"description\": \"The edge (x1, y1) being removed must exist in the original tree (or be present at the time of removal, but the problem allows any order of operations).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(is_bamboo(n, edges, ops) for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]])\",\n      \"description\": \"After performing all k operations, the resulting graph is a bamboo (a tree where no node has degree > 2).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(k == min_operations(n, edges) for n, edges, k, ops in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], int(stdout.splitlines()[j]), [tuple(map(int, line.split())) for line in stdout.splitlines()[j+1:j+k+1]]) for i, j in [(0, 0), (1 + n, 1 + n + 1)]])\",\n      \"description\": \"The value k is the minimum number of operations required to transform the original tree into a bamboo.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1554,
+  "generated_tokens": 1307,
+  "hit_output_limit": false,
+  "generation_seconds": 58.101,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:47:49.698921+00:00"
+}

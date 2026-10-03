@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18371",
+  "task_index": 184,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_18371.json",
+  "code": "import sys\nfrom collections import deque\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    \n    try:\n        n = int(next(iterator))\n    except StopIteration:\n        return\n\n    adj = [[] for _ in range(n + 1)]\n    \n    for _ in range(n - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        w = int(next(iterator))\n        adj[u].append((v, w))\n        adj[v].append((u, w))\n        \n    s = int(next(iterator))\n    m = int(next(iterator))\n    \n    criminals = []\n    for _ in range(m):\n        criminals.append(int(next(iterator)))\n        \n    def bfs_distances(start_node):\n        dist = [-1] * (n + 1)\n        dist[start_node] = 0\n        queue = deque([start_node])\n        \n        while queue:\n            u = queue.popleft()\n            for v, w in adj[u]:\n                if dist[v] == -1:\n                    dist[v] = dist[u] + w\n                    queue.append(v)\n        return dist\n\n    dist_policeman = bfs_distances(s)\n    \n    max_time = 0\n    safe_subtrees = []\n    \n    for c in criminals:\n        dist_criminal = bfs_distances(c)\n        can_escape = False\n        \n        for v in range(1, n + 1):\n            if dist_policeman[v] > dist_criminal[v]:\n                can_escape = True\n                break\n        \n        if can_escape:\n            print(\"Terrorists win\")\n            return\n        \n        if dist_policeman[c] > max_time:\n            max_time = dist_policeman[c]\n            \n    print(max_time)\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 36.716,
+  "generated_at": "2026-09-22T15:10:36.774421+00:00"
+}

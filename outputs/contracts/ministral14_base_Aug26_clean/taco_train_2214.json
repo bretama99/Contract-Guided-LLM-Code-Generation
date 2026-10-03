@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_2214",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[0]) <= int(line.split()[1]) <= 10**5 for line in stdin.splitlines()[1:]) and all(0 <= int(line.split()[2]) <= 10**9 for line in stdin.splitlines()[1:])",
+        "description": "The first line contains integers n (2 ≤ n ≤ 10^5) and m (n-1 ≤ m ≤ 10^6), where n is the number of destinations and m is the number of corridors. Each subsequent line contains three integers a, b, and e (1 ≤ a, b ≤ n, a ≠ b, 0 ≤ e ≤ 10^9), representing a corridor between destinations a and b with energy e. The graph is connected."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m+1 lines: one for n and m, and m lines for the corridors."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each corridor line contains exactly three space-separated integers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**9",
+        "description": "The output is a single integer representing E_max(c_1), where c_1 is the first corridor in the input, and 0 ≤ E_max(c_1) ≤ 10^9."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= e <= 10**9 for a, b, e in [tuple(map(int, line.split())) for line in stdin.splitlines()[1:]])",
+        "description": "The output E_max(c_1) is the largest e ≤ 10^9 such that if the energy of the first corridor c_1 is set to e, then c_1 is part of at least one minimum spanning tree (MST) of the graph."
+      },
+      {
+        "id": "Q3",
+        "expression": "c1_original_e == int(stdin.splitlines()[1].split()[2]) and c1_original_e > int(stdout.strip()) ==> any(all(e == c1_original_e for a, b, e in mst_edges) for mst_edges in [get_mst_edges(edges_with_e_modified(c1_original_e, e)) for e in range(int(stdout.strip()) + 1, c1_original_e + 1)])",
+        "description": "If the original energy of c_1 is greater than E_max(c_1), then c_1 is not part of any MST when its energy is set to any value greater than E_max(c_1). (Helper definitions: edges_with_e_modified(c1_original_e, e) replaces the first corridor's energy with e; get_mst_edges(edges) returns the edges of an MST for the given edges.)"
+      },
+      {
+        "id": "Q4",
+        "expression": "c1_original_e <= int(stdout.strip()) ==> any(all(e == c1_original_e for a, b, e in mst_edges) for mst_edges in [get_mst_edges(edges_with_e_modified(c1_original_e, e)) for e in range(c1_original_e, int(stdout.strip()) + 1)])",
+        "description": "If the original energy of c_1 is less than or equal to E_max(c_1), then c_1 is part of at least one MST when its energy is set to any value up to E_max(c_1). (Helper definitions as in Q3.)"
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[0]) <= int(line.split()[1]) <= 10**5 for line in stdin.splitlines()[1:]) and all(0 <= int(line.split()[2]) <= 10**9 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The first line contains integers n (2 ≤ n ≤ 10^5) and m (n-1 ≤ m ≤ 10^6), where n is the number of destinations and m is the number of corridors. Each subsequent line contains three integers a, b, and e (1 ≤ a, b ≤ n, a ≠ b, 0 ≤ e ≤ 10^9), representing a corridor between destinations a and b with energy e. The graph is connected.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m+1 lines: one for n and m, and m lines for the corridors.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each corridor line contains exactly three space-separated integers.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**9\",\n      \"description\": \"The output is a single integer representing E_max(c_1), where c_1 is the first corridor in the input, and 0 ≤ E_max(c_1) ≤ 10^9.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= e <= 10**9 for a, b, e in [tuple(map(int, line.split())) for line in stdin.splitlines()[1:]])\",\n      \"description\": \"The output E_max(c_1) is the largest e ≤ 10^9 such that if the energy of the first corridor c_1 is set to e, then c_1 is part of at least one minimum spanning tree (MST) of the graph.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"c1_original_e == int(stdin.splitlines()[1].split()[2]) and c1_original_e > int(stdout.strip()) ==> any(all(e == c1_original_e for a, b, e in mst_edges) for mst_edges in [get_mst_edges(edges_with_e_modified(c1_original_e, e)) for e in range(int(stdout.strip()) + 1, c1_original_e + 1)])\",\n      \"description\": \"If the original energy of c_1 is greater than E_max(c_1), then c_1 is not part of any MST when its energy is set to any value greater than E_max(c_1). (Helper definitions: edges_with_e_modified(c1_original_e, e) replaces the first corridor's energy with e; get_mst_edges(edges) returns the edges of an MST for the given edges.)\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"c1_original_e <= int(stdout.strip()) ==> any(all(e == c1_original_e for a, b, e in mst_edges) for mst_edges in [get_mst_edges(edges_with_e_modified(c1_original_e, e)) for e in range(c1_original_e, int(stdout.strip()) + 1)])\",\n      \"description\": \"If the original energy of c_1 is less than or equal to E_max(c_1), then c_1 is part of at least one MST when its energy is set to any value up to E_max(c_1). (Helper definitions as in Q3.)\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1766,
+  "generated_tokens": 962,
+  "hit_output_limit": false,
+  "generation_seconds": 41.926,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:32:51.698841+00:00"
+}

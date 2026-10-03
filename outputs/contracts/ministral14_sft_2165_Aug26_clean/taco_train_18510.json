@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_18510",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 100 and 1 <= m <= 100 and 1 <= k <= 100",
+        "description": "The dimensions n, m, k of the supercomputer are integers between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line) == k for line in stdin.splitlines() if line.strip() != '')",
+        "description": "Each non-empty line in the input has exactly k characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(line.strip() in ['0', '1'] * k for line in stdin.splitlines() if line.strip() != '')",
+        "description": "Each character in the input is either '0' or '1'."
+      },
+      {
+        "id": "P4",
+        "expression": "all('0' <= c <= '1' for block in stdin.split('\n\n') for line in block.splitlines() if line.strip() != '' for c in line)",
+        "description": "Each CPU state is represented by '0' (broken) or '1' (working)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and 0 <= int(stdout) <= n * m * k",
+        "description": "The output is a non-negative integer representing the number of critical CPUs."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= x <= n and 1 <= y <= m and 1 <= z <= k for x, y, z in critical_cpus) if (critical_cpus := [(x, y, z) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1) if is_critical(x, y, z)]) else True",
+        "description": "Each critical CPU is identified by valid coordinates (x, y, z) within the supercomputer's dimensions."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(is_critical(x, y, z) == (exists(a, b, c, d, e, f) such that (a != x or b != y or c != z) and (d != x or e != y or f != z) and controls_before(x, y, z, a, b, c, d, e, f) and not controls_after(x, y, z, a, b, c, d, e, f)))",
+        "description": "A CPU (x, y, z) is critical if and only if there exist two distinct CPUs (a, b, c) and (d, e, f) such that (a, b, c) controls (d, e, f) before (x, y, z) is turned off, but not after."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 100 and 1 <= m <= 100 and 1 <= k <= 100\",\n      \"description\": \"The dimensions n, m, k of the supercomputer are integers between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line) == k for line in stdin.splitlines() if line.strip() != '')\",\n      \"description\": \"Each non-empty line in the input has exactly k characters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(line.strip() in ['0', '1'] * k for line in stdin.splitlines() if line.strip() != '')\",\n      \"description\": \"Each character in the input is either '0' or '1'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all('0' <= c <= '1' for block in stdin.split('\\n\\n') for line in block.splitlines() if line.strip() != '' for c in line)\",\n      \"description\": \"Each CPU state is represented by '0' (broken) or '1' (working).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.isdigit() and 0 <= int(stdout) <= n * m * k\",\n      \"description\": \"The output is a non-negative integer representing the number of critical CPUs.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= x <= n and 1 <= y <= m and 1 <= z <= k for x, y, z in critical_cpus) if (critical_cpus := [(x, y, z) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1) if is_critical(x, y, z)]) else True\",\n      \"description\": \"Each critical CPU is identified by valid coordinates (x, y, z) within the supercomputer's dimensions.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(is_critical(x, y, z) == (exists(a, b, c, d, e, f) such that (a != x or b != y or c != z) and (d != x or e != y or f != z) and controls_before(x, y, z, a, b, c, d, e, f) and not controls_after(x, y, z, a, b, c, d, e, f)))\",\n      \"description\": \"A CPU (x, y, z) is critical if and only if there exist two distinct CPUs (a, b, c) and (d, e, f) such that (a, b, c) controls (d, e, f) before (x, y, z) is turned off, but not after.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2014,
+  "generated_tokens": 730,
+  "hit_output_limit": false,
+  "generation_seconds": 31.382,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:55:43.394459+00:00"
+}

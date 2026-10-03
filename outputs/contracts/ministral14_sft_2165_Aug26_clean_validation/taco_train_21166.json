@@ -1,0 +1,325 @@
+{
+  "task_id": "taco_train_21166",
+  "task_index": 238,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(X) <= 10**9 and 1 <= int(d) <= 10**9",
+        "description": "X and d are integers within the range [1, 10^9]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (len(stdout_lines := stdout.strip().splitlines()) == 2 and len(n := stdout_lines[0].strip()) > 0 and n.isdigit() and 1 <= int(n) <= 10**4 and len(a := list(map(int, stdout_lines[1].strip().split()))) == int(n) and all(1 <= x < 10**18 for x in a))",
+        "description": "Output is either '-1' or a valid array of positive integers with length ≤ 10^4, each < 10^18."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and (X_int := int(X)) == sum(1 for mask in range(1, 1 << int(n)) if (max_sub := max(a[i] for i in range(int(n)) if (mask & (1 << i)))) - (min_sub := min(a[i] for i in range(int(n)) if (mask & (1 << i)))) < int(d))",
+        "description": "If output is not '-1', the constructed array must have exactly X subsequences where max(subsequence) - min(subsequence) < d."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(X) <= 10**9 and 1 <= int(d) <= 10**9",
+        "description": "X and d are integers within the range [1, 10^9]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (len(stdout_lines := stdout.strip().splitlines()) == 2 and len(n := stdout_lines[0].strip()) > 0 and n.isdigit() and 1 <= int(n) <= 10**4 and len(a := list(map(int, stdout_lines[1].strip().split()))) == int(n) and all(1 <= x < 10**18 for x in a))",
+        "description": "Output is either '-1' or a valid array of positive integers with length ≤ 10^4, each < 10^18."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and (X_int := int(X)) == sum(1 for mask in range(1, 1 << int(n)) if (max_sub := max(a[i] for i in range(int(n)) if (mask & (1 << i)))) - (min_sub := min(a[i] for i in range(int(n)) if (mask & (1 << i)))) < int(d))",
+        "description": "If output is not '-1', the constructed array must have exactly X subsequences where max(subsequence) - min(subsequence) < d."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "54a1d07c3a2dd938ff88f207969bad8fbd9ad7c1ca030db02436f54cf3002b9a",
+  "selected_contract_fingerprint": "54a1d07c3a2dd938ff88f207969bad8fbd9ad7c1ca030db02436f54cf3002b9a",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_21166.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a clause to handle the case where no valid array exists (i.e., when X cannot be achieved with any array of length ≤ 10^4). The current contract does not explicitly enforce that the output must be '-1' when no valid array exists, only that '-1' is allowed. The task requires returning '-1' if no answer is possible.",
+        "task_evidence": "If no answer is possible, print -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly count only non-empty subsequences where max(subsequence) - min(subsequence) < d. The current expression does not explicitly exclude empty subsequences (though the mask range starts at 1, which is correct), but more critically, it does not account for the fact that the task requires the count of such subsequences to be exactly X. The current expression is logically correct for counting valid subsequences, but the contract does not enforce that the output array must satisfy the condition for exactly X subsequences (it only checks if the count matches X, which is correct, but the logic for counting is redundant with the task's requirement). The real issue is that the contract does not explicitly handle the case where no array can produce exactly X valid subsequences.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a clause to ensure that the output array, if not '-1', must produce exactly X valid subsequences (i.e., the count of subsequences where max(subsequence) - min(subsequence) < d must equal X). The current postcondition Q2 checks this, but it is not clear whether the contract enforces that the output array must be constructed such that this condition is met for the given X and d. The task requires constructing an array that satisfies this, so the contract must ensure this is enforced.",
+        "task_evidence": "He now wants you to construct any such array which will satisfy the above conditions.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a clause to ensure that the output array, if not '-1', must be such that no other array of length ≤ 10^4 can produce exactly X valid subsequences (i.e., the solution must be feasible). This is implicit in the task, but the contract does not explicitly enforce that the output is a valid solution to the problem (only that it matches the format).",
+        "task_evidence": "If no answer is possible, print -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[1].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 4
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a clause to handle the case where no valid array exists (i.e., when X cannot be achieved with any array of length ≤ 10^4). The current contract does not explicitly enforce that the output must be '-1' when no valid array exists, only that '-1' is allowed. The task requires returning '-1' if no answer is possible.",
+        "task_evidence": "If no answer is possible, print -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly count only non-empty subsequences where max(subsequence) - min(subsequence) < d. The current expression does not explicitly exclude empty subsequences (though the mask range starts at 1, which is correct), but more critically, it does not account for the fact that the task requires the count of such subsequences to be exactly X. The current expression is logically correct for counting valid subsequences, but the contract does not enforce that the output array must satisfy the condition for exactly X subsequences (it only checks if the count matches X, which is correct, but the logic for counting is redundant with the task's requirement). The real issue is that the contract does not explicitly handle the case where no array can produce exactly X valid subsequences.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a clause to ensure that the output array, if not '-1', must produce exactly X valid subsequences (i.e., the count of subsequences where max(subsequence) - min(subsequence) < d must equal X). The current postcondition Q2 checks this, but it is not clear whether the contract enforces that the output array must be constructed such that this condition is met for the given X and d. The task requires constructing an array that satisfies this, so the contract must ensure this is enforced.",
+        "task_evidence": "He now wants you to construct any such array which will satisfy the above conditions.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a clause to ensure that the output array, if not '-1', must be such that no other array of length ≤ 10^4 can produce exactly X valid subsequences (i.e., the solution must be feasible). This is implicit in the task, but the contract does not explicitly enforce that the output is a valid solution to the problem (only that it matches the format).",
+        "task_evidence": "If no answer is possible, print -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[1].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 4
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 29.619,
+  "processing_error": null,
+  "finished_at": "2026-09-04T06:17:08.568649+00:00"
+}

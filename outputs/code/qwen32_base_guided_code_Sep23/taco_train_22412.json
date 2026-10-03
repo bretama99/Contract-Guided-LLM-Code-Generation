@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_22412",
+  "task_index": 614,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_22412.json",
+  "code": "import sys\nfrom collections import defaultdict\nimport heapq\n\ndef find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, x, y):\n    rootX = find(parent, x)\n    rootY = find(parent, y)\n    if rootX != rootY:\n        if rank[rootX] > rank[rootY]:\n            parent[rootY] = rootX\n        elif rank[rootX] < rank[rootY]:\n            parent[rootX] = rootY\n        else:\n            parent[rootY] = rootX\n            rank[rootX] += 1\n\ndef kruskal(n, edges):\n    parent = list(range(n))\n    rank = [0] * n\n    edges.sort()\n    mst_weight = 0\n    for weight, u, v in edges:\n        if find(parent, u) != find(parent, v):\n            union(parent, rank, u, v)\n            mst_weight += weight\n    for i in range(n):\n        find(parent, i)\n    return mst_weight if len(set(parent)) == 1 else -1\n\ndef main():\n    import sys\n    input = sys.stdin.read().splitlines()\n    idx = 0\n    t = int(input[idx])\n    idx += 1\n    results = []\n    for _ in range(t):\n        n = int(input[idx])\n        idx += 1\n        A = list(map(int, input[idx].split()))\n        idx += 1\n        graph = defaultdict(list)\n        for i in range(n):\n            for j in range(i + 1, n):\n                L = A[i] & A[j]\n                if L > 0:\n                    graph[L].append((i, j))\n        edges = []\n        for L in graph:\n            for u, v in graph[L]:\n                edges.append((L, u, v))\n        results.append(kruskal(n, edges))\n    for result in results:\n        print(result)\n\nmain()",
+  "generation_seconds": 38.608,
+  "generated_at": "2026-09-23T20:11:54.513964+00:00"
+}

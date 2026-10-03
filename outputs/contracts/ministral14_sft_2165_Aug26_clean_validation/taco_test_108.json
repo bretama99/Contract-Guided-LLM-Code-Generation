@@ -1,0 +1,283 @@
+{
+  "task_id": "taco_test_108",
+  "task_index": 391,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(L) <= int(R) <= 10**6",
+        "description": "L and R are integers where 1 ≤ L ≤ R ≤ 10^6"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and all(line.strip() != '' for line in stdout.splitlines()))",
+        "description": "Output is either 'NO' or a valid 'YES' response with a complete city description"
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: (len(lines) >= 3 and all(len(line.split()) == 3 for line in lines[2:])))(stdout.splitlines())",
+        "description": "If 'YES', the output must include n, m, and m lines of road descriptions with exactly three integers per line"
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: (2 <= int(lines[1].split()[0]) <= 32 and 1 <= int(lines[1].split()[1]) <= int(int(lines[1].split()[0]) * (int(lines[1].split()[0]) - 1) / 2)))(stdout.splitlines())",
+        "description": "If 'YES', n must be between 2 and 32, and m must be within the valid range for n"
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: all(1 <= int(a) < int(b) <= int(lines[1].split()[0]) for line in lines[2:] for a, b, _ in [line.split()]))(stdout.splitlines())",
+        "description": "If 'YES', all roads must connect blocks with valid indices (1 ≤ a < b ≤ n)"
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: all(1 <= int(c) <= 10**6 for line in lines[2:] for _, _, c in [line.split()]))(stdout.splitlines())",
+        "description": "If 'YES', all road lengths must be positive integers ≤ 10^6"
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: len(set((a, b) for line in lines[2:] for a, b, _ in [line.split()])) == len(lines[2:]))(stdout.splitlines())",
+        "description": "If 'YES', there must be no duplicate roads between the same pair of blocks"
+      },
+      {
+        "id": "Q7",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: (lambda n, m, roads: all(1 <= a < b <= n for a, b, _ in roads) and all(1 <= c <= 10**6 for _, _, c in roads) and len(set((a, b) for a, b, _ in roads)) == m))(int(lines[1].split()[0]), int(lines[1].split()[1]), [tuple(map(int, line.split())) for line in lines[2:]]) and (lambda n, m, roads: (lambda L, R: (lambda paths: all(L <= d <= R for d in paths) and len(paths) == R - L + 1))(L, R, [sum(c for a, b, c in roads if a == x and b == y) for x, y in [(1, n)]]))(int(L), int(R), [tuple(map(int, line.split())) for line in lines[2:]])",
+        "description": "If 'YES', the constructed city must be (L, R)-continuous: all paths from block 1 to block n must have lengths between L and R inclusive, and there must be exactly one path for each length in [L, R]"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(L) <= int(R) <= 10**6",
+        "description": "L and R are integers where 1 ≤ L ≤ R ≤ 10^6"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and all(line.strip() != '' for line in stdout.splitlines()))",
+        "description": "Output is either 'NO' or a valid 'YES' response with a complete city description"
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: (len(lines) >= 3 and all(len(line.split()) == 3 for line in lines[2:])))(stdout.splitlines())",
+        "description": "If 'YES', the output must include n, m, and m lines of road descriptions with exactly three integers per line"
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: (2 <= int(lines[1].split()[0]) <= 32 and 1 <= int(lines[1].split()[1]) <= int(int(lines[1].split()[0]) * (int(lines[1].split()[0]) - 1) / 2)))(stdout.splitlines())",
+        "description": "If 'YES', n must be between 2 and 32, and m must be within the valid range for n"
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: all(1 <= int(a) < int(b) <= int(lines[1].split()[0]) for line in lines[2:] for a, b, _ in [line.split()]))(stdout.splitlines())",
+        "description": "If 'YES', all roads must connect blocks with valid indices (1 ≤ a < b ≤ n)"
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: all(1 <= int(c) <= 10**6 for line in lines[2:] for _, _, c in [line.split()]))(stdout.splitlines())",
+        "description": "If 'YES', all road lengths must be positive integers ≤ 10^6"
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: len(set((a, b) for line in lines[2:] for a, b, _ in [line.split()])) == len(lines[2:]))(stdout.splitlines())",
+        "description": "If 'YES', there must be no duplicate roads between the same pair of blocks"
+      },
+      {
+        "id": "Q7",
+        "expression": "stdout.strip() == 'YES' and (lambda lines: (lambda n, m, roads: all(1 <= a < b <= n for a, b, _ in roads) and all(1 <= c <= 10**6 for _, _, c in roads) and len(set((a, b) for a, b, _ in roads)) == m))(int(lines[1].split()[0]), int(lines[1].split()[1]), [tuple(map(int, line.split())) for line in lines[2:]]) and (lambda n, m, roads: (lambda L, R: (lambda paths: all(L <= d <= R for d in paths) and len(paths) == R - L + 1))(L, R, [sum(c for a, b, c in roads if a == x and b == y) for x, y in [(1, n)]]))(int(L), int(R), [tuple(map(int, line.split())) for line in lines[2:]])",
+        "description": "If 'YES', the constructed city must be (L, R)-continuous: all paths from block 1 to block n must have lengths between L and R inclusive, and there must be exactly one path for each length in [L, R]"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "2cf758611e27f379b06ad3ffac4e7ed4cdceea873d7ab506342e53ec345c4933",
+  "selected_contract_fingerprint": "2cf758611e27f379b06ad3ffac4e7ed4cdceea873d7ab506342e53ec345c4933",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_test_108.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[6].expression",
+        "action": "replace",
+        "instruction": "The postcondition Q7's expression is incorrect. It does not verify the (L, R)-continuity requirement correctly. The expression must ensure that (1) all paths from block 1 to block n have lengths between L and R inclusive, and (2) there is exactly one path for each length in [L, R]. The current expression incorrectly attempts to compute path lengths and uniqueness without proper path enumeration or validation.",
+        "task_evidence": "all paths from block 1 to block n are of length between L and R (inclusive); and for every L ≤ d ≤ R, there is exactly one path from block 1 to block n whose length is d.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to verify that the constructed city's paths from block 1 to block n satisfy the (L, R)-continuity requirement: (1) all paths have lengths in [L, R], and (2) there is exactly one path for each length in [L, R]. This requires a proper path enumeration and validation mechanism.",
+        "task_evidence": "all paths from block 1 to block n are of length between L and R (inclusive); and for every L ≤ d ≤ R, there is exactly one path from block 1 to block n whose length is d.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[6].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: checks must contain exactly interface,preconditions,postconditions,invariants,task_coverage,expression_description"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[6].expression",
+        "action": "replace",
+        "instruction": "The postcondition Q7's expression is incorrect. It does not verify the (L, R)-continuity requirement correctly. The expression must ensure that (1) all paths from block 1 to block n have lengths between L and R inclusive, and (2) there is exactly one path for each length in [L, R]. The current expression incorrectly attempts to compute path lengths and uniqueness without proper path enumeration or validation.",
+        "task_evidence": "all paths from block 1 to block n are of length between L and R (inclusive); and for every L ≤ d ≤ R, there is exactly one path from block 1 to block n whose length is d.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to verify that the constructed city's paths from block 1 to block n satisfy the (L, R)-continuity requirement: (1) all paths have lengths in [L, R], and (2) there is exactly one path for each length in [L, R]. This requires a proper path enumeration and validation mechanism.",
+        "task_evidence": "all paths from block 1 to block n are of length between L and R (inclusive); and for every L ≤ d ≤ R, there is exactly one path from block 1 to block n whose length is d.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[6].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: checks must contain exactly interface,preconditions,postconditions,invariants,task_coverage,expression_description"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 45.744,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:28:29.271738+00:00"
+}

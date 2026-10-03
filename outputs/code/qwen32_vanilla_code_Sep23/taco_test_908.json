@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_test_908",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T13:58:53.962739+00:00",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef bfs(tree, start):\n    n = len(tree)\n    dist = [-1] * n\n    dist[start] = 0\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbor in tree[node]:\n            if dist[neighbor] == -1:\n                dist[neighbor] = dist[node] + 1\n                queue.append(neighbor)\n    return dist\n\ndef process_queries(n, m, edges, queries):\n    tree = defaultdict(list)\n    for u, v in edges:\n        tree[u-1].append(v-1)\n        tree[v-1].append(u-1)\n    \n    max_lengths = []\n    for p, q in queries:\n        p -= 1\n        q -= 1\n        dist_p = bfs(tree, p)\n        dist_q = bfs(tree, q)\n        \n        max_length = 1\n        for i in range(n):\n            if dist_p[i] != -1 and dist_q[i] != -1:\n                max_length = max(max_length, dist_p[i] + dist_q[i] + 1)\n        \n        max_lengths.append(max_length)\n    \n    return max_lengths\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    \n    n = int(input[index])\n    m = int(input[index + 1])\n    index += 2\n    \n    edges = []\n    for _ in range(n - 1):\n        u = int(input[index])\n        v = int(input[index + 1])\n        edges.append((u, v))\n        index += 2\n    \n    queries = []\n    for _ in range(m):\n        p = int(input[index])\n        q = int(input[index + 1])\n        queries.append((p, q))\n        index += 2\n    \n    results = process_queries(n, m, edges, queries)\n    for result in results:\n        print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

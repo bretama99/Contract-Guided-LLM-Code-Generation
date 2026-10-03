@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_12888",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(3 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines() if line.strip()) and all(0 <= int(line.split()[1]) <= min(int(line.split()[0]) * (int(line.split()[0]) - 1) // 2, 10**5) for line in stdin.splitlines() if line.strip())",
+        "description": "The first line contains integers n (3 ≤ n ≤ 10^5) and m (0 ≤ m ≤ min(n(n-1)/2, 10^5)), where n is the number of vertices and m is the number of edges. The graph has no loops or parallel edges."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 1 + m and all(len(line.split()) == 2 and all(1 <= int(x) <= n for x in line.split()) for line in stdin.splitlines()[1:])",
+        "description": "The input consists of exactly m+1 lines: the first line with n and m, followed by m lines each describing an edge as two integers a_i and b_i (1 ≤ a_i, b_i ≤ n)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(a != b for line in stdin.splitlines()[1:] for a, b in [line.split()])",
+        "description": "No edge in the input connects a vertex to itself (no loops) and no two edges connect the same pair of vertices (no parallel edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == f'{t} {w}' and t >= 0 and w >= 0",
+        "description": "The output consists of two space-separated integers t and w, where t is the minimum number of edges to add to form a simple odd-length cycle (t ≥ 0), and w is the number of ways to add t edges to achieve this (w ≥ 0)."
+      },
+      {
+        "id": "Q2",
+        "expression": "t == 0 and w == 1 if any(len(connected_components) == 1 and any(cycle_length % 2 == 1 and cycle_length > 1 for cycle_length in get_all_cycles(adjacency_list))) else t == min_edges_to_odd_cycle(adjacency_list) and w == count_ways_to_add_edges(adjacency_list, t)",
+        "description": "If the graph already contains a simple odd-length cycle (length > 1), then t = 0 and w = 1. Otherwise, t is the minimum number of edges to add to form such a cycle, and w is the number of distinct sets of edges that can be added to achieve this. The cycle must be simple (no repeated vertices) and of odd length > 1."
+      },
+      {
+        "id": "Q3",
+        "expression": "t == 0 or (t == 1 and w == count_possible_odd_cycles_with_one_edge_added(adjacency_list)) or (t == 2 and w == count_possible_odd_cycles_with_two_edges_added(adjacency_list)) or (t == 3 and w == 1)",
+        "description": "The possible values for t are 0 (cycle exists), 1 (can form a cycle by adding one edge), 2 (can form a cycle by adding two edges), or 3 (must add three edges to form a triangle). For t=3, there is exactly one way (adding any three edges forming a triangle). For t=1 or t=2, w counts the number of distinct edge sets that can be added to form such a cycle."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for line in stdout.splitlines() if line.strip()) if t > 0 else True",
+        "description": "If t > 0, the added edges must connect distinct vertices (no loops or parallel edges)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(3 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines() if line.strip()) and all(0 <= int(line.split()[1]) <= min(int(line.split()[0]) * (int(line.split()[0]) - 1) // 2, 10**5) for line in stdin.splitlines() if line.strip())\",\n      \"description\": \"The first line contains integers n (3 ≤ n ≤ 10^5) and m (0 ≤ m ≤ min(n(n-1)/2, 10^5)), where n is the number of vertices and m is the number of edges. The graph has no loops or parallel edges.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 1 + m and all(len(line.split()) == 2 and all(1 <= int(x) <= n for x in line.split()) for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input consists of exactly m+1 lines: the first line with n and m, followed by m lines each describing an edge as two integers a_i and b_i (1 ≤ a_i, b_i ≤ n).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(a != b for line in stdin.splitlines()[1:] for a, b in [line.split()])\",\n      \"description\": \"No edge in the input connects a vertex to itself (no loops) and no two edges connect the same pair of vertices (no parallel edges).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == f'{t} {w}' and t >= 0 and w >= 0\",\n      \"description\": \"The output consists of two space-separated integers t and w, where t is the minimum number of edges to add to form a simple odd-length cycle (t ≥ 0), and w is the number of ways to add t edges to achieve this (w ≥ 0).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"t == 0 and w == 1 if any(len(connected_components) == 1 and any(cycle_length % 2 == 1 and cycle_length > 1 for cycle_length in get_all_cycles(adjacency_list))) else t == min_edges_to_odd_cycle(adjacency_list) and w == count_ways_to_add_edges(adjacency_list, t)\",\n      \"description\": \"If the graph already contains a simple odd-length cycle (length > 1), then t = 0 and w = 1. Otherwise, t is the minimum number of edges to add to form such a cycle, and w is the number of distinct sets of edges that can be added to achieve this. The cycle must be simple (no repeated vertices) and of odd length > 1.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"t == 0 or (t == 1 and w == count_possible_odd_cycles_with_one_edge_added(adjacency_list)) or (t == 2 and w == count_possible_odd_cycles_with_two_edges_added(adjacency_list)) or (t == 3 and w == 1)\",\n      \"description\": \"The possible values for t are 0 (cycle exists), 1 (can form a cycle by adding one edge), 2 (can form a cycle by adding two edges), or 3 (must add three edges to form a triangle). For t=3, there is exactly one way (adding any three edges forming a triangle). For t=1 or t=2, w counts the number of distinct edge sets that can be added to form such a cycle.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= u <= n and 1 <= v <= n and u != v for line in stdout.splitlines() if line.strip()) if t > 0 else True\",\n      \"description\": \"If t > 0, the added edges must connect distinct vertices (no loops or parallel edges).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1582,
+  "generated_tokens": 987,
+  "hit_output_limit": false,
+  "generation_seconds": 48.797,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:31:17.455786+00:00"
+}

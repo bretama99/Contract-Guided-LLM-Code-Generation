@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_9925",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(0 <= int(x) <= 5000 for line in stdin.splitlines() if line.strip() else [] for x in line.split())",
+        "description": "All matrix entries (Bi,j) and query values (Fi) are integers in the range [0, 5000]."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) >= 2 and all(len(line.split()) == int(stdin.splitlines()[0].split()[0]) for line in stdin.splitlines()[1:])",
+        "description": "The input matrix is N×N, where N is the first integer in the first line."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(p) <= int(stdin.splitlines()[0].split()[0]) for line in stdin.splitlines()[2:] if '0' <= line[0] <= '9')",
+        "description": "Each query's row/column index p is within the valid range [1, N]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == int(stdin.splitlines()[0].split()[0]) for line in stdin.splitlines()[2:] if '0' <= line[0] <= '9' and line.strip() != '')",
+        "description": "Each query's new row/column values have exactly N entries."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == int(stdin.splitlines()[0].split()[0]) for line in stdout.splitlines())",
+        "description": "Each output line contains exactly N integers, matching the sequence length."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(0 <= int(x) <= 5000 or -5000 <= int(x) <= -1 for x in line.split()) for line in stdout.splitlines())",
+        "description": "Each output sequence contains integers in the range [-5000, 5000], allowing for negative values."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(abs(int(Ai) - int(Aj)) == int(Bi_j) for Ai, Aj in zip(line.split(), line.split()) for Bi_j in [stdin.splitlines()[i+1].split()[j] for i in range(int(stdin.splitlines()[0].split()[0])) for j in range(int(stdin.splitlines()[0].split()[0])) if (i == 0 and j == 1) or (i == 1 and j == 0)]) for line in stdout.splitlines())",
+        "description": "For each output sequence A, the matrix B derived from A (where Bi,j = |Ai - Aj|) matches the current matrix B (accounting for query updates)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(int(Ai) <= int(Aj) or (int(Ai) == int(Aj) and i < j) for i, Ai in enumerate(line.split()) for j, Aj in enumerate(line.split()) if i < j) for line in stdout.splitlines())",
+        "description": "Each output sequence is lexicographically smallest among all valid sequences."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all(int(A1) == 0 for line in stdout.splitlines()) if int(stdin.splitlines()[0].split()[0]) >= 1 else True)",
+        "description": "The first element of each output sequence is always 0 (A1 = 0)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(0 <= int(x) <= 5000 for line in stdin.splitlines() if line.strip() else [] for x in line.split())\",\n      \"description\": \"All matrix entries (Bi,j) and query values (Fi) are integers in the range [0, 5000].\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) >= 2 and all(len(line.split()) == int(stdin.splitlines()[0].split()[0]) for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input matrix is N×N, where N is the first integer in the first line.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(p) <= int(stdin.splitlines()[0].split()[0]) for line in stdin.splitlines()[2:] if '0' <= line[0] <= '9')\",\n      \"description\": \"Each query's row/column index p is within the valid range [1, N].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == int(stdin.splitlines()[0].split()[0]) for line in stdin.splitlines()[2:] if '0' <= line[0] <= '9' and line.strip() != '')\",\n      \"description\": \"Each query's new row/column values have exactly N entries.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.split()) == int(stdin.splitlines()[0].split()[0]) for line in stdout.splitlines())\",\n      \"description\": \"Each output line contains exactly N integers, matching the sequence length.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(all(0 <= int(x) <= 5000 or -5000 <= int(x) <= -1 for x in line.split()) for line in stdout.splitlines())\",\n      \"description\": \"Each output sequence contains integers in the range [-5000, 5000], allowing for negative values.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(all(abs(int(Ai) - int(Aj)) == int(Bi_j) for Ai, Aj in zip(line.split(), line.split()) for Bi_j in [stdin.splitlines()[i+1].split()[j] for i in range(int(stdin.splitlines()[0].split()[0])) for j in range(int(stdin.splitlines()[0].split()[0])) if (i == 0 and j == 1) or (i == 1 and j == 0)]) for line in stdout.splitlines())\",\n      \"description\": \"For each output sequence A, the matrix B derived from A (where Bi,j = |Ai - Aj|) matches the current matrix B (accounting for query updates).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(all(int(Ai) <= int(Aj) or (int(Ai) == int(Aj) and i < j) for i, Ai in enumerate(line.split()) for j, Aj in enumerate(line.split()) if i < j) for line in stdout.splitlines())\",\n      \"description\": \"Each output sequence is lexicographically smallest among all valid sequences.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(all(int(A1) == 0 for line in stdout.splitlines()) if int(stdin.splitlines()[0].split()[0]) >= 1 else True)\",\n      \"description\": \"The first element of each output sequence is always 0 (A1 = 0).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1632,
+  "generated_tokens": 893,
+  "hit_output_limit": false,
+  "generation_seconds": 41.547,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:22:56.093296+00:00"
+}

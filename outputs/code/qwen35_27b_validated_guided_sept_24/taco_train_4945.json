@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4945",
+  "task_index": 706,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_4945.json",
+  "code": "import sys\nfrom collections import deque\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    m = int(data[1])\n    grid = []\n    idx = 2\n    for _ in range(n):\n        grid.append(data[idx])\n        idx += 1\n\n    painted = []\n    for r in range(n):\n        for c in range(m):\n            if grid[r][c] == '#':\n                painted.append((r, c))\n\n    if len(painted) <= 1:\n        print(-1)\n        return\n\n    def get_neighbors(r, c):\n        res = []\n        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < n and 0 <= nc < m and grid[nr][nc] == '#':\n                res.append((nr, nc))\n        return res\n\n    def is_connected(start_node):\n        visited = set()\n        queue = deque([start_node])\n        visited.add(start_node)\n        while queue:\n            r, c = queue.popleft()\n            for nr, nc in get_neighbors(r, c):\n                if (nr, nc) not in visited:\n                    visited.add((nr, nc))\n                    queue.append((nr, nc))\n        return len(visited) == len(painted)\n\n    if not is_connected(painted[0]):\n        print(0)\n        return\n\n    for r, c in painted:\n        grid[r] = grid[r][:c] + '.' + grid[r][c+1:]\n        if not is_connected(painted[0]):\n            print(1)\n            return\n        grid[r] = grid[r][:c] + '#' + grid[r][c+1:]\n\n    print(2)\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 42.151,
+  "generated_at": "2026-09-25T08:39:09.029017+00:00"
+}

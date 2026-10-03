@@ -1,0 +1,92 @@
+{
+  "task_id": "taco_test_67",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= int(stdin.split()[0]) <= 3000",
+        "description": "The number of stations n is between 3 and 3000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n lines after the first contains exactly two integers."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= n for line in stdin.splitlines()[1:] for x, y in [line.split()])",
+        "description": "Each station number in the passages is between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(int(x) != int(y) for line in stdin.splitlines()[1:] for x, y in [line.split()])",
+        "description": "No passage connects a station to itself."
+      },
+      {
+        "id": "P5",
+        "expression": "len({(int(x), int(y)) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == n",
+        "description": "There are exactly n passages, each connecting a unique pair of stations."
+      },
+      {
+        "id": "P6",
+        "expression": "len({(int(x), int(y)) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) + len({(int(y), int(x)) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == 2 * n",
+        "description": "The graph is undirected (each passage is counted once in each direction)."
+      },
+      {
+        "id": "P7",
+        "expression": "len({int(x) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == n and len({int(y) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == n",
+        "description": "All stations are connected by at least one passage."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout.split()) == n",
+        "description": "The output contains exactly n space-separated integers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(d) for d in stdout.split())",
+        "description": "Each distance is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(d) == 0 for d in stdout.split() if int(x) in ringroad and int(y) in ringroad for line in stdin.splitlines()[1:] for x, y in [line.split()] if int(x) == int(y))",
+        "description": "Stations on the ringroad have distance 0."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(d) == min(steps for steps in [BFS_distance(int(x), ringroad) for x in range(1, n+1)]) for d in stdout.split())",
+        "description": "The distance of each station is the minimum number of passages required to reach any station on the ringroad."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "len(ringroad) == n and all(ringroad[i] != ringroad[(i+1)%len(ringroad)] for i in range(len(ringroad))) and all((ringroad[i], ringroad[(i+1)%len(ringroad)]) in edges or (ringroad[(i+1)%len(ringroad)], ringroad[i]) in edges for i in range(len(ringroad)))",
+        "description": "The ringroad is a cycle of all stations in the graph, where each consecutive pair is connected by a passage."
+      },
+      {
+        "id": "I2",
+        "expression": "len(ringroad) == n and all(ringroad[i] != ringroad[j] for i in range(len(ringroad)) for j in range(i+1, len(ringroad)))",
+        "description": "The ringroad contains each station exactly once."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"3 <= int(stdin.split()[0]) <= 3000\",\n      \"description\": \"The number of stations n is between 3 and 3000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n lines after the first contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= n and 1 <= int(y) <= n for line in stdin.splitlines()[1:] for x, y in [line.split()])\",\n      \"description\": \"Each station number in the passages is between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(int(x) != int(y) for line in stdin.splitlines()[1:] for x, y in [line.split()])\",\n      \"description\": \"No passage connects a station to itself.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len({(int(x), int(y)) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == n\",\n      \"description\": \"There are exactly n passages, each connecting a unique pair of stations.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"len({(int(x), int(y)) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) + len({(int(y), int(x)) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == 2 * n\",\n      \"description\": \"The graph is undirected (each passage is counted once in each direction).\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"len({int(x) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == n and len({int(y) for line in stdin.splitlines()[1:] for x, y in [line.split()]}) == n\",\n      \"description\": \"All stations are connected by at least one passage.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(stdout.split()) == n\",\n      \"description\": \"The output contains exactly n space-separated integers.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(d) for d in stdout.split())\",\n      \"description\": \"Each distance is a non-negative integer.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(d) == 0 for d in stdout.split() if int(x) in ringroad and int(y) in ringroad for line in stdin.splitlines()[1:] for x, y in [line.split()] if int(x) == int(y))\",\n      \"description\": \"Stations on the ringroad have distance 0.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(d) == min(steps for steps in [BFS_distance(int(x), ringroad) for x in range(1, n+1)]) for d in stdout.split())\",\n      \"description\": \"The distance of each station is the minimum number of passages required to reach any station on the ringroad.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"len(ringroad) == n and all(ringroad[i] != ringroad[(i+1)%len(ringroad)] for i in range(len(ringroad))) and all((ringroad[i], ringroad[(i+1)%len(ringroad)]) in edges or (ringroad[(i+1)%len(ringroad)], ringroad[i]) in edges for i in range(len(ringroad)))\",\n      \"description\": \"The ringroad is a cycle of all stations in the graph, where each consecutive pair is connected by a passage.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"len(ringroad) == n and all(ringroad[i] != ringroad[j] for i in range(len(ringroad)) for j in range(i+1, len(ringroad)))\",\n      \"description\": \"The ringroad contains each station exactly once.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1615,
+  "generated_tokens": 1031,
+  "hit_output_limit": false,
+  "generation_seconds": 47.699,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T13:07:39.288739+00:00"
+}

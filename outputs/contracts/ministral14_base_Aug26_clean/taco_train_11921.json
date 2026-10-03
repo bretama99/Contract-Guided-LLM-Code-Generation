@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_11921",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(line.strip() for line in stdin.splitlines() if line.strip())",
+        "description": "Every non-empty line in stdin is a valid string (no whitespace-only lines)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) >= 1 and stdin.splitlines()[0].strip().isdigit()",
+        "description": "The first line of stdin is a positive integer T (number of test cases)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(test_case.split()) == 2 for test_case in stdin.splitlines()[1:])",
+        "description": "Each test case consists of exactly two lines: an integer N (length of string) followed by the string S."
+      },
+      {
+        "id": "P4",
+        "expression": "all(test_case.split()[0].isdigit() for test_case in stdin.splitlines()[1:])",
+        "description": "For each test case, the first line is a positive integer N (1 ≤ N ≤ 2e5)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(S) == int(N) for N, S in [(test_case.split()[0], test_case.split()[1]) for test_case in stdin.splitlines()[1:]])",
+        "description": "For each test case, the string S has length exactly equal to the integer N."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(c.islower() for c in S) for N, S in [(test_case.split()[0], test_case.split()[1]) for test_case in stdin.splitlines()[1:]])",
+        "description": "Each character in S is a lowercase English letter."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line) == len(S) for output_line, S in zip(stdout.splitlines(), [test_case.split()[1] for test_case in stdin.splitlines()[1:]]))",
+        "description": "Each output line has the same length as the corresponding input string S."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(c.islower() for c in output_line) for output_line in stdout.splitlines())",
+        "description": "Each output line consists only of lowercase English letters."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(output_line == sorted(S, key=lambda x: (ord(x),)) if all(abs(ord(S[i]) - ord(S[i+1])) == 1 for i in range(len(S)-1)) else any(output_line == ''.join(sorted(S, key=lambda x: (ord(x),))) for S in [S]) for output_line, S in zip(stdout.splitlines(), [test_case.split()[1] for test_case in stdin.splitlines()[1:]]))",
+        "description": "For each test case, the output line is the lexicographically smallest string obtainable by swapping adjacent characters (where adjacent means |ord(S[i]) - ord(S[i+1])| == 1) any number of times. This is equivalent to sorting the string in ascending order if all adjacent characters in the original string are adjacent in the alphabet (i.e., |ord(S[i]) - ord(S[i+1])| == 1 for all i). Otherwise, the output is the sorted string (since any permutation can be achieved via adjacent swaps if the adjacency condition is not globally satisfied)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(output_line == ''.join(sorted(S)) for output_line, S in zip(stdout.splitlines(), [test_case.split()[1] for test_case in stdin.splitlines()[1:]]))",
+        "description": "The output line for each test case is the lexicographically smallest permutation of the input string S, achievable by any sequence of adjacent swaps (where adjacent means |ord(S[i]) - ord(S[i+1])| == 1). This is always the sorted string because the adjacency condition allows any permutation (e.g., bubble sort-like swaps can rearrange the string fully)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(line.strip() for line in stdin.splitlines() if line.strip())\",\n      \"description\": \"Every non-empty line in stdin is a valid string (no whitespace-only lines).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) >= 1 and stdin.splitlines()[0].strip().isdigit()\",\n      \"description\": \"The first line of stdin is a positive integer T (number of test cases).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(test_case.split()) == 2 for test_case in stdin.splitlines()[1:])\",\n      \"description\": \"Each test case consists of exactly two lines: an integer N (length of string) followed by the string S.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(test_case.split()[0].isdigit() for test_case in stdin.splitlines()[1:])\",\n      \"description\": \"For each test case, the first line is a positive integer N (1 ≤ N ≤ 2e5).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(S) == int(N) for N, S in [(test_case.split()[0], test_case.split()[1]) for test_case in stdin.splitlines()[1:]])\",\n      \"description\": \"For each test case, the string S has length exactly equal to the integer N.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(all(c.islower() for c in S) for N, S in [(test_case.split()[0], test_case.split()[1]) for test_case in stdin.splitlines()[1:]])\",\n      \"description\": \"Each character in S is a lowercase English letter.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line) == len(S) for output_line, S in zip(stdout.splitlines(), [test_case.split()[1] for test_case in stdin.splitlines()[1:]]))\",\n      \"description\": \"Each output line has the same length as the corresponding input string S.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(all(c.islower() for c in output_line) for output_line in stdout.splitlines())\",\n      \"description\": \"Each output line consists only of lowercase English letters.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(output_line == sorted(S, key=lambda x: (ord(x),)) if all(abs(ord(S[i]) - ord(S[i+1])) == 1 for i in range(len(S)-1)) else any(output_line == ''.join(sorted(S, key=lambda x: (ord(x),))) for S in [S]) for output_line, S in zip(stdout.splitlines(), [test_case.split()[1] for test_case in stdin.splitlines()[1:]]))\",\n      \"description\": \"For each test case, the output line is the lexicographically smallest string obtainable by swapping adjacent characters (where adjacent means |ord(S[i]) - ord(S[i+1])| == 1) any number of times. This is equivalent to sorting the string in ascending order if all adjacent characters in the original string are adjacent in the alphabet (i.e., |ord(S[i]) - ord(S[i+1])| == 1 for all i). Otherwise, the output is the sorted string (since any permutation can be achieved via adjacent swaps if the adjacency condition is not globally satisfied).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(output_line == ''.join(sorted(S)) for output_line, S in zip(stdout.splitlines(), [test_case.split()[1] for test_case in stdin.splitlines()[1:]]))\",\n      \"description\": \"The output line for each test case is the lexicographically smallest permutation of the input string S, achievable by any sequence of adjacent swaps (where adjacent means |ord(S[i]) - ord(S[i+1])| == 1). This is always the sorted string because the adjacency condition allows any permutation (e.g., bubble sort-like swaps can rearrange the string fully).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1692,
+  "generated_tokens": 996,
+  "hit_output_limit": false,
+  "generation_seconds": 51.096,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:47:35.585900+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_5425",
+  "task_index": 286,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_5425.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n    except StopIteration:\n        return\n\n    events = []\n    for _ in range(n):\n        t = int(next(iterator))\n        f = int(next(iterator))\n        events.append((t, f))\n\n    freq_time_groups = defaultdict(list)\n    for t, f in events:\n        freq_time_groups[f].append(t)\n\n    max_needed = 0\n\n    for f, times in freq_time_groups.items():\n        if not times:\n            continue\n        \n        needed = 1\n        current_count = 1\n        last_time = times[0]\n        \n        for i in range(1, len(times)):\n            t_curr = times[i]\n            t_prev = last_time\n            \n            if t_curr > t_prev:\n                gap = t_curr - t_prev\n                retune_time = abs(f - f)\n                if gap < retune_time:\n                    needed += 1\n                    current_count = 1\n                else:\n                    current_count += 1\n            else:\n                current_count += 1\n            \n            last_time = t_curr\n            \n            if current_count > needed:\n                needed = current_count\n        \n        if needed > max_needed:\n            max_needed = needed\n\n    print(max_needed)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 31.336,
+  "generated_at": "2026-09-22T15:19:51.843261+00:00"
+}

@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_18054",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(T, str) and all(c.islower() for c in T) and 1 <= len(T) <= 100000",
+        "description": "T is a non-empty string of lowercase English letters with length between 1 and 100,000."
+      },
+      {
+        "id": "P2",
+        "expression": "isinstance(N, int) and 1 <= N <= 600",
+        "description": "N is an integer between 1 and 600, inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "T == stdin.splitlines()[0] and N == int(stdin.splitlines()[1])",
+        "description": "stdin contains exactly two lines: the first line is T, the second line is N."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and 0 <= int(stdout) <= 26**N",
+        "description": "stdout is a non-negative integer representing the number of distinct decorations."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(bouquet) > 0 for bouquet in all_bouquets) and all(bouquet in substrings for bouquet in all_bouquets) and all(is_palindrome(bouquet) for bouquet in all_bouquets)",
+        "description": "Every bouquet in the decoration is a non-empty substring of T and is a palindrome (symmetric)."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(distinct_decorations) == int(stdout)",
+        "description": "The output is the count of distinct decorations where no two decorations are similar (cyclic shift or reversed cyclic shift)."
+      },
+      {
+        "id": "Q4",
+        "expression": "(lambda: (substrings := [T[i:j] for i in range(len(T)) for j in range(i+1, len(T)+1)]), (palindromes := [s for s in substrings if is_palindrome(s)]), (all_bouquets := [tuple(bouquet) for bouquet in product(palindromes, repeat=N)]), (distinct_decorations := set()), (seen := set()), (seen_reversed := set()), (seen_cyclic := set()), (seen_reversed_cyclic := set()), (for bouquet in all_bouquets: (key := tuple(bouquet), (reversed_key := tuple(reversed(bouquet)), (cyclic_keys := [tuple(bouquet[i:] + bouquet[:i]) for i in range(len(bouquet))]), (reversed_cyclic_keys := [tuple(reversed(bouquet[i:] + bouquet[:i])) for i in range(len(bouquet))]), (if key not in seen and reversed_key not in seen_reversed and all(k not in seen_cyclic for k in cyclic_keys) and all(k not in seen_reversed_cyclic for k in reversed_cyclic_keys): (distinct_decorations.add(key), (seen.add(key), (seen_reversed.add(reversed_key), (seen_cyclic.update(cyclic_keys), seen_reversed_cyclic.update(reversed_cyclic_keys))))))))",
+        "description": "The output is computed by generating all possible N-length sequences of palindromic substrings of T, then filtering out those that are similar (cyclic shift or reversed cyclic shift) to any previously counted decoration."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"isinstance(T, str) and all(c.islower() for c in T) and 1 <= len(T) <= 100000\",\n      \"description\": \"T is a non-empty string of lowercase English letters with length between 1 and 100,000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"isinstance(N, int) and 1 <= N <= 600\",\n      \"description\": \"N is an integer between 1 and 600, inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"T == stdin.splitlines()[0] and N == int(stdin.splitlines()[1])\",\n      \"description\": \"stdin contains exactly two lines: the first line is T, the second line is N.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.isdigit() and 0 <= int(stdout) <= 26**N\",\n      \"description\": \"stdout is a non-negative integer representing the number of distinct decorations.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(bouquet) > 0 for bouquet in all_bouquets) and all(bouquet in substrings for bouquet in all_bouquets) and all(is_palindrome(bouquet) for bouquet in all_bouquets)\",\n      \"description\": \"Every bouquet in the decoration is a non-empty substring of T and is a palindrome (symmetric).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(distinct_decorations) == int(stdout)\",\n      \"description\": \"The output is the count of distinct decorations where no two decorations are similar (cyclic shift or reversed cyclic shift).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"(lambda: (substrings := [T[i:j] for i in range(len(T)) for j in range(i+1, len(T)+1)]), (palindromes := [s for s in substrings if is_palindrome(s)]), (all_bouquets := [tuple(bouquet) for bouquet in product(palindromes, repeat=N)]), (distinct_decorations := set()), (seen := set()), (seen_reversed := set()), (seen_cyclic := set()), (seen_reversed_cyclic := set()), (for bouquet in all_bouquets: (key := tuple(bouquet), (reversed_key := tuple(reversed(bouquet)), (cyclic_keys := [tuple(bouquet[i:] + bouquet[:i]) for i in range(len(bouquet))]), (reversed_cyclic_keys := [tuple(reversed(bouquet[i:] + bouquet[:i])) for i in range(len(bouquet))]), (if key not in seen and reversed_key not in seen_reversed and all(k not in seen_cyclic for k in cyclic_keys) and all(k not in seen_reversed_cyclic for k in reversed_cyclic_keys): (distinct_decorations.add(key), (seen.add(key), (seen_reversed.add(reversed_key), (seen_cyclic.update(cyclic_keys), seen_reversed_cyclic.update(reversed_cyclic_keys))))))))\",\n      \"description\": \"The output is computed by generating all possible N-length sequences of palindromic substrings of T, then filtering out those that are similar (cyclic shift or reversed cyclic shift) to any previously counted decoration.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1614,
+  "generated_tokens": 846,
+  "hit_output_limit": false,
+  "generation_seconds": 37.815,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:24:08.960890+00:00"
+}

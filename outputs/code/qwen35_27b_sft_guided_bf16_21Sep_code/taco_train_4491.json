@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4491",
+  "task_index": 766,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_4491.json",
+  "code": "from typing import List\nfrom collections import Counter\n\nclass Solution:\n    def maxScoreWords(self, words: List[str], letters: List[str], score: List[int]) -> int:\n        letter_count = Counter(letters)\n        n = len(words)\n        \n        def get_word_score_and_counts(word):\n            counts = Counter(word)\n            s = 0\n            for char, count in counts.items():\n                idx = ord(char) - ord('a')\n                s += count * score[idx]\n            return s, counts\n        \n        word_info = []\n        for word in words:\n            w_score, w_counts = get_word_score_and_counts(word)\n            word_info.append((word, w_score, w_counts))\n        \n        def backtrack(index, current_letters, current_score):\n            if index == n:\n                return current_score\n            \n            res = backtrack(index + 1, current_letters, current_score)\n            \n            word, w_score, w_counts = word_info[index]\n            can_form = True\n            for char, count in w_counts.items():\n                if current_letters[char] < count:\n                    can_form = False\n                    break\n            \n            if can_form:\n                new_letters = current_letters.copy()\n                for char, count in w_counts.items():\n                    new_letters[char] -= count\n                res = max(res, backtrack(index + 1, new_letters, current_score + w_score))\n            \n            return res\n        \n        return backtrack(0, letter_count, 0)",
+  "generation_seconds": 30.218,
+  "generated_at": "2026-09-22T19:26:59.482129+00:00"
+}

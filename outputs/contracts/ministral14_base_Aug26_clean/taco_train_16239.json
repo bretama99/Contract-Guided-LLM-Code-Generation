@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_16239",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) <= 200000 for line in stdin.splitlines()[0:1]) and all(1 <= int(s) <= int(n) for n, m, s in [stdin.splitlines()[0].split()])",
+        "description": "The first line contains three integers n (number of cities), m (number of roads), and s (Bash's city), where 2 ≤ n ≤ 2·10^5, 1 ≤ s ≤ n, and m is implicitly constrained by the input format."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 and all(1 <= int(x) <= n for x in line.split()[:2]) and 1 <= int(line.split()[2]) <= 10**9 for line in stdin.splitlines()[1:])",
+        "description": "Each of the next m lines contains three integers u, v, w (1 ≤ u, v ≤ n, u ≠ v, 1 ≤ w ≤ 10^9) representing a bidirectional road between cities u and v with length w."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m + 1 lines: one for n, m, s and m lines for roads."
+      },
+      {
+        "id": "P4",
+        "expression": "all(u != v for u, v, w in [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]])",
+        "description": "No road connects a city to itself."
+      },
+      {
+        "id": "P5",
+        "expression": "len({(u, v) for u, v, w in [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]]}) == m",
+        "description": "There are no duplicate roads between the same pair of cities."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= n - 1",
+        "description": "The output is a single integer representing the maximum number of unhappy friends (0 ≤ answer ≤ n - 1)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(stdout.strip()) <= n - 1 and int(stdout.strip()) == max(unhappy_friends(city) for city in range(1, n + 1) if city != s))",
+        "description": "The output is the maximum number of unhappy friends when exactly one city (other than Bash's city s) is destroyed. A friend is unhappy if either: (1) their city is destroyed, or (2) their city is reachable from s before destruction but not after, or (3) the shortest path to their city increases after destruction."
+      },
+      {
+        "id": "Q3",
+        "expression": "def unhappy_friends(city_to_destroy):\n    cities = [tuple(map(int, line.split())) for line in stdin.splitlines()[1:]]\n    graph = {i: [] for i in range(1, n + 1)}\n    for u, v, w in cities:\n        graph[u].append((v, w))\n        graph[v].append((u, w))\n    \n    # Original shortest paths from s\n    original_dist = dijkstra(s, graph)\n    \n    # Remove city_to_destroy and its edges\n    graph_copy = {k: v.copy() for k, v in graph.items()}\n    del graph_copy[city_to_destroy]\n    for u in graph:\n        graph_copy[u] = [(v, w) for v, w in graph[u] if v != city_to_destroy]\n    \n    # New shortest paths after destruction\n    new_dist = dijkstra(s, graph_copy)\n    \n    # Friends are unhappy if:\n    # 1. Their city is destroyed (city_to_destroy), or\n    # 2. Their city was reachable before but not after, or\n    # 3. Their city's shortest path increased\n    unhappy = 0\n    for friend_city in range(1, n + 1):\n        if friend_city == s:\n            continue\n        if friend_city == city_to_destroy:\n            unhappy += 1\n        elif original_dist[friend_city] != float('inf') and (new_dist[friend_city] == float('inf') or new_dist[friend_city] > original_dist[friend_city]):\n            unhappy += 1\n    return unhappy\n\ndef dijkstra(start, graph):\n    dist = {city: float('inf') for city in graph}\n    dist[start] = 0\n    heap = [(0, start)]\n    while heap:\n        current_dist, u = heapq.heappop(heap)\n        if current_dist > dist[u]:\n            continue\n        for v, w in graph[u]:\n            if dist[v] > dist[u] + w:\n                dist[v] = dist[u] + w\n                heapq.heappush(heap, (dist[v], v))\n    return dist",
+        "description": "The output is derived by evaluating the maximum number of unhappy friends across all possible cities to destroy (excluding Bash's city s). A friend is unhappy if their city is destroyed or their shortest path from s increases or becomes unreachable after destruction."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 200000 for line in stdin.splitlines()[0:1]) and all(1 <= int(s) <= int(n) for n, m, s in [stdin.splitlines()[0].split()])\",\n      \"description\": \"The first line contains three integers n (number of cities), m (number of roads), and s (Bash's city), where 2 ≤ n ≤ 2·10^5, 1 ≤ s ≤ n, and m is implicitly constrained by the input format.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 and all(1 <= int(x) <= n for x in line.split()[:2]) and 1 <= int(line.split()[2]) <= 10**9 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the next m lines contains three integers u, v, w (1 ≤ u, v ≤ n, u ≠ v, 1 ≤ w ≤ 10^9) representing a bidirectional road between cities u and v with length w.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m + 1 lines: one for n, m, s and m lines for roads.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(u != v for u, v, w in [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]])\",\n      \"description\": \"No road connects a city to itself.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len({(u, v) for u, v, w in [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]]}) == m\",\n      \"description\": \"There are no duplicate roads between the same pair of cities.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= n - 1\",\n      \"description\": \"The output is a single integer representing the maximum number of unhappy friends (0 ≤ answer ≤ n - 1).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(stdout.strip()) <= n - 1 and int(stdout.strip()) == max(unhappy_friends(city) for city in range(1, n + 1) if city != s))\",\n      \"description\": \"The output is the maximum number of unhappy friends when exactly one city (other than Bash's city s) is destroyed. A friend is unhappy if either: (1) their city is destroyed, or (2) their city is reachable from s before destruction but not after, or (3) the shortest path to their city increases after destruction.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"def unhappy_friends(city_to_destroy):\\n    cities = [tuple(map(int, line.split())) for line in stdin.splitlines()[1:]]\\n    graph = {i: [] for i in range(1, n + 1)}\\n    for u, v, w in cities:\\n        graph[u].append((v, w))\\n        graph[v].append((u, w))\\n    \\n    # Original shortest paths from s\\n    original_dist = dijkstra(s, graph)\\n    \\n    # Remove city_to_destroy and its edges\\n    graph_copy = {k: v.copy() for k, v in graph.items()}\\n    del graph_copy[city_to_destroy]\\n    for u in graph:\\n        graph_copy[u] = [(v, w) for v, w in graph[u] if v != city_to_destroy]\\n    \\n    # New shortest paths after destruction\\n    new_dist = dijkstra(s, graph_copy)\\n    \\n    # Friends are unhappy if:\\n    # 1. Their city is destroyed (city_to_destroy), or\\n    # 2. Their city was reachable before but not after, or\\n    # 3. Their city's shortest path increased\\n    unhappy = 0\\n    for friend_city in range(1, n + 1):\\n        if friend_city == s:\\n            continue\\n        if friend_city == city_to_destroy:\\n            unhappy += 1\\n        elif original_dist[friend_city] != float('inf') and (new_dist[friend_city] == float('inf') or new_dist[friend_city] > original_dist[friend_city]):\\n            unhappy += 1\\n    return unhappy\\n\\ndef dijkstra(start, graph):\\n    dist = {city: float('inf') for city in graph}\\n    dist[start] = 0\\n    heap = [(0, start)]\\n    while heap:\\n        current_dist, u = heapq.heappop(heap)\\n        if current_dist > dist[u]:\\n            continue\\n        for v, w in graph[u]:\\n            if dist[v] > dist[u] + w:\\n                dist[v] = dist[u] + w\\n                heapq.heappush(heap, (dist[v], v))\\n    return dist\",\n      \"description\": \"The output is derived by evaluating the maximum number of unhappy friends across all possible cities to destroy (excluding Bash's city s). A friend is unhappy if their city is destroyed or their shortest path from s increases or becomes unreachable after destruction.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1744,
+  "generated_tokens": 1330,
+  "hit_output_limit": false,
+  "generation_seconds": 59.124,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:24:30.022871+00:00"
+}

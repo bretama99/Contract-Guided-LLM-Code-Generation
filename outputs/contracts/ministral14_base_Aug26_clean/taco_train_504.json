@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_504",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(0 <= int(line.strip()) <= 2 for line in stdin.splitlines() if line.strip() in ('1', '0', '-1', '-2'))",
+        "description": "Each line of stdin is either a response in {-1, 0, 1} or a termination signal (-2), and all numeric inputs are non-negative integers less than 2^30."
+      },
+      {
+        "id": "P2",
+        "expression": "all('?' in line or '!' in line for line in stdout.splitlines() if line.strip())",
+        "description": "Every non-empty line of stdout is either a query ('? c d') or an answer ('! a b')."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(c) < 2**30 and 0 <= int(d) < 2**30 for line in stdout.splitlines() if '?' in line and (c, d) := line.split()[1:])",
+        "description": "Every query ('? c d') contains two non-negative integers c and d, each less than 2^30."
+      },
+      {
+        "id": "P4",
+        "expression": "len([line for line in stdout.splitlines() if '?' in line]) <= 62",
+        "description": "No more than 62 queries ('? c d') are issued before the answer ('! a b')."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((int(a) ^ int(c)) > (int(b) ^ int(d)) == (response == 1) and (int(a) ^ int(c)) == (int(b) ^ int(d)) == (response == 0) and (int(a) ^ int(c)) < (int(b) ^ int(d)) == (response == -1) for line in stdout.splitlines() if '?' in line and (c, d) := line.split()[1:] and response := next((int(x) for x in stdin.splitlines() if x.strip() in ('1', '0', '-1')), None))",
+        "description": "For every query ('? c d'), the response from stdin matches the bitwise-XOR comparison between (a ⊕ c) and (b ⊕ d), where a and b are the hidden integers in the answer ('! a b')."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(a) < 2**30 and 0 <= int(b) < 2**30 for line in stdout.splitlines() if '!' in line and (a, b) := line.split()[1:])",
+        "description": "The answer ('! a b') contains two non-negative integers a and b, each less than 2^30."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(a) ^ int(c)) > (int(b) ^ int(d)) == (response == 1) and (int(a) ^ int(c)) == (int(b) ^ int(d)) == (response == 0) and (int(a) ^ int(c)) < (int(b) ^ int(d)) == (response == -1) for line in stdout.splitlines() if '!' in line and (a, b) := line.split()[1:] and (c, d, response) := [(int(x) for x in line.split()[1:]) for line in stdout.splitlines() if '?' in line and (x := line.split()[1:])] and response := next((int(x) for x in stdin.splitlines() if x.strip() in ('1', '0', '-1')), None))",
+        "description": "The answer ('! a b') is consistent with all responses from stdin for the corresponding queries ('? c d')."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(0 <= int(line.strip()) <= 2 for line in stdin.splitlines() if line.strip() in ('1', '0', '-1', '-2'))\",\n      \"description\": \"Each line of stdin is either a response in {-1, 0, 1} or a termination signal (-2), and all numeric inputs are non-negative integers less than 2^30.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all('?' in line or '!' in line for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"Every non-empty line of stdout is either a query ('? c d') or an answer ('! a b').\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(c) < 2**30 and 0 <= int(d) < 2**30 for line in stdout.splitlines() if '?' in line and (c, d) := line.split()[1:])\",\n      \"description\": \"Every query ('? c d') contains two non-negative integers c and d, each less than 2^30.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len([line for line in stdout.splitlines() if '?' in line]) <= 62\",\n      \"description\": \"No more than 62 queries ('? c d') are issued before the answer ('! a b').\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all((int(a) ^ int(c)) > (int(b) ^ int(d)) == (response == 1) and (int(a) ^ int(c)) == (int(b) ^ int(d)) == (response == 0) and (int(a) ^ int(c)) < (int(b) ^ int(d)) == (response == -1) for line in stdout.splitlines() if '?' in line and (c, d) := line.split()[1:] and response := next((int(x) for x in stdin.splitlines() if x.strip() in ('1', '0', '-1')), None))\",\n      \"description\": \"For every query ('? c d'), the response from stdin matches the bitwise-XOR comparison between (a ⊕ c) and (b ⊕ d), where a and b are the hidden integers in the answer ('! a b').\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(a) < 2**30 and 0 <= int(b) < 2**30 for line in stdout.splitlines() if '!' in line and (a, b) := line.split()[1:])\",\n      \"description\": \"The answer ('! a b') contains two non-negative integers a and b, each less than 2^30.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((int(a) ^ int(c)) > (int(b) ^ int(d)) == (response == 1) and (int(a) ^ int(c)) == (int(b) ^ int(d)) == (response == 0) and (int(a) ^ int(c)) < (int(b) ^ int(d)) == (response == -1) for line in stdout.splitlines() if '!' in line and (a, b) := line.split()[1:] and (c, d, response) := [(int(x) for x in line.split()[1:]) for line in stdout.splitlines() if '?' in line and (x := line.split()[1:])] and response := next((int(x) for x in stdin.splitlines() if x.strip() in ('1', '0', '-1')), None))\",\n      \"description\": \"The answer ('! a b') is consistent with all responses from stdin for the corresponding queries ('? c d').\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1630,
+  "generated_tokens": 935,
+  "hit_output_limit": false,
+  "generation_seconds": 46.357,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:17:31.117821+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_880",
+  "task_index": 1002,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_test_880.json",
+  "code": "import sys\n\ninput = sys.stdin.read().split()\nN = int(input[0])\nLR = [(int(input[2*i+1]), int(input[2*i+2])) for i in range(N)]\nQ = int(input[2*N+1])\nqueries = [(int(input[2*N+2+2*i]), int(input[2*N+3+2*i])) for i in range(Q)]\n\nrow_sums = [R - L + 1 for L, R in LR]\ncol_counts = [0] * (N + 1)\n\nfor L, R in LR:\n    col_counts[L] += 1\n    if R + 1 <= N:\n        col_counts[R + 1] -= 1\n\nfor i in range(1, N + 1):\n    col_counts[i] += col_counts[i - 1]\n\ntotal_sum = sum(row_sums)\nresults = []\n\nfor x, y in queries:\n    row_sum = row_sums[x - 1]\n    col_sum = col_counts[y]\n    if y >= LR[x - 1][0] and y <= LR[x - 1][1]:\n        col_sum -= 1\n    new_sum = total_sum - row_sum - (col_sum - (x == y))\n    results.append('E' if new_sum % 2 == 0 else 'O')\n\nprint('\\n'.join(results))",
+  "generation_seconds": 16.038,
+  "generated_at": "2026-09-23T20:42:44.838048+00:00"
+}

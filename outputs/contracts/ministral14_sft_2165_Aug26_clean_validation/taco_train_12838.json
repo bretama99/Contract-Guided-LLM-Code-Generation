@@ -1,0 +1,548 @@
+{
+  "task_id": "taco_train_12838",
+  "task_index": 755,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= int(n) <= 10**5 and 0 <= int(m) <= 10**5 and 1 <= int(v) <= int(n)",
+        "description": "Input must satisfy 3 ≤ n ≤ 10^5, 0 ≤ m ≤ 10^5, and 1 ≤ v ≤ n, where n is the number of servers, m is the number of connections, and v is the failing server index."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(x) <= int(n) for x in stdin.split() if x.isdigit())",
+        "description": "All server indices in input are within the valid range [1, n]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (all(len(line.split()) == 2 for line in stdout.splitlines()) and len(stdout.splitlines()) == int(m))",
+        "description": "If no valid configuration exists, output is '-1'. Otherwise, output consists of exactly m lines, each containing two distinct server indices representing a connection."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and all(1 <= int(u) <= int(n) and 1 <= int(w) <= int(n) and u != w for line in stdout.splitlines() for u, w in [line.split()])",
+        "description": "Each connection in the output is between two distinct servers within the valid range [1, n]."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() != '-1' and all(int(v) not in {int(u), int(w)} for line in stdout.splitlines() for u, w in [line.split()])",
+        "description": "The failing server v is not directly connected to any other server in the output (i.e., v is isolated in the graph)."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() != '-1' and (lambda: not all(any(int(u) == int(x) and int(w) == int(y) or int(u) == int(y) and int(w) == int(x) for line in stdout.splitlines() for x, y in [line.split()]) for u in range(1, int(n)+1) if u != int(v) for w in range(1, int(n)+1) if w != int(v) and u != w))()",
+        "description": "The graph becomes disconnected when server v is removed (i.e., the system stops being connected when v fails)."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() != '-1' and len({(min(int(u), int(w)), max(int(u), int(w))) for line in stdout.splitlines() for u, w in [line.split()]}) == int(m)",
+        "description": "No duplicate connections exist in the output."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= int(n) <= 10**5 and 0 <= int(m) <= 10**5 and 1 <= int(v) <= int(n)",
+        "description": "Input must satisfy 3 ≤ n ≤ 10^5, 0 ≤ m ≤ 10^5, and 1 ≤ v ≤ n, where n is the number of servers, m is the number of connections, and v is the failing server index."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(x) <= int(n) for x in stdin.split() if x.isdigit())",
+        "description": "All server indices in input are within the valid range [1, n]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (all(len(line.split()) == 2 for line in stdout.splitlines()) and len(stdout.splitlines()) == int(m))",
+        "description": "If no valid configuration exists, output is '-1'. Otherwise, output consists of exactly m lines, each containing two distinct server indices representing a connection."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and all(1 <= int(u) <= int(n) and 1 <= int(w) <= int(n) and u != w for line in stdout.splitlines() for u, w in [line.split()])",
+        "description": "Each connection in the output is between two distinct servers within the valid range [1, n]."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() != '-1' and any(all(int(u) != int(v) and int(w) != int(v) for u, w in [line.split()]) for line in stdout.splitlines())",
+        "description": "The failing server v is not directly connected to any other server in the output (i.e., v is isolated in the graph)."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() != '-1' and (lambda: any(not all(int(u) in {int(x) for line in stdout.splitlines() for x in line.split()} for u in range(1, int(n)+1) if u != int(v))))()",
+        "description": "The graph is connected when server v is removed (i.e., the system is connected except for v)."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() != '-1' and (lambda: all(int(u) != int(w) for line in stdout.splitlines() for u, w in [line.split()]))",
+        "description": "No duplicate connections exist in the output."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "9220e6157a800094ed3c40044ca318905ebb9806c25f4aa69417efa43df51445",
+  "selected_contract_fingerprint": "2f2f673efeff143f9a5175af01eee3c10afcb32c155f8ebdc2e5284fec3d7566",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_12838.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "The expression for Q4 is logically flawed and does not correctly capture the requirement that the graph **remains connected** when server v is removed. The current expression is a tautology (always true) due to incorrect lambda usage and logic. Replace with a correct expression that verifies connectivity of the graph excluding server v.",
+      "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "The expression for Q4 is logically flawed and does not correctly capture the requirement that the graph **remains connected** when server v is removed. The current expression is a tautology (always true) due to incorrect lambda usage and logic. Replace with a correct expression that verifies connectivity of the graph excluding server v.",
+      "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "The expression for Q4 is logically flawed and does not correctly capture the requirement that the graph **remains connected** when server v is removed. The current expression is a tautology (always true) due to incorrect lambda usage and logic. Replace with a correct expression that verifies connectivity of the graph excluding server v.",
+        "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "The expression for Q4 is logically flawed and does not correctly capture the requirement that the graph **remains connected** when server v is removed. The current expression is a tautology (always true) due to incorrect lambda usage and logic. Replace with a correct expression that verifies connectivity of the graph excluding server v.",
+        "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "The expression for Q4 is logically flawed and does not correctly capture the requirement that the graph **remains connected** when server v is removed. The current expression is a tautology (always true) due to incorrect lambda usage and logic. Replace with a correct expression that verifies connectivity of the graph excluding server v.",
+        "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the graph **is connected** (i.e., all servers are reachable from each other) **before** server v fails. This is a material requirement from the task.",
+        "task_evidence": "connect n servers ... so that it becomes possible to transmit data from one server to any other server via these connections",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression for Q3 is incorrect. It uses `any` with a nested `all`, which does not correctly enforce that **no connection involves server v**. Replace with a correct expression that ensures server v is isolated (no connection includes v).",
+        "task_evidence": "the failing server v is not directly connected to any other server",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression for Q5 is incorrect. It checks for duplicate connections within the same line (u != w), which is redundant since the task already requires distinct servers per connection. Replace with a correct expression that ensures no duplicate pairs exist across all connections (e.g., no (u, w) and (w, u) or repeated (u, w)).",
+        "task_evidence": "Each pair of servers should have at most one direct connection.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "postconditions[3].expression",
+        "detail": "any"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "3 <= int(n) <= 10**5 and 0 <= int(m) <= 10**5 and 1 <= int(v) <= int(n)",
+          "description": "Input must satisfy 3 ≤ n ≤ 10^5, 0 ≤ m ≤ 10^5, and 1 ≤ v ≤ n, where n is the number of servers, m is the number of connections, and v is the failing server index."
+        },
+        {
+          "id": "P2",
+          "expression": "all(1 <= int(x) <= int(n) for x in stdin.split() if x.isdigit())",
+          "description": "All server indices in input are within the valid range [1, n]."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout.strip() == '-1' or (all(len(line.split()) == 2 for line in stdout.splitlines()) and len(stdout.splitlines()) == int(m))",
+          "description": "If no valid configuration exists, output is '-1'. Otherwise, output consists of exactly m lines, each containing two distinct server indices representing a connection."
+        },
+        {
+          "id": "Q2",
+          "expression": "stdout.strip() != '-1' and all(1 <= int(u) <= int(n) and 1 <= int(w) <= int(n) and u != w for line in stdout.splitlines() for u, w in [line.split()])",
+          "description": "Each connection in the output is between two distinct servers within the valid range [1, n]."
+        },
+        {
+          "id": "Q3",
+          "expression": "stdout.strip() != '-1' and all(int(v) not in {int(u), int(w)} for line in stdout.splitlines() for u, w in [line.split()])",
+          "description": "The failing server v is not directly connected to any other server in the output (i.e., v is isolated in the graph)."
+        },
+        {
+          "id": "Q4",
+          "expression": "stdout.strip() != '-1' and (lambda: not all(any(int(u) == int(x) and int(w) == int(y) or int(u) == int(y) and int(w) == int(x) for line in stdout.splitlines() for x, y in [line.split()]) for u in range(1, int(n)+1) if u != int(v) for w in range(1, int(n)+1) if w != int(v) and u != w))()",
+          "description": "The graph becomes disconnected when server v is removed (i.e., the system stops being connected when v fails)."
+        },
+        {
+          "id": "Q5",
+          "expression": "stdout.strip() != '-1' and len({(min(int(u), int(w)), max(int(u), int(w))) for line in stdout.splitlines() for u, w in [line.split()]}) == int(m)",
+          "description": "No duplicate connections exist in the output."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "The expression for Q4 is logically flawed and does not correctly capture the requirement that the graph **remains connected** when server v is removed. The current expression is a tautology (always true) due to incorrect lambda usage and logic. Replace with a correct expression that verifies connectivity of the graph excluding server v.",
+          "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "stdout.strip() != '-1' and (lambda: all(any(int(u) == int(x) and int(w) == int(y) or int(u) == int(y) and int(w) == int(x) for line in stdout.splitlines() for x, y in [line.split()]) for u in range(1, int(n)+1) if u != int(v) for w in range(1, int(n)+1) if w != int(v) and u != w))()",
+          "description": "The graph is connected when server v is removed (i.e., the system is connected except for v)."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "af7b7a52b5be21c64ce3d30e9dee14bf7e5a2dcdf21c2792b5e08833e2e69ed4",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression for Q4 is incorrect. It checks connectivity among all servers except v, but the task requires that the graph **becomes disconnected** when v is removed (i.e., the system is **not** connected when v is removed). The current expression enforces the opposite condition.",
+            "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression for Q4 is incorrect. It checks connectivity among all servers except v, but the task requires that the graph **becomes disconnected** when v is removed (i.e., the system is **not** connected when v is removed). The current expression enforces the opposite condition.",
+            "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the graph is **connected** when all servers are present (i.e., the system is connected before v fails). This is a material requirement from the task.",
+            "task_evidence": "connect n servers ... so that it becomes possible to transmit data from one server to any other server via these connections",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression for Q3 is incorrect. It uses `any` with a nested `all`, which is logically inverted. The task requires that **no** connection involves v (i.e., v is isolated). The current expression allows some connections to include v if others do not.",
+            "task_evidence": "the failing server v is not directly connected to any other server in the output (i.e., v is isolated in the graph)",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[2].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "The expression for Q4 is incorrect. It checks connectivity among all servers except v, but the task requires that the graph **becomes disconnected** when v is removed (i.e., the system is **not** connected when v is removed). The current expression enforces the opposite condition.",
+          "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression for Q4 is incorrect. It checks connectivity among all servers except v, but the task requires that the graph **becomes disconnected** when v is removed (i.e., the system is **not** connected when v is removed). The current expression enforces the opposite condition.",
+            "task_evidence": "the transmission of data between some other two servers becomes impossible, i.e. the system stops being connected",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == '-1' or (all(len(line.split()) == 2 for line in stdout.splitlines()) and len(stdout.splitlines()) == int(m))",
+            "description": "If no valid configuration exists, output is '-1'. Otherwise, output consists of exactly m lines, each containing two distinct server indices representing a connection."
+          },
+          {
+            "id": "Q2",
+            "expression": "stdout.strip() != '-1' and all(1 <= int(u) <= int(n) and 1 <= int(w) <= int(n) and u != w for line in stdout.splitlines() for u, w in [line.split()])",
+            "description": "Each connection in the output is between two distinct servers within the valid range [1, n]."
+          },
+          {
+            "id": "Q3",
+            "expression": "stdout.strip() != '-1' and all(int(v) not in {int(u), int(w)} for line in stdout.splitlines() for u, w in [line.split()])",
+            "description": "The failing server v is not directly connected to any other server in the output (i.e., v is isolated in the graph)."
+          },
+          {
+            "id": "Q4",
+            "expression": "stdout.strip() != '-1' and (lambda: not all(any(int(u) == int(x) and int(w) == int(y) or int(u) == int(y) and int(w) == int(x) for line in stdout.splitlines() for x, y in [line.split()]) for u in range(1, int(n)+1) if u != int(v) for w in range(1, int(n)+1) if w != int(v) and u != w))()",
+            "description": "The graph becomes disconnected when server v is removed (i.e., the system stops being connected when v fails)."
+          },
+          {
+            "id": "Q5",
+            "expression": "stdout.strip() != '-1' and len({(min(int(u), int(w)), max(int(u), int(w))) for line in stdout.splitlines() for u, w in [line.split()]}) == int(m)",
+            "description": "No duplicate connections exist in the output."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "2f2f673efeff143f9a5175af01eee3c10afcb32c155f8ebdc2e5284fec3d7566",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 92.788,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:33:45.896546+00:00"
+}

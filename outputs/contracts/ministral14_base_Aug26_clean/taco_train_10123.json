@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_10123",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and k >= 2 and k <= n and n <= 5 * 10**5",
+        "description": "The input consists of integers n (number of bases) and k (number of remaining bases) where 2 ≤ k ≤ n ≤ 500,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(coordinates) == n and all(isinstance(x, int) and isinstance(y, int) and -10**9 <= x <= 10**9 and -10**9 <= y <= 10**9 for x, y in coordinates)",
+        "description": "The coordinates list contains exactly n pairs of integers (x, y) where each coordinate is between -10^9 and 10^9 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "any(x == 0 and y == 0 for x, y in coordinates)",
+        "description": "Exactly one base is located at the origin (0, 0)."
+      },
+      {
+        "id": "P4",
+        "expression": "len(set(coordinates)) == n",
+        "description": "No two bases share the same coordinates."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "isinstance(result, float) and result >= 0.0",
+        "description": "The output is a non-negative floating-point number representing the maximal sum of distances between all pairs of remaining k bases."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= abs(real_result - result) / max(1.0, abs(real_result)) < 10**-6 for real_result in possible_real_results)",
+        "description": "The output result is within an absolute or relative error of less than 10^-6 compared to the true maximal sum of distances for some subset of k bases."
+      },
+      {
+        "id": "Q3",
+        "expression": "def distance(p1, p2):\n    x1, y1 = p1\n    x2, y2 = p2\n    if x1 * y2 == x2 * y1:  # Collinear with origin\n        return ((x1 - x2)**2 + (y1 - y2)**2)**0.5\n    else:\n        return ((x1**2 + y1**2)**0.5 + (x2**2 + y2**2)**0.5)\n\nselected = [coordinates[i] for i in selected_indices]\nsum_distances = sum(distance(p1, p2) for i, p1 in enumerate(selected) for p2 in selected[i+1:])\nsum_distances == result",
+        "description": "The result is computed as the sum of distances between all pairs of selected k bases, where the distance between two bases p1 and p2 is the Euclidean distance if they are collinear with the origin, otherwise the sum of their distances to the origin."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and k >= 2 and k <= n and n <= 5 * 10**5\",\n      \"description\": \"The input consists of integers n (number of bases) and k (number of remaining bases) where 2 ≤ k ≤ n ≤ 500,000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(coordinates) == n and all(isinstance(x, int) and isinstance(y, int) and -10**9 <= x <= 10**9 and -10**9 <= y <= 10**9 for x, y in coordinates)\",\n      \"description\": \"The coordinates list contains exactly n pairs of integers (x, y) where each coordinate is between -10^9 and 10^9 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"any(x == 0 and y == 0 for x, y in coordinates)\",\n      \"description\": \"Exactly one base is located at the origin (0, 0).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(set(coordinates)) == n\",\n      \"description\": \"No two bases share the same coordinates.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"isinstance(result, float) and result >= 0.0\",\n      \"description\": \"The output is a non-negative floating-point number representing the maximal sum of distances between all pairs of remaining k bases.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= abs(real_result - result) / max(1.0, abs(real_result)) < 10**-6 for real_result in possible_real_results)\",\n      \"description\": \"The output result is within an absolute or relative error of less than 10^-6 compared to the true maximal sum of distances for some subset of k bases.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"def distance(p1, p2):\\n    x1, y1 = p1\\n    x2, y2 = p2\\n    if x1 * y2 == x2 * y1:  # Collinear with origin\\n        return ((x1 - x2)**2 + (y1 - y2)**2)**0.5\\n    else:\\n        return ((x1**2 + y1**2)**0.5 + (x2**2 + y2**2)**0.5)\\n\\nselected = [coordinates[i] for i in selected_indices]\\nsum_distances = sum(distance(p1, p2) for i, p1 in enumerate(selected) for p2 in selected[i+1:])\\nsum_distances == result\",\n      \"description\": \"The result is computed as the sum of distances between all pairs of selected k bases, where the distance between two bases p1 and p2 is the Euclidean distance if they are collinear with the origin, otherwise the sum of their distances to the origin.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1842,
+  "generated_tokens": 749,
+  "hit_output_limit": false,
+  "generation_seconds": 36.325,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:06:37.366479+00:00"
+}

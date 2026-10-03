@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_5788",
+  "task_index": 183,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_5788.json",
+  "code": "import sys\n\ndef find_centroids(n, parents, queries):\n    from collections import defaultdict\n\n    tree = defaultdict(list)\n    for i, p in enumerate(parents, start=2):\n        tree[p].append(i)\n\n    size = [0] * (n + 1)\n    centroid = [0] * (n + 1)\n\n    def dfs(node):\n        size[node] = 1\n        max_subtree_size = 0\n        for child in tree[node]:\n            dfs(child)\n            size[node] += size[child]\n            if size[child] > max_subtree_size:\n                max_subtree_size = size[child]\n\n        remaining_size = size[1] - size[node]\n        if 2 * max(max_subtree_size, remaining_size) <= size[1]:\n            centroid[node] = node\n\n    dfs(1)\n\n    def find_subtree_centroid(node):\n        total_size = size[node]\n        for child in tree[node]:\n            if size[child] * 2 > total_size:\n                return find_subtree_centroid(child)\n        return centroid[node]\n\n    result = []\n    for v in queries:\n        if size[v] == 1:\n            result.append(v)\n        else:\n            result.append(find_subtree_centroid(v))\n\n    return result\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nq = int(input[1])\nparents = list(map(int, input[2:n+1]))\nqueries = list(map(int, input[n+1:]))\n\ncentroids = find_centroids(n, parents, queries)\nprint(' '.join(map(str, centroids)))",
+  "generation_seconds": 30.31,
+  "generated_at": "2026-09-23T18:18:18.432406+00:00"
+}

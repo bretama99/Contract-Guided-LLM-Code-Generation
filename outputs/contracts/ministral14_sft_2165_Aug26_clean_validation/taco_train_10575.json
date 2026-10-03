@@ -1,0 +1,325 @@
+{
+  "task_id": "taco_train_10575",
+  "task_index": 46,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100000",
+        "description": "The number of test cases t is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= m <= 10**6 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each test case, n (number of residents/cats) and m (number of friendship pairs) satisfy 1 ≤ n ≤ m ≤ 10^6."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)",
+        "description": "Each friendship pair (a_i, b_i) has resident index a_i and cat index b_i in the range [1, n]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any(a_i == i and b_i == i for a_i, b_i in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)) for i in range(1, n+1))",
+        "description": "For every resident i, there exists a friendship pair (i, i) indicating the resident knows their own cat."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and any('Yes' in line for line in stdout.splitlines()))",
+        "description": "The output for each test case is either 'No' (impossible) or starts with 'Yes' followed by valid jury and contestant selections."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('Yes' in line for line in stdout.splitlines() if line.strip() == 'Yes') and all('No' in line for line in stdout.splitlines() if line.strip() == 'No')",
+        "description": "Each test case output is either 'No' or starts with 'Yes' followed by valid selections."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('Yes' in line and (line.split()[1] == 'j' and line.split()[2] == 'p' and int(line.split()[1]) + int(line.split()[2]) == n) for line in stdout.splitlines() if line.strip() == 'Yes')",
+        "description": "If 'Yes', the second line contains integers j and p such that j + p = n, where j is the number of jury members and p is the number of contestants."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('Yes' in line and (len(set(jury)) == j and len(set(contestants)) == p) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (p := int(line.split()[2])) and (contestants := [int(x) for x in next(line.splitlines()).split()]))",
+        "description": "If 'Yes', the jury and contestant lists contain exactly j and p distinct integers respectively."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('Yes' in line and all(1 <= x <= n for x in jury) and all(1 <= x <= n for x in contestants) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]))",
+        "description": "If 'Yes', all jury and contestant indices are within the valid range [1, n]."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('Yes' in line and all(a_i not in contestants or b_i not in jury for a_i, b_i in friendships) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]) and (friendships := [(int(a), int(b)) for a, b in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)]))",
+        "description": "If 'Yes', no resident in the jury knows any cat in the contestants (i.e., no friendship pair (a_i, b_i) exists where a_i is in jury and b_i is in contestants)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all('Yes' in line and (j > 0 and p > 0) for line in stdout.splitlines() if line.strip() == 'Yes' and (j := int(line.split()[1])) and (p := int(line.split()[2])))",
+        "description": "If 'Yes', the number of jury members j and contestants p are both at least 1."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100000",
+        "description": "The number of test cases t is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= m <= 10**6 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each test case, n (number of residents/cats) and m (number of friendship pairs) satisfy 1 ≤ n ≤ m ≤ 10^6."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)",
+        "description": "Each friendship pair (a_i, b_i) has resident index a_i and cat index b_i in the range [1, n]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any(a_i == i and b_i == i for a_i, b_i in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)) for i in range(1, n+1))",
+        "description": "For every resident i, there exists a friendship pair (i, i) indicating the resident knows their own cat."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and any('Yes' in line for line in stdout.splitlines()))",
+        "description": "The output for each test case is either 'No' (impossible) or starts with 'Yes' followed by valid jury and contestant selections."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('Yes' in line for line in stdout.splitlines() if line.strip() == 'Yes') and all('No' in line for line in stdout.splitlines() if line.strip() == 'No')",
+        "description": "Each test case output is either 'No' or starts with 'Yes' followed by valid selections."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('Yes' in line and (line.split()[1] == 'j' and line.split()[2] == 'p' and int(line.split()[1]) + int(line.split()[2]) == n) for line in stdout.splitlines() if line.strip() == 'Yes')",
+        "description": "If 'Yes', the second line contains integers j and p such that j + p = n, where j is the number of jury members and p is the number of contestants."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('Yes' in line and (len(set(jury)) == j and len(set(contestants)) == p) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (p := int(line.split()[2])) and (contestants := [int(x) for x in next(line.splitlines()).split()]))",
+        "description": "If 'Yes', the jury and contestant lists contain exactly j and p distinct integers respectively."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('Yes' in line and all(1 <= x <= n for x in jury) and all(1 <= x <= n for x in contestants) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]))",
+        "description": "If 'Yes', all jury and contestant indices are within the valid range [1, n]."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('Yes' in line and all(a_i not in contestants or b_i not in jury for a_i, b_i in friendships) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]) and (friendships := [(int(a), int(b)) for a, b in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)]))",
+        "description": "If 'Yes', no resident in the jury knows any cat in the contestants (i.e., no friendship pair (a_i, b_i) exists where a_i is in jury and b_i is in contestants)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all('Yes' in line and (j > 0 and p > 0) for line in stdout.splitlines() if line.strip() == 'Yes' and (j := int(line.split()[1])) and (p := int(line.split()[2])))",
+        "description": "If 'Yes', the number of jury members j and contestants p are both at least 1."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "b84e3bcf947a7e1f8672f8dc78b62847f6096ae661939ee6c236b5782d2895bb",
+  "selected_contract_fingerprint": "b84e3bcf947a7e1f8672f8dc78b62847f6096ae661939ee6c236b5782d2895bb",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_10575.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[6].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[6].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[6].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[6].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 64.039,
+  "processing_error": null,
+  "finished_at": "2026-09-03T23:47:09.846796+00:00"
+}

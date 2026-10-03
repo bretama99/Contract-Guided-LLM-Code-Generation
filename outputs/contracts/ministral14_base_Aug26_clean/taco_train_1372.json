@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_1372",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 50 and 1 <= m <= 50 and (n % 2 == 0 or m % 2 == 0) for n, m in [(int(stdin.split()[0]), int(stdin.split()[1]))])",
+        "description": "Input dimensions n and m are integers between 1 and 50 inclusive, with at least one even."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 2 + n + n and all(len(line) == m for line in stdin.splitlines()[2:2+n] + stdin.splitlines()[2+2*n:])",
+        "description": "Input consists of exactly 2 + 2n lines: first line is n and m, next n lines are current configuration, next n lines are desired configuration. Each configuration line has exactly m characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c in 'LRUD' for line in stdin.splitlines()[2:2+n] + stdin.splitlines()[2+2*n:] for c in line)",
+        "description": "All characters in both configurations are in {'L', 'R', 'U', 'D'}."
+      },
+      {
+        "id": "P4",
+        "expression": "all((line[i] == 'L' and line[i+1] == 'R') or (line[i] == 'R' and line[i+1] == 'L') or (line[i] == 'U' and line[i+1] == 'D') or (line[i] == 'D' and line[i+1] == 'U') for line in stdin.splitlines()[2:2+n] for i in range(m-1)) and all((line[i] == 'U' and line[i+m] == 'D') or (line[i] == 'D' and line[i+m] == 'U') or (line[i] == 'L' and line[i+m] == 'R') or (line[i] == 'R' and line[i+m] == 'L') for line in zip(*[iter(stdin.splitlines()[2:2+n])]*2) for i in range(n-1))",
+        "description": "Current configuration is a valid tiling with 1×2 tiles (horizontally or vertically adjacent halves match)."
+      },
+      {
+        "id": "P5",
+        "expression": "all((line[i] == 'L' and line[i+1] == 'R') or (line[i] == 'R' and line[i+1] == 'L') or (line[i] == 'U' and line[i+1] == 'D') or (line[i] == 'D' and line[i+1] == 'U') for line in stdin.splitlines()[2+2*n:] for i in range(m-1)) and all((line[i] == 'U' and line[i+m] == 'D') or (line[i] == 'D' and line[i+m] == 'U') or (line[i] == 'L' and line[i+m] == 'R') or (line[i] == 'R' and line[i+m] == 'L') for line in zip(*[iter(stdin.splitlines()[2+2*n:])]*2) for i in range(n-1))",
+        "description": "Desired configuration is a valid tiling with 1×2 tiles (horizontally or vertically adjacent halves match)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (stdout.strip().split()[0].isdigit() and 0 <= int(stdout.strip().split()[0]) <= 100000 and all(line.count(' ') == 1 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdout.strip().splitlines()[1:]))",
+        "description": "Output is either -1 (no solution) or a sequence of k operations (0 ≤ k ≤ 100000), where each operation is a pair of integers (1 ≤ row ≤ n, 1 ≤ col ≤ m-1) representing the top-left corner of a 2×2 square to rotate."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and (lambda current, desired, ops: all(apply_operations(current, op) == desired for op in ops))(stdin.splitlines()[2:2+n], stdin.splitlines()[2+2*n:], [tuple(map(int, line.split())) for line in stdout.strip().splitlines()[1:]])",
+        "description": "If a solution exists, the sequence of operations transforms the current configuration into the desired configuration. The operations are valid (2×2 squares within bounds) and each operation rotates a 2×2 block 90 degrees clockwise."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == '-1' or (lambda current, desired: any(not is_solvable(current, desired)))(stdin.splitlines()[2:2+n], stdin.splitlines()[2+2*n:])",
+        "description": "If no solution exists (e.g., due to parity or connectivity issues), output is -1. Otherwise, a valid sequence of operations is provided."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 50 and 1 <= m <= 50 and (n % 2 == 0 or m % 2 == 0) for n, m in [(int(stdin.split()[0]), int(stdin.split()[1]))])\",\n      \"description\": \"Input dimensions n and m are integers between 1 and 50 inclusive, with at least one even.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 2 + n + n and all(len(line) == m for line in stdin.splitlines()[2:2+n] + stdin.splitlines()[2+2*n:])\",\n      \"description\": \"Input consists of exactly 2 + 2n lines: first line is n and m, next n lines are current configuration, next n lines are desired configuration. Each configuration line has exactly m characters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(c in 'LRUD' for line in stdin.splitlines()[2:2+n] + stdin.splitlines()[2+2*n:] for c in line)\",\n      \"description\": \"All characters in both configurations are in {'L', 'R', 'U', 'D'}.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all((line[i] == 'L' and line[i+1] == 'R') or (line[i] == 'R' and line[i+1] == 'L') or (line[i] == 'U' and line[i+1] == 'D') or (line[i] == 'D' and line[i+1] == 'U') for line in stdin.splitlines()[2:2+n] for i in range(m-1)) and all((line[i] == 'U' and line[i+m] == 'D') or (line[i] == 'D' and line[i+m] == 'U') or (line[i] == 'L' and line[i+m] == 'R') or (line[i] == 'R' and line[i+m] == 'L') for line in zip(*[iter(stdin.splitlines()[2:2+n])]*2) for i in range(n-1))\",\n      \"description\": \"Current configuration is a valid tiling with 1×2 tiles (horizontally or vertically adjacent halves match).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all((line[i] == 'L' and line[i+1] == 'R') or (line[i] == 'R' and line[i+1] == 'L') or (line[i] == 'U' and line[i+1] == 'D') or (line[i] == 'D' and line[i+1] == 'U') for line in stdin.splitlines()[2+2*n:] for i in range(m-1)) and all((line[i] == 'U' and line[i+m] == 'D') or (line[i] == 'D' and line[i+m] == 'U') or (line[i] == 'L' and line[i+m] == 'R') or (line[i] == 'R' and line[i+m] == 'L') for line in zip(*[iter(stdin.splitlines()[2+2*n:])]*2) for i in range(n-1))\",\n      \"description\": \"Desired configuration is a valid tiling with 1×2 tiles (horizontally or vertically adjacent halves match).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == '-1' or (stdout.strip().split()[0].isdigit() and 0 <= int(stdout.strip().split()[0]) <= 100000 and all(line.count(' ') == 1 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdout.strip().splitlines()[1:]))\",\n      \"description\": \"Output is either -1 (no solution) or a sequence of k operations (0 ≤ k ≤ 100000), where each operation is a pair of integers (1 ≤ row ≤ n, 1 ≤ col ≤ m-1) representing the top-left corner of a 2×2 square to rotate.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() != '-1' and (lambda current, desired, ops: all(apply_operations(current, op) == desired for op in ops))(stdin.splitlines()[2:2+n], stdin.splitlines()[2+2*n:], [tuple(map(int, line.split())) for line in stdout.strip().splitlines()[1:]])\",\n      \"description\": \"If a solution exists, the sequence of operations transforms the current configuration into the desired configuration. The operations are valid (2×2 squares within bounds) and each operation rotates a 2×2 block 90 degrees clockwise.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == '-1' or (lambda current, desired: any(not is_solvable(current, desired)))(stdin.splitlines()[2:2+n], stdin.splitlines()[2+2*n:])\",\n      \"description\": \"If no solution exists (e.g., due to parity or connectivity issues), output is -1. Otherwise, a valid sequence of operations is provided.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1541,
+  "generated_tokens": 1263,
+  "hit_output_limit": false,
+  "generation_seconds": 56.388,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T22:16:07.631479+00:00"
+}

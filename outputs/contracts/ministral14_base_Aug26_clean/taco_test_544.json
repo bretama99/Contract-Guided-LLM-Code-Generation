@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_544",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.split()[0]) and t > 0 and t <= 30",
+        "description": "The first line of input is a positive integer t (1 ≤ t ≤ 30) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all('\\n'.join(line.split() for line in stdin.splitlines()[i+1:i+2*m+1]).split() for i in range(0, len(stdin.splitlines()), 2*m+1))",
+        "description": "Each test case starts with two integers n and m (1 ≤ n ≤ 100, 1 ≤ m ≤ 30), followed by m lines describing subsets S1, ..., Sm of X = {0, ..., n-1}. Each subset line starts with vi (1 ≤ vi ≤ n) followed by vi distinct integers in [0, n-1]."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(x) < n for line in stdin.splitlines()[1:] for x in line.split()[1:])",
+        "description": "All elements in subsets Si are integers in the range [0, n-1]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(set(line.split()[1:])) == int(line.split()[0]) for line in stdin.splitlines()[1:])",
+        "description": "Each subset Si has exactly vi distinct elements."
+      },
+      {
+        "id": "P5",
+        "expression": "all(any(int(x) in set(line.split()[1:]) for line in stdin.splitlines()[i+1:i+2*m+1]) for i in range(0, len(stdin.splitlines()), 2*m+1) for x in range(n))",
+        "description": "Every integer in X = {0, ..., n-1} appears in at least one subset Si for each test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == ['\\n'.join(str(min_atoms) for min_atoms in [compute_min_atoms(test_case) for test_case in parse_test_cases(stdin)])]",
+        "description": "For each test case, the output is a single integer representing the minimum number of atoms k such that X is partitioned into atoms A1, ..., Ak where each atom Ai is either a subset of some Si or disjoint from every Si."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(output_line) <= n for output_line in stdout.strip().split())",
+        "description": "The output for each test case is a positive integer k (1 ≤ k ≤ n), as the trivial partition into singletons always exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(atom_partition_exists(test_case, int(output_line)) for test_case, output_line in zip(parse_test_cases(stdin), stdout.strip().split()))",
+        "description": "For each test case, the output k is achievable: there exists a partition of X into k atoms satisfying the subset/disjointness condition for all Si."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(not exists_smaller_k(test_case, int(output_line)) for test_case, output_line in zip(parse_test_cases(stdin), stdout.strip().split()))",
+        "description": "For each test case, the output k is minimal: no partition into fewer than k atoms satisfies the subset/disjointness condition for all Si."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.split()[0]) and t > 0 and t <= 30\",\n      \"description\": \"The first line of input is a positive integer t (1 ≤ t ≤ 30) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all('\\\\n'.join(line.split() for line in stdin.splitlines()[i+1:i+2*m+1]).split() for i in range(0, len(stdin.splitlines()), 2*m+1))\",\n      \"description\": \"Each test case starts with two integers n and m (1 ≤ n ≤ 100, 1 ≤ m ≤ 30), followed by m lines describing subsets S1, ..., Sm of X = {0, ..., n-1}. Each subset line starts with vi (1 ≤ vi ≤ n) followed by vi distinct integers in [0, n-1].\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(x) < n for line in stdin.splitlines()[1:] for x in line.split()[1:])\",\n      \"description\": \"All elements in subsets Si are integers in the range [0, n-1].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(set(line.split()[1:])) == int(line.split()[0]) for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each subset Si has exactly vi distinct elements.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(any(int(x) in set(line.split()[1:]) for line in stdin.splitlines()[i+1:i+2*m+1]) for i in range(0, len(stdin.splitlines()), 2*m+1) for x in range(n))\",\n      \"description\": \"Every integer in X = {0, ..., n-1} appears in at least one subset Si for each test case.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().split() == ['\\\\n'.join(str(min_atoms) for min_atoms in [compute_min_atoms(test_case) for test_case in parse_test_cases(stdin)])]\",\n      \"description\": \"For each test case, the output is a single integer representing the minimum number of atoms k such that X is partitioned into atoms A1, ..., Ak where each atom Ai is either a subset of some Si or disjoint from every Si.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(output_line) <= n for output_line in stdout.strip().split())\",\n      \"description\": \"The output for each test case is a positive integer k (1 ≤ k ≤ n), as the trivial partition into singletons always exists.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(atom_partition_exists(test_case, int(output_line)) for test_case, output_line in zip(parse_test_cases(stdin), stdout.strip().split()))\",\n      \"description\": \"For each test case, the output k is achievable: there exists a partition of X into k atoms satisfying the subset/disjointness condition for all Si.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(not exists_smaller_k(test_case, int(output_line)) for test_case, output_line in zip(parse_test_cases(stdin), stdout.strip().split()))\",\n      \"description\": \"For each test case, the output k is minimal: no partition into fewer than k atoms satisfies the subset/disjointness condition for all Si.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1439,
+  "generated_tokens": 878,
+  "hit_output_limit": false,
+  "generation_seconds": 37.828,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:02:37.931095+00:00"
+}

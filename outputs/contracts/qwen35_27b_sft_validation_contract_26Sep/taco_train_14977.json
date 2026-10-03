@@ -1,0 +1,605 @@
+{
+  "task_id": "taco_train_14977",
+  "task_index": 790,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v4_pass1_optimized",
+  "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+  "repair_version": "three_file_expression_led_repair_v6_pass1_optimized",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= n <= 100",
+        "description": "The number of vertices n must be between 2 and 100."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in edges)",
+        "description": "All edges must connect valid vertices and must not connect a vertex to itself."
+      },
+      {
+        "id": "P3",
+        "expression": "len(edges) == n - 1",
+        "description": "The number of edges must be exactly n - 1 for a valid tree."
+      }
+    ],
+    "postconditions": [
+      {
+        "description": "The output must start with the number of paths chosen.",
+        "expression": "stdout.startswith(str(paths))",
+        "id": "Q1"
+      },
+      {
+        "description": "Each path description must have the correct number of elements.",
+        "expression": "all(len(path) == len(edges_in_path) + 2 for path in paths_output)",
+        "id": "Q2"
+      },
+      {
+        "description": "All distances x must be between 0 and 1.",
+        "expression": "all(0 <= x <= 1 for x in x_values)",
+        "id": "Q3"
+      },
+      {
+        "description": "The output must minimize res1, res2, ..., resn as required by the task.",
+        "expression": "all(res[i] <= resOptimal[i] for i in range(n))",
+        "id": "Q4"
+      },
+      {
+        "description": "Each path description must include the number of edges, the indices of the edges, the vertices u and v, and the distance x.",
+        "expression": "all(len(path) == 4 and isinstance(path[0], int) and isinstance(path[1], list) and len(path[1]) == path[0] and isinstance(path[2], tuple) and len(path[2]) == 2 and isinstance(path[3], float) and 0 <= path[3] <= 1 for path in paths_output)",
+        "id": "Q5"
+      },
+      {
+        "description": "The selected paths must cover all vertices of the tree.",
+        "expression": "all(v in vertices_covered for v in range(1, n + 1))",
+        "id": "Q6"
+      },
+      {
+        "description": "The selected paths must be simple and pairwise non-intersecting in edges.",
+        "expression": "all(len(set(edges_in_path)) == len(edges_in_path) for path in paths_output) and all(len(set(edges_in_path1) & set(edges_in_path2)) == 0 for path1 in paths_output for path2 in paths_output if path1 != path2)",
+        "id": "Q7"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= n <= 100",
+        "description": "The number of vertices n must be between 2 and 100."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in edges)",
+        "description": "All edges must connect valid vertices and must not connect a vertex to itself."
+      },
+      {
+        "id": "P3",
+        "expression": "len(edges) == n - 1",
+        "description": "The number of edges must be exactly n - 1 for a valid tree."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.startswith(str(paths))",
+        "description": "The output must start with the number of paths chosen."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(path) == len(edges_in_path) + 2 for path in paths_output)",
+        "description": "Each path description must have the correct number of elements."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= x <= 1 for x in x_values)",
+        "description": "All distances x must be between 0 and 1."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "cf4cd184c0e479c2dbe655daeef8b701b60a6c0cc8d1290f1505739444a94b5c",
+  "selected_contract_fingerprint": "ea7883986ef03b680fc5f8d5fa7a63ffe1c2167ea174612ffd61a88148aaac43",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_14977.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the output minimizes res1, res2, ..., resn as required by the task.",
+      "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the output minimizes res1, res2, ..., resn as required by the task.",
+      "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output minimizes res1, res2, ..., resn as required by the task.",
+        "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output minimizes res1, res2, ..., resn as required by the task.",
+        "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output minimizes res1, res2, ..., resn as required by the task.",
+        "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that each vertex belongs to at least one of the selected paths.",
+        "task_evidence": "However each vertex should belong to at least one of the selected path.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the selected paths are simple and pairwise do not intersect in edges.",
+        "task_evidence": "Noora chooses a set of simple paths that pairwise don't intersect in edges.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "2 <= n <= 100",
+          "description": "The number of vertices n must be between 2 and 100."
+        },
+        {
+          "id": "P2",
+          "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in edges)",
+          "description": "All edges must connect valid vertices and must not connect a vertex to itself."
+        },
+        {
+          "id": "P3",
+          "expression": "len(edges) == n - 1",
+          "description": "The number of edges must be exactly n - 1 for a valid tree."
+        }
+      ],
+      "postconditions": [
+        {
+          "description": "The output must start with the number of paths chosen.",
+          "expression": "stdout.startswith(str(paths))",
+          "id": "Q1"
+        },
+        {
+          "description": "Each path description must have the correct number of elements.",
+          "expression": "all(len(path) == len(edges_in_path) + 2 for path in paths_output)",
+          "id": "Q2"
+        },
+        {
+          "description": "All distances x must be between 0 and 1.",
+          "expression": "all(0 <= x <= 1 for x in x_values)",
+          "id": "Q3"
+        },
+        {
+          "description": "The output must minimize res1, res2, ..., resn as required by the task.",
+          "expression": "all(res[i] <= resOptimal[i] for i in range(n))",
+          "id": "Q4"
+        },
+        {
+          "description": "Each path description must include the number of edges, the indices of the edges, the vertices u and v, and the distance x.",
+          "expression": "all(len(path) == 4 and isinstance(path[0], int) and isinstance(path[1], list) and len(path[1]) == path[0] and isinstance(path[2], tuple) and len(path[2]) == 2 and isinstance(path[3], float) and 0 <= path[3] <= 1 for path in paths_output)",
+          "id": "Q5"
+        },
+        {
+          "description": "The selected paths must cover all vertices of the tree.",
+          "expression": "all(v in vertices_covered for v in range(1, n + 1))",
+          "id": "Q6"
+        },
+        {
+          "description": "The selected paths must be simple and pairwise non-intersecting in edges.",
+          "expression": "all(len(set(edges_in_path)) == len(edges_in_path) for path in paths_output) and all(len(set(edges_in_path1) & set(edges_in_path2)) == 0 for path1 in paths_output for path2 in paths_output if path1 != path2)",
+          "id": "Q7"
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the output minimizes res1, res2, ..., resn as required by the task.",
+          "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "description": "The output must minimize res1, res2, ..., resn as required by the task.",
+          "expression": "all(res[i] <= resOptimal[i] for i in range(n))"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "df1a040f87f64419cf34e57ddc3eb12e89b1d81481d72934f02ab7ebbcff32e9",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the output format matches the required structure for path descriptions.",
+            "task_evidence": "In the next paths lines print path's descriptions: 1. Single integer len — number of edges in the current path. 2. len integers — indices of the edges in the path. 3. Two integers u and v — means that you put point on the edge between vertices u and v. 4. Single real number x (0 ≤ x ≤ 1) — distance between point and vertex u.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the output format matches the required structure for path descriptions.",
+            "task_evidence": "In the next paths lines print path's descriptions: 1. Single integer len — number of edges in the current path. 2. len integers — indices of the edges in the path. 3. Two integers u and v — means that you put point on the edge between vertices u and v. 4. Single real number x (0 ≤ x ≤ 1) — distance between point and vertex u.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "vague_clause",
+            "location": "postconditions[3].expression",
+            "action": "clarify",
+            "instruction": "Clarify the expression to ensure it accurately reflects the minimization of res1, res2, ..., resn.",
+            "task_evidence": "Noora is asked to select paths and points on them so that res1 is as minimal as possible. If there are several solutions to do this, it is necessary to minimize res2, then res3, res4, ..., resn.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a clause to ensure that the output format matches the required structure for path descriptions.",
+          "task_evidence": "In the next paths lines print path's descriptions: 1. Single integer len — number of edges in the current path. 2. len integers — indices of the edges in the path. 3. Two integers u and v — means that you put point on the edge between vertices u and v. 4. Single real number x (0 ≤ x ≤ 1) — distance between point and vertex u.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "description": "Each path description must include the number of edges, the indices of the edges, the vertices u and v, and the distance x.",
+          "expression": "all(len(path) == 4 and isinstance(path[0], int) and isinstance(path[1], list) and len(path[1]) == path[0] and isinstance(path[2], tuple) and len(path[2]) == 2 and isinstance(path[3], float) and 0 <= path[3] <= 1 for path in paths_output)"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "e9aaf4e20f295eeaf0371eb4efbe4811bde0267d11dee491faf9ea7b0870b0e2",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "ISSUE"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output paths cover all vertices of the tree.",
+            "task_evidence": "However each vertex should belong to at least one of the selected path.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output paths cover all vertices of the tree.",
+            "task_evidence": "However each vertex should belong to at least one of the selected path.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the selected paths are simple and do not intersect in edges.",
+            "task_evidence": "Noora chooses a set of simple paths that pairwise don't intersect in edges.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "expression_description_mismatch",
+            "location": "postconditions[3].expression",
+            "action": "align",
+            "instruction": "Align the expression to correctly reflect the minimization of res1, res2, ..., resn as required by the task.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "vague_clause",
+            "location": "postconditions[4].expression",
+            "action": "clarify",
+            "instruction": "Clarify the expression to ensure it correctly validates the structure of each path description.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[4].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "However each vertex should belong to at least one of the selected path.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output paths cover all vertices of the tree.",
+            "task_evidence": "However each vertex should belong to at least one of the selected path.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output must start with the number of paths chosen.",
+            "expression": "stdout.startswith(str(paths))",
+            "id": "Q1"
+          },
+          {
+            "description": "Each path description must have the correct number of elements.",
+            "expression": "all(len(path) == len(edges_in_path) + 2 for path in paths_output)",
+            "id": "Q2"
+          },
+          {
+            "description": "All distances x must be between 0 and 1.",
+            "expression": "all(0 <= x <= 1 for x in x_values)",
+            "id": "Q3"
+          },
+          {
+            "description": "The output must minimize res1, res2, ..., resn as required by the task.",
+            "expression": "all(res[i] <= resOptimal[i] for i in range(n))",
+            "id": "Q4"
+          },
+          {
+            "description": "Each path description must include the number of edges, the indices of the edges, the vertices u and v, and the distance x.",
+            "expression": "all(len(path) == 4 and isinstance(path[0], int) and isinstance(path[1], list) and len(path[1]) == path[0] and isinstance(path[2], tuple) and len(path[2]) == 2 and isinstance(path[3], float) and 0 <= path[3] <= 1 for path in paths_output)",
+            "id": "Q5"
+          },
+          {
+            "description": "The selected paths must cover all vertices of the tree.",
+            "expression": "all(v in vertices_covered for v in range(1, n + 1))",
+            "id": "Q6"
+          },
+          {
+            "description": "The selected paths must be simple and pairwise non-intersecting in edges.",
+            "expression": "all(len(set(edges_in_path)) == len(edges_in_path) for path in paths_output) and all(len(set(edges_in_path1) & set(edges_in_path2)) == 0 for path1 in paths_output for path2 in paths_output if path1 != path2)",
+            "id": "Q7"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "ea7883986ef03b680fc5f8d5fa7a63ffe1c2167ea174612ffd61a88148aaac43",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "qwen35_27b_sft_validation_contract_26Sep",
+    "model_path": "/local/data/huggingface/brhanet/models/Qwen3.5-27B",
+    "adapter_path": "outputs/finetuning/qwen35_contract_sft/final_adapter_eval_loss",
+    "model_type": "qwen3_5",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true,
+    "load_in_4bit": true,
+    "max_memory_per_gpu": "42GiB"
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 768,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 294.708,
+  "processing_error": null,
+  "finished_at": "2026-09-26T19:46:07.826202+00:00"
+}

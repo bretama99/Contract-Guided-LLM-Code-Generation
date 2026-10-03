@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4057",
+  "task_index": 485,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_4057.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef sumK(root, K):\n    def dfs(node, current_sum, prefix_sums):\n        if not node:\n            return 0\n        current_sum += node.val\n        target = current_sum - K\n        paths_count = prefix_sums[target]\n        prefix_sums[current_sum] += 1\n        paths_count += dfs(node.left, current_sum, prefix_sums)\n        paths_count += dfs(node.right, current_sum, prefix_sums)\n        prefix_sums[current_sum] -= 1\n        return paths_count\n\n    prefix_sums = defaultdict(int)\n    prefix_sums[0] = 1\n    return dfs(root, 0, prefix_sums) % (10**9 + 7)\n\ndef read_input():\n    import json\n    data = json.load(sys.stdin)\n    K = data['K']\n    nodes = data['nodes']\n    root = build_tree(nodes)\n    return root, K\n\ndef build_tree(nodes):\n    if not nodes:\n        return None\n    root = TreeNode(nodes[0])\n    queue = [root]\n    i = 1\n    while i < len(nodes):\n        current = queue.pop(0)\n        if nodes[i] is not None:\n            current.left = TreeNode(nodes[i])\n            queue.append(current.left)\n        i += 1\n        if i < len(nodes) and nodes[i] is not None:\n            current.right = TreeNode(nodes[i])\n            queue.append(current.right)\n        i += 1\n    return root\n\nif __name__ == \"__main__\":\n    root, K = read_input()\n    result = sumK(root, K)\n    print(result)",
+  "generation_seconds": 34.472,
+  "generated_at": "2026-09-23T21:11:37.999383+00:00"
+}

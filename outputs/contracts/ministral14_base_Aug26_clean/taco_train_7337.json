@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_7337",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= n for x in stdin.split() if x.isdigit())",
+        "description": "All city numbers in input are integers between 1 and n (inclusive), where n is the first integer in the first line of stdin."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == n + 1",
+        "description": "The input consists of exactly n + 1 lines: one line with n and m, n - 1 lines for roads, and one line for attacked cities."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(u) <= n and 1 <= int(v) <= n and u != v for line in stdin.splitlines()[1:n] for u, v in [line.split()])",
+        "description": "Each road connects two distinct cities, both numbered between 1 and n (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "len(set(stdin.splitlines()[-1].split())) == m",
+        "description": "The last line contains exactly m distinct integers representing attacked cities."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(city) <= n for city in stdin.splitlines()[-1].split())",
+        "description": "All attacked cities are numbered between 1 and n (inclusive)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].isdigit() and 1 <= int(stdout.splitlines()[0]) <= n",
+        "description": "The first line of stdout is a valid city number (1 ≤ city ≤ n) where Super M should teleport."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.splitlines()[1].isdigit() and int(stdout.splitlines()[1]) >= 0",
+        "description": "The second line of stdout is a non-negative integer representing the minimum time (in krons) to visit all attacked cities."
+      },
+      {
+        "id": "Q3",
+        "expression": "let cities = set(map(int, stdin.splitlines()[-1].split())); let teleport_city = int(stdout.splitlines()[0]); let min_time = int(stdout.splitlines()[1]); let graph = {int(u): [] for u in range(1, n+1)}; for line in stdin.splitlines()[1:n]: u, v = map(int, line.split()); graph[u].append(v); graph[v].append(u); let distances = {city: min(sum(1 for _ in path) for path in [path for path in [iter([city])] for _ in range(n)]) for city in cities}; let total_time = sum(distances[city] for city in cities) if teleport_city in cities else sum(distances[city] for city in cities) + min(distances[city] for city in cities) if teleport_city not in cities else sum(distances[city] for city in cities); min_time == total_time",
+        "description": "The teleport city and time are such that the total time to visit all attacked cities (starting from the teleport city) is minimized. If multiple teleport cities yield the same minimal time, the smallest city number is chosen."
+      },
+      {
+        "id": "Q4",
+        "expression": "let teleport_city = int(stdout.splitlines()[0]); let min_time = int(stdout.splitlines()[1]); let graph = {int(u): [] for u in range(1, n+1)}; for line in stdin.splitlines()[1:n]: u, v = map(int, line.split()); graph[u].append(v); graph[v].append(u); let attacked_cities = set(map(int, stdin.splitlines()[-1].split())); let is_valid = all(any(teleport_city == city or (city in attacked_cities and min_time >= min(sum(1 for _ in path) for path in [path for path in [iter([teleport_city])] for _ in range(n)])) for city in attacked_cities) for city in attacked_cities); is_valid",
+        "description": "The teleport city and time ensure that Super M can reach every attacked city within the total time, and the time is the minimal possible."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdin.split() if x.isdigit())\",\n      \"description\": \"All city numbers in input are integers between 1 and n (inclusive), where n is the first integer in the first line of stdin.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == n + 1\",\n      \"description\": \"The input consists of exactly n + 1 lines: one line with n and m, n - 1 lines for roads, and one line for attacked cities.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(u) <= n and 1 <= int(v) <= n and u != v for line in stdin.splitlines()[1:n] for u, v in [line.split()])\",\n      \"description\": \"Each road connects two distinct cities, both numbered between 1 and n (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(set(stdin.splitlines()[-1].split())) == m\",\n      \"description\": \"The last line contains exactly m distinct integers representing attacked cities.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(city) <= n for city in stdin.splitlines()[-1].split())\",\n      \"description\": \"All attacked cities are numbered between 1 and n (inclusive).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].isdigit() and 1 <= int(stdout.splitlines()[0]) <= n\",\n      \"description\": \"The first line of stdout is a valid city number (1 ≤ city ≤ n) where Super M should teleport.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.splitlines()[1].isdigit() and int(stdout.splitlines()[1]) >= 0\",\n      \"description\": \"The second line of stdout is a non-negative integer representing the minimum time (in krons) to visit all attacked cities.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"let cities = set(map(int, stdin.splitlines()[-1].split())); let teleport_city = int(stdout.splitlines()[0]); let min_time = int(stdout.splitlines()[1]); let graph = {int(u): [] for u in range(1, n+1)}; for line in stdin.splitlines()[1:n]: u, v = map(int, line.split()); graph[u].append(v); graph[v].append(u); let distances = {city: min(sum(1 for _ in path) for path in [path for path in [iter([city])] for _ in range(n)]) for city in cities}; let total_time = sum(distances[city] for city in cities) if teleport_city in cities else sum(distances[city] for city in cities) + min(distances[city] for city in cities) if teleport_city not in cities else sum(distances[city] for city in cities); min_time == total_time\",\n      \"description\": \"The teleport city and time are such that the total time to visit all attacked cities (starting from the teleport city) is minimized. If multiple teleport cities yield the same minimal time, the smallest city number is chosen.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"let teleport_city = int(stdout.splitlines()[0]); let min_time = int(stdout.splitlines()[1]); let graph = {int(u): [] for u in range(1, n+1)}; for line in stdin.splitlines()[1:n]: u, v = map(int, line.split()); graph[u].append(v); graph[v].append(u); let attacked_cities = set(map(int, stdin.splitlines()[-1].split())); let is_valid = all(any(teleport_city == city or (city in attacked_cities and min_time >= min(sum(1 for _ in path) for path in [path for path in [iter([teleport_city])] for _ in range(n)])) for city in attacked_cities) for city in attacked_cities); is_valid\",\n      \"description\": \"The teleport city and time ensure that Super M can reach every attacked city within the total time, and the time is the minimal possible.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1709,
+  "generated_tokens": 1033,
+  "hit_output_limit": false,
+  "generation_seconds": 53.092,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:35:47.951516+00:00"
+}

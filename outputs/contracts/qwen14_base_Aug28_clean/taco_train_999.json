@@ -1,0 +1,65 @@
+{
+  "task_id": "taco_train_999",
+  "model": "qwen14-base-Aug28-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= q <= 10**5",
+        "description": "The number of tasks q is between 2 and 10^5."
+      },
+      {
+        "id": "P2",
+        "expression": "t_1 == 1",
+        "description": "The first task type is always 1 (add a number to the array)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(t_i in {1, 2} for t_i in tasks)",
+        "description": "Each task type t_i is either 1 or 2."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= u_i <= 10**5 for t_i, u_i in tasks if t_i == 1)",
+        "description": "For task type 1, the number u_i is between 1 and 10^5."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= x_i, k_i, s_i <= 10**5 for t_i, x_i, k_i, s_i in tasks if t_i == 2)",
+        "description": "For task type 2, the numbers x_i, k_i, and s_i are between 1 and 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(v in a and k_i % gcd(x_i, v) == 0 and x_i + v <= s_i for t_i, x_i, k_i, s_i, v in zip(tasks, a, k_values, s_values, results) if t_i == 2)",
+        "description": "For each task type 2, the result v satisfies the conditions: v is in the array a, k_i divides GCD(x_i, v), and x_i + v is less than or equal to s_i."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(max_xor == max(x_i ^ v for v in a if k_i % gcd(x_i, v) == 0 and x_i + v <= s_i) for t_i, x_i, k_i, s_i, max_xor in zip(tasks, x_values, k_values, s_values, max_xors) if t_i == 2)",
+        "description": "For each task type 2, the result v maximizes the XOR value x_i ⊕ v among all valid v in the array a."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(result == -1 if not any(k_i % gcd(x_i, v) == 0 and x_i + v <= s_i for v in a) else True for t_i, x_i, k_i, s_i, result in zip(tasks, x_values, k_values, s_values, results) if t_i == 2)",
+        "description": "For each task type 2, if no valid v exists, the result is -1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"2 <= q <= 10**5\",\n      \"description\": \"The number of tasks q is between 2 and 10^5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"t_1 == 1\",\n      \"description\": \"The first task type is always 1 (add a number to the array).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(t_i in {1, 2} for t_i in tasks)\",\n      \"description\": \"Each task type t_i is either 1 or 2.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= u_i <= 10**5 for t_i, u_i in tasks if t_i == 1)\",\n      \"description\": \"For task type 1, the number u_i is between 1 and 10^5.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= x_i, k_i, s_i <= 10**5 for t_i, x_i, k_i, s_i in tasks if t_i == 2)\",\n      \"description\": \"For task type 2, the numbers x_i, k_i, and s_i are between 1 and 10^5.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(v in a and k_i % gcd(x_i, v) == 0 and x_i + v <= s_i for t_i, x_i, k_i, s_i, v in zip(tasks, a, k_values, s_values, results) if t_i == 2)\",\n      \"description\": \"For each task type 2, the result v satisfies the conditions: v is in the array a, k_i divides GCD(x_i, v), and x_i + v is less than or equal to s_i.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(max_xor == max(x_i ^ v for v in a if k_i % gcd(x_i, v) == 0 and x_i + v <= s_i) for t_i, x_i, k_i, s_i, max_xor in zip(tasks, x_values, k_values, s_values, max_xors) if t_i == 2)\",\n      \"description\": \"For each task type 2, the result v maximizes the XOR value x_i ⊕ v among all valid v in the array a.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(result == -1 if not any(k_i % gcd(x_i, v) == 0 and x_i + v <= s_i for v in a) else True for t_i, x_i, k_i, s_i, result in zip(tasks, x_values, k_values, s_values, results) if t_i == 2)\",\n      \"description\": \"For each task type 2, if no valid v exists, the result is -1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": false,
+  "prompt_tokens": 2005,
+  "generated_tokens": 737,
+  "hit_output_limit": false,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T05:11:47.870994+00:00"
+}

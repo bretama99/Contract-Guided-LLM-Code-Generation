@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_17097",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T00:24:15.445563+00:00",
+  "code": "import sys\nsys.setrecursionlimit(200000)\n\ndef articulationPoints(V, adj):\n    disc = [-1] * V\n    low = [-1] * V\n    parent = [-1] * V\n    ap = set()\n    timer = [0]\n    \n    def dfs(u):\n        children = 0\n        disc[u] = low[u] = timer[0]\n        timer[0] += 1\n        \n        for v in adj[u]:\n            if disc[v] == -1:\n                children += 1\n                parent[v] = u\n                dfs(v)\n                low[u] = min(low[u], low[v])\n                \n                if parent[u] != -1 and low[v] >= disc[u]:\n                    ap.add(u)\n            elif v != parent[u]:\n                low[u] = min(low[u], disc[v])\n        \n        if parent[u] == -1 and children > 1:\n            ap.add(u)\n    \n    for i in range(V):\n        if disc[i] == -1:\n            dfs(i)\n    \n    result = sorted(list(ap))\n    if not result:\n        return [-1]\n    return result\n\ndef main():\n    try:\n        data = sys.stdin.read().split()\n    except Exception:\n        return\n    \n    if not data:\n        return\n    \n    iterator = iter(data)\n    try:\n        V = int(next(iterator))\n    except StopIteration:\n        return\n    \n    adj = [[] for _ in range(V)]\n    \n    try:\n        for i in range(V):\n            count_str = next(iterator)\n            count = int(count_str)\n            for _ in range(count):\n                neighbor = int(next(iterator))\n                adj[i].append(neighbor)\n    except StopIteration:\n        pass\n    \n    result = articulationPoints(V, adj)\n    print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

@@ -1,0 +1,818 @@
+{
+  "task_id": "taco_train_18002",
+  "task_index": 372,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solve",
+      "signature": "def solve(t, test_cases) -> list: ..."
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(t, int) and t >= 1 and t <= 50",
+        "description": "t is the number of test cases, an integer between 1 and 50 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(test_case, tuple) and len(test_case) == 3 for test_case in test_cases)",
+        "description": "Each test case is a tuple of (N, P, M), where N is the number of computers, P is the number of connections, and M is the number of queries."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N >= 1 and N <= 1000 and P >= N - 1 and P <= 100000 and M >= 1 and M <= 100000 for N, P, M in test_cases)",
+        "description": "For each test case, N is between 1 and 1000, P is between N-1 and 100000, and M is between 1 and 100000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(isinstance(connections, list) and len(connections) == P and all(len(conn) == 3 for conn in connections) for _, _, _, connections in test_cases)",
+        "description": "Each test case's connections are a list of P tuples, each tuple representing (u, v, d) where u and v are computer IDs and d is the distance."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u <= N and 1 <= v <= N and 1 <= d <= 1000000 for N, _, _, connections in test_cases for u, v, d in connections)",
+        "description": "For each connection (u, v, d), u and v are computer IDs between 1 and N, and d is a distance between 1 and 1000000."
+      },
+      {
+        "id": "P6",
+        "expression": "all(isinstance(queries, list) and len(queries) == M and all(len(query) == 2 for query in queries) for _, _, _, _, queries in test_cases)",
+        "description": "Each test case's queries are a list of M tuples, each tuple representing (u, v) where u and v are computer IDs."
+      },
+      {
+        "id": "P7",
+        "expression": "all(1 <= u <= N and 1 <= v <= N for N, _, _, _, queries in test_cases for u, v in queries)",
+        "description": "For each query (u, v), u and v are computer IDs between 1 and N."
+      },
+      {
+        "id": "P8",
+        "expression": "all(u != v for N, _, _, connections in test_cases for u, v, _ in connections)",
+        "description": "No connection is from a computer to itself."
+      },
+      {
+        "id": "P9",
+        "expression": "all(d1 != d2 for N, _, _, connections in test_cases for i in range(len(connections)) for j in range(i + 1, len(connections)) for d1, d2 in [(connections[i][2], connections[j][2])])",
+        "description": "All distances d in connections are unique within a test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(return_value) == t",
+        "description": "The output is a list of t results, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(isinstance(result, list) and len(result) == M for result in return_value)",
+        "description": "Each test case result is a list of M answers, one for each query."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(isinstance(answer, int) for result in return_value for answer in result)",
+        "description": "Each answer is an integer representing the minimum cable length."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(answer >= 0 for result in return_value for answer in result)",
+        "description": "Each answer is non-negative."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any((u == q[0] and v == q[1]) or (u == q[1] and v == q[0]) for q in queries) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for u, v in queries)",
+        "description": "Each query (u, v) must have a valid path in the constructed spanning tree."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(answer == min(sum(d for u, v, d in path) for path in get_all_paths(u, v, connections)) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for (u, v), answer in zip(queries, result))",
+        "description": "Each answer is the minimum total distance of a path between u and v in the constructed spanning tree."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solve",
+      "signature": "def solve(t, test_cases) -> list: ..."
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(t, int) and t >= 1 and t <= 50",
+        "description": "t is the number of test cases, an integer between 1 and 50 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(test_case, tuple) and len(test_case) == 3 for test_case in test_cases)",
+        "description": "Each test case is a tuple of (N, P, M), where N is the number of computers, P is the number of connections, and M is the number of queries."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N >= 1 and N <= 1000 and P >= N - 1 and P <= 100000 and M >= 1 and M <= 100000 for N, P, M in test_cases)",
+        "description": "For each test case, N is between 1 and 1000, P is between N-1 and 100000, and M is between 1 and 100000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(isinstance(connections, list) and len(connections) == P and all(len(conn) == 3 for conn in connections) for _, _, _, connections in test_cases)",
+        "description": "Each test case's connections are a list of P tuples, each tuple representing (u, v, d) where u and v are computer IDs and d is the distance."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u <= N and 1 <= v <= N and 1 <= d <= 1000000 for N, _, _, connections in test_cases for u, v, d in connections)",
+        "description": "For each connection (u, v, d), u and v are computer IDs between 1 and N, and d is a distance between 1 and 1000000."
+      },
+      {
+        "id": "P6",
+        "expression": "all(isinstance(queries, list) and len(queries) == M and all(len(query) == 2 for query in queries) for _, _, _, _, queries in test_cases)",
+        "description": "Each test case's queries are a list of M tuples, each tuple representing (u, v) where u and v are computer IDs."
+      },
+      {
+        "id": "P7",
+        "expression": "all(1 <= u <= N and 1 <= v <= N for N, _, _, _, queries in test_cases for u, v in queries)",
+        "description": "For each query (u, v), u and v are computer IDs between 1 and N."
+      },
+      {
+        "id": "P8",
+        "expression": "all(u != v for N, _, _, connections in test_cases for u, v, _ in connections)",
+        "description": "No connection is from a computer to itself."
+      },
+      {
+        "id": "P9",
+        "expression": "all(d1 != d2 for N, _, _, connections in test_cases for i in range(len(connections)) for j in range(i + 1, len(connections)) for d1, d2 in [(connections[i][2], connections[j][2])])",
+        "description": "All distances d in connections are unique within a test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(return_value) == t",
+        "description": "The output is a list of t results, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(isinstance(result, list) and len(result) == M for result in return_value)",
+        "description": "Each test case result is a list of M answers, one for each query."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(isinstance(answer, int) for result in return_value for answer in result)",
+        "description": "Each answer is an integer representing the minimum cable length."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(answer >= 0 for result in return_value for answer in result)",
+        "description": "Each answer is non-negative."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any((u == q[0] and v == q[1]) or (u == q[1] and v == q[0]) for q in queries) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for u, v in queries)",
+        "description": "Each query (u, v) must have a valid path in the constructed spanning tree."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(answer == min(sum(d for u, v, d in path) for path in get_all_paths(u, v, connections)) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for (u, v), answer in zip(queries, result))",
+        "description": "Each answer is the minimum total distance of a path between u and v in the constructed spanning tree."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "5d400083f90a1f767cdece2cc50435410200480f747dcb643e4aac73c17aa4cc",
+  "selected_contract_fingerprint": "5d400083f90a1f767cdece2cc50435410200480f747dcb643e4aac73c17aa4cc",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_18002.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "deterministic_task_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "checks": null,
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "semantic_structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 0,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "deterministic_task_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "checks": null,
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "interface",
+      "action": "replace",
+      "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+      "task_evidence": "",
+      "source": "deterministic"
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "semantic_structural_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "interface",
+        "action": "replace",
+        "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+        "task_evidence": "",
+        "source": "deterministic"
+      }
+    ],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 0,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "interface",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "interface",
+          "action": "replace",
+          "instruction": "Replace the interface mode with 'stdin_stdout' to match the required task calling convention.",
+          "task_evidence": "",
+          "source": "deterministic"
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "mode": "stdin_stdout",
+          "signature": "stdin -> stdout",
+          "input_channel": "stdin",
+          "output_channel": "stdout"
+        },
+        "repair_model_calls": 0,
+        "generation_errors": [],
+        "candidate_fingerprint": "c8370a1aa9793c366f1fd5581368fbde817e22ec8aea1cdf0e3b519494072ddb",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression assumes `get_all_paths` and `connections` are directly usable, but the task requires constructing a **minimum spanning tree (MST)** to minimize LAN utilization. The current expression does not enforce MST construction or guarantee the path is derived from the MST. Replace with an expression that ensures the spanning tree is an MST and the answer is the path sum in that MST.",
+            "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression assumes `get_all_paths` and `connections` are directly usable, but the task requires constructing a **minimum spanning tree (MST)** to minimize LAN utilization. The current expression does not enforce MST construction or guarantee the path is derived from the MST. Replace with an expression that ensures the spanning tree is an MST and the answer is the path sum in that MST.",
+            "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring the constructed spanning tree is a **minimum spanning tree (MST)**. The expression must verify that the selected edges form an MST (e.g., using Kruskal's/Prim's algorithm semantics).",
+            "task_evidence": "LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression checks for path existence in `connections`, but the task requires the path to exist in the **constructed spanning tree**, not the original connections. Replace with an expression that verifies the path exists in the MST.",
+            "task_evidence": "all computers are connected to each other directly or indirectly.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression uses `get_all_paths` and `connections`, which are undefined in the contract. Replace with an expression that computes the path sum in the **constructed MST** (e.g., using BFS/DFS on the MST edges).",
+            "task_evidence": "For each query output the minimum length of cable used to connect u and v.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[4].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[5].expression",
+          "action": "replace",
+          "instruction": "The expression assumes `get_all_paths` and `connections` are directly usable, but the task requires constructing a **minimum spanning tree (MST)** to minimize LAN utilization. The current expression does not enforce MST construction or guarantee the path is derived from the MST. Replace with an expression that ensures the spanning tree is an MST and the answer is the path sum in that MST.",
+          "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[5].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[5].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression assumes `get_all_paths` and `connections` are directly usable, but the task requires constructing a **minimum spanning tree (MST)** to minimize LAN utilization. The current expression does not enforce MST construction or guarantee the path is derived from the MST. Replace with an expression that ensures the spanning tree is an MST and the answer is the path sum in that MST.",
+            "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression assumes `get_all_paths` and `connections` are directly usable, but the task requires constructing a **minimum spanning tree (MST)** to minimize LAN utilization. The current expression does not enforce MST construction or guarantee the path is derived from the MST. Replace with an expression that ensures the spanning tree is an MST and the answer is the path sum in that MST.",
+            "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output is a list of t results, one for each test case.",
+            "expression": "len(return_value) == t",
+            "id": "Q1"
+          },
+          {
+            "description": "Each test case result is a list of M answers, one for each query.",
+            "expression": "all(isinstance(result, list) and len(result) == M for result in return_value)",
+            "id": "Q2"
+          },
+          {
+            "description": "Each answer is an integer representing the minimum cable length.",
+            "expression": "all(isinstance(answer, int) for result in return_value for answer in result)",
+            "id": "Q3"
+          },
+          {
+            "description": "Each answer is non-negative.",
+            "expression": "all(answer >= 0 for result in return_value for answer in result)",
+            "id": "Q4"
+          },
+          {
+            "description": "The constructed spanning tree is a minimum spanning tree (MST) for the given connections.",
+            "expression": "all(is_mst(connections, mst_edges) for N, _, _, connections, _, _ in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for mst_edges in [get_mst_edges(connections)])",
+            "id": "Q5"
+          },
+          {
+            "description": "Each answer is the minimum total distance of a path between u and v in the constructed MST.",
+            "expression": "all(answer == get_mst_path_length(u, v, get_mst_edges(connections)) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for (u, v), answer in zip(queries, result))",
+            "id": "Q6"
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": "6aa55e7428b372d5ffa1ccb332ce167663a1941a5e5fbda144c69b4ddff19404",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the constructed spanning tree connects all N computers (i.e., it is a valid spanning tree).",
+            "task_evidence": "all computers are connected to each other directly or indirectly",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the spanning tree is constructed from the given connections (i.e., the MST edges are a subset of the provided connections).",
+            "task_evidence": "LAN will be laid to connect these N computers. You will be given information about which computer to be connected to which and distance between them.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to ensure the path length is computed correctly for the constructed MST, without relying on undefined helpers like `get_mst_edges` or `get_mst_path_length`.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the output format matches the required 'Case: case_no' followed by M answers per test case.",
+            "task_evidence": "For each test case print \"Case: case_no\" followed by m queries solution.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression assumes `get_all_paths` and `connections` are directly usable, but the task requires constructing a **minimum spanning tree (MST)** to minimize LAN utilization. The current expression does not enforce MST construction or guarantee the path is derived from the MST. Replace with an expression that ensures the spanning tree is an MST and the answer is the path sum in that MST.",
+            "task_evidence": "You are being asked to come up with a plan such that LAN utilization is minimized and all computers are connected to each other directly or indirectly.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output is a list of t results, one for each test case.",
+            "expression": "len(return_value) == t",
+            "id": "Q1"
+          },
+          {
+            "description": "Each test case result is a list of M answers, one for each query, prefixed by the case number in the format 'Case: case_no'.",
+            "expression": "all(isinstance(result, str) and result.startswith('Case:') and len(result.split()) == M + 1 for result in return_value)",
+            "id": "Q2"
+          },
+          {
+            "description": "Each answer is an integer representing the minimum cable length.",
+            "expression": "all(isinstance(answer, int) for result in return_value for answer in [int(x) for x in result.split()[1:]])",
+            "id": "Q3"
+          },
+          {
+            "description": "Each answer is non-negative.",
+            "expression": "all(answer >= 0 for result in return_value for answer in [int(x) for x in result.split()[1:]])",
+            "id": "Q4"
+          },
+          {
+            "description": "The constructed spanning tree is a minimum spanning tree (MST) for the given connections, ensuring all N computers are connected with minimal total cable length.",
+            "expression": "all(len(mst_edges) == N - 1 and all(1 <= u <= N and 1 <= v <= N and u != v for u, v, _ in mst_edges) and sum(d for _, _, d in mst_edges) == min(sum(d for _, _, d in edges) for edges in get_all_possible_spanning_trees(connections)) for N, _, _, connections, _, _ in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for mst_edges in [get_mst_edges(connections)])",
+            "id": "Q5"
+          },
+          {
+            "description": "Each answer is the minimum total distance of a path between u and v in the constructed MST.",
+            "expression": "all(answer == get_mst_path_length(u, v, get_mst_edges(connections)) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for (u, v), answer in zip(queries, [int(x) for x in result.split()[1:]]) if result != 'Case:')",
+            "id": "Q6"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "d2cbd7bd95ba017c60038c84fd92e7830107db87c6006b9f2b933520df026762",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Remove the dependency on undefined helper functions `get_mst_edges`, `get_mst_path_length`, and `get_all_possible_spanning_trees`. The expression must be self-contained and verifiable from the input/output semantics alone.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Remove the dependency on undefined helper functions `get_mst_edges`, `get_mst_path_length`, and `get_all_possible_spanning_trees`. The expression must be self-contained and verifiable from the input/output semantics alone.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring the constructed spanning tree is connected and spans all N computers (i.e., it is a valid spanning tree).",
+            "task_evidence": "all computers are connected to each other directly or indirectly",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring the output format matches the sample exactly: 'Case: case_no' followed by M space-separated integers (no trailing newline or extra spaces).",
+            "task_evidence": "For each test case print \"Case: case_no\" followed by m queries solution.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace with a self-contained expression that verifies the MST property via input/output correspondence: the sum of all edge distances in the constructed MST must equal the minimal possible sum for any spanning tree of the given connections.",
+            "task_evidence": "LAN utilization is minimized and all computers are connected",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace with a self-contained expression that verifies the path length answers are correct by ensuring they match the sum of edge weights along the unique path in the MST (if the MST is unique) or any valid path (if multiple MSTs exist).",
+            "task_evidence": "minimum length of LAN used to connect computers u and v",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[5].expression"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 199.902,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:00:30.876952+00:00"
+}

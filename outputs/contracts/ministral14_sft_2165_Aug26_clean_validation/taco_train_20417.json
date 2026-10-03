@@ -1,0 +1,818 @@
+{
+  "task_id": "taco_train_20417",
+  "task_index": 718,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and T > 0",
+        "description": "T is a positive integer representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N.is_integer() and N > 0 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')])",
+        "description": "Each test case starts with a positive integer N, the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(C) == N for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "For each test case, the string C has length N, where each character is 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in {'R', 'G', 'B'} for c in C) for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each character in C is either 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(edges) == N - 1 for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each test case has exactly N-1 edges, forming a tree."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(1 <= u <= N and 1 <= v <= N and u != v for u, v in edges) for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each edge connects two distinct vertices within the range 1 to N."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])",
+        "description": "For each test case, the output is either 'Yes' or 'No' (case-insensitive)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout.strip().lower() == 'yes') == (all(not any(C[u-1] == 'B' and C[v-1] == 'B' and u != v for u, v in pairs) or any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path) for pairs in [(u, v) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B']) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "For each test case, the output is 'Yes' if and only if for every pair of Blue vertices (u, v), there exists at least one Red and one Green vertex on the simple path between u and v. If there are no Blue vertices or no pairs of Blue vertices, the output is 'Yes'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and T > 0",
+        "description": "T is a positive integer representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N.is_integer() and N > 0 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')])",
+        "description": "Each test case starts with a positive integer N, the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(C) == N for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "For each test case, the string C has length N, where each character is 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in {'R', 'G', 'B'} for c in C) for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each character in C is either 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(edges) == N - 1 for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each test case has exactly N-1 edges, forming a tree."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(1 <= u <= N and 1 <= v <= N and u != v for u, v in edges) for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each edge connects two distinct vertices within the range 1 to N."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])",
+        "description": "For each test case, the output is either 'Yes' or 'No' (case-insensitive)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout.strip().lower() == 'yes') == (all(not any(C[u-1] == 'B' and C[v-1] == 'B' and u != v for u, v in pairs) or any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path) for pairs in [(u, v) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B']) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "For each test case, the output is 'Yes' if and only if for every pair of Blue vertices (u, v), there exists at least one Red and one Green vertex on the simple path between u and v. If there are no Blue vertices or no pairs of Blue vertices, the output is 'Yes'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "3cc90d42710e95b63c4d599a66c191badf96d3695a8560eab60f44e5cb678f84",
+  "selected_contract_fingerprint": "3cc90d42710e95b63c4d599a66c191badf96d3695a8560eab60f44e5cb678f84",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_20417.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+      "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+      "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the path between any two Blue vertices (u, v) is computed correctly (e.g., using BFS or DFS) and that the path contains at least one 'R' and one 'G'. The current contract does not explicitly define how to compute the path between nodes, which is a critical part of the task.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[1].expression",
+        "detail": "'(' was never closed (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+      "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+      "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the path between any two Blue vertices (u, v) is computed correctly (e.g., using BFS or DFS) and that the path contains at least one 'R' and one 'G'. The current contract does not explicitly define how to compute the path between nodes, which is a critical part of the task.",
+        "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[1].expression",
+        "detail": "'(' was never closed (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+          "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly assumes that `path` is a predefined variable representing the path between two nodes. The path must be computed dynamically for each pair of Blue vertices (u, v). The expression also incorrectly uses `any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path)`, which is not the correct way to check for at least one Red and one Green vertex on the path. The correct approach is to verify that the path contains at least one 'R' and at least one 'G'. Additionally, the expression does not correctly handle the case where there are no Blue vertices or no pairs of Blue vertices.",
+          "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q2",
+          "expression": "all((stdout.strip().lower() == 'yes') == (len([u for u in range(1, N+1) if C[u-1] == 'B']) < 2 or all(any(C[node-1] == 'R' for node in path) and any(C[node-1] == 'G' for node in path) for u, v in [(u, v) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B'] for path in [get_path(u, v, edges)])) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+          "description": "For each test case, the output is 'Yes' if and only if there are fewer than two Blue vertices or for every pair of Blue vertices (u, v), the simple path between u and v contains at least one Red vertex and at least one Green vertex. If there are no Blue vertices or no pairs of Blue vertices, the output is 'Yes'."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "a1b70ce6cb53d887d05d6f575f0ce6bef9b7fa71918e6bf30c71c10b750e54ae",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and pair generation to match the task's requirements. The current expression incorrectly assumes `get_path` is defined and does not correctly handle the tree structure or path extraction. The pair generation is also inefficient and incorrect (e.g., `for u in range(1, N+1) for v in range(u+1, N+1)` is not constrained to Blue vertices only).",
+            "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and pair generation to match the task's requirements. The current expression incorrectly assumes `get_path` is defined and does not correctly handle the tree structure or path extraction. The pair generation is also inefficient and incorrect (e.g., `for u in range(1, N+1) for v in range(u+1, N+1)` is not constrained to Blue vertices only).",
+            "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the tree structure is correctly parsed and that the path between any two Blue vertices is computed accurately (e.g., using BFS/DFS). The current contract does not define or enforce how `get_path` is implemented or validated.",
+            "task_evidence": "The input graph forms a tree",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the pair generation logic to only consider pairs of Blue vertices. The current expression checks all pairs of vertices, not just Blue vertices.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the path-checking logic to ensure it correctly verifies the presence of at least one 'R' and one 'G' on the path between every pair of Blue vertices. The current expression does not correctly capture this requirement.",
+            "task_evidence": "there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the edge-case handling for fewer than two Blue vertices. The current expression does not correctly handle cases where there are zero or one Blue vertices.",
+            "task_evidence": "If there are no Blue vertices or no pairs of Blue vertices, the output is 'Yes'.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[1].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and pair generation to match the task's requirements. The current expression incorrectly assumes `get_path` is defined and does not correctly handle the tree structure or path extraction. The pair generation is also inefficient and incorrect (e.g., `for u in range(1, N+1) for v in range(u+1, N+1)` is not constrained to Blue vertices only).",
+            "task_evidence": "for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "For each test case, the output is either 'Yes' or 'No' (case-insensitive).",
+            "expression": "all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])",
+            "id": "Q1"
+          },
+          {
+            "description": "For each test case, the output is 'Yes' if and only if there are fewer than two Blue vertices OR for every pair of distinct Blue vertices (u, v), the simple path between u and v in the tree contains at least one Red vertex and at least one Green vertex.",
+            "expression": "all((stdout.strip().lower() == 'yes') == (len([i for i in range(1, N+1) if C[i-1] == 'B']) < 2 or all(any(C[node-1] == 'R' for node in path) and any(C[node-1] == 'G' for node in path) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B' for path in [get_path(u, v, edges)])) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "id": "Q2"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "950048bdd7c838309dacd44952e81b9e26df85740ebe9acb88edfb21c4c5ce0e",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and ensure the path is correctly computed for all pairs of Blue vertices. The current expression assumes `get_path(u, v, edges)` is defined, but it is not part of the contract or interface. The path extraction must be implemented or replaced with a correct expression that computes the path between two nodes in a tree given its edges.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and ensure the path is correctly computed for all pairs of Blue vertices. The current expression assumes `get_path(u, v, edges)` is defined, but it is not part of the contract or interface. The path extraction must be implemented or replaced with a correct expression that computes the path between two nodes in a tree given its edges.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the tree structure is correctly parsed and that the path between any two nodes is computed accurately. The current contract does not explicitly handle the tree traversal or path computation, which is critical for the validation logic.",
+            "task_evidence": "The input graph forms a tree",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly capture the condition: if there are fewer than two Blue vertices, the input is valid. Otherwise, for every pair of distinct Blue vertices, the path between them must contain at least one Red and one Green vertex. The current expression incorrectly assumes `get_path` and does not correctly iterate over all pairs of Blue vertices.",
+            "task_evidence": "For each test case, print Yes if the input is valid, otherwise No. The input is called valid if for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the [simple path] between u and v.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the output is generated for each test case in the correct order and that the validation logic is applied to each test case independently.",
+            "task_evidence": "For each test case, output a single line containing Yes if the input is valid, and No otherwise.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[1].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and ensure the path is correctly computed for all pairs of Blue vertices. The current expression assumes `get_path(u, v, edges)` is defined, but it is not part of the contract or interface. The path extraction must be implemented or replaced with a correct expression that computes the path between two nodes in a tree given its edges.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "For each test case, the output is either 'Yes' or 'No' (case-insensitive).",
+            "expression": "all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])",
+            "id": "Q1"
+          },
+          {
+            "description": "For each test case, the output is 'Yes' if and only if there are fewer than two Blue vertices OR for every pair of distinct Blue vertices (u, v), the simple path between u and v in the tree contains at least one Red vertex and at least one Green vertex.",
+            "expression": "all((stdout.strip().lower() == 'yes') == (len([i for i in range(1, N+1) if C[i-1] == 'B']) < 2 or all(any(C[node-1] == 'R' for node in path) and any(C[node-1] == 'G' for node in path) for u in blue_vertices for v in blue_vertices if u < v for path in [get_simple_path(u, v, edges)])) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "id": "Q2"
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": "d67d1ccdc4ddfe94cb48ea6e18a5440bb564c4f7d1392c963fc9a0a32ee739e1",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for parsing input and extracting `blue_vertices`, `get_simple_path`, and `path` from the input. The current expression incorrectly assumes the existence of these variables and does not correctly parse the input structure (e.g., edges are not correctly associated with test cases).",
+            "task_evidence": "For each test case, print Yes if the input is valid, otherwise No.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for parsing input and extracting `blue_vertices`, `get_simple_path`, and `path` from the input. The current expression incorrectly assumes the existence of these variables and does not correctly parse the input structure (e.g., edges are not correctly associated with test cases).",
+            "task_evidence": "For each test case, print Yes if the input is valid, otherwise No.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the input parsing correctly associates edges with their respective test cases (N, C, edges). The current contract does not enforce this.",
+            "task_evidence": "Each of the following N - 1 lines contains two space-separated integers u and v, denoting an edge between vertices u and v in the tree.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly implement the task logic: for each test case, check if there are fewer than two Blue vertices OR for every pair of distinct Blue vertices (u, v), the simple path between u and v contains at least one Red and one Green vertex. The current expression does not correctly capture this logic due to incorrect input parsing and missing helper functions.",
+            "task_evidence": "For each test case, print Yes if the input is valid, otherwise No. The input is called valid if for all pairs of Blue vertices (u, v), u ≠ v, there is at least one Red vertex and one Green vertex on the simple path between u and v.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[1].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "For each test case, print Yes if the input is valid, otherwise No.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for parsing input and extracting `blue_vertices`, `get_simple_path`, and `path` from the input. The current expression incorrectly assumes the existence of these variables and does not correctly parse the input structure (e.g., edges are not correctly associated with test cases).",
+            "task_evidence": "For each test case, print Yes if the input is valid, otherwise No.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "For each test case, the output is either 'Yes' or 'No' (case-insensitive).",
+            "expression": "all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])",
+            "id": "Q1"
+          },
+          {
+            "description": "For each test case, the output is 'Yes' if and only if there are fewer than two Blue vertices OR for every pair of distinct Blue vertices (u, v), the simple path between u and v in the tree contains at least one Red vertex and at least one Green vertex.",
+            "expression": "all((stdout.strip().lower() == 'yes') == (len([i for i in range(1, N+1) if C[i-1] == 'B']) < 2 or all(any(C[node-1] == 'R' for node in path) and any(C[node-1] == 'G' for node in path) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B' for path in [get_path(u, v, edges)])) for N, C, edges, stdout in zip([int(stdin.splitlines()[0])], [stdin.splitlines()[i][0] for i in range(1, len(stdin.splitlines()), N+1) if i < len(stdin.splitlines())], [[tuple(map(int, stdin.splitlines()[i].split())) for i in range(2, 2+N)] for N in [int(stdin.splitlines()[0])]], [stdin.splitlines()[i] for i in range(1, len(stdin.splitlines()), N+1) if i < len(stdin.splitlines())]))",
+            "id": "Q2"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "ced3d36a64856b74fcae12c7c4b83f8364a0020d784bb40929e4086b64281703",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and ensure the path is correctly computed for all pairs of Blue vertices. The current expression assumes `get_path(u, v, edges)` is defined, but it is not part of the contract or interface. The path extraction must be implemented or replaced with a correct expression that computes the path between two nodes in a tree given its edges.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the path extraction logic and ensure the path is correctly computed for all pairs of Blue vertices. The current expression assumes `get_path(u, v, edges)` is defined, but it is not part of the contract or interface. The path extraction must be implemented or replaced with a correct expression that computes the path between two nodes in a tree given its edges.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the tree structure is correctly parsed and that the path between any two nodes is computed accurately. The current contract does not explicitly handle the tree traversal or path computation, which is critical for the validation logic.",
+            "task_evidence": "The input graph forms a tree",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the nested list comprehension for `path` with a correct expression that computes the path between `u` and `v` in the tree. The current expression is syntactically invalid and does not correctly represent the path extraction logic.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the logic for checking the presence of 'R' and 'G' on the path. The current expression does not correctly iterate over all pairs of Blue vertices or validate the path condition.",
+            "task_evidence": "for all pairs of Blue vertices (u, v), there is at least one Red vertex and one Green vertex on the [simple path] between u and v",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[1].expression"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 250.674,
+  "processing_error": null,
+  "finished_at": "2026-09-04T06:17:55.022301+00:00"
+}

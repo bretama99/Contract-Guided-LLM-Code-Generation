@@ -1,0 +1,67 @@
+{
+  "task_id": "taco_train_17822",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 2500 and 1 <= m <= 2500 and 1 <= q <= 100000 for n, m, q in [int(x) for x in stdin.split()[:3]])",
+        "description": "Grid dimensions n and m are integers between 1 and 2500 inclusive, and q (number of actions) is between 1 and 100000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 5 for line in stdin.splitlines()[1:])",
+        "description": "Each action line contains exactly five space-separated integers."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= t <= 3 and 1 <= r1 <= r2 <= n and 1 <= c1 <= c2 <= m for line in stdin.splitlines()[1:] for t, r1, c1, r2, c2 in [int(x) for x in line.split()])",
+        "description": "For each action, t is 1, 2, or 3, and coordinates r1, c1, r2, c2 are within grid bounds (1 ≤ r1 ≤ r2 ≤ n, 1 ≤ c1 ≤ c2 ≤ m)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(2 <= r1 <= r2 <= n - 1 and 2 <= c1 <= c2 <= m - 1 for line in stdin.splitlines()[1:] if int(line.split()[0]) in [1, 2])",
+        "description": "For barrier actions (t=1 or t=2), the rectangle must be strictly inside the grid (2 ≤ r1 ≤ r2 ≤ n-1, 2 ≤ c1 ≤ c2 ≤ m-1)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(barriers_exist_before_removal(line) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2)",
+        "description": "For removal actions (t=2), the specified barriers must exist before removal (enforced by problem constraints)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['Yes', 'No'] for stdout_line in stdout.splitlines())",
+        "description": "For each query (t=3), output is either 'Yes' or 'No', indicating feasibility of the path."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_line == 'Yes') == is_path_feasible(r1, c1, r2, c2, barriers) for (t, r1, c1, r2, c2), stdout_line, barriers in zip([int(x) for x in line.split()] for line in stdin.splitlines()[1:]), stdout.splitlines(), get_barriers_up_to_query(q)))",
+        "description": "For each query (t=3), 'Yes' is output if and only if there exists a path from (r1, c1) to (r2, c2) without crossing any barriers present at the time of the query. The path must move only up, down, left, or right between adjacent cells."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(not (r1 == r2 and c1 == c2) or (r1 == r2 and c1 == c2) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 3)",
+        "description": "A query (t=3) may involve the same start and end cell (r1 == r2 and c1 == c2), in which case the answer is trivially 'Yes'."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 2500 and 1 <= m <= 2500 and 1 <= q <= 100000 for n, m, q in [int(x) for x in stdin.split()[:3]])\",\n      \"description\": \"Grid dimensions n and m are integers between 1 and 2500 inclusive, and q (number of actions) is between 1 and 100000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 5 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each action line contains exactly five space-separated integers.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= t <= 3 and 1 <= r1 <= r2 <= n and 1 <= c1 <= c2 <= m for line in stdin.splitlines()[1:] for t, r1, c1, r2, c2 in [int(x) for x in line.split()])\",\n      \"description\": \"For each action, t is 1, 2, or 3, and coordinates r1, c1, r2, c2 are within grid bounds (1 ≤ r1 ≤ r2 ≤ n, 1 ≤ c1 ≤ c2 ≤ m).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(2 <= r1 <= r2 <= n - 1 and 2 <= c1 <= c2 <= m - 1 for line in stdin.splitlines()[1:] if int(line.split()[0]) in [1, 2])\",\n      \"description\": \"For barrier actions (t=1 or t=2), the rectangle must be strictly inside the grid (2 ≤ r1 ≤ r2 ≤ n-1, 2 ≤ c1 ≤ c2 ≤ m-1).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(barriers_exist_before_removal(line) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2)\",\n      \"description\": \"For removal actions (t=2), the specified barriers must exist before removal (enforced by problem constraints).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line in ['Yes', 'No'] for stdout_line in stdout.splitlines())\",\n      \"description\": \"For each query (t=3), output is either 'Yes' or 'No', indicating feasibility of the path.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout_line == 'Yes') == is_path_feasible(r1, c1, r2, c2, barriers) for (t, r1, c1, r2, c2), stdout_line, barriers in zip([int(x) for x in line.split()] for line in stdin.splitlines()[1:]), stdout.splitlines(), get_barriers_up_to_query(q)))\",\n      \"description\": \"For each query (t=3), 'Yes' is output if and only if there exists a path from (r1, c1) to (r2, c2) without crossing any barriers present at the time of the query. The path must move only up, down, left, or right between adjacent cells.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(not (r1 == r2 and c1 == c2) or (r1 == r2 and c1 == c2) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 3)\",\n      \"description\": \"A query (t=3) may involve the same start and end cell (r1 == r2 and c1 == c2), in which case the answer is trivially 'Yes'.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1931,
+  "generated_tokens": 939,
+  "hit_output_limit": false,
+  "generation_seconds": 42.847,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:42:31.054818+00:00"
+}

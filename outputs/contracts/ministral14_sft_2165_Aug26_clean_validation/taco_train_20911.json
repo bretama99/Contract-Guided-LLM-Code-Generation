@@ -1,0 +1,219 @@
+{
+  "task_id": "taco_train_20911",
+  "task_index": 910,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 500 and 1 <= int(stdin.split()[1]) <= min(int(stdin.split()[0])*(int(stdin.split()[0])-1), 100000)",
+        "description": "Input must have n vertices (2 ≤ n ≤ 500) and m edges (1 ≤ m ≤ min(n(n-1), 100000))."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line.split()[0]) <= int(stdin.split()[0]) and 1 <= int(line.split()[1]) <= int(stdin.split()[0]) and int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])",
+        "description": "Each edge (u, v) must satisfy 1 ≤ u, v ≤ n and u ≠ v."
+      },
+      {
+        "id": "P3",
+        "expression": "len({(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:]}) == int(stdin.split()[1])",
+        "description": "No duplicate edges exist (each ordered pair (u, v) appears at most once)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if (not has_cycle(edges) or any(not has_cycle(edges - {edge}) for edge in edges)) else stdout.strip() == 'NO'",
+        "description": "Output 'YES' if the graph is acyclic or can be made acyclic by removing at most one edge; otherwise output 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 500 and 1 <= int(stdin.split()[1]) <= min(int(stdin.split()[0])*(int(stdin.split()[0])-1), 100000)",
+        "description": "Input must have n vertices (2 ≤ n ≤ 500) and m edges (1 ≤ m ≤ min(n(n-1), 100000))."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line.split()[0]) <= int(stdin.split()[0]) and 1 <= int(line.split()[1]) <= int(stdin.split()[0]) and int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])",
+        "description": "Each edge (u, v) must satisfy 1 ≤ u, v ≤ n and u ≠ v."
+      },
+      {
+        "id": "P3",
+        "expression": "len({(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:]}) == int(stdin.split()[1])",
+        "description": "No duplicate edges exist (each ordered pair (u, v) appears at most once)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if (not has_cycle(edges) or any(not has_cycle(edges - {edge}) for edge in edges)) else stdout.strip() == 'NO'",
+        "description": "Output 'YES' if the graph is acyclic or can be made acyclic by removing at most one edge; otherwise output 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "c46652a2a0063d5a587e628efa65d109bc5ec32107148ca23ab57165e0c78c7e",
+  "selected_contract_fingerprint": "c46652a2a0063d5a587e628efa65d109bc5ec32107148ca23ab57165e0c78c7e",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_20911.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the requirement that the graph must be made acyclic by removing **at most one edge**. The current expression checks if the graph is acyclic **or** if removing any single edge makes it acyclic, but it does not enforce that the graph must contain **exactly one cycle** (or no cycles) that can be broken by removing one edge. The task requires that the graph can be made acyclic by removing **at most one edge**, meaning the graph must either already be acyclic or contain exactly one cycle (or a set of cycles that can be resolved by removing one edge). The current expression is too permissive and does not align with the task's requirement of **at most one edge removal** in all cases (e.g., it would incorrectly return YES for graphs with multiple disjoint cycles).",
+        "task_evidence": "Can you make this graph acyclic by removing at most one edge from it?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly capture the requirement that the graph must be made acyclic by removing **at most one edge**, meaning the graph must either already be acyclic or contain exactly one cycle (or a set of cycles that can be resolved by removing one edge). The current postcondition expression does not enforce this constraint correctly.",
+        "task_evidence": "Can you make this graph acyclic by removing at most one edge from it?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the requirement that the graph must be made acyclic by removing **at most one edge**. The current expression checks if the graph is acyclic **or** if removing any single edge makes it acyclic, but it does not enforce that the graph must contain **exactly one cycle** (or no cycles) that can be broken by removing one edge. The task requires that the graph can be made acyclic by removing **at most one edge**, meaning the graph must either already be acyclic or contain exactly one cycle (or a set of cycles that can be resolved by removing one edge). The current expression is too permissive and does not align with the task's requirement of **at most one edge removal** in all cases (e.g., it would incorrectly return YES for graphs with multiple disjoint cycles).",
+        "task_evidence": "Can you make this graph acyclic by removing at most one edge from it?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly capture the requirement that the graph must be made acyclic by removing **at most one edge**, meaning the graph must either already be acyclic or contain exactly one cycle (or a set of cycles that can be resolved by removing one edge). The current postcondition expression does not enforce this constraint correctly.",
+        "task_evidence": "Can you make this graph acyclic by removing at most one edge from it?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 18.238,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:59:47.421647+00:00"
+}

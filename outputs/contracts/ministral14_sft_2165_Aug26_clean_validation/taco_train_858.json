@@ -1,0 +1,369 @@
+{
+  "task_id": "taco_train_858",
+  "task_index": 792,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 1000",
+        "description": "T is the number of test cases, where 1 ≤ T ≤ 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (N := int(line.split()[0])) is not None)",
+        "description": "For each test case, N is the number of days, where 1 ≤ N ≤ 10^5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(2 <= K <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (K := int(line.split()[1])) is not None)",
+        "description": "For each test case, K is the number of places, where 2 ≤ K ≤ 10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(A) == N for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip() and len(line.split()) == N])",
+        "description": "For each test case, the sequence A has exactly N elements."
+      },
+      {
+        "id": "P5",
+        "expression": "all(Ai in {*range(1, K+1), -1} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A)",
+        "description": "Each element in A is either -1 or a place number between 1 and K (inclusive)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(Ai != Aj for i, Ai in enumerate(A) for j, Aj in enumerate(A) if i < j < len(A) and Ai != -1 and Aj != -1 and j == i + 1)",
+        "description": "If two consecutive days have non-decided places (A_i ≠ -1 and A_{i+1} ≠ -1), they must not be the same place."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_sequence) == N for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()])",
+        "description": "If the answer is 'YES', the second line contains exactly N space-separated integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(Ai in {*range(1, K+1)} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A if Ai != -1) and all(Ai in {*range(1, K+1)} for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()] for Ai in output_sequence)",
+        "description": "All non-decided places in the input and all places in the output sequence are valid place numbers between 1 and K (inclusive)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(Ai != Aj for i, Ai in enumerate(output_sequence) for j, Aj in enumerate(output_sequence) if i < j < len(output_sequence) and j == i + 1)",
+        "description": "In the output sequence, no two consecutive days have the same place."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(Ai == Bi for i, Ai in enumerate(A) for Bi in output_sequence if Ai != -1)",
+        "description": "The output sequence respects the original non-decided places (A_i ≠ -1 implies A_i == output_sequence[i])."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('YES' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if any(Ai == -1 for Ai in A)) or all('NO' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if all(Ai != -1 for Ai in A))",
+        "description": "If there are no undecided places (all A_i ≠ -1), the answer must be 'YES' if the sequence already satisfies the consecutive place condition, otherwise 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 1000",
+        "description": "T is the number of test cases, where 1 ≤ T ≤ 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (N := int(line.split()[0])) is not None)",
+        "description": "For each test case, N is the number of days, where 1 ≤ N ≤ 10^5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(2 <= K <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (K := int(line.split()[1])) is not None)",
+        "description": "For each test case, K is the number of places, where 2 ≤ K ≤ 10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(A) == N for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip() and len(line.split()) == N])",
+        "description": "For each test case, the sequence A has exactly N elements."
+      },
+      {
+        "id": "P5",
+        "expression": "all(Ai in {*range(1, K+1), -1} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A)",
+        "description": "Each element in A is either -1 or a place number between 1 and K (inclusive)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(Ai != Aj for i, Ai in enumerate(A) for j, Aj in enumerate(A) if i < j < len(A) and Ai != -1 and Aj != -1 and j == i + 1)",
+        "description": "If two consecutive days have non-decided places (A_i ≠ -1 and A_{i+1} ≠ -1), they must not be the same place."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_sequence) == N for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()])",
+        "description": "If the answer is 'YES', the second line contains exactly N space-separated integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(Ai in {*range(1, K+1)} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A if Ai != -1) and all(Ai in {*range(1, K+1)} for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()] for Ai in output_sequence)",
+        "description": "All non-decided places in the input and all places in the output sequence are valid place numbers between 1 and K (inclusive)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(Ai != Aj for i, Ai in enumerate(output_sequence) for j, Aj in enumerate(output_sequence) if i < j < len(output_sequence) and j == i + 1)",
+        "description": "In the output sequence, no two consecutive days have the same place."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(Ai == Bi for i, Ai in enumerate(A) for Bi in output_sequence if Ai != -1)",
+        "description": "The output sequence respects the original non-decided places (A_i ≠ -1 implies A_i == output_sequence[i])."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('YES' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if any(Ai == -1 for Ai in A)) or all('NO' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if all(Ai != -1 for Ai in A))",
+        "description": "If there are no undecided places (all A_i ≠ -1), the answer must be 'YES' if the sequence already satisfies the consecutive place condition, otherwise 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "66a2878a867909d993b8ff7653f6118c197b56c77bf57c2932026b942481b792",
+  "selected_contract_fingerprint": "66a2878a867909d993b8ff7653f6118c197b56c77bf57c2932026b942481b792",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_858.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if the answer is 'NO', no second line is printed for that test case.",
+        "task_evidence": "For each test case, print a line containing the string 'YES' if it's possible to complete the plan or 'NO' otherwise. If it's possible, print a second line...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly enforce that 'NO' is printed only when no valid completion exists, and 'YES' is printed only when a valid completion exists. The current expression is logically flawed and does not capture the task's requirement.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output sequence, when 'YES' is printed, is a valid completion of the input sequence (i.e., it respects the original non-decided places and satisfies the consecutive place condition).",
+        "task_evidence": "If it's possible, find one way of completing the plan.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "preconditions[1].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "preconditions[2].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "issue_confirmation: REJECTED needs issue_index=null"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if the answer is 'NO', no second line is printed for that test case.",
+        "task_evidence": "For each test case, print a line containing the string 'YES' if it's possible to complete the plan or 'NO' otherwise. If it's possible, print a second line...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly enforce that 'NO' is printed only when no valid completion exists, and 'YES' is printed only when a valid completion exists. The current expression is logically flawed and does not capture the task's requirement.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output sequence, when 'YES' is printed, is a valid completion of the input sequence (i.e., it respects the original non-decided places and satisfies the consecutive place condition).",
+        "task_evidence": "If it's possible, find one way of completing the plan.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "preconditions[1].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "preconditions[2].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "issue_confirmation: REJECTED needs issue_index=null"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 17.48,
+  "processing_error": null,
+  "finished_at": "2026-09-04T08:21:17.393936+00:00"
+}

@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_148",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and n <= 250000",
+        "description": "The number of users n must be between 2 and 250,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(T1_edges) == n - 1 and len(T2_edges) == n - 1",
+        "description": "Both T1 and T2 must have exactly n-1 edges, forming trees with n users."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a <= n and 1 <= b <= n for a, b in T1_edges) and all(1 <= c <= n and 1 <= d <= n for c, d in T2_edges)",
+        "description": "All edge endpoints in T1 and T2 must be valid user indices between 1 and n."
+      },
+      {
+        "id": "P4",
+        "expression": "is_tree(T1_edges, n) and is_tree(T2_edges, n)",
+        "description": "Both T1_edges and T2_edges must form valid trees with n nodes (no cycles, connected)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "m == len(matched_pairs) and 0 <= m < n",
+        "description": "The first line of output m is the count of matched edge pairs, where 0 ≤ m < n."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and 1 <= c <= n and 1 <= d <= n for a, b, c, d in matched_pairs)",
+        "description": "Each matched pair (a_i, b_i, c_i, d_i) must have valid user indices between 1 and n."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((a, b) in T1_edges and (c, d) in T2_edges for a, b, c, d in matched_pairs)",
+        "description": "Each matched pair must include an edge from T1 and an edge from T2."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(is_connected(T1_edges - {(a, b)}, T2_edges + {(c, d)}) for a, b, c, d in matched_pairs)",
+        "description": "For each matched pair, removing (a, b) from T1 and adding (c, d) from T2 must keep the graph connected."
+      },
+      {
+        "id": "Q5",
+        "expression": "len({(a, b) for a, b, _, _ in matched_pairs}) == len(matched_pairs) and len({(c, d) for _, _, c, d in matched_pairs}) == len(matched_pairs)",
+        "description": "All matched edges in T1 and T2 must be distinct (no duplicates)."
+      },
+      {
+        "id": "Q6",
+        "expression": "m == max_matching_size(T1_edges, T2_edges)",
+        "description": "The output m must be the size of a maximum matching in the bipartite graph where edges connect (e ∈ T1, f ∈ T2) if T1 - {e} + {f} is connected."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and n <= 250000\",\n      \"description\": \"The number of users n must be between 2 and 250,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(T1_edges) == n - 1 and len(T2_edges) == n - 1\",\n      \"description\": \"Both T1 and T2 must have exactly n-1 edges, forming trees with n users.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n for a, b in T1_edges) and all(1 <= c <= n and 1 <= d <= n for c, d in T2_edges)\",\n      \"description\": \"All edge endpoints in T1 and T2 must be valid user indices between 1 and n.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"is_tree(T1_edges, n) and is_tree(T2_edges, n)\",\n      \"description\": \"Both T1_edges and T2_edges must form valid trees with n nodes (no cycles, connected).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"m == len(matched_pairs) and 0 <= m < n\",\n      \"description\": \"The first line of output m is the count of matched edge pairs, where 0 ≤ m < n.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and 1 <= c <= n and 1 <= d <= n for a, b, c, d in matched_pairs)\",\n      \"description\": \"Each matched pair (a_i, b_i, c_i, d_i) must have valid user indices between 1 and n.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((a, b) in T1_edges and (c, d) in T2_edges for a, b, c, d in matched_pairs)\",\n      \"description\": \"Each matched pair must include an edge from T1 and an edge from T2.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(is_connected(T1_edges - {(a, b)}, T2_edges + {(c, d)}) for a, b, c, d in matched_pairs)\",\n      \"description\": \"For each matched pair, removing (a, b) from T1 and adding (c, d) from T2 must keep the graph connected.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"len({(a, b) for a, b, _, _ in matched_pairs}) == len(matched_pairs) and len({(c, d) for _, _, c, d in matched_pairs}) == len(matched_pairs)\",\n      \"description\": \"All matched edges in T1 and T2 must be distinct (no duplicates).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"m == max_matching_size(T1_edges, T2_edges)\",\n      \"description\": \"The output m must be the size of a maximum matching in the bipartite graph where edges connect (e ∈ T1, f ∈ T2) if T1 - {e} + {f} is connected.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1993,
+  "generated_tokens": 828,
+  "hit_output_limit": false,
+  "generation_seconds": 36.585,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:23:32.576187+00:00"
+}

@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_17612",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 2000 and 1 <= int(stdin.split()[1]) <= int(stdin.split()[0]) - 1",
+        "description": "The input must contain two integers n (number of silos) and k (number of scout groups) where 2 ≤ n ≤ 2000 and 1 ≤ k ≤ n - 1."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 2 and all(line.strip() for line in stdin.splitlines()[1:])",
+        "description": "The input must have exactly n-1 lines after the first line, each containing n-i integers (where i is the line index starting from 1), representing the number of droids between silos i and j (i < j)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(-1 <= int(num) <= 10**9 for line in stdin.splitlines()[1:] for num in line.split())",
+        "description": "Each c_{i,j} must satisfy -1 ≤ c_{i,j} ≤ 10^9, where -1 indicates no passage between silos i and j."
+      },
+      {
+        "id": "P4",
+        "expression": "all(c_i_j == c_j_i for i in range(1, n) for j in range(i+1, n+1) if (c_i_j := int(stdin.splitlines()[i-1].split()[j-i-1])) != -1)",
+        "description": "The passages are bidirectional, so c_{i,j} = c_{j,i} for all existing passages (c_{i,j} != -1)."
+      },
+      {
+        "id": "P5",
+        "expression": "n >= 2 and k >= 1 and k <= n - 1",
+        "description": "The polygon must have at least 2 silos, and k must be at least 1 and at most n-1."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**18",
+        "description": "The output must be a non-negative integer representing the average danger of the scouting operation, rounded down to the nearest integer."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(num) <= 10**9 for num in stdin.splitlines()[1:])",
+        "description": "The input matrix c_{i,j} is parsed correctly, with -1 indicating no passage."
+      },
+      {
+        "id": "Q3",
+        "expression": "n_choose_k := lambda n, k: math.comb(n, k) if k <= n else 0\nS = set(range(1, n+1))\nvalid_S = [S_comb for S_comb in combinations(S, k)]\nsum_danger := sum(sum(c_i_j for i in S_comb for j in [adjacent_S] if c_i_j != -1) for S_comb in valid_S)\naverage_danger := sum_danger // len(valid_S) if valid_S else 0\nstdout.strip() == str(average_danger)",
+        "description": "For every possible k-element set S of silos, there exists exactly one silo adjacent to all silos in S. The danger for each S is the sum of droids on passages from each silo in S to the adjacent silo. The output is the floor of the average danger across all valid S."
+      },
+      {
+        "id": "Q4",
+        "expression": "adjacent_S := lambda S: next(silo for silo in range(1, n+1) if all(c_i_j != -1 for i in S for j in [silo] if i != j)) if S else None\nall(adjacent_S(S_comb) is not None for S_comb in combinations(range(1, n+1), k))",
+        "description": "For every k-element set S, there exists exactly one silo adjacent to all silos in S (i.e., connected to each silo in S by a passage)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"2 <= int(stdin.split()[0]) <= 2000 and 1 <= int(stdin.split()[1]) <= int(stdin.split()[0]) - 1\",\n      \"description\": \"The input must contain two integers n (number of silos) and k (number of scout groups) where 2 ≤ n ≤ 2000 and 1 ≤ k ≤ n - 1.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()) == 2 and all(line.strip() for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input must have exactly n-1 lines after the first line, each containing n-i integers (where i is the line index starting from 1), representing the number of droids between silos i and j (i < j).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(-1 <= int(num) <= 10**9 for line in stdin.splitlines()[1:] for num in line.split())\",\n      \"description\": \"Each c_{i,j} must satisfy -1 ≤ c_{i,j} ≤ 10^9, where -1 indicates no passage between silos i and j.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(c_i_j == c_j_i for i in range(1, n) for j in range(i+1, n+1) if (c_i_j := int(stdin.splitlines()[i-1].split()[j-i-1])) != -1)\",\n      \"description\": \"The passages are bidirectional, so c_{i,j} = c_{j,i} for all existing passages (c_{i,j} != -1).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"n >= 2 and k >= 1 and k <= n - 1\",\n      \"description\": \"The polygon must have at least 2 silos, and k must be at least 1 and at most n-1.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**18\",\n      \"description\": \"The output must be a non-negative integer representing the average danger of the scouting operation, rounded down to the nearest integer.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(num) <= 10**9 for num in stdin.splitlines()[1:])\",\n      \"description\": \"The input matrix c_{i,j} is parsed correctly, with -1 indicating no passage.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"n_choose_k := lambda n, k: math.comb(n, k) if k <= n else 0\\nS = set(range(1, n+1))\\nvalid_S = [S_comb for S_comb in combinations(S, k)]\\nsum_danger := sum(sum(c_i_j for i in S_comb for j in [adjacent_S] if c_i_j != -1) for S_comb in valid_S)\\naverage_danger := sum_danger // len(valid_S) if valid_S else 0\\nstdout.strip() == str(average_danger)\",\n      \"description\": \"For every possible k-element set S of silos, there exists exactly one silo adjacent to all silos in S. The danger for each S is the sum of droids on passages from each silo in S to the adjacent silo. The output is the floor of the average danger across all valid S.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"adjacent_S := lambda S: next(silo for silo in range(1, n+1) if all(c_i_j != -1 for i in S for j in [silo] if i != j)) if S else None\\nall(adjacent_S(S_comb) is not None for S_comb in combinations(range(1, n+1), k))\",\n      \"description\": \"For every k-element set S, there exists exactly one silo adjacent to all silos in S (i.e., connected to each silo in S by a passage).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1910,
+  "generated_tokens": 1023,
+  "hit_output_limit": false,
+  "generation_seconds": 47.154,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:29:16.240862+00:00"
+}

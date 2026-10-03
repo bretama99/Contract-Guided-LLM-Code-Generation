@@ -1,0 +1,55 @@
+{
+  "task_id": "taco_train_16190",
+  "task_index": 434,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(stdin, str)",
+        "description": "The input is a string containing the full standard input text."
+      },
+      {
+        "id": "P2",
+        "expression": "all(line.strip() == '' or (line.split()[0].isalnum() or any(c in line.split()[0] for c in '_-.+')) for line in stdin.splitlines() if line.strip())",
+        "description": "Package names consist of allowed characters (alphanumeric, underscore, minus, period, plus) and are non-whitespace."
+      },
+      {
+        "id": "P3",
+        "expression": "True",
+        "description": "The input contains multiple test cases ending with n=0, where each case has n packages with dependencies among themselves."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len([line for line in stdout.splitlines() if line.strip()]) > 0",
+        "description": "The output contains at least one line of text for the test cases."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('cannot be ordered' in block or (len(block.splitlines()) == n and all(dep in installed_before[pkg] for pkg, deps in packages.items() for dep in deps)) for block, n, packages in zip(stdout.split('\\n\\n'), [14, 3], [{'libattr': [], 'vim-X11': ['vim-common', 'gtk2', 'libattr'], 'vim-common': [], 'gtk2': ['libtiff', 'atk', 'pango', 'glib2'], 'libtiff': ['zlib', 'libjpeg'], 'atk': [], 'pango': ['xorg-x11-libs', 'freetype', 'glib2'], 'glib2': [], 'zlib': [], 'libjpeg': [], 'xorg-x11-libs': ['grep', 'freetype'], 'grep': ['pcre'], 'pcre': [], 'freetype': []}, {'emacs': ['xorg-x11', 'lisp'], 'xorg-x11': [], 'lisp': ['emacs']}]))",
+        "description": "For each test case, the output block either states 'cannot be ordered' if a cycle exists, or lists all n packages in an order where every package appears after all its dependencies."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(block.splitlines() == sorted(block.splitlines(), key=lambda x: x) for block in stdout.split('\\n\\n') if 'cannot be ordered' not in block)",
+        "description": "When a valid ordering exists, the output order is lexicographically first among all valid topological sorts."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.count('\\n\\n') == max(0, len([line for line in stdin.splitlines() if line.strip() and line.strip().isdigit()]) - 1)",
+        "description": "A blank line separates the output blocks of consecutive test cases."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 71.283,
+  "seed": 476,
+  "generated_at": "2026-09-21T12:02:59.536849+00:00"
+}

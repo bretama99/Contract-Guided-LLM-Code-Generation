@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_15171",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= n <= 100000 for n in [int(stdin.split()[0])]) and all(1 <= m <= 100000 for m in [int(stdin.split()[1])]) and all(2 <= h <= 100000 for h in [int(stdin.split()[2])])",
+        "description": "Input constraints: n (number of data centers) is between 2 and 100,000, m (number of clients) is between 1 and 100,000, and h (day length in hours) is between 2 and 100,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 3 and all(0 <= int(u) < h for u in map(int, stdin.split()[3:3+n]))",
+        "description": "The second line contains exactly n integers u1, u2, ..., un where each uj is a maintenance hour (0 ≤ uj < h) for data center j."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(c1) <= n and 1 <= int(c2) <= n and int(c1) != int(c2) for line in stdin.splitlines()[3:3+m] for c1, c2 in [line.split()])",
+        "description": "Each of the next m lines contains two distinct integers ci,1 and ci,2 (1 ≤ ci,1, ci,2 ≤ n) representing data centers for client i."
+      },
+      {
+        "id": "P4",
+        "expression": "all((u1 != u2) for (c1, c2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[3:3+m]] for u1, u2 in [(int(u) for u in stdin.split()[3:3+n])[c1-1], (int(u) for u in stdin.split()[3:3+n])[c2-1]])",
+        "description": "The initial maintenance schedule ensures that for every client, the two data centers storing their data have different maintenance hours (u_{ci,1} ≠ u_{ci,2})."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().splitlines()[0].isdigit() and 1 <= int(stdout.strip().splitlines()[0]) <= n",
+        "description": "The first line of output is an integer k (1 ≤ k ≤ n) representing the minimum number of data centers to shift."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.strip().splitlines()[1].split()) == int(stdout.strip().splitlines()[0]) and all(1 <= int(x) <= n for x in stdout.strip().splitlines()[1].split())",
+        "description": "The second line contains exactly k distinct integers x1, x2, ..., xk (1 ≤ xi ≤ n) representing the indices of data centers to shift."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((u1 != u2) for (c1, c2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[3:3+m]] for u1, u2 in [(int(u) + (1 if (i+1) in [int(x) for x in stdout.strip().splitlines()[1].split()] else 0)) % h for i, u in enumerate(stdin.split()[3:3+n])][c1-1], [(int(u) + (1 if (i+1) in [int(x) for x in stdout.strip().splitlines()[1].split()] else 0)) % h for i, u in enumerate(stdin.split()[3:3+n])][c2-1]])",
+        "description": "After shifting the maintenance hours of the selected data centers by one hour (with wrap-around if uj = h - 1), for every client, the two data centers storing their data must still have different maintenance hours."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= n <= 100000 for n in [int(stdin.split()[0])]) and all(1 <= m <= 100000 for m in [int(stdin.split()[1])]) and all(2 <= h <= 100000 for h in [int(stdin.split()[2])])\",\n      \"description\": \"Input constraints: n (number of data centers) is between 2 and 100,000, m (number of clients) is between 1 and 100,000, and h (day length in hours) is between 2 and 100,000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()) == 3 and all(0 <= int(u) < h for u in map(int, stdin.split()[3:3+n]))\",\n      \"description\": \"The second line contains exactly n integers u1, u2, ..., un where each uj is a maintenance hour (0 ≤ uj < h) for data center j.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(c1) <= n and 1 <= int(c2) <= n and int(c1) != int(c2) for line in stdin.splitlines()[3:3+m] for c1, c2 in [line.split()])\",\n      \"description\": \"Each of the next m lines contains two distinct integers ci,1 and ci,2 (1 ≤ ci,1, ci,2 ≤ n) representing data centers for client i.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all((u1 != u2) for (c1, c2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[3:3+m]] for u1, u2 in [(int(u) for u in stdin.split()[3:3+n])[c1-1], (int(u) for u in stdin.split()[3:3+n])[c2-1]])\",\n      \"description\": \"The initial maintenance schedule ensures that for every client, the two data centers storing their data have different maintenance hours (u_{ci,1} ≠ u_{ci,2}).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().splitlines()[0].isdigit() and 1 <= int(stdout.strip().splitlines()[0]) <= n\",\n      \"description\": \"The first line of output is an integer k (1 ≤ k ≤ n) representing the minimum number of data centers to shift.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.strip().splitlines()[1].split()) == int(stdout.strip().splitlines()[0]) and all(1 <= int(x) <= n for x in stdout.strip().splitlines()[1].split())\",\n      \"description\": \"The second line contains exactly k distinct integers x1, x2, ..., xk (1 ≤ xi ≤ n) representing the indices of data centers to shift.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((u1 != u2) for (c1, c2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[3:3+m]] for u1, u2 in [(int(u) + (1 if (i+1) in [int(x) for x in stdout.strip().splitlines()[1].split()] else 0)) % h for i, u in enumerate(stdin.split()[3:3+n])][c1-1], [(int(u) + (1 if (i+1) in [int(x) for x in stdout.strip().splitlines()[1].split()] else 0)) % h for i, u in enumerate(stdin.split()[3:3+n])][c2-1]])\",\n      \"description\": \"After shifting the maintenance hours of the selected data centers by one hour (with wrap-around if uj = h - 1), for every client, the two data centers storing their data must still have different maintenance hours.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2116,
+  "generated_tokens": 1007,
+  "hit_output_limit": false,
+  "generation_seconds": 46.979,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:30:03.231409+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_3636",
+  "task_index": 237,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_3636.json",
+  "code": "import sys\nfrom collections import deque\n\ndef find_dag(n, edges):\n    directed_edges = []\n    graph = [[] for _ in range(n)]\n    indegree = [0] * n\n    undirected = []\n\n    for t, x, y in edges:\n        if t == 1:\n            graph[x - 1].append(y - 1)\n            indegree[y - 1] += 1\n            directed_edges.append((x, y))\n        else:\n            undirected.append((x - 1, y - 1))\n\n    queue = deque([i for i in range(n) if indegree[i] == 0])\n    visited = [False] * n\n\n    while queue:\n        node = queue.popleft()\n        visited[node] = True\n        for neighbor in graph[node]:\n            indegree[neighbor] -= 1\n            if indegree[neighbor] == 0:\n                queue.append(neighbor)\n\n    for u, v in undirected:\n        if not visited[u] and visited[v]:\n            directed_edges.append((u + 1, v + 1))\n            visited[u] = True\n        elif visited[u] and not visited[v]:\n            directed_edges.append((v + 1, u + 1))\n            visited[v] = True\n        else:\n            return \"NO\", []\n\n    if len(directed_edges) != len(edges):\n        return \"NO\", []\n\n    return \"YES\", directed_edges\n\ninput = sys.stdin.read().split()\npos = 0\nt = int(input[pos])\npos += 1\nresults = []\n\nfor _ in range(t):\n    n = int(input[pos])\n    m = int(input[pos + 1])\n    pos += 2\n    edges = []\n    for _ in range(m):\n        t = int(input[pos])\n        x = int(input[pos + 1])\n        y = int(input[pos + 2])\n        pos += 3\n        edges.append((t, x, y))\n    result, directed_edges = find_dag(n, edges)\n    results.append(result)\n    if result == \"YES\":\n        for u, v in directed_edges:\n            results.append(f\"{u} {v}\")\n\nprint(\"\\n\".join(results))",
+  "generation_seconds": 42.191,
+  "generated_at": "2026-09-23T18:42:01.511681+00:00"
+}

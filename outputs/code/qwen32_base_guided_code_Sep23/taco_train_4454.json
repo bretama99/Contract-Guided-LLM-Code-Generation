@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4454",
+  "task_index": 10,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_4454.json",
+  "code": "import sys\n\ndef main():\n    import sys\n    import collections\n\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    r = list(map(int, input[1:n+1]))\n    m = int(input[n+1])\n    queries = [(int(input[n+2+2*i]), int(input[n+3+2*i])) for i in range(m)]\n\n    parent_level = [-1] * (n + 1)\n    depth = [0] * (n + 1)\n\n    def find_ancestor(v, p):\n        if parent_level[v] == p:\n            return v\n        if parent_level[v] == -1:\n            depth[v] = 0 if r[v] == 0 else depth[r[v]] + 1\n            parent_level[v] = 0\n        while parent_level[v] < p:\n            next_level = min(p, parent_level[r[v]] + (1 << (parent_level[r[v]] - parent_level[v])))\n            parent_level[v] = next_level\n            depth[v] = depth[r[v]] + (next_level - parent_level[r[v]])\n            r[v] = r[r[v]]\n        return v\n\n    answers = []\n    for vi, pi in queries:\n        if pi >= depth[vi]:\n            answers.append(0)\n        else:\n            anc_v = find_ancestor(vi, pi)\n            count = 0\n            for j in range(1, n + 1):\n                if j != vi and depth[j] >= pi and find_ancestor(j, pi) == anc_v:\n                    count += 1\n            answers.append(count)\n\n    print(' '.join(map(str, answers)))\n\nmain()",
+  "generation_seconds": 32.053,
+  "generated_at": "2026-09-23T19:23:16.080909+00:00"
+}

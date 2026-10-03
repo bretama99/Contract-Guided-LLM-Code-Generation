@@ -1,0 +1,75 @@
+{
+  "task_id": "taco_train_5461",
+  "task_index": 998,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 100000",
+        "description": "The number of records n is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(line, str) and line.strip() != '' for line in input_lines[1:])",
+        "description": "Each of the n lines contains a valid non-empty operation record string."
+      },
+      {
+        "id": "P3",
+        "expression": "all(op_type in ['insert', 'getMin', 'removeMin'] for op_type in [line.split()[0] for line in input_lines[1:]])",
+        "description": "Every operation record starts with a valid command type: insert, getMin, or removeMin."
+      },
+      {
+        "id": "P4",
+        "expression": "all(isinstance(int(parts[1]), int) and abs(int(parts[1])) <= 10**9 for line in input_lines[1:] for parts in [line.split()] if len(parts) > 1)",
+        "description": "For operations with arguments (insert, getMin), the argument is an integer with absolute value not exceeding 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == m + 1",
+        "description": "The output contains exactly m+1 lines: the first line is the count m, followed by m operation records."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(output_lines[0]) == m",
+        "description": "The first line of the output is the integer m, representing the total number of operations in the corrected sequence."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(op_type in ['insert', 'getMin', 'removeMin'] for line in output_lines[1:] for op_type in [line.split()[0]])",
+        "description": "Every line in the output sequence (after the count) is a valid operation record."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(isinstance(int(parts[1]), int) and abs(int(parts[1])) <= 10**9 for line in output_lines[1:] for parts in [line.split()] if len(parts) > 1)",
+        "description": "All numeric arguments in the output operations are integers within the allowed range."
+      },
+      {
+        "id": "Q5",
+        "expression": "input_ops == [line for line in output_lines[1:] if line in input_lines[1:]]",
+        "description": "The original input operations appear in the output sequence in the same relative order (subsequence property)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(heap_state_valid(op, heap) for op, heap in zip(output_lines[1:], [heap_after_i for i in range(len(output_lines)-1)]))",
+        "description": "The sequence of operations is valid: the heap is non-empty when getMin or removeMin is called, and getMin returns the recorded value."
+      },
+      {
+        "id": "Q7",
+        "expression": "m == min_possible_ops(input_lines[1:])",
+        "description": "The number of operations m is the minimum possible number of operations required to make the sequence valid while preserving the input subsequence."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 80.04,
+  "seed": 1040,
+  "generated_at": "2026-09-21T13:02:49.059964+00:00"
+}

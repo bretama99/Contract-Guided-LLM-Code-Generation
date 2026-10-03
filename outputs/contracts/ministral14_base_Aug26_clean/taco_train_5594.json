@@ -1,0 +1,97 @@
+{
+  "task_id": "taco_train_5594",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.readline()) and 2 <= n <= 100",
+        "description": "The first input line is an integer n (2 ≤ n ≤ 100) representing the grid size."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(a) <= 3 for a in stdin_lines[1:])",
+        "description": "Each subsequent input line is an integer a (1 ≤ a ≤ 3) representing Alice's chosen color for the current turn."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin_lines) == n**2 + 1",
+        "description": "The total number of input lines is exactly n² + 1 (1 for n, n² for Alice's moves)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= i <= n and 1 <= j <= n for i, j in placed_cells)",
+        "description": "All previously placed cells (i, j) are within the grid bounds (1 ≤ i, j ≤ n)."
+      },
+      {
+        "id": "P5",
+        "expression": "len(placed_cells) == len(stdin_lines) - 1",
+        "description": "The number of placed cells equals the number of turns completed so far."
+      },
+      {
+        "id": "P6",
+        "expression": "all(b != a for (a, (b, i, j)) in zip(stdin_lines[1:], moves))",
+        "description": "For each move, the chosen color b is not equal to Alice's chosen color a."
+      },
+      {
+        "id": "P7",
+        "expression": "all((i, j) not in placed_cells for (b, i, j) in moves)",
+        "description": "Each placed cell (i, j) is empty (not previously occupied)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(not (color_grid[i][j] == color_grid[i'][j'] and abs(i-i') + abs(j-j') == 1) for i in range(1, n+1) for j in range(1, n+1) for i_ in range(1, n+1) for j_ in range(1, n+1))",
+        "description": "After all n² turns, no two adjacent cells (sharing an edge) have tokens of the same color, ensuring Bob wins."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= b <= 3 and b != a for a, (b, i, j) in zip(stdin_lines[1:], moves))",
+        "description": "For every turn, the chosen color b is valid (1 ≤ b ≤ 3 and b ≠ a)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((i, j) not in placed_cells for (b, i, j) in moves[:-1])",
+        "description": "Each move places a token in an empty cell (no cell is occupied more than once)."
+      },
+      {
+        "id": "Q4",
+        "expression": "len(moves) == n**2",
+        "description": "Exactly n² moves are made, filling the grid completely."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(1 <= i <= n and 1 <= j <= n for (b, i, j) in moves)",
+        "description": "All placed cells (i, j) are within the grid bounds (1 ≤ i, j ≤ n)."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= i <= n and 1 <= j <= n for (i, j) in placed_cells)",
+        "description": "At any point, all placed cells (i, j) are within the grid bounds."
+      },
+      {
+        "id": "I2",
+        "expression": "all(not (color_grid[i][j] == color_grid[i'][j'] and abs(i-i') + abs(j-j') == 1) for i in range(1, n+1) for j in range(1, n+1) for i_ in range(1, n+1) for j_ in range(1, n+1) if (i, j) in placed_cells and (i_, j_) in placed_cells)",
+        "description": "At any point, no two adjacent placed cells have the same color."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.readline()) and 2 <= n <= 100\",\n      \"description\": \"The first input line is an integer n (2 ≤ n ≤ 100) representing the grid size.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(a) <= 3 for a in stdin_lines[1:])\",\n      \"description\": \"Each subsequent input line is an integer a (1 ≤ a ≤ 3) representing Alice's chosen color for the current turn.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(stdin_lines) == n**2 + 1\",\n      \"description\": \"The total number of input lines is exactly n² + 1 (1 for n, n² for Alice's moves).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= i <= n and 1 <= j <= n for i, j in placed_cells)\",\n      \"description\": \"All previously placed cells (i, j) are within the grid bounds (1 ≤ i, j ≤ n).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(placed_cells) == len(stdin_lines) - 1\",\n      \"description\": \"The number of placed cells equals the number of turns completed so far.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(b != a for (a, (b, i, j)) in zip(stdin_lines[1:], moves))\",\n      \"description\": \"For each move, the chosen color b is not equal to Alice's chosen color a.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all((i, j) not in placed_cells for (b, i, j) in moves)\",\n      \"description\": \"Each placed cell (i, j) is empty (not previously occupied).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(not (color_grid[i][j] == color_grid[i'][j'] and abs(i-i') + abs(j-j') == 1) for i in range(1, n+1) for j in range(1, n+1) for i_ in range(1, n+1) for j_ in range(1, n+1))\",\n      \"description\": \"After all n² turns, no two adjacent cells (sharing an edge) have tokens of the same color, ensuring Bob wins.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= b <= 3 and b != a for a, (b, i, j) in zip(stdin_lines[1:], moves))\",\n      \"description\": \"For every turn, the chosen color b is valid (1 ≤ b ≤ 3 and b ≠ a).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((i, j) not in placed_cells for (b, i, j) in moves[:-1])\",\n      \"description\": \"Each move places a token in an empty cell (no cell is occupied more than once).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"len(moves) == n**2\",\n      \"description\": \"Exactly n² moves are made, filling the grid completely.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(1 <= i <= n and 1 <= j <= n for (b, i, j) in moves)\",\n      \"description\": \"All placed cells (i, j) are within the grid bounds (1 ≤ i, j ≤ n).\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(1 <= i <= n and 1 <= j <= n for (i, j) in placed_cells)\",\n      \"description\": \"At any point, all placed cells (i, j) are within the grid bounds.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(not (color_grid[i][j] == color_grid[i'][j'] and abs(i-i') + abs(j-j') == 1) for i in range(1, n+1) for j in range(1, n+1) for i_ in range(1, n+1) for j_ in range(1, n+1) if (i, j) in placed_cells and (i_, j_) in placed_cells)\",\n      \"description\": \"At any point, no two adjacent placed cells have the same color.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1770,
+  "generated_tokens": 1101,
+  "hit_output_limit": false,
+  "generation_seconds": 50.831,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:11:12.074569+00:00"
+}

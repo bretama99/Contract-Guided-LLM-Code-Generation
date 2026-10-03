@@ -1,0 +1,101 @@
+{
+  "task_id": "taco_train_24285",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 2e5 for line in stdin.splitlines() for x in line.split() if x.isdigit())",
+        "description": "Input consists of integers n (1 ≤ n ≤ 2e5) and m (1 ≤ m ≤ 2e5) followed by m lines of two integers each, representing road connections between junctions (1 ≤ junction ≤ n)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "Input has exactly m + 1 lines: first line is n and m, followed by m road connections."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each of the m road connection lines contains exactly two integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])",
+        "description": "No road connects a junction to itself."
+      },
+      {
+        "id": "P5",
+        "expression": "all((a, b) != (c, d) and (a, b) != (d, c) for i, (a, b) in enumerate([tuple(map(int, line.split())) for line in stdin.splitlines()[1:]]) for j, (c, d) in enumerate([tuple(map(int, line.split())) for line in stdin.splitlines()[1:]], i + 1))",
+        "description": "No two roads connect the same pair of junctions (undirected)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip().splitlines()[0] == 'YES' and len(stdout.strip().splitlines()) == 4)",
+        "description": "Output is either 'NO' (impossible) or 'YES' followed by exactly three route descriptions (one per line)."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(len(line.split()) >= 2 for line in stdout.strip().splitlines()[1:])",
+        "description": "Each route description line starts with an integer l ≥ 2 (number of junctions) followed by l junction numbers."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(all(1 <= int(x) <= n for x in line.split()[1:]) for line in stdout.strip().splitlines()[1:])",
+        "description": "All junction numbers in routes are valid (1 ≤ junction ≤ n)."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(len(set(line.split()[1:])) == len(line.split()[1:]) for line in stdout.strip().splitlines()[1:])",
+        "description": "No route revisits the same junction (no duplicates in a single route)."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(all(abs(int(line.split()[i]) - int(line.split()[i+1])) in {(a, b)[0], (a, b)[1], (b, a)[0], (b, a)[1]} for i in range(len(line.split()) - 2)) for line in stdout.strip().splitlines()[1:])",
+        "description": "Every consecutive pair of junctions in a route is connected by a road (using input roads)."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(line.split()[1] == line.split()[-1] for line in stdout.strip().splitlines()[1:])",
+        "description": "All routes start and end at the same junction (start ≠ end)."
+      },
+      {
+        "id": "Q7",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(line.split()[1] != line.split()[2] for line in stdout.strip().splitlines()[1:])",
+        "description": "No route starts and ends at the same junction (start ≠ end)."
+      },
+      {
+        "id": "Q8",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(set(line.split()[1:]).issubset(set.union(*[set(line.split()[1:]) for line in stdout.strip().splitlines()[1:]])) for line in stdout.strip().splitlines()[1:])",
+        "description": "All routes share exactly the same start and end junction (no other common junctions)."
+      },
+      {
+        "id": "Q9",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(len(set.union(*[set(line.split()[1:]) for line in stdout.strip().splitlines()[1:]])) == len(set.union(*[set(line.split()[1:]) for line in stdout.strip().splitlines()[1:]])) for line in stdout.strip().splitlines()[1:])",
+        "description": "No two routes share any junction other than the common start and end."
+      },
+      {
+        "id": "Q10",
+        "expression": "stdout.strip().splitlines()[0] == 'YES' and all(all((a, b) not in [(int(line1.split()[i]), int(line1.split()[i+1])), (int(line1.split()[i+1]), int(line1.split()[i]))] for line1 in stdout.strip().splitlines()[1:] for i in range(len(line1.split()) - 2)) for line2 in stdout.strip().splitlines()[1:] for j in range(len(line2.split()) - 2))",
+        "description": "No two routes share any road (undirected)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 2e5 for line in stdin.splitlines() for x in line.split() if x.isdigit())\",\n      \"description\": \"Input consists of integers n (1 ≤ n ≤ 2e5) and m (1 ≤ m ≤ 2e5) followed by m lines of two integers each, representing road connections between junctions (1 ≤ junction ≤ n).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"Input has exactly m + 1 lines: first line is n and m, followed by m road connections.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the m road connection lines contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])\",\n      \"description\": \"No road connects a junction to itself.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all((a, b) != (c, d) and (a, b) != (d, c) for i, (a, b) in enumerate([tuple(map(int, line.split())) for line in stdin.splitlines()[1:]]) for j, (c, d) in enumerate([tuple(map(int, line.split())) for line in stdin.splitlines()[1:]], i + 1))\",\n      \"description\": \"No two roads connect the same pair of junctions (undirected).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'NO' or (stdout.strip().splitlines()[0] == 'YES' and len(stdout.strip().splitlines()) == 4)\",\n      \"description\": \"Output is either 'NO' (impossible) or 'YES' followed by exactly three route descriptions (one per line).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(len(line.split()) >= 2 for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"Each route description line starts with an integer l ≥ 2 (number of junctions) followed by l junction numbers.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(all(1 <= int(x) <= n for x in line.split()[1:]) for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"All junction numbers in routes are valid (1 ≤ junction ≤ n).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(len(set(line.split()[1:])) == len(line.split()[1:]) for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"No route revisits the same junction (no duplicates in a single route).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(all(abs(int(line.split()[i]) - int(line.split()[i+1])) in {(a, b)[0], (a, b)[1], (b, a)[0], (b, a)[1]} for i in range(len(line.split()) - 2)) for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"Every consecutive pair of junctions in a route is connected by a road (using input roads).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(line.split()[1] == line.split()[-1] for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"All routes start and end at the same junction (start ≠ end).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(line.split()[1] != line.split()[2] for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"No route starts and ends at the same junction (start ≠ end).\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(set(line.split()[1:]).issubset(set.union(*[set(line.split()[1:]) for line in stdout.strip().splitlines()[1:]])) for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"All routes share exactly the same start and end junction (no other common junctions).\"\n    },\n    {\n      \"id\": \"Q9\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(len(set.union(*[set(line.split()[1:]) for line in stdout.strip().splitlines()[1:]])) == len(set.union(*[set(line.split()[1:]) for line in stdout.strip().splitlines()[1:]])) for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"No two routes share any junction other than the common start and end.\"\n    },\n    {\n      \"id\": \"Q10\",\n      \"expression\": \"stdout.strip().splitlines()[0] == 'YES' and all(all((a, b) not in [(int(line1.split()[i]), int(line1.split()[i+1])), (int(line1.split()[i+1]), int(line1.split()[i]))] for line1 in stdout.strip().splitlines()[1:] for i in range(len(line1.split()) - 2)) for line2 in stdout.strip().splitlines()[1:] for j in range(len(line2.split()) - 2))\",\n      \"description\": \"No two routes share any road (undirected).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1649,
+  "generated_tokens": 1436,
+  "hit_output_limit": false,
+  "generation_seconds": 65.808,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:10:23.474794+00:00"
+}

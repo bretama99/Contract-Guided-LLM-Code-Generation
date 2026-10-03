@@ -1,0 +1,929 @@
+{
+  "task_id": "taco_train_2241",
+  "task_index": 754,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t >= 1 and t <= 100",
+        "description": "The number of test cases is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(s) >= 2 for s in test_cases)",
+        "description": "Each string in the test cases has at least 2 characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) <= 10**6 for s in test_cases)",
+        "description": "The length of each string does not exceed 1,000,000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(q >= 1 and q <= 2 * 10**5 for q in test_cases_queries)",
+        "description": "The number of queries per test case is between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= l < r <= len(s) for s, queries in test_cases_queries for l, r in queries)",
+        "description": "Each query has valid indices l and r where 1 ≤ l < r ≤ n."
+      },
+      {
+        "id": "P6",
+        "expression": "all((r - l + 1) % 2 == 0 for s, queries in test_cases_queries for l, r in queries)",
+        "description": "Each query substring has an even length."
+      },
+      {
+        "id": "P7",
+        "expression": "all(c in '()[]' for s in test_cases for c in s)",
+        "description": "Each string consists only of round and square brackets."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output) == q for output, q in zip(test_case_outputs, test_cases_queries))",
+        "description": "The output contains exactly one integer per query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(x >= 0 for output in test_case_outputs for x in output)",
+        "description": "Each output value is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(is_valid_bracket_sequence(transformed_substring) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output) for transformed_substring in possible_transformations(s[l-1:r], x))",
+        "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(min_cost(s[l-1:r]) == x for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+        "description": "The output x for each query is the minimum cost to make the substring s[l..r] a correct bracket sequence."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t >= 1 and t <= 100",
+        "description": "The number of test cases is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(s) >= 2 for s in test_cases)",
+        "description": "Each string in the test cases has at least 2 characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) <= 10**6 for s in test_cases)",
+        "description": "The length of each string does not exceed 1,000,000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(q >= 1 and q <= 2 * 10**5 for q in test_cases_queries)",
+        "description": "The number of queries per test case is between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= l < r <= len(s) for s, queries in test_cases_queries for l, r in queries)",
+        "description": "Each query has valid indices l and r where 1 ≤ l < r ≤ n."
+      },
+      {
+        "id": "P6",
+        "expression": "all((r - l + 1) % 2 == 0 for s, queries in test_cases_queries for l, r in queries)",
+        "description": "Each query substring has an even length."
+      },
+      {
+        "id": "P7",
+        "expression": "all(c in '()[]' for s in test_cases for c in s)",
+        "description": "Each string consists only of round and square brackets."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output) == q for output, q in zip(test_case_outputs, test_cases_queries))",
+        "description": "The output contains exactly one integer per query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(x >= 0 for output in test_case_outputs for x in output)",
+        "description": "Each output value is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(is_valid_bracket_sequence(transformed_substring) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output) for transformed_substring in possible_transformations(s[l-1:r], x))",
+        "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(min_cost(s[l-1:r]) == x for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+        "description": "The output x for each query is the minimum cost to make the substring s[l..r] a correct bracket sequence."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "3e712c6ca12f29a0f99b4b0c46087b1b272f3e718b7b83084a7424d519c32a0c",
+  "selected_contract_fingerprint": "3e712c6ca12f29a0f99b4b0c46087b1b272f3e718b7b83084a7424d519c32a0c",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_2241.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+      "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+      "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+        "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+        "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+        "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `min_cost`, which is not defined in the contract. The expression should directly relate the input substring to the minimum cost without relying on undefined functions.",
+        "task_evidence": "find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly defines the relationship between the input substring and the minimum cost to transform it into a valid bracket sequence, using only the allowed operations and their costs.",
+        "task_evidence": "You can change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles. change any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+      "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+      "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+        "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+        "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+        "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "The expression is semantically incorrect because it references `min_cost`, which is not defined in the contract. The expression should directly relate the input substring to the minimum cost without relying on undefined functions.",
+        "task_evidence": "find the minimum cost to pay to make it a correct bracket sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly defines the relationship between the input substring and the minimum cost to transform it into a valid bracket sequence, using only the allowed operations and their costs.",
+        "task_evidence": "You can change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles. change any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+          "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "all(min_cost(s[l-1:r]) == x for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+          "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "ab6b6c0405b447c6d49cb1e72160a71aae6e0f0a2ca0509f2801b932e472ab5e",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "Q4 is a duplicate of Q3 and does not add any new semantic value. Remove it to avoid redundancy.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly defines the `min_cost` function as per the task's requirements. The expression must capture the cost calculation for transforming a substring into a valid bracket sequence using the allowed operations.",
+            "task_evidence": "A sequence of round and square brackets is given. You can change the sequence by performing the following operations: change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles. change any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the cost calculation aligns with the task's definition of a correct bracket sequence (empty sequence, concatenation, and wrapping rules).",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules: an empty sequence is a correct bracket sequence; if \"s\" is a correct bracket sequence, the sequences \"(s)\" and \"[s]\" are correct bracket sequences; if \"s\" and \"t\" are correct bracket sequences, the sequence \"st\" (the concatenation of the sequences) is a correct bracket sequence.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "The expression is semantically incorrect because it references `possible_transformations`, which is not defined in the contract and cannot be evaluated. The expression should directly relate the input substring to the minimum cost without relying on undefined transformations.",
+          "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "all(min_cost(s[l-1:r]) == x for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+          "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence, where the cost is computed by considering all possible operations (flipping direction for $0 cost, changing square to round bracket for $1 cost) to achieve a correct bracket sequence as defined by the task rules."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "5022ad0d337ceec7984a473f7b64c6c1a0ee19f1f5b693576b6364a8f64f2dd6",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **cost computation rules** for the operations (0-cost flips and 1-cost square-to-round conversions) as defined in the task. The current expression does not explicitly model these rules, only the final result.",
+            "task_evidence": "change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles.\nchange any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "Q4 is a duplicate of Q3 and does not add any new semantic value. Remove it to avoid redundancy.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **cost computation rules** for the operations (0-cost flips and 1-cost square-to-round conversions) as defined in the task. The current expression does not explicitly model these rules, only the final result.",
+            "task_evidence": "change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles.\nchange any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **correct bracket sequence definition** (recursive rules) as a formal constraint on the transformed substring. The current expression only references `min_cost` without defining its operational semantics.",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules:\n- an empty sequence is a correct bracket sequence;\n- if \"s\" is a correct bracket sequence, the sequences \"(s)\" and \"[s]\" are correct bracket sequences.\n- if \"s\" and \"t\" are correct bracket sequences, the sequence \"st\" (the concatenation of the sequences) is a correct bracket sequence.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **independence of queries** (no state mutation between queries). The current contract does not enforce this as a formal constraint.",
+            "task_evidence": "The queries must be processed independently, i.e. the changes made in the string for the answer to a question i don't affect the queries j (j > i). In other words, for every query, the substring s[l..r] is given from the initially given string s.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles.\nchange any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **cost computation rules** for the operations (0-cost flips and 1-cost square-to-round conversions) as defined in the task. The current expression does not explicitly model these rules, only the final result.",
+            "task_evidence": "change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles.\nchange any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output) == q for output, q in zip(test_case_outputs, test_cases_queries))",
+            "description": "The output contains exactly one integer per query."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(x >= 0 for output in test_case_outputs for x in output)",
+            "description": "Each output value is a non-negative integer."
+          },
+          {
+            "id": "Q3",
+            "expression": "all((lambda s, l, r, x: (lambda cost: cost == x)(min_cost_with_operations(s[l-1:r]))) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence, where the cost is computed by considering all possible operations: flipping a bracket's direction (0 cost) or changing a square bracket to a round bracket of the same direction (1 cost), and the transformed substring must satisfy the correct bracket sequence rules (empty sequence, concatenation, and wrapping)."
+          },
+          {
+            "id": "Q4",
+            "expression": "all((lambda s, l, r, x: (lambda valid: valid)(is_valid_bracket_sequence(s[l-1:r]))) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "For each query, the transformed substring s[l..r] must be a correct bracket sequence as defined by the task rules (empty sequence, concatenation, and wrapping)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all((lambda s, l, r, x: (lambda ops: all(op in {'flip_direction', 'square_to_round'} for op in ops))) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "The cost x is computed only using the allowed operations: flipping a bracket's direction (0 cost) or changing a square bracket to a round bracket of the same direction (1 cost)."
+          },
+          {
+            "id": "Q6",
+            "expression": "all((lambda s, l, r, x: (lambda independent: independent)(True)) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "The queries are processed independently, meaning the substring s[l..r] is always taken from the original string s, and no changes persist between queries."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "65925415f0865bde293cd2dacf6d5bdd38f525ec4dda95d39caef94fd1277d21",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the cost computation logic. It references undefined `min_cost_with_operations` and `is_valid_bracket_sequence` without defining them. The expression must directly encode the cost calculation based on the allowed operations and the correct bracket sequence rules.",
+            "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the cost computation logic. It references undefined `min_cost_with_operations` and `is_valid_bracket_sequence` without defining them. The expression must directly encode the cost calculation based on the allowed operations and the correct bracket sequence rules.",
+            "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the validation of the transformed substring. It references undefined `is_valid_bracket_sequence` and does not encode the validation logic based on the task's rules for correct bracket sequences.",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules: ...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression is nonsensical and does not capture the cost computation logic. It references undefined `ops` and does not encode the allowed operations or their costs.",
+            "task_evidence": "change the direction of a bracket from opening to closing and vice versa without changing the form of the bracket: i.e. you can change '(' to ')' and ')' to '('; you can change '[' to ']' and ']' to '['. The operation costs $0$ burles. ... change any square bracket to round bracket having the same direction: i.e. you can change '[' to '(' but not from '(' to '['; similarly, you can change ']' to ')' but not from ')' to ']'. The operation costs $1$ burle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the cost calculation for transforming the substring into a correct bracket sequence using the allowed operations, including the cost of flipping directions (0 cost) and changing square brackets to round brackets of the same direction (1 cost).",
+            "task_evidence": "find the minimum cost to pay to make it a correct bracket sequence. ... The operations can be performed in any order any number of times.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the validation of the transformed substring as a correct bracket sequence based on the task's rules (empty sequence, concatenation, and wrapping).",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules: ...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the cost computation logic. It references undefined `min_cost_with_operations` and `is_valid_bracket_sequence` without defining them. The expression must directly encode the cost calculation based on the allowed operations and the correct bracket sequence rules.",
+            "task_evidence": "The operations can be performed in any order any number of times. ... find the minimum cost to pay to make it a correct bracket sequence.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output) == q for output, q in zip(test_case_outputs, test_cases_queries))",
+            "description": "The output contains exactly one integer per query."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(x >= 0 for output in test_case_outputs for x in output)",
+            "description": "Each output value is a non-negative integer."
+          },
+          {
+            "id": "Q3",
+            "expression": "all((lambda s, l, r, x: (lambda substring: (lambda cost: cost == x)(min_cost_to_valid_bracket(substring)))(s[l-1:r])) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence, where the cost is computed by considering all possible operations: flipping a bracket's direction (0 cost) or changing a square bracket to a round bracket of the same direction (1 cost), and the transformed substring must satisfy the correct bracket sequence rules (empty sequence, concatenation, and wrapping)."
+          },
+          {
+            "id": "Q4",
+            "expression": "all((lambda s, l, r, x: (lambda substring: is_valid_bracket_sequence(substring))(s[l-1:r])) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "For each query, the transformed substring s[l..r] must be a correct bracket sequence as defined by the task rules (empty sequence, concatenation, and wrapping)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all((lambda s, l, r, x: (lambda substring: (lambda cost: cost == x)(min_cost_to_valid_bracket(substring)) and is_valid_bracket_sequence(substring))) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "For each query, the output x is the minimum cost to transform the substring s[l..r] into a valid bracket sequence, where the cost is computed by considering all possible operations: flipping a bracket's direction (0 cost) or changing a square bracket to a round bracket of the same direction (1 cost), and the transformed substring must satisfy the correct bracket sequence rules (empty sequence, concatenation, and wrapping)."
+          },
+          {
+            "id": "Q6",
+            "expression": "all((lambda s, l, r, x: (lambda original: original == s[l-1:r])) for s, queries, output in zip(test_cases, test_cases_queries, test_case_outputs) for (l, r), x in zip(queries, output))",
+            "description": "The queries are processed independently, meaning the substring s[l..r] is always taken from the original string s, and no changes persist between queries."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "a5ef7a9e3e8b1a5863371e0b5af5f638ba32d3114eab73a34a34e1b905c327d4",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "Q5 is redundant and incorrect because it combines Q3 and Q4 in a way that is not logically sound (it conflates cost computation and validity check). Q3 and Q4 should be kept separate.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "Q5 is redundant and incorrect because it combines Q3 and Q4 in a way that is not logically sound (it conflates cost computation and validity check). Q3 and Q4 should be kept separate.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **cost computation rules** (0 for flipping direction, 1 for changing square to round bracket of same direction) and **validity rules** (empty sequence, concatenation, and wrapping) in a single, precise expression. The current contract lacks a direct expression-led mapping of the task's cost and validity semantics.",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules: an empty sequence is a correct bracket sequence; if \"s\" is a correct bracket sequence, the sequences \"(s)\" and \"[s]\" are correct bracket sequence; if \"s\" and \"t\" are correct bracket sequences, the sequence \"st\" is a correct bracket sequence. The operations cost $0$ for flipping direction and $1$ for changing square to round bracket of same direction.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the **minimum cost** is computed by considering **all possible valid transformations** (not just one path). The current contract does not explicitly enforce this in the expression.",
+            "task_evidence": "The operations can be performed in any order any number of times.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "remove",
+          "instruction": "Q5 is redundant and incorrect because it combines Q3 and Q4 in a way that is not logically sound (it conflates cost computation and validity check). Q3 and Q4 should be kept separate.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": null,
+        "repair_model_calls": 0,
+        "generation_errors": [],
+        "candidate_fingerprint": "caf7d5a9f8601a07b1987b127db026efe0eb78754c76005f78eb8005f5a74e68",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly states the cost calculation must account for all possible operations (flip direction for 0 cost, change square to round bracket of same direction for 1 cost) and that the transformed substring must be a correct bracket sequence under the given rules.",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules: an empty sequence is a correct bracket sequence; if \"s\" is a correct bracket sequence, the sequences \"(s)\" and \"[s]\" are correct bracket sequences; if \"s\" and \"t\" are correct bracket sequences, the sequence \"st\" (the concatenation of the sequences) is a correct bracket sequence.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant `is_valid_bracket_sequence(substring)` check, as it is already implied by `min_cost_to_valid_bracket(substring)` returning a valid cost (which inherently requires the transformed substring to be valid).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly states the cost calculation must account for all possible operations (flip direction for 0 cost, change square to round bracket of same direction for 1 cost) and that the transformed substring must be a correct bracket sequence under the given rules.",
+            "task_evidence": "A correct bracket sequence is a sequence that can be built according the following rules: an empty sequence is a correct bracket sequence; if \"s\" is a correct bracket sequence, the sequences \"(s)\" and \"[s]\" are correct bracket sequences; if \"s\" and \"t\" are correct bracket sequences, the sequence \"st\" (the concatenation of the sequences) is a correct bracket sequence.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "vague_clause",
+            "location": "postconditions[2].expression",
+            "action": "clarify",
+            "instruction": "Clarify the expression to explicitly define `min_cost_to_valid_bracket(substring)` as the minimum cost to transform the substring into a valid bracket sequence using the allowed operations (flip direction for 0 cost, change square to round bracket of same direction for 1 cost).",
+            "task_evidence": "The operations can be performed in any order any number of times. ... The minimum cost to pay to make it a correct bracket sequence.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[2].expression"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 321.244,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:32:13.107604+00:00"
+}

@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_5461",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 100000",
+        "description": "The number of records in the log is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(line.strip().split() in [['insert', x], ['getMin', x], ['removeMin']] for line in stdin.splitlines()[1:])",
+        "description": "Each log line is either 'insert x', 'getMin x', or 'removeMin', where x is an integer."
+      },
+      {
+        "id": "P3",
+        "expression": "all(abs(int(x)) <= 10**9 for line in stdin.splitlines()[1:] if line.split()[0] in ['insert', 'getMin'])",
+        "description": "All integers in 'insert' and 'getMin' operations are between -10^9 and 10^9 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == m and m >= n",
+        "description": "The output contains exactly m lines, where m is the minimum number of operations needed to make the log consistent, and m is at least the original number of records n."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line in output_lines for line in stdin.splitlines()[1:])",
+        "description": "The original log lines appear in the output in the same order and with the same content."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(heap_min == int(x) for line, heap_min in zip(output_lines, heap_state) if line.split()[0] == 'getMin' and (x := line.split()[1]))",
+        "description": "For every 'getMin x' operation in the output, the minimum element in the heap at that point is exactly x."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(heap) > 0 for line, heap in zip(output_lines, heap_state) if line == 'removeMin')",
+        "description": "Every 'removeMin' operation in the output is applied to a non-empty heap."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(heap) > 0 for line, heap in zip(output_lines, heap_state) if line.split()[0] == 'getMin')",
+        "description": "Every 'getMin' operation in the output is applied to a non-empty heap."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 100000\",\n      \"description\": \"The number of records in the log is between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(line.strip().split() in [['insert', x], ['getMin', x], ['removeMin']] for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each log line is either 'insert x', 'getMin x', or 'removeMin', where x is an integer.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(abs(int(x)) <= 10**9 for line in stdin.splitlines()[1:] if line.split()[0] in ['insert', 'getMin'])\",\n      \"description\": \"All integers in 'insert' and 'getMin' operations are between -10^9 and 10^9 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output_lines) == m and m >= n\",\n      \"description\": \"The output contains exactly m lines, where m is the minimum number of operations needed to make the log consistent, and m is at least the original number of records n.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line in output_lines for line in stdin.splitlines()[1:])\",\n      \"description\": \"The original log lines appear in the output in the same order and with the same content.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(heap_min == int(x) for line, heap_min in zip(output_lines, heap_state) if line.split()[0] == 'getMin' and (x := line.split()[1]))\",\n      \"description\": \"For every 'getMin x' operation in the output, the minimum element in the heap at that point is exactly x.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(len(heap) > 0 for line, heap in zip(output_lines, heap_state) if line == 'removeMin')\",\n      \"description\": \"Every 'removeMin' operation in the output is applied to a non-empty heap.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(len(heap) > 0 for line, heap in zip(output_lines, heap_state) if line.split()[0] == 'getMin')\",\n      \"description\": \"Every 'getMin' operation in the output is applied to a non-empty heap.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1895,
+  "generated_tokens": 647,
+  "hit_output_limit": false,
+  "generation_seconds": 29.051,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T13:03:52.690635+00:00"
+}

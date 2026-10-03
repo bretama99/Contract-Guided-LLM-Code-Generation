@@ -1,0 +1,985 @@
+{
+  "task_id": "taco_train_11093",
+  "task_index": 715,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 100",
+        "description": "The number of test cases t is an integer between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(5 <= n <= 500 for n in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit()])",
+        "description": "For each test case, n is an integer between 5 and 500 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == n for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "Each of the 2n arrays has exactly n integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(1 <= x <= n for x in map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "Each element in the arrays is an integer between 1 and n inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(set(map(int, line.split()))) == n for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "Each array is a permutation of integers from 1 to n."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(line.split()) == 2 * n for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "There are exactly 2n arrays per test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.count('\\n') == 2 * t",
+        "description": "The output contains exactly two lines per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.strip() and line.strip().isdigit() for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 0)",
+        "description": "The first line of each test case's output is a non-negative integer (the count of good subsets modulo 998244353)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(1 <= int(idx) <= 2 * n for idx in line.split()) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+        "description": "The second line of each test case's output contains n indices between 1 and 2n inclusive."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(line.split()) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+        "description": "The second line of each test case's output contains exactly n indices."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(line.split())) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+        "description": "The indices in the second line of each test case's output are distinct."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(any(all(arrays[i][j] == arrays[k][j] for j in range(n)) for i in range(n) for k in range(n) if i != k) for arrays in [get_arrays_for_test_case(stdin)])",
+        "description": "The selected subset of n arrays forms a Latin square, meaning for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(0 <= int(count_line) < 998244353 for count_line in stdout.splitlines() if stdout.splitlines().index(count_line) % 2 == 0)",
+        "description": "The count of good subsets is a non-negative integer less than 998244353."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 100",
+        "description": "The number of test cases t is an integer between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(5 <= n <= 500 for n in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit()])",
+        "description": "For each test case, n is an integer between 5 and 500 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == n for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "Each of the 2n arrays has exactly n integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(1 <= x <= n for x in map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "Each element in the arrays is an integer between 1 and n inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(set(map(int, line.split()))) == n for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "Each array is a permutation of integers from 1 to n."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(line.split()) == 2 * n for line in stdin.splitlines() if line.strip() and not line.split()[0].isdigit())",
+        "description": "There are exactly 2n arrays per test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.count('\\n') == 2 * t",
+        "description": "The output contains exactly two lines per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.strip() and line.strip().isdigit() for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 0)",
+        "description": "The first line of each test case's output is a non-negative integer (the count of good subsets modulo 998244353)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(1 <= int(idx) <= 2 * n for idx in line.split()) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+        "description": "The second line of each test case's output contains n indices between 1 and 2n inclusive."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(line.split()) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+        "description": "The second line of each test case's output contains exactly n indices."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(line.split())) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+        "description": "The indices in the second line of each test case's output are distinct."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(any(all(arrays[i][j] == arrays[k][j] for j in range(n)) for i in range(n) for k in range(n) if i != k) for arrays in [get_arrays_for_test_case(stdin)])",
+        "description": "The selected subset of n arrays forms a Latin square, meaning for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(0 <= int(count_line) < 998244353 for count_line in stdout.splitlines() if stdout.splitlines().index(count_line) % 2 == 0)",
+        "description": "The count of good subsets is a non-negative integer less than 998244353."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "72d4455d2578e46fc2fec73ef069229e1866f47fe6b61b9b677b5e8168ba4df6",
+  "selected_contract_fingerprint": "72d4455d2578e46fc2fec73ef069229e1866f47fe6b61b9b677b5e8168ba4df6",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_11093.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[5].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+      "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[5].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+      "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+        "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+        "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+        "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, and that the selected subset is indeed one of the good subsets (i.e., it satisfies the Latin square property).",
+        "task_evidence": "AquaMoon wants to know how many good subsets exist. ... find it modulo 998 244 353. Also, she wants to find any good subset.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[5].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+      "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[5].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+      "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+        "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+        "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+        "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, and that the selected subset is indeed one of the good subsets (i.e., it satisfies the Latin square property).",
+        "task_evidence": "AquaMoon wants to know how many good subsets exist. ... find it modulo 998 244 353. Also, she wants to find any good subset.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[5].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly checks for all elements in a column being equal (which is the opposite of the Latin square requirement). The correct expression should verify that for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n.",
+          "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(len(set(arrays[i][j] for i in range(n))) == n and all(1 <= arrays[i][j] <= n for i in range(n)) for j in range(n) for arrays in [get_arrays_for_test_case(stdin)] if len(arrays) == n)",
+          "description": "The selected subset of n arrays forms a Latin square, meaning for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "944698d28c7e7d90f57a49117877c97fcefacd74580b2b9c03b3e59c2ce93ed2",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, i.e., the count must match the actual number of valid Latin square subsets derived from the input arrays.",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, i.e., the count must match the actual number of valid Latin square subsets derived from the input arrays.",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the selected subset of n arrays (indices) indeed forms a Latin square, i.e., for each column index j, the elements in that column across the n arrays are all distinct and cover 1 to n, **and** the subset is derived from the input arrays of the current test case.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly verify the Latin square property for the selected subset of n arrays (indices) from the current test case's input arrays, not a hypothetical `arrays` variable.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the selected subset of n arrays (indices) is a subset of the 2n arrays provided in the current test case.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the count of good subsets is non-zero only if at least one valid subset exists (i.e., the count is not zero when there are valid subsets).",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist... Also, she wants to find any good subset.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, i.e., the count must match the actual number of valid Latin square subsets derived from the input arrays.",
+          "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q8",
+          "expression": "all(0 <= int(count_line) < 998244353 and int(count_line) == len([indices for indices in combinations(range(1, 2 * n + 1), n) if is_latin_square(get_arrays_for_test_case(stdin), indices)]) % 998244353 for count_line in stdout.splitlines() if stdout.splitlines().index(count_line) % 2 == 0)",
+          "description": "The count of good subsets for each test case matches the actual number of valid Latin square subsets of size n derived from the 2n input arrays, modulo 998244353."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "24b88539eb81c07a1ea3cbaae9cc2677a1928326660d29816172e3db6c14b70b",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly verify the Latin square property for the selected subset of arrays. It incorrectly uses `get_arrays_for_test_case(stdin)` (which is undefined in the contract) and does not properly map the indices to the actual arrays in the input. The expression should verify that for the selected subset of arrays (by their indices), the Latin square property holds: for each column index j, the elements in that column across the n selected arrays must be a permutation of 1..n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... if you put these n arrays under each other to form a matrix with n rows and n columns, this matrix is a Latin square.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly verify the Latin square property for the selected subset of arrays. It incorrectly uses `get_arrays_for_test_case(stdin)` (which is undefined in the contract) and does not properly map the indices to the actual arrays in the input. The expression should verify that for the selected subset of arrays (by their indices), the Latin square property holds: for each column index j, the elements in that column across the n selected arrays must be a permutation of 1..n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... if you put these n arrays under each other to form a matrix with n rows and n columns, this matrix is a Latin square.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "The expression is incorrect because it attempts to verify the count of good subsets by brute-forcing all combinations, which is not feasible for n up to 500. The task requires an efficient solution (modulo 998244353), and the expression does not reflect this. The expression should instead verify that the count is computed correctly (without explicitly enumerating all subsets) and matches the actual number of valid Latin square subsets modulo 998244353.",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the selected subset of n arrays is indeed a subset of the 2n input arrays (i.e., all indices are within 1..2n and correspond to valid arrays).",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. ... In the second line, print n indices from 1 to 2n — indices of the n arrays that form a good subset.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the selected subset of n arrays is unique (no duplicates in the subset, as required by the task).",
+            "task_evidence": "Also, Cirno made sure that for all 2n arrays, no two arrays are completely equal, i. e. for all pair of indices 1 ≤ i < j ≤ 2n, there exists at least one position 1 ≤ k ≤ n, such that the k-th elements of the i-th and j-th array are different.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... if you put these n arrays under each other to form a matrix with n rows and n columns, this matrix is a Latin square.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly verify the Latin square property for the selected subset of arrays. It incorrectly uses `get_arrays_for_test_case(stdin)` (which is undefined in the contract) and does not properly map the indices to the actual arrays in the input. The expression should verify that for the selected subset of arrays (by their indices), the Latin square property holds: for each column index j, the elements in that column across the n selected arrays must be a permutation of 1..n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... if you put these n arrays under each other to form a matrix with n rows and n columns, this matrix is a Latin square.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.count('\\n') == 2 * t",
+            "description": "The output contains exactly two lines per test case."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(line.strip() and line.strip().isdigit() for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 0)",
+            "description": "The first line of each test case's output is a non-negative integer (the count of good subsets modulo 998244353)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(all(1 <= int(idx) <= 2 * n for idx in line.split()) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "description": "The second line of each test case's output contains n indices between 1 and 2n inclusive."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(len(line.split()) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "description": "The second line of each test case's output contains exactly n indices."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(len(set(line.split())) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "description": "The indices in the second line of each test case's output are distinct."
+          },
+          {
+            "id": "Q6",
+            "expression": "all(len(set([int(stdin.splitlines()[offset + idx]) for idx in map(int, line.split())])) == n and all(1 <= int(stdin.splitlines()[offset + idx]) <= n for idx in map(int, line.split())) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1 for offset in [i for i, l in enumerate(stdin.splitlines()) if l.strip().isdigit() and l.split()[0].isdigit()][stdout.splitlines().index(line) // 2] for j in range(n))",
+            "description": "For each test case, the selected subset of n arrays forms a Latin square: for each column index j, the elements in that column across the n selected arrays are all distinct and cover 1 to n."
+          },
+          {
+            "id": "Q7",
+            "expression": "all(0 <= int(count_line) < 998244353 for count_line in stdout.splitlines() if stdout.splitlines().index(count_line) % 2 == 0)",
+            "description": "The count of good subsets is a non-negative integer less than 998244353."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "990d0cf74171042fc1be63c0e5fc6ce3a683eaa40c5f75a8c6d2da620ac00e36",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, i.e., the count must match the actual number of valid Latin square subsets derived from the input arrays.",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly verify that the selected subset of n arrays forms a Latin square. The current expression is overly complex and incorrectly references `stdin.splitlines()[offset + idx]` for column checks, which does not align with the task's requirement of checking columns across the selected arrays.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the selected subset of n arrays satisfies the Latin square property: for each column index j, the elements in that column across the n selected arrays must be a permutation of 1 to n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... if you put these n arrays under each other to form a matrix with n rows and n columns, this matrix is a Latin square.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly verify the Latin square property for the selected subset of arrays. It incorrectly uses `get_arrays_for_test_case(stdin)` (which is undefined in the contract) and does not properly map the indices to the actual arrays in the input. The expression should verify that for the selected subset of arrays (by their indices), the Latin square property holds: for each column index j, the elements in that column across the n selected arrays must be a permutation of 1..n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... if you put these n arrays under each other to form a matrix with n rows and n columns, this matrix is a Latin square.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.count('\\n') == 2 * t",
+            "description": "The output contains exactly two lines per test case."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(line.strip() and line.strip().isdigit() for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 0)",
+            "description": "The first line of each test case's output is a non-negative integer (the count of good subsets modulo 998244353)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(all(1 <= int(idx) <= 2 * n for idx in line.split()) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "description": "The second line of each test case's output contains n indices between 1 and 2n inclusive."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(len(line.split()) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "description": "The second line of each test case's output contains exactly n indices."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(len(set(line.split())) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "description": "The indices in the second line of each test case's output are distinct."
+          },
+          {
+            "id": "Q6",
+            "expression": "all(len(set([int(stdin.splitlines()[offset + idx]) for idx in map(int, line.split())])) == n and set([int(stdin.splitlines()[offset + idx]) for idx in map(int, line.split())]) == set(range(1, n + 1)) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1 for offset in [i + 1 for i, l in enumerate(stdin.splitlines()) if l.strip().isdigit() and l.split()[0].isdigit()][stdout.splitlines().index(line) // 2] for j in range(n))",
+            "description": "For each test case, the selected subset of n arrays forms a Latin square: for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n."
+          },
+          {
+            "id": "Q7",
+            "expression": "all(0 <= int(count_line) < 998244353 for count_line in stdout.splitlines() if stdout.splitlines().index(count_line) % 2 == 0)",
+            "description": "The count of good subsets is a non-negative integer less than 998244353."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "28fe320864d5531a246be95305fb30993e8a49e38fd2aa3a1b717846d6a3479e",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is incorrect. It does not properly verify the Latin square property for each column of the selected subset. The current expression checks the entire array's elements for uniqueness and range, but it does not verify that the selected subset's columns are permutations of 1..n. The expression must ensure that for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is incorrect. It does not properly verify the Latin square property for each column of the selected subset. The current expression checks the entire array's elements for uniqueness and range, but it does not verify that the selected subset's columns are permutations of 1..n. The expression must ensure that for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the count of good subsets is correct modulo 998244353. The current contract does not verify that the count matches the actual number of good subsets modulo 998244353, only that it is a non-negative integer less than the modulus.",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[5].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The expression for Q6 is incorrect. It does not properly verify the Latin square property for each column of the selected subset. The current expression checks the entire array's elements for uniqueness and range, but it does not verify that the selected subset's columns are permutations of 1..n. The expression must ensure that for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square. ... for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output contains exactly two lines per test case.",
+            "expression": "stdout.count('\\n') == 2 * t",
+            "id": "Q1"
+          },
+          {
+            "description": "The first line of each test case's output is a non-negative integer (the count of good subsets modulo 998244353).",
+            "expression": "all(line.strip() and line.strip().isdigit() for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 0)",
+            "id": "Q2"
+          },
+          {
+            "description": "The second line of each test case's output contains n indices between 1 and 2n inclusive.",
+            "expression": "all(all(1 <= int(idx) <= 2 * n for idx in line.split()) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "id": "Q3"
+          },
+          {
+            "description": "The second line of each test case's output contains exactly n indices.",
+            "expression": "all(len(line.split()) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "id": "Q4"
+          },
+          {
+            "description": "The indices in the second line of each test case's output are distinct.",
+            "expression": "all(len(set(line.split())) == n for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1)",
+            "id": "Q5"
+          },
+          {
+            "description": "For each test case, the selected subset of n arrays forms a Latin square: for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n.",
+            "expression": "all(len(set([int(stdin.splitlines()[offset + idx - 1][j]) for idx in map(int, line.split())])) == n and set([int(stdin.splitlines()[offset + idx - 1][j]) for idx in map(int, line.split())]) == set(range(1, n + 1)) for line in stdout.splitlines() if stdout.splitlines().index(line) % 2 == 1 for offset in [i + 1 for i, l in enumerate(stdin.splitlines()) if l.strip().isdigit() and l.split()[0].isdigit()][stdout.splitlines().index(line) // 2] for j in range(n))",
+            "id": "Q6"
+          },
+          {
+            "description": "The count of good subsets is a non-negative integer less than 998244353.",
+            "expression": "all(0 <= int(count_line) < 998244353 for count_line in stdout.splitlines() if stdout.splitlines().index(count_line) % 2 == 0)",
+            "id": "Q7"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "05aef3211de8b4e11ca9674bb76aff166293e7d606e225006f178612c4863cd8",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the selected subset of n arrays (indices) is a valid Latin square, i.e., for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n. The current Q6 is overly complex and incorrectly references `stdin` in the expression, which is not allowed in postconditions (postconditions must be self-contained with respect to the output).",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the count of good subsets is correct modulo 998244353, i.e., the count must match the actual number of valid Latin square subsets derived from the input arrays.",
+            "task_evidence": "AquaMoon wants to know how many good subsets exist. Because this number may be particularly large, find it modulo 998 244 353.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the selected subset of n arrays (indices) is a valid Latin square, i.e., for each column index j, the elements in that column across the n selected arrays are all distinct and cover exactly the integers from 1 to n. The current Q6 is overly complex and incorrectly references `stdin` in the expression, which is not allowed in postconditions (postconditions must be self-contained with respect to the output).",
+            "task_evidence": "AquaMoon calls a subset of all 2n arrays of size n good if these arrays form a Latin square.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a self-contained check that verifies the selected subset forms a Latin square using only the output (stdout) and the input (stdin) in a way that does not reference stdin directly in the postcondition. The expression must be stateless and verifiable from the output alone, given the input is fixed.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the selected subset of n arrays is non-empty and valid (i.e., the indices are within the range of the input arrays for the test case).",
+            "task_evidence": "AquaMoon wants to find any good subset.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 269.934,
+  "processing_error": null,
+  "finished_at": "2026-09-04T06:06:56.168025+00:00"
+}

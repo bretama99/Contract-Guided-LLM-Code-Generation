@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_15135",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T10:06:50.777025+00:00",
+  "code": "import sys\n\ndef main():\n    s = sys.stdin.read().strip()\n    n = len(s)\n    \n    # We transform the string into a sequence of differences.\n    # Let countA[i], countB[i], countC[i] be the number of A's, B's, C's in s[0...i-1].\n    # For a substring s[i...j] (inclusive 0-indexed) to have equal counts:\n    # countA[j+1] - countA[i] = countB[j+1] - countB[i] = countC[j+1] - countC[i]\n    # This implies:\n    # (countA[j+1] - countB[j+1]) = (countA[i] - countB[i])\n    # (countA[j+1] - countC[j+1]) = (countA[i] - countC[i])\n    # So we track pairs (diff_AB, diff_AC).\n    \n    # Initial state at index 0 (before any characters): counts are 0,0,0 -> diffs (0,0)\n    current_a = 0\n    current_b = 0\n    current_c = 0\n    \n    # Dictionary to store frequency of each (diff_ab, diff_ac) pair encountered so far.\n    # Key: (diff_ab, diff_ac), Value: count\n    freq = {}\n    \n    # Initialize with the starting point (0, 0) having count 1\n    freq[(0, 0)] = 1\n    \n    total_substrings = 0\n    \n    for char in s:\n        if char == 'A':\n            current_a += 1\n        elif char == 'B':\n            current_b += 1\n        elif char == 'C':\n            current_c += 1\n        \n        diff_ab = current_a - current_b\n        diff_ac = current_a - current_c\n        \n        key = (diff_ab, diff_ac)\n        \n        if key in freq:\n            count = freq[key]\n            total_substrings += count\n            freq[key] = count + 1\n        else:\n            freq[key] = 1\n            \n    print(total_substrings)\n\nif __name__ == \"__main__\":\n    main()"
+}

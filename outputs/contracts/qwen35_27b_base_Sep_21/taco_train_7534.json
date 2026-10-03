@@ -1,0 +1,55 @@
+{
+  "task_id": "taco_train_7534",
+  "task_index": 719,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin_lines) >= 1",
+        "description": "The input contains at least one line."
+      },
+      {
+        "id": "P2",
+        "expression": "n = int(stdin_lines[0]); 1 <= n <= 100000",
+        "description": "The first line is an integer n between 1 and 10^5 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin_lines) == n + 1",
+        "description": "There are exactly n request lines following the first line."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(name) <= 32 and name.islower() and name.isalpha() for name in stdin_lines[1:])",
+        "description": "Each request is a non-empty string of 1 to 32 lowercase Latin letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == n",
+        "description": "The output contains exactly n lines, one for each request."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((response == 'OK' or (response.endswith(str(int(response.split('1')[1])) if response.count('1') > 0 else '')) and response[:-len(str(int(response.split('1')[1])) if response.count('1') > 0 else '')) in requests) for response, requests in zip(stdout_lines, stdin_lines[1:]))",
+        "description": "Each output line is either 'OK' or a generated name formed by appending a positive integer to the requested name."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((response == 'OK' and (requests not in seen_before) or (response != 'OK' and (requests in seen_before) and (response == requests + str(min(i for i in range(1, 1000000) if requests + str(i) not in seen_before))))) for response, requests, seen_before in zip(stdout_lines, stdin_lines[1:], [set() for _ in range(n)]))",
+        "description": "For each request, if the name has not been seen before, output 'OK'; otherwise, output the name with the smallest positive integer suffix that has not been used yet, and update the set of used names."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 58.022,
+  "seed": 761,
+  "generated_at": "2026-09-21T08:50:53.022164+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19987",
+  "task_index": 221,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_19987.json",
+  "code": "import sys\n\nsys.setrecursionlimit(20000)\n\nclass Node:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\ndef solve(node):\n    if not node:\n        return (0, 0)\n    \n    left_inc, left_exc = solve(node.left)\n    right_inc, right_exc = solve(node.right)\n    \n    inc = node.val + left_exc + right_exc\n    exc = max(left_inc, left_exc) + max(right_inc, right_exc)\n    \n    return (inc, exc)\n\ndef main():\n    lines = sys.stdin.read().splitlines()\n    if not lines:\n        return\n    \n    n = int(lines[0].strip())\n    if n == 0:\n        print(0)\n        return\n    \n    nodes = {}\n    for line in lines[1:n+1]:\n        parts = line.strip().split()\n        val = int(parts[0])\n        nodes[val] = Node(val)\n        if len(parts) > 1:\n            nodes[val].left = int(parts[1]) if parts[1] != 'null' else None\n        if len(parts) > 2:\n            nodes[val].right = int(parts[2]) if parts[2] != 'null' else None\n    \n    root_val = int(lines[n+1].strip())\n    root = nodes[root_val]\n    \n    if not root:\n        print(0)\n        return\n    \n    for key, node in nodes.items():\n        if node.left is not None and isinstance(node.left, int):\n            node.left = nodes[node.left]\n        if node.right is not None and isinstance(node.right, int):\n            node.right = nodes[node.right]\n    \n    inc, exc = solve(root)\n    print(max(inc, exc))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 39.647,
+  "generated_at": "2026-09-26T21:32:12.901899+00:00"
+}

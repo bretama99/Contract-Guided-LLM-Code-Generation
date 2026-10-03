@@ -1,0 +1,106 @@
+{
+  "task_id": "taco_train_25156",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100",
+        "description": "The number of test cases t is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])",
+        "description": "For each test case, the lists b_i and w_i have exactly n elements each."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])",
+        "description": "Each b_i (bees) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])",
+        "description": "Each w_i (wasps) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)",
+        "description": "Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])",
+        "description": "The input describes a tree with exactly n - 1 edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+        "description": "The output contains exactly one line per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.strip()) >= 0 for stdout in [stdout.strip() for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= max_wins <= m for max_wins in [int(stdout.strip()) for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is the maximum number of villages where Ugly Wasp wins, which cannot exceed m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(all(w_i > b_i for i in village) or all(w_i <= b_i for i in village) for village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "For each village in the optimal partition, Ugly Wasp either wins (strictly more wasps than bees) or loses (otherwise)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(partition) == m for partition in [get_partition_from_input(stdin)])",
+        "description": "The partition must contain exactly m villages."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(1 <= i <= n for village in partition for i in village) for partition in [get_partition_from_input(stdin)])",
+        "description": "Each village in the partition contains only valid nesting place indices between 1 and n."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(i not in other_village for village in partition for other_village in partition if village != other_village for i in village) for partition in [get_partition_from_input(stdin)])",
+        "description": "The villages in the partition are disjoint (no overlapping nesting places)."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(all(i in some_village for i in range(1, n + 1) for some_village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "The partition covers all nesting places from 1 to n."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(sum(1 for village in partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for partition, stdout in zip([get_partition_from_input(stdin)], stdout.splitlines()))",
+        "description": "The output is the maximum number of villages where the total wasps strictly exceed the total bees."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= t <= 100\",\n      \"description\": \"The number of test cases t is between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])\",\n      \"description\": \"For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])\",\n      \"description\": \"For each test case, the lists b_i and w_i have exactly n elements each.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])\",\n      \"description\": \"Each b_i (bees) is a non-negative integer up to 10^9.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])\",\n      \"description\": \"Each w_i (wasps) is a non-negative integer up to 10^9.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)\",\n      \"description\": \"Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])\",\n      \"description\": \"The input describes a tree with exactly n - 1 edges.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])\",\n      \"description\": \"The output contains exactly one line per test case.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(int(stdout.strip()) >= 0 for stdout in [stdout.strip() for stdout in stdout.splitlines()])\",\n      \"description\": \"The output for each test case is a non-negative integer.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= max_wins <= m for max_wins in [int(stdout.strip()) for stdout in stdout.splitlines()])\",\n      \"description\": \"The output for each test case is the maximum number of villages where Ugly Wasp wins, which cannot exceed m.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(all(w_i > b_i for i in village) or all(w_i <= b_i for i in village) for village in partition) for partition in [get_partition_from_input(stdin)])\",\n      \"description\": \"For each village in the optimal partition, Ugly Wasp either wins (strictly more wasps than bees) or loses (otherwise).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(len(partition) == m for partition in [get_partition_from_input(stdin)])\",\n      \"description\": \"The partition must contain exactly m villages.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(all(1 <= i <= n for village in partition for i in village) for partition in [get_partition_from_input(stdin)])\",\n      \"description\": \"Each village in the partition contains only valid nesting place indices between 1 and n.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(all(i not in other_village for village in partition for other_village in partition if village != other_village for i in village) for partition in [get_partition_from_input(stdin)])\",\n      \"description\": \"The villages in the partition are disjoint (no overlapping nesting places).\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"all(all(i in some_village for i in range(1, n + 1) for some_village in partition) for partition in [get_partition_from_input(stdin)])\",\n      \"description\": \"The partition covers all nesting places from 1 to n.\"\n    },\n    {\n      \"id\": \"Q9\",\n      \"expression\": \"all(sum(1 for village in partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for partition, stdout in zip([get_partition_from_input(stdin)], stdout.splitlines()))\",\n      \"description\": \"The output is the maximum number of villages where the total wasps strictly exceed the total bees.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2238,
+  "generated_tokens": 1422,
+  "hit_output_limit": false,
+  "generation_seconds": 63.18,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:19:42.193032+00:00"
+}

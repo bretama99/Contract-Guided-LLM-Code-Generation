@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_6247",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= m <= 3000",
+        "description": "The number of participants m and remembered top n must satisfy 1 ≤ n ≤ m ≤ 3000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= points <= 2 * m for points in top_points)",
+        "description": "Each remembered point value in top_points is non-negative and does not exceed 2·m."
+      },
+      {
+        "id": "P3",
+        "expression": "len(top_points) == n",
+        "description": "The input contains exactly n remembered point values."
+      },
+      {
+        "id": "P4",
+        "expression": "top_points == sorted(top_points, reverse=True)",
+        "description": "The remembered point values are provided in non-ascending order."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'no' or (stdout.strip() == 'yes' and len(tournament_table) == m and all(len(row) == m for row in tournament_table))",
+        "description": "If no valid tournament exists, output 'no'. Otherwise, output 'yes' followed by an m×m tournament table where each row is a string of length m with characters 'X', 'W', 'D', or 'L'."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'yes' and all(tournament_table[i][i] == 'X' for i in range(m))",
+        "description": "The main diagonal of the tournament table must consist exclusively of 'X' characters."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'yes' and all(tournament_table[i][j] in {'W', 'L', 'D'} for i in range(m) for j in range(m) if i != j)",
+        "description": "Off-diagonal entries must be 'W', 'L', or 'D', representing win, loss, or draw, respectively."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'yes' and all(tournament_table[i][j] == 'L' if tournament_table[j][i] == 'W' else True for i in range(m) for j in range(m) if i != j)",
+        "description": "For every pair of players i and j, if i beats j ('W'), then j must lose to i ('L'), and vice versa."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'yes' and all(tournament_table[i][j] == 'D' if tournament_table[j][i] == 'D' else True for i in range(m) for j in range(m) if i != j)",
+        "description": "For every pair of players i and j, if the game is a draw ('D'), the result must be symmetric."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'yes' and (sorted([sum(tournament_table[i][j] == 'W' * 2 + tournament_table[i][j] == 'D' * 1 for j in range(m)) for i in range(m)], reverse=True)[:n] == top_points)",
+        "description": "The top n sorted point totals of the tournament must match the remembered top_points."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= m <= 3000\",\n      \"description\": \"The number of participants m and remembered top n must satisfy 1 ≤ n ≤ m ≤ 3000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= points <= 2 * m for points in top_points)\",\n      \"description\": \"Each remembered point value in top_points is non-negative and does not exceed 2·m.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(top_points) == n\",\n      \"description\": \"The input contains exactly n remembered point values.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"top_points == sorted(top_points, reverse=True)\",\n      \"description\": \"The remembered point values are provided in non-ascending order.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'no' or (stdout.strip() == 'yes' and len(tournament_table) == m and all(len(row) == m for row in tournament_table))\",\n      \"description\": \"If no valid tournament exists, output 'no'. Otherwise, output 'yes' followed by an m×m tournament table where each row is a string of length m with characters 'X', 'W', 'D', or 'L'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'yes' and all(tournament_table[i][i] == 'X' for i in range(m))\",\n      \"description\": \"The main diagonal of the tournament table must consist exclusively of 'X' characters.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'yes' and all(tournament_table[i][j] in {'W', 'L', 'D'} for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"Off-diagonal entries must be 'W', 'L', or 'D', representing win, loss, or draw, respectively.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout.strip() == 'yes' and all(tournament_table[i][j] == 'L' if tournament_table[j][i] == 'W' else True for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"For every pair of players i and j, if i beats j ('W'), then j must lose to i ('L'), and vice versa.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout.strip() == 'yes' and all(tournament_table[i][j] == 'D' if tournament_table[j][i] == 'D' else True for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"For every pair of players i and j, if the game is a draw ('D'), the result must be symmetric.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"stdout.strip() == 'yes' and (sorted([sum(tournament_table[i][j] == 'W' * 2 + tournament_table[i][j] == 'D' * 1 for j in range(m)) for i in range(m)], reverse=True)[:n] == top_points)\",\n      \"description\": \"The top n sorted point totals of the tournament must match the remembered top_points.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1618,
+  "generated_tokens": 842,
+  "hit_output_limit": false,
+  "generation_seconds": 39.452,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:09:12.446135+00:00"
+}

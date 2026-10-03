@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_893",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solution",
+      "signature": "solution(to_currency: str, values_list: list[float]) -> list[str]"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "to_currency in ('USD', 'EUR')",
+        "description": "The `to_currency` argument must be either 'USD' or 'EUR'."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(x, float) for x in values_list)",
+        "description": "All elements in `values_list` must be floats."
+      },
+      {
+        "id": "P3",
+        "expression": "all(x >= 0 for x in values_list)",
+        "description": "All values in `values_list` must be non-negative."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(return_value) == len(values_list)",
+        "description": "The output list must have the same length as the input `values_list`."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(isinstance(x, str) for x in return_value)",
+        "description": "Each element in the output list must be a string."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(',' in x for x in return_value) and all('.00' in x for x in return_value)",
+        "description": "Each output string must contain a comma (for thousands separator) and exactly two decimal places (rounded)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(x.endswith('€') if to_currency == 'EUR' else x.startswith('$') for x in return_value)",
+        "description": "Each output string must end with '€' if `to_currency` is 'EUR', or start with '$' if `to_currency` is 'USD'."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((lambda x: (x.replace('$', '').replace('€', '')).replace(',', '')).split('.')[1] == '00' for x in return_value)",
+        "description": "Each output string must represent a value rounded to exactly two decimal places."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((lambda x: float((x.replace('$', '').replace('€', '').replace(',', '')).split('.')[0])) == round(values_list[i] * (1 / 1.1363636), 2) if to_currency == 'EUR' else round(values_list[i] * 1.1363636, 2) for i, x in enumerate(return_value))",
+        "description": "For each value in `values_list`, the converted amount in the output string must equal the input value multiplied by the exchange rate (1.1363636 for USD, 1/1.1363636 for EUR), rounded to two decimal places."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"solution\",\n    \"signature\": \"solution(to_currency: str, values_list: list[float]) -> list[str]\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"to_currency in ('USD', 'EUR')\",\n      \"description\": \"The `to_currency` argument must be either 'USD' or 'EUR'.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(isinstance(x, float) for x in values_list)\",\n      \"description\": \"All elements in `values_list` must be floats.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(x >= 0 for x in values_list)\",\n      \"description\": \"All values in `values_list` must be non-negative.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(return_value) == len(values_list)\",\n      \"description\": \"The output list must have the same length as the input `values_list`.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(isinstance(x, str) for x in return_value)\",\n      \"description\": \"Each element in the output list must be a string.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(',' in x for x in return_value) and all('.00' in x for x in return_value)\",\n      \"description\": \"Each output string must contain a comma (for thousands separator) and exactly two decimal places (rounded).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(x.endswith('€') if to_currency == 'EUR' else x.startswith('$') for x in return_value)\",\n      \"description\": \"Each output string must end with '€' if `to_currency` is 'EUR', or start with '$' if `to_currency` is 'USD'.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((lambda x: (x.replace('$', '').replace('€', '')).replace(',', '')).split('.')[1] == '00' for x in return_value)\",\n      \"description\": \"Each output string must represent a value rounded to exactly two decimal places.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all((lambda x: float((x.replace('$', '').replace('€', '').replace(',', '')).split('.')[0])) == round(values_list[i] * (1 / 1.1363636), 2) if to_currency == 'EUR' else round(values_list[i] * 1.1363636, 2) for i, x in enumerate(return_value))\",\n      \"description\": \"For each value in `values_list`, the converted amount in the output string must equal the input value multiplied by the exchange rate (1.1363636 for USD, 1/1.1363636 for EUR), rounded to two decimal places.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1414,
+  "generated_tokens": 714,
+  "hit_output_limit": false,
+  "generation_seconds": 29.851,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:38:45.547824+00:00"
+}

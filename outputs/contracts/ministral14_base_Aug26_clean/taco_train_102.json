@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_102",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 10**5 for x in stdin.split() if x.isdigit())",
+        "description": "All integers in input are within bounds 1 ≤ k ≤ n ≤ 10^5 and 0 ≤ t_i ≤ n-1 for each course dependency count."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) >= 2 and all(x.isdigit() for x in stdin.split()[:2])",
+        "description": "First line contains exactly two integers n and k."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin.splitlines()) == n + 2 and all(len(line.split()) >= 1 for line in stdin.splitlines()[2:])",
+        "description": "Input has exactly n+2 lines: first line for n and k, second line for k main courses, and n lines for course dependencies."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(course) <= n for course in stdin.splitlines()[1].split())",
+        "description": "All k main courses are distinct integers between 1 and n."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(dep) <= n for line in stdin.splitlines()[2:] for dep in line.split()[1:])",
+        "description": "All dependency course numbers are distinct integers between 1 and n."
+      },
+      {
+        "id": "P6",
+        "expression": "all(int(line.split()[0]) == len(line.split()) - 1 for line in stdin.splitlines()[2:])",
+        "description": "Each course dependency line starts with t_i, followed by exactly t_i distinct dependency course numbers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (stdout.count('\\n') == 1 and all(1 <= int(x) <= n for x in stdout.split()[1:]))",
+        "description": "If no valid order exists, output is '-1'. Otherwise, first line is integer m (number of courses), and second line is m distinct integers in chronological order, all between 1 and n."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and (set(stdin.splitlines()[1].split()) <= set(stdout.split()[1:]))",
+        "description": "All k main courses are included in the output sequence if a valid order exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() != '-1' and all((int(course) not in [int(dep) for dep in line.split()[1:]] or int(course) in [int(x) for x in stdout.split()[1:][:i]]) for i, line in enumerate(stdin.splitlines()[2:], 1) for course in [int(line.split()[0])])",
+        "description": "For every course in the output sequence, all its dependencies appear before it in the sequence."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() != '-1' and len(stdout.split()[1:]) == int(stdout.split()[0])",
+        "description": "The number of courses in the output sequence matches the first line's integer m."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == '-1' or (stdout.strip() != '-1' and not any(int(course) in [int(dep) for dep in line.split()[1:]] for i, line in enumerate(stdin.splitlines()[2:], 1) for course in [int(line.split()[0])] if int(course) not in [int(x) for x in stdout.split()[1:]]))",
+        "description": "If a valid order exists, no course is included in the output sequence unless it is a main course or a dependency of a main course (transitively)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 10**5 for x in stdin.split() if x.isdigit())\",\n      \"description\": \"All integers in input are within bounds 1 ≤ k ≤ n ≤ 10^5 and 0 ≤ t_i ≤ n-1 for each course dependency count.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()) >= 2 and all(x.isdigit() for x in stdin.split()[:2])\",\n      \"description\": \"First line contains exactly two integers n and k.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(stdin.splitlines()) == n + 2 and all(len(line.split()) >= 1 for line in stdin.splitlines()[2:])\",\n      \"description\": \"Input has exactly n+2 lines: first line for n and k, second line for k main courses, and n lines for course dependencies.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(course) <= n for course in stdin.splitlines()[1].split())\",\n      \"description\": \"All k main courses are distinct integers between 1 and n.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(dep) <= n for line in stdin.splitlines()[2:] for dep in line.split()[1:])\",\n      \"description\": \"All dependency course numbers are distinct integers between 1 and n.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(int(line.split()[0]) == len(line.split()) - 1 for line in stdin.splitlines()[2:])\",\n      \"description\": \"Each course dependency line starts with t_i, followed by exactly t_i distinct dependency course numbers.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == '-1' or (stdout.count('\\\\n') == 1 and all(1 <= int(x) <= n for x in stdout.split()[1:]))\",\n      \"description\": \"If no valid order exists, output is '-1'. Otherwise, first line is integer m (number of courses), and second line is m distinct integers in chronological order, all between 1 and n.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() != '-1' and (set(stdin.splitlines()[1].split()) <= set(stdout.split()[1:]))\",\n      \"description\": \"All k main courses are included in the output sequence if a valid order exists.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() != '-1' and all((int(course) not in [int(dep) for dep in line.split()[1:]] or int(course) in [int(x) for x in stdout.split()[1:][:i]]) for i, line in enumerate(stdin.splitlines()[2:], 1) for course in [int(line.split()[0])])\",\n      \"description\": \"For every course in the output sequence, all its dependencies appear before it in the sequence.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout.strip() != '-1' and len(stdout.split()[1:]) == int(stdout.split()[0])\",\n      \"description\": \"The number of courses in the output sequence matches the first line's integer m.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout.strip() == '-1' or (stdout.strip() != '-1' and not any(int(course) in [int(dep) for dep in line.split()[1:]] for i, line in enumerate(stdin.splitlines()[2:], 1) for course in [int(line.split()[0])] if int(course) not in [int(x) for x in stdout.split()[1:]]))\",\n      \"description\": \"If a valid order exists, no course is included in the output sequence unless it is a main course or a dependency of a main course (transitively).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1724,
+  "generated_tokens": 983,
+  "hit_output_limit": false,
+  "generation_seconds": 45.461,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:46:59.577275+00:00"
+}

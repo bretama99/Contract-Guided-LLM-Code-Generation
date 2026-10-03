@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_11103",
+  "task_index": 171,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_11103.json",
+  "code": "import sys\n\ndef main():\n    lines = sys.stdin.read().strip().split('\\n')\n    if not lines:\n        return\n    n = int(lines[0])\n    operators = lines[1:n+1]\n    \n    typedefs = {}\n    \n    def resolve_type(type_str):\n        base = \"\"\n        stars = 0\n        amps = 0\n        \n        i = 0\n        while i < len(type_str):\n            if type_str[i] == '*':\n                stars += 1\n                i += 1\n            elif type_str[i] == '&':\n                amps += 1\n                i += 1\n            else:\n                break\n        \n        base = type_str[i:]\n        \n        if base == \"void\":\n            depth = stars - amps\n            if depth < 0:\n                return \"errtype\"\n            return \"void\" + \"*\" * depth\n        elif base == \"errtype\":\n            return \"errtype\"\n        elif base in typedefs:\n            resolved = resolve_type(typedefs[base])\n            if resolved == \"errtype\":\n                return \"errtype\"\n            if resolved.startswith(\"void\"):\n                void_stars = len(resolved) - 4\n                new_depth = void_stars + stars - amps\n                if new_depth < 0:\n                    return \"errtype\"\n                return \"void\" + \"*\" * new_depth\n            else:\n                return \"errtype\"\n        else:\n            return \"errtype\"\n    \n    output_lines = []\n    \n    for op in operators:\n        parts = op.split()\n        if parts[0] == \"typedef\":\n            A = parts[1]\n            B = parts[2]\n            resolved = resolve_type(A)\n            typedefs[B] = resolved\n        elif parts[0] == \"typeof\":\n            A = parts[1]\n            resolved = resolve_type(A)\n            output_lines.append(resolved)\n    \n    for line in output_lines:\n        print(line)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 47.944,
+  "generated_at": "2026-09-26T20:45:43.109519+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_347",
+  "task_index": 373,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_347.json",
+  "code": "import sys\nsys.setrecursionlimit(200000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    \n    adj = [[] for _ in range(n)]\n    for i in range(n - 1):\n        p_i = int(next(iterator))\n        u = i + 1\n        v = p_i\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    colors = []\n    for _ in range(n):\n        colors.append(int(next(iterator)))\n    \n    MOD = 1000000007\n    \n    parent = [-1] * n\n    order = []\n    stack = [0]\n    visited = [False] * n\n    visited[0] = True\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n    \n    dp = [[0, 0] for _ in range(n)]\n    \n    for u in reversed(order):\n        if colors[u] == 1:\n            dp[u][1] = 1\n            dp[u][0] = 0\n        else:\n            dp[u][0] = 1\n            dp[u][1] = 0\n        \n        for v in adj[u]:\n            if v == parent[u]:\n                continue\n            \n            res0 = (dp[u][0] * dp[v][0]) % MOD\n            res1 = (dp[u][1] * dp[v][0]) % MOD\n            res2 = (dp[u][0] * dp[v][1]) % MOD\n            res3 = (dp[u][1] * dp[v][1]) % MOD\n            \n            new0 = (res0 + res1) % MOD\n            new1 = (res2 + res3) % MOD\n            \n            dp[u][0] = new0\n            dp[u][1] = new1\n    \n    print(dp[0][1])\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 46.021,
+  "generated_at": "2026-09-26T20:46:37.095722+00:00"
+}

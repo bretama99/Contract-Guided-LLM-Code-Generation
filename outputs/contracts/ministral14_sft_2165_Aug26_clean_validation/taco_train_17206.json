@@ -1,0 +1,253 @@
+{
+  "task_id": "taco_train_17206",
+  "task_index": 679,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "t is an integer between 1 and 1000 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 1000 for n in [int(line.split()[0]) for line in stdin.splitlines()[1::2]])",
+        "description": "Each test case's n is an integer between 1 and 1000 inclusive, representing half the array size."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(a) == 2 * int(n) for n, a in zip([int(line.split()[0]) for line in stdin.splitlines()[1::2]], [line.split() for line in stdin.splitlines()[2::2]]))",
+        "description": "Each test case's array a has exactly 2n elements."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(num) <= 10**6 for num in [int(num) for line in stdin.splitlines()[2::2] for num in line.split()])",
+        "description": "Each element in a is a positive integer between 1 and 10^6 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO', indicating feasibility."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('YES' in stdout_line for stdout_line in stdout.splitlines() if 'YES' in stdout_line) == all('NO' in stdout_line for stdout_line in stdout.splitlines() if 'NO' in stdout_line)",
+        "description": "The output is consistent: 'YES' or 'NO' is printed exactly once per test case."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('YES' in stdout_line and any('x' in line.lower() for line in stdout.splitlines()[i+1:i+1+n+1]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "If 'YES' is printed for a test case, the next line contains the initial x, followed by n lines describing operations."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('YES' in stdout_line and all(len(line.split()) == 2 for line in stdout.splitlines()[i+2:i+2+n]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "If 'YES' is printed, each of the n following lines contains exactly two integers representing the pair removed in each operation."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('YES' in stdout_line and all(int(a) + int(b) == x for x, a, b in zip([int(stdout.splitlines()[i+1].strip()) for i, line in enumerate(stdout.splitlines()) if line.strip() == 'YES'], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "For each operation, the sum of the two removed numbers equals the current x (initially chosen x, then updated to the max of the pair)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('YES' in stdout_line and all(int(a) + int(b) == x and max(int(a), int(b)) == next_x for x, a, b, next_x in zip([int(stdout.splitlines()[i+1].strip())], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(stdout.splitlines()[i+1].strip())], [int(stdout.splitlines()[i+2+j].strip().split()[0]) + int(stdout.splitlines()[i+2+j].strip().split()[1]) for j in range(n)])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "The x is updated to the maximum of the two removed numbers in each operation."
+      },
+      {
+        "id": "Q7",
+        "expression": "all('YES' in stdout_line and all(int(a) in a_initial and int(b) in a_initial for a, b, a_initial in zip([int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for num in stdin.splitlines()[i+2].split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "The pairs removed in operations are elements from the original array a."
+      },
+      {
+        "id": "Q8",
+        "expression": "all('YES' in stdout_line and len(set([int(num) for num in stdin.splitlines()[i+2].split()])) == 2 * int(n) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "All elements of the original array are removed exactly once across all operations."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "t is an integer between 1 and 1000 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 1000 for n in [int(line.split()[0]) for line in stdin.splitlines()[1::2]])",
+        "description": "Each test case's n is an integer between 1 and 1000 inclusive, representing half the array size."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(a) == 2 * int(n) for n, a in zip([int(line.split()[0]) for line in stdin.splitlines()[1::2]], [line.split() for line in stdin.splitlines()[2::2]]))",
+        "description": "Each test case's array a has exactly 2n elements."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(num) <= 10**6 for num in [int(num) for line in stdin.splitlines()[2::2] for num in line.split()])",
+        "description": "Each element in a is a positive integer between 1 and 10^6 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO', indicating feasibility."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('YES' in stdout_line for stdout_line in stdout.splitlines() if 'YES' in stdout_line) == all('NO' in stdout_line for stdout_line in stdout.splitlines() if 'NO' in stdout_line)",
+        "description": "The output is consistent: 'YES' or 'NO' is printed exactly once per test case."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('YES' in stdout_line and any('x' in line.lower() for line in stdout.splitlines()[i+1:i+1+n+1]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "If 'YES' is printed for a test case, the next line contains the initial x, followed by n lines describing operations."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('YES' in stdout_line and all(len(line.split()) == 2 for line in stdout.splitlines()[i+2:i+2+n]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "If 'YES' is printed, each of the n following lines contains exactly two integers representing the pair removed in each operation."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('YES' in stdout_line and all(int(a) + int(b) == x for x, a, b in zip([int(stdout.splitlines()[i+1].strip()) for i, line in enumerate(stdout.splitlines()) if line.strip() == 'YES'], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "For each operation, the sum of the two removed numbers equals the current x (initially chosen x, then updated to the max of the pair)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('YES' in stdout_line and all(int(a) + int(b) == x and max(int(a), int(b)) == next_x for x, a, b, next_x in zip([int(stdout.splitlines()[i+1].strip())], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(stdout.splitlines()[i+1].strip())], [int(stdout.splitlines()[i+2+j].strip().split()[0]) + int(stdout.splitlines()[i+2+j].strip().split()[1]) for j in range(n)])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "The x is updated to the maximum of the two removed numbers in each operation."
+      },
+      {
+        "id": "Q7",
+        "expression": "all('YES' in stdout_line and all(int(a) in a_initial and int(b) in a_initial for a, b, a_initial in zip([int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for num in stdin.splitlines()[i+2].split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "The pairs removed in operations are elements from the original array a."
+      },
+      {
+        "id": "Q8",
+        "expression": "all('YES' in stdout_line and len(set([int(num) for num in stdin.splitlines()[i+2].split()])) == 2 * int(n) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "All elements of the original array are removed exactly once across all operations."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "a881e101f7da190308d651a432267ff43aa77f7c8dc2ef865b7459708fd9a877",
+  "selected_contract_fingerprint": "a881e101f7da190308d651a432267ff43aa77f7c8dc2ef865b7459708fd9a877",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_17206.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: issue[4] schema invalid: invalid location 'postconditions[8].expression'"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: issue[4] schema invalid: invalid location 'postconditions[8].expression'"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: issue[4] schema invalid: invalid location 'postconditions[8].expression'"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: issue[4] schema invalid: invalid location 'postconditions[8].expression'"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 58.162,
+  "processing_error": null,
+  "finished_at": "2026-09-04T04:34:59.987121+00:00"
+}

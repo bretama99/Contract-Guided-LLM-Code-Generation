@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_9855",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 40 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[1]) <= 1000 for line in stdin.splitlines()[0:1])",
+        "description": "The first line contains two integers n (1 ≤ n ≤ 40) and k (1 ≤ k ≤ 1000), representing the number of castles and liters of liquid, respectively."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == n + 1 and all(len(line.split()) == n for line in stdin.splitlines()[1:])",
+        "description": "The input consists of exactly n + 1 lines: the first line with n and k, followed by n lines of adjacency matrix rows."
+      },
+      {
+        "id": "P3",
+        "expression": "all(all(ai_j in {0, 1} for ai_j in line.split()) for line in stdin.splitlines()[1:])",
+        "description": "Each adjacency matrix entry ai_j is either 0 (no wall) or 1 (wall exists)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(line.split()[i] == line.split()[j] for line in stdin.splitlines()[1:] for i in range(n) for j in range(n) if i != j and line.split()[i] == '1' and line.split()[j] == '1')",
+        "description": "The adjacency matrix is symmetric (ai_j = aj_i for all i, j)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(line.split()[i] == '0' for line in stdin.splitlines()[1:] for i in range(n))",
+        "description": "No castle has a wall to itself (ai_i = 0 for all i)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == str(max_sum) and abs(float(stdout.strip()) - max_sum) <= 1e-6",
+        "description": "The output is a string representing the maximum possible sum of stabilities of the walls, where stability of a wall between castles a and b is x_a * x_b, and the sum of all x_i equals k. The output must be accurate within an absolute or relative error of 1e-6."
+      },
+      {
+        "id": "Q2",
+        "expression": "max_sum == sum(x[i] * x[j] * int(adj_matrix[i][j]) for i in range(n) for j in range(i + 1, n)) for some x in [tuple(xi) for xi in product([float(x) for x in [0.0, 1.0]], repeat=n) if sum(xi) <= k + 1e-9] if abs(sum(xi) - k) <= 1e-9",
+        "description": "The maximum sum is achieved by some distribution of liquid x_1, ..., x_n (each ≥ 0) summing to exactly k, where the sum of stabilities is maximized."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 40 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[1]) <= 1000 for line in stdin.splitlines()[0:1])\",\n      \"description\": \"The first line contains two integers n (1 ≤ n ≤ 40) and k (1 ≤ k ≤ 1000), representing the number of castles and liters of liquid, respectively.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == n + 1 and all(len(line.split()) == n for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input consists of exactly n + 1 lines: the first line with n and k, followed by n lines of adjacency matrix rows.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(all(ai_j in {0, 1} for ai_j in line.split()) for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each adjacency matrix entry ai_j is either 0 (no wall) or 1 (wall exists).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(line.split()[i] == line.split()[j] for line in stdin.splitlines()[1:] for i in range(n) for j in range(n) if i != j and line.split()[i] == '1' and line.split()[j] == '1')\",\n      \"description\": \"The adjacency matrix is symmetric (ai_j = aj_i for all i, j).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(line.split()[i] == '0' for line in stdin.splitlines()[1:] for i in range(n))\",\n      \"description\": \"No castle has a wall to itself (ai_i = 0 for all i).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == str(max_sum) and abs(float(stdout.strip()) - max_sum) <= 1e-6\",\n      \"description\": \"The output is a string representing the maximum possible sum of stabilities of the walls, where stability of a wall between castles a and b is x_a * x_b, and the sum of all x_i equals k. The output must be accurate within an absolute or relative error of 1e-6.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"max_sum == sum(x[i] * x[j] * int(adj_matrix[i][j]) for i in range(n) for j in range(i + 1, n)) for some x in [tuple(xi) for xi in product([float(x) for x in [0.0, 1.0]], repeat=n) if sum(xi) <= k + 1e-9] if abs(sum(xi) - k) <= 1e-9\",\n      \"description\": \"The maximum sum is achieved by some distribution of liquid x_1, ..., x_n (each ≥ 0) summing to exactly k, where the sum of stabilities is maximized.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1657,
+  "generated_tokens": 786,
+  "hit_output_limit": false,
+  "generation_seconds": 33.799,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:22:14.537243+00:00"
+}

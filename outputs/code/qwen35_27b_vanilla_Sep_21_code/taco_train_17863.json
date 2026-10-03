@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_17863",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T10:29:33.582625+00:00",
+  "code": "def solve(alarm_times):\n    def parse_time(t):\n        h, m = map(int, t.split(':'))\n        return h * 60 + m\n    \n    def format_interval(minutes):\n        hours = minutes // 60\n        mins = minutes % 60\n        return f\"{hours:02d}:{mins:02d}\"\n    \n    if not alarm_times:\n        return \"24:00\"\n    \n    unique_minutes = set()\n    for t in alarm_times:\n        unique_minutes.add(parse_time(t))\n    \n    sorted_times = sorted(unique_minutes)\n    n = len(sorted_times)\n    \n    if n == 1:\n        # Only one alarm, interval is from that time to next day same time minus 1 minute\n        # Since alarm rings for 1 minute, next alarm is at (time + 1440) - 1\n        # But actually, if alarm is at T, it rings [T, T+1). Next alarm is at T_next.\n        # Interval is T_next - (T + 1).\n        # For single alarm, next is T + 1440. So interval = (T + 1440) - (T + 1) = 1439 minutes.\n        return format_interval(1439)\n    \n    max_gap = 0\n    for i in range(n):\n        current = sorted_times[i]\n        next_idx = (i + 1) % n\n        next_t = sorted_times[next_idx]\n        \n        if next_idx == 0:\n            # Wrap around midnight\n            diff = (next_t + 1440) - current\n        else:\n            diff = next_t - current\n        \n        # Alarm rings for 1 minute, so effective end of current alarm is current + 1\n        # Gap is next_start - (current_end) = next_t - (current + 1)\n        gap = diff - 1\n        if gap > max_gap:\n            max_gap = gap\n            \n    return format_interval(max_gap)"
+}

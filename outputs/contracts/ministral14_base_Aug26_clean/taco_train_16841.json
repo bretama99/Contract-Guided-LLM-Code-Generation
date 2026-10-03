@@ -1,0 +1,91 @@
+{
+  "task_id": "taco_train_16841",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 5 and n <= 2 * 10**5",
+        "description": "The number of cities (nodes) in the tree is between 5 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:n])",
+        "description": "Each of the n-1 road descriptions contains exactly two distinct integers representing connected cities."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= n for line in stdin.splitlines()[1:n] for x in line.split())",
+        "description": "All city identifiers in road descriptions are valid integers between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "t >= 1 and t <= 2 * 10**5",
+        "description": "The number of test cases is between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(line.split()) == 4 for line in stdin.splitlines()[n+1:])",
+        "description": "Each test case line contains exactly four integers representing u, v, x, y."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(x) <= n for line in stdin.splitlines()[n+1:] for x in line.split())",
+        "description": "All city identifiers in test cases are valid integers between 1 and n inclusive."
+      },
+      {
+        "id": "P7",
+        "expression": "all(int(u) != int(v) and int(x) != int(y) for line in stdin.splitlines()[n+1:] for u, v, x, y in [line.split()])",
+        "description": "In each test case, u ≠ v and x ≠ y."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line.split()) == 1 for stdout_line in stdout.splitlines())",
+        "description": "Each output line contains exactly one integer or -1."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(stdout_line in ['0', '-1'] or (int(stdout_line) >= 0 and int(stdout_line) <= 2 * 10**5) for stdout_line in stdout.splitlines())",
+        "description": "Each output is either 0 (meet at start), -1 (never meet), or a non-negative integer representing the meeting time in minutes."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(stdout_line) == 0) == (u == x and v == y) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()))",
+        "description": "If the starting cities and paths of both runners are identical (u == x and v == y), the output is 0."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((int(stdout_line) == -1) == (not any((u == x and v == y) or (u == y and v == x) or (x == u and y == v) or (x == v and y == u)) and not any((int(stdout_line) >= 0) and (int(stdout_line) <= 2 * 10**5))) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()))",
+        "description": "If the runners' paths are disjoint (no common city in their paths) and no meeting time is found, the output is -1."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((int(stdout_line) >= 0) == any((u == x and v == y) or (u == y and v == x) or (x == u and y == v) or (x == v and y == u)) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()))",
+        "description": "If the runners' paths share at least one city, the output is a non-negative integer representing the first meeting time."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((int(stdout_line) == 0) or (int(stdout_line) == -1) or (int(stdout_line) == min_time) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()) if (min_time := find_min_meeting_time(u, v, x, y, tree)) is not None)",
+        "description": "If a meeting time exists, the output is the smallest non-negative integer representing the first time both runners are at the same city. The function `find_min_meeting_time` is defined as the smallest time t >= 0 where the positions of both runners coincide."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 5 and n <= 2 * 10**5\",\n      \"description\": \"The number of cities (nodes) in the tree is between 5 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:n])\",\n      \"description\": \"Each of the n-1 road descriptions contains exactly two distinct integers representing connected cities.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= n for line in stdin.splitlines()[1:n] for x in line.split())\",\n      \"description\": \"All city identifiers in road descriptions are valid integers between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"t >= 1 and t <= 2 * 10**5\",\n      \"description\": \"The number of test cases is between 1 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(line.split()) == 4 for line in stdin.splitlines()[n+1:])\",\n      \"description\": \"Each test case line contains exactly four integers representing u, v, x, y.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= int(x) <= n for line in stdin.splitlines()[n+1:] for x in line.split())\",\n      \"description\": \"All city identifiers in test cases are valid integers between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(int(u) != int(v) and int(x) != int(y) for line in stdin.splitlines()[n+1:] for u, v, x, y in [line.split()])\",\n      \"description\": \"In each test case, u ≠ v and x ≠ y.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_line.split()) == 1 for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line contains exactly one integer or -1.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(stdout_line in ['0', '-1'] or (int(stdout_line) >= 0 and int(stdout_line) <= 2 * 10**5) for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output is either 0 (meet at start), -1 (never meet), or a non-negative integer representing the meeting time in minutes.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((int(stdout_line) == 0) == (u == x and v == y) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()))\",\n      \"description\": \"If the starting cities and paths of both runners are identical (u == x and v == y), the output is 0.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((int(stdout_line) == -1) == (not any((u == x and v == y) or (u == y and v == x) or (x == u and y == v) or (x == v and y == u)) and not any((int(stdout_line) >= 0) and (int(stdout_line) <= 2 * 10**5))) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()))\",\n      \"description\": \"If the runners' paths are disjoint (no common city in their paths) and no meeting time is found, the output is -1.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((int(stdout_line) >= 0) == any((u == x and v == y) or (u == y and v == x) or (x == u and y == v) or (x == v and y == u)) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()))\",\n      \"description\": \"If the runners' paths share at least one city, the output is a non-negative integer representing the first meeting time.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all((int(stdout_line) == 0) or (int(stdout_line) == -1) or (int(stdout_line) == min_time) for (u, v, x, y), stdout_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+1:]], stdout.splitlines()) if (min_time := find_min_meeting_time(u, v, x, y, tree)) is not None)\",\n      \"description\": \"If a meeting time exists, the output is the smallest non-negative integer representing the first time both runners are at the same city. The function `find_min_meeting_time` is defined as the smallest time t >= 0 where the positions of both runners coincide.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1876,
+  "generated_tokens": 1248,
+  "hit_output_limit": false,
+  "generation_seconds": 56.767,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:36:13.980721+00:00"
+}

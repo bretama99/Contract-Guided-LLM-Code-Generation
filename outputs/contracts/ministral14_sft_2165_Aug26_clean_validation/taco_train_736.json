@@ -1,0 +1,533 @@
+{
+  "task_id": "taco_train_736",
+  "task_index": 52,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(61 < int(line.strip()) < 10**6 and int(line.strip()) % 2 == 1 for line in stdin.splitlines() if line.strip() != '0')",
+        "description": "Every input line (except the terminating '0') is an odd integer strictly between 61 and 10^6."
+      },
+      {
+        "id": "P2",
+        "expression": "stdin.strip().splitlines()[-1] == '0'",
+        "description": "The input ends with a line containing exactly '0'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (len(stdout.strip().splitlines()[i].strip().split()) == 3 and all(int(p) > 1 for p in stdout.strip().splitlines()[i].strip().split()) and (int(stdout.strip().splitlines()[i].strip().split()[0]) + int(stdout.strip().splitlines()[i].strip().split()[1])**2 + int(stdout.strip().splitlines()[i].strip().split()[2])**3 == int(input_lines[i].strip())))) for i in range(len(input_lines) - 1))",
+        "description": "For each input number (except the terminating '0'), the corresponding output line is either '0 0 0' or three primes P1, P2, P3 greater than 1 such that P1 + P2² + P3³ equals the input number."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(61 < int(line.strip()) < 10**6 and int(line.strip()) % 2 == 1 for line in stdin.splitlines() if line.strip() != '0')",
+        "description": "Every input line (except the terminating '0') is an odd integer strictly between 61 and 10^6."
+      },
+      {
+        "id": "P2",
+        "expression": "stdin.strip().splitlines()[-1] == '0'",
+        "description": "The input ends with a line containing exactly '0'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (all(int(p) > 1 and all(int(p) % d != 0 for d in range(2, int(int(p)**0.5) + 1)) for p in stdout.strip().splitlines()[i].strip().split()) and sum(int(p) for p in stdout.strip().splitlines()[i].strip().split()) == int(input_lines[i].strip()))) for i in range(len(input_lines)))",
+        "description": "For each input number (except '0'), the corresponding output line is either '0 0 0' or three primes P1, P2, P3 such that P1 + P2² + P3³ equals the input number."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (int(p1) + int(p2)**2 + int(p3)**3 == int(input_lines[i].strip()) for p1, p2, p3 in [stdout.strip().splitlines()[i].strip().split()])) for i in range(len(input_lines)))",
+        "description": "If the output line is not '0 0 0', the three primes satisfy the equation P1 + P2² + P3³ = input number."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "4d11ed2afb3c0fc7d028f9106b7e3ca34010f9b4c1542e18f372dd5ad8396c5e",
+  "selected_contract_fingerprint": "53295c91692143c352aad00498c6ee811de08ceead073405657ec150bba94b85",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_736.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+      "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+      "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+        "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+        "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+        "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks the sum of the primes (P1 + P2 + P3) instead of the required equation P1 + P2² + P3³. The expression also does not handle the case where the output line is '0 0 0' correctly in the equation check.",
+        "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if the output is not '0 0 0', the three values P1, P2, P3 are primes, and the equation P1 + P2² + P3³ equals the input number. The current postconditions do not fully capture the requirement that P2 and P3 are squared and cubed, respectively.",
+        "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "all(61 < int(line.strip()) < 10**6 and int(line.strip()) % 2 == 1 for line in stdin.splitlines() if line.strip() != '0')",
+          "description": "Every input line (except the terminating '0') is an odd integer strictly between 61 and 10^6."
+        },
+        {
+          "id": "P2",
+          "expression": "stdin.strip().splitlines()[-1] == '0'",
+          "description": "The input ends with a line containing exactly '0'."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (len(stdout.strip().splitlines()[i].strip().split()) == 3 and all(int(p) > 1 for p in stdout.strip().splitlines()[i].strip().split()) and (int(stdout.strip().splitlines()[i].strip().split()[0]) + int(stdout.strip().splitlines()[i].strip().split()[1])**2 + int(stdout.strip().splitlines()[i].strip().split()[2])**3 == int(input_lines[i].strip())))) for i in range(len(input_lines) - 1))",
+          "description": "For each input number (except the terminating '0'), the corresponding output line is either '0 0 0' or three primes P1, P2, P3 greater than 1 such that P1 + P2² + P3³ equals the input number."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+          "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (len(stdout.strip().splitlines()[i].strip().split()) == 3 and all(int(p) > 1 and all(int(p) % d != 0 for d in range(2, int(int(p)**0.5) + 1)) for p in stdout.strip().splitlines()[i].strip().split()) and (int(stdout.strip().splitlines()[i].strip().split()[0]) + int(stdout.strip().splitlines()[i].strip().split()[1])**2 + int(stdout.strip().splitlines()[i].strip().split()[2])**3 == int(input_lines[i].strip())))) for i in range(len(input_lines)))",
+          "description": "For each input number (except '0'), the corresponding output line is either '0 0 0' or three primes P1, P2, P3 such that P1 + P2² + P3³ equals the input number."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "1de3cb2a32ea7ed783431d7cd40c7176dabfbbbd49712c38b010c19636daf92a",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is redundant with postconditions[0].expression and does not add substantive value.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that if the input number cannot be expressed as the sum of a prime, a square of a prime, and a cube of a prime, the output is '0 0 0'. The current contract does not explicitly enforce this as a requirement, only as a consequence of the other postcondition.",
+            "task_evidence": "If no such primes exist, print \"0 0 0\" instead (quotes for clarity).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the primes P1, P2, P3 are distinct from the set {0, 1} and are valid primes (i.e., greater than 1 and satisfy primality). The current contract's expression for primality is correct but could be more explicit in the postcondition to avoid ambiguity.",
+            "task_evidence": "Note: negative numbers are never considered to be prime, nor are 0 and 1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output for the terminating '0' is not processed (i.e., no output line is generated for '0'). The current contract does not explicitly exclude '0' from the output validation.",
+            "task_evidence": "Input will consist of a series of odd numbers greater than 61 and less than 10^6, ... terminated by the number 0 on a line by itself.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly checks if the sum of the three primes equals the input number (which is redundant with the equation check in postcondition[1]) and incorrectly validates primality by summing the primes instead of checking each individually. The expression also does not correctly enforce the equation P1 + P2² + P3³ = input number.",
+          "task_evidence": "print 3 primes P₁, P₂, P₃ on a line, where P₁ + P₂² + P₃³ is equal to the number from the input.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (len(stdout.strip().splitlines()[i].strip().split()) == 3 and all(int(p) > 1 and all(int(p) % d != 0 for d in range(2, int(int(p)**0.5) + 1)) for p in stdout.strip().splitlines()[i].strip().split()) and (int(stdout.strip().splitlines()[i].strip().split()[0]) + int(stdout.strip().splitlines()[i].strip().split()[1])**2 + int(stdout.strip().splitlines()[i].strip().split()[2])**3 == int(input_lines[i].strip())))) for i in range(len(input_lines) - 1 if stdin.strip().splitlines()[-1] == '0' else len(input_lines)))",
+          "description": "For each input number (except the terminating '0'), the corresponding output line is either '0 0 0' or three primes P1, P2, P3 such that P1 + P2² + P3³ equals the input number, where P1, P2, and P3 are primes greater than 1."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "0bedba3b5c1eecbc3f4627d570bace89d867f723fa4c7b38919176bff05806b9",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant and incorrect `all(int(p) % d != 0 for d in range(2, int(int(p)**0.5) + 1))` check from the prime validation logic. The expression should rely on the task's implicit requirement that primes are >1 and not explicitly reimplement primality testing. The expression should also handle the case where the input line is '0' correctly (i.e., skip it in the output check).",
+            "task_evidence": "If no such primes exist, print '0 0 0' instead.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant and incorrect `all(int(p) % d != 0 for d in range(2, int(int(p)**0.5) + 1))` check from the prime validation logic. The expression should rely on the task's implicit requirement that primes are >1 and not explicitly reimplement primality testing. The expression should also handle the case where the input line is '0' correctly (i.e., skip it in the output check).",
+            "task_evidence": "If no such primes exist, print '0 0 0' instead.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely. It is redundant with postconditions[0] and does not add any new semantic value. The expression in postconditions[0] already captures the equation requirement.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the output for the terminating '0' is not checked (i.e., the loop should only iterate over non-'0' input lines). The current postconditions incorrectly include the terminating '0' in the check.",
+            "task_evidence": "Input will consist of a series of odd numbers greater than 61 and less than 10^6, one per line, terminated by the number 0 on a line by itself.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "If no such primes exist, print '0 0 0' instead.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant and incorrect `all(int(p) % d != 0 for d in range(2, int(int(p)**0.5) + 1))` check from the prime validation logic. The expression should rely on the task's implicit requirement that primes are >1 and not explicitly reimplement primality testing. The expression should also handle the case where the input line is '0' correctly (i.e., skip it in the output check).",
+            "task_evidence": "If no such primes exist, print '0 0 0' instead.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all((stdout.strip().splitlines()[i].strip() == '0 0 0' or (len(stdout.strip().splitlines()[i].strip().split()) == 3 and all(int(p) > 1 for p in stdout.strip().splitlines()[i].strip().split()) and (int(stdout.strip().splitlines()[i].strip().split()[0]) + int(stdout.strip().splitlines()[i].strip().split()[1])**2 + int(stdout.strip().splitlines()[i].strip().split()[2])**3 == int(input_lines[i].strip())))) for i in range(len(input_lines) - 1))",
+            "description": "For each input number (except the terminating '0'), the corresponding output line is either '0 0 0' or three primes P1, P2, P3 greater than 1 such that P1 + P2² + P3³ equals the input number."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "53295c91692143c352aad00498c6ee811de08ceead073405657ec150bba94b85",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 99.849,
+  "processing_error": null,
+  "finished_at": "2026-09-03T23:58:32.028816+00:00"
+}

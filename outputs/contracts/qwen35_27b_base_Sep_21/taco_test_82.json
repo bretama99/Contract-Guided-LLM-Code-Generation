@@ -1,0 +1,60 @@
+{
+  "task_id": "taco_test_82",
+  "task_index": 806,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000",
+        "description": "The number of intersections n is between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(a) == n",
+        "description": "The input array a contains exactly n integers."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= i + 1 <= a[i] <= n for i in range(n))",
+        "description": "For each intersection i (1-indexed), the shortcut destination a[i] satisfies i <= a[i] <= n."
+      },
+      {
+        "id": "P4",
+        "expression": "all(a[i] <= a[i+1] for i in range(n-1))",
+        "description": "The array a is non-decreasing."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(m) == n",
+        "description": "The output contains exactly n integers."
+      },
+      {
+        "id": "Q2",
+        "expression": "m[0] == 0",
+        "description": "The energy required to reach intersection 1 from itself is 0."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(m[i] == min(m[i-1] + 1, m[a[i-1]-1] + 1 if a[i-1] > i else float('inf')) for i in range(1, n))",
+        "description": "For each intersection i > 1, m[i] is the minimum energy to reach it, considering walking from i-1 (cost 1) or using a shortcut from some j < i where a[j] = i (cost m[j] + 1). Note: The recurrence simplifies because walking from i-1 is always an option with cost m[i-1] + 1, and shortcuts from j to a[j] (where a[j] >= j) allow reaching a[j] with cost m[j] + 1. The optimal path to i is the minimum of reaching i-1 and walking, or reaching any j such that a[j] = i and taking the shortcut. Since a is non-decreasing, the set of j such that a[j] = i forms a contiguous range. The optimal j in that range is the one with minimal m[j]. However, a simpler recurrence often used in this specific problem structure (Dijkstra/BFS on implicit graph) is: m[i] = min(m[i-1] + 1, min(m[j] + 1 for j where a[j] == i)). Given the constraints and the nature of the problem, the value m[i] is the shortest path distance in a graph where edges are (i, i+1) with weight 1, (i, i-1) with weight 1, and (i, a[i]) with weight 1. The output m[i] must be the shortest path distance from 1 to i+1 in this graph."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(m[i] == min(m[i-1] + 1, m[i+1] + 1 if i+1 < n else float('inf'), m[a[i]-1] + 1) for i in range(n))",
+        "description": "The value m[i] satisfies the Bellman-Ford optimality condition for the shortest path in the graph defined by walking edges (i, i+1) and (i, i-1) with weight 1, and shortcut edges (i, a[i]) with weight 1. Specifically, m[i] is the minimum of the cost to reach i from its neighbors (i-1, i+1) or from any node j that has a shortcut to i (i.e., a[j] == i). Since the graph is unweighted (or unit weight), this is equivalent to the BFS distance."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 89.085,
+  "seed": 848,
+  "generated_at": "2026-09-21T10:09:23.261741+00:00"
+}

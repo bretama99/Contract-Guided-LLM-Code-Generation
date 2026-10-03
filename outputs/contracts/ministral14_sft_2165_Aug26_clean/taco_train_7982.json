@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_7982",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "quickestWayUp",
+      "signature": "ladders: List[List[int]], snakes: List[List[int]] -> int"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(len(ladder) == 2 and 1 <= ladder[0] < ladder[1] <= 100 for ladder in ladders)",
+        "description": "Each ladder is a list of two integers where the start is less than the end, and both are within 1 to 100."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(snake) == 2 and 1 <= snake[0] > snake[1] >= 1 for snake in snakes)",
+        "description": "Each snake is a list of two integers where the start is greater than the end, and both are within 1 to 100."
+      },
+      {
+        "id": "P3",
+        "expression": "all(ladder[0] != 1 and ladder[0] != 100 and ladder[1] != 1 and ladder[1] != 100 for ladder in ladders)",
+        "description": "Neither square 1 nor square 100 is the start or end of any ladder."
+      },
+      {
+        "id": "P4",
+        "expression": "all(snake[0] != 1 and snake[0] != 100 and snake[1] != 1 and snake[1] != 100 for snake in snakes)",
+        "description": "Neither square 1 nor square 100 is the start or end of any snake."
+      },
+      {
+        "id": "P5",
+        "expression": "len(set(start for ladder in ladders for start in ladder)) + len(set(start for snake in snakes for start in snake)) <= 100",
+        "description": "No square is the start of more than one ladder or snake."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == -1 or (return_value >= 0 and return_value <= 100)",
+        "description": "The result is either -1 (no solution) or a non-negative integer representing the minimum number of rolls (at most 100)."
+      },
+      {
+        "id": "Q2",
+        "expression": "return_value == -1 or (all(1 <= current <= 100 for current in path) and path[-1] == 100)",
+        "description": "If a solution exists, the path (implicitly) starts at 1 and ends at 100, with each step being a valid move (including ladders and snakes)."
+      },
+      {
+        "id": "Q3",
+        "expression": "return_value == -1 or (all(1 <= path[i+1] - path[i] <= 6 for i in range(len(path)-1) if path[i+1] != path[i] + (path[i+1] - path[i])) or path[i+1] == path[i] + (path[i+1] - path[i]))",
+        "description": "If a solution exists, each move is either a die roll (1 to 6) or a ladder/snake transition, and no move overshoots 100."
+      },
+      {
+        "id": "Q4",
+        "expression": "return_value == -1 or (not any(1 <= path[i] <= 100 and path[i] in [ladder[0] for ladder in ladders] and path[i+1] != ladder[1] for i in range(len(path)-1)) and not any(1 <= path[i] <= 100 and path[i] in [snake[0] for snake in snakes] and path[i+1] != snake[1] for i in range(len(path)-1)))",
+        "description": "If a solution exists, all ladder and snake transitions are correctly followed (no skipped transitions)."
+      },
+      {
+        "id": "Q5",
+        "expression": "return_value == -1 or (all(1 <= path[i] <= 100 and (path[i] not in [ladder[0] for ladder in ladders] or path[i+1] == ladder[1]) and (path[i] not in [snake[0] for snake in snakes] or path[i+1] == snake[1]) for i in range(len(path)-1)))",
+        "description": "If a solution exists, the path correctly follows all ladder and snake transitions."
+      },
+      {
+        "id": "Q6",
+        "expression": "return_value == -1 or (return_value == len([x for x in path if x != path[0]]) - 1)",
+        "description": "If a solution exists, the return value equals the number of rolls (transitions) in the path."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"quickestWayUp\",\n    \"signature\": \"ladders: List[List[int]], snakes: List[List[int]] -> int\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(len(ladder) == 2 and 1 <= ladder[0] < ladder[1] <= 100 for ladder in ladders)\",\n      \"description\": \"Each ladder is a list of two integers where the start is less than the end, and both are within 1 to 100.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(snake) == 2 and 1 <= snake[0] > snake[1] >= 1 for snake in snakes)\",\n      \"description\": \"Each snake is a list of two integers where the start is greater than the end, and both are within 1 to 100.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(ladder[0] != 1 and ladder[0] != 100 and ladder[1] != 1 and ladder[1] != 100 for ladder in ladders)\",\n      \"description\": \"Neither square 1 nor square 100 is the start or end of any ladder.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(snake[0] != 1 and snake[0] != 100 and snake[1] != 1 and snake[1] != 100 for snake in snakes)\",\n      \"description\": \"Neither square 1 nor square 100 is the start or end of any snake.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(set(start for ladder in ladders for start in ladder)) + len(set(start for snake in snakes for start in snake)) <= 100\",\n      \"description\": \"No square is the start of more than one ladder or snake.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == -1 or (return_value >= 0 and return_value <= 100)\",\n      \"description\": \"The result is either -1 (no solution) or a non-negative integer representing the minimum number of rolls (at most 100).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"return_value == -1 or (all(1 <= current <= 100 for current in path) and path[-1] == 100)\",\n      \"description\": \"If a solution exists, the path (implicitly) starts at 1 and ends at 100, with each step being a valid move (including ladders and snakes).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"return_value == -1 or (all(1 <= path[i+1] - path[i] <= 6 for i in range(len(path)-1) if path[i+1] != path[i] + (path[i+1] - path[i])) or path[i+1] == path[i] + (path[i+1] - path[i]))\",\n      \"description\": \"If a solution exists, each move is either a die roll (1 to 6) or a ladder/snake transition, and no move overshoots 100.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"return_value == -1 or (not any(1 <= path[i] <= 100 and path[i] in [ladder[0] for ladder in ladders] and path[i+1] != ladder[1] for i in range(len(path)-1)) and not any(1 <= path[i] <= 100 and path[i] in [snake[0] for snake in snakes] and path[i+1] != snake[1] for i in range(len(path)-1)))\",\n      \"description\": \"If a solution exists, all ladder and snake transitions are correctly followed (no skipped transitions).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"return_value == -1 or (all(1 <= path[i] <= 100 and (path[i] not in [ladder[0] for ladder in ladders] or path[i+1] == ladder[1]) and (path[i] not in [snake[0] for snake in snakes] or path[i+1] == snake[1]) for i in range(len(path)-1)))\",\n      \"description\": \"If a solution exists, the path correctly follows all ladder and snake transitions.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"return_value == -1 or (return_value == len([x for x in path if x != path[0]]) - 1)\",\n      \"description\": \"If a solution exists, the return value equals the number of rolls (transitions) in the path.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1870,
+  "generated_tokens": 1138,
+  "hit_output_limit": false,
+  "generation_seconds": 50.839,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:59:07.957560+00:00"
+}

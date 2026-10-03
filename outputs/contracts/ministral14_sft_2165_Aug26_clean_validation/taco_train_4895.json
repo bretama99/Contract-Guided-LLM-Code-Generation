@@ -1,0 +1,482 @@
+{
+  "task_id": "taco_train_4895",
+  "task_index": 906,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(line.strip() == '' or (line.strip().isdigit() and 1 <= int(line.strip()) <= 500000) for line in stdin.splitlines() if line.strip() != '')",
+        "description": "The first line is a positive integer (number of test cases) between 1 and 500,000. Empty lines separate test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(test_case) == 2 for test_case in [input.splitlines()[i:i+2] for i in range(1, len(input.splitlines()), 3) if i+1 < len(input.splitlines())])",
+        "description": "Each test case consists of exactly two non-empty lines: the first is an integer n (1 ≤ n ≤ 500,000), and the second is a string of length n with characters 'V', 'K', or '?'"
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) == int(n) for n, s in [input.splitlines()[i:i+2] for i in range(1, len(input.splitlines()), 3) if i+1 < len(input.splitlines())])",
+        "description": "The length of the string matches the integer n provided in the test case."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in {'V', 'K', '?'} for c in s) for n, s in [input.splitlines()[i:i+2] for i in range(1, len(input.splitlines()), 3) if i+1 < len(input.splitlines())])",
+        "description": "The string consists only of characters 'V', 'K', or '?'"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 2 * num_test_cases for output_lines in [stdout.splitlines()])",
+        "description": "For each test case, exactly two lines of output are produced: the first line is the count of possible periods, and the second line lists the periods in increasing order."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(periods) == int(count) for count, periods in zip(output_lines[::2], output_lines[1::2]))",
+        "description": "The number of periods listed matches the count provided in the preceding line."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(1 <= d <= n for d in map(int, periods.split())) for n, _, periods in zip(test_cases_n, test_cases_s, output_lines[1::2]))",
+        "description": "Each period d is an integer between 1 and the length of the string n."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(d1 <= d2 for d1, d2 in zip(periods.split(), periods.split()[1:])) for periods in output_lines[1::2])",
+        "description": "The periods are listed in strictly increasing order."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(set(map(int, periods.split())) == set(d for d in range(1, n+1) if all(s[(i + d) % n] == s[i] or s[(i + d) % n] == '?' or s[i] == '?' for i in range(n))) for n, s, periods in zip(test_cases_n, test_cases_s, output_lines[1::2]))",
+        "description": "The set of periods is exactly the set of integers d (1 ≤ d ≤ n) such that for every possible replacement of '?' with 'V' or 'K', the string has period d. This means for every position i, s[i] and s[(i + d) % n] are either equal or at least one of them is '?' (so they can be made equal by replacement)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(line.strip() == '' or (line.strip().isdigit() and 1 <= int(line.strip()) <= 500000) for line in stdin.splitlines() if line.strip() != '')",
+        "description": "The first line is a positive integer (number of test cases) between 1 and 500,000. Empty lines separate test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(test_case) == 2 for test_case in [input.splitlines()[i:i+2] for i in range(1, len(input.splitlines()), 3) if i+1 < len(input.splitlines())])",
+        "description": "Each test case consists of exactly two non-empty lines: the first is an integer n (1 ≤ n ≤ 500,000), and the second is a string of length n with characters 'V', 'K', or '?'"
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) == int(n) for n, s in [input.splitlines()[i:i+2] for i in range(1, len(input.splitlines()), 3) if i+1 < len(input.splitlines())])",
+        "description": "The length of the string matches the integer n provided in the test case."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in {'V', 'K', '?'} for c in s) for n, s in [input.splitlines()[i:i+2] for i in range(1, len(input.splitlines()), 3) if i+1 < len(input.splitlines())])",
+        "description": "The string consists only of characters 'V', 'K', or '?'"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 2 * num_test_cases for output_lines in [stdout.splitlines()])",
+        "description": "For each test case, exactly two lines of output are produced: the first line is the count of possible periods, and the second line lists the periods in increasing order."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(periods) == int(count) for count, periods in zip(output_lines[::2], output_lines[1::2]))",
+        "description": "The number of periods listed matches the count provided in the preceding line."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(1 <= d <= n for d in map(int, periods.split())) for n, _, periods in zip(test_cases_n, test_cases_s, output_lines[1::2]))",
+        "description": "Each period d is an integer between 1 and the length of the string n."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(d1 <= d2 for d1, d2 in zip(periods.split(), periods.split()[1:])) for periods in output_lines[1::2])",
+        "description": "The periods are listed in strictly increasing order."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(set(map(int, periods.split())) == set(d for d in range(1, n+1) if all(s[(i + d) % n] == s[i] or s[(i + d) % n] == '?' or s[i] == '?' for i in range(n))) for n, s, periods in zip(test_cases_n, test_cases_s, output_lines[1::2]))",
+        "description": "The set of periods is exactly the set of integers d (1 ≤ d ≤ n) such that for every possible replacement of '?' with 'V' or 'K', the string has period d. This means for every position i, s[i] and s[(i + d) % n] are either equal or at least one of them is '?' (so they can be made equal by replacement)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "9769a3cf8a4e37567a3f2a27e05749b90df7032b015f270c645ef17436e696eb",
+  "selected_contract_fingerprint": "9769a3cf8a4e37567a3f2a27e05749b90df7032b015f270c645ef17436e696eb",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_4895.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+      "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+      "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the set of periods is exactly the set of integers `d` (1 ≤ d ≤ n) such that there exists at least one replacement of '?' with 'V' or 'K' where the string has period `d`. This means for every `d`, there exists a replacement where for all positions `i`, `s[i]` and `s[(i + d) % n]` are equal (after replacement).",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+      "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+      "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the set of periods is exactly the set of integers `d` (1 ≤ d ≤ n) such that there exists at least one replacement of '?' with 'V' or 'K' where the string has period `d`. This means for every `d`, there exists a replacement where for all positions `i`, `s[i]` and `s[(i + d) % n]` are equal (after replacement).",
+        "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+          "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+          "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+            "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+            "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that a period `d` must hold for *every possible replacement* of '?'. The task requires that `d` is a period for *at least one* valid replacement of '?'. The correct expression should check if there exists at least one way to replace '?' such that the string has period `d`.",
+            "task_evidence": "if we put a letter \"V\" or \"K\" on each unreadable position, which values can the period of the resulting string be equal to?",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[4].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 193.077,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:55:04.895858+00:00"
+}

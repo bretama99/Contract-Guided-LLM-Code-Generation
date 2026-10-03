@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_22522",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= m <= 31",
+        "description": "The number of distinct scores m is between 1 and 31 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= ai <= 30 for ai in a_list) and len(set(a_list)) == len(a_list)",
+        "description": "The input list a_list contains m distinct integers, each between 0 and 30 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "(stdout == '=(') == (not any(all(ai == 0 for ai in a_list) or all(ai == n-1 for ai in a_list) or sum(a_list) != n*(n-1)//2 for n in range(1, 31)))",
+        "description": "If no tournament exists (e.g., sum of scores is not n(n-1)/2 for any n, or all scores are 0 or all are n-1), output '=('. Otherwise, output a valid tournament matrix."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.startswith(str(n)) and n >= m and n <= 31 and all(len(line) == n and all(c in '01' for c in line) and line[i] == '0' for i in range(n)) for line in stdout.splitlines()[1:])",
+        "description": "If a tournament exists, output the minimal n (number of vertices) followed by an n×n adjacency matrix where each row i represents outgoing edges from vertex i (1=outgoing, 0=incoming), with zeros on the diagonal."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(any(ai == sum(row) for ai in a_list) for row in stdout.splitlines()[1:]) if stdout != '=(' else True",
+        "description": "Each row sum in the matrix must match one of the input scores (allowing duplicates)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(row[j] == 0 or row[j] == 1 for j in range(n)) and all(row[i] == 0 for i in range(n)) for row in stdout.splitlines()[1:]) if stdout != '=(' else True",
+        "description": "The matrix is a valid tournament: binary entries, zero diagonal, and exactly one directed edge between every pair of vertices (i.e., row[i][j] + row[j][i] == 1 for all i ≠ j)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= m <= 31\",\n      \"description\": \"The number of distinct scores m is between 1 and 31 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= ai <= 30 for ai in a_list) and len(set(a_list)) == len(a_list)\",\n      \"description\": \"The input list a_list contains m distinct integers, each between 0 and 30 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"(stdout == '=(') == (not any(all(ai == 0 for ai in a_list) or all(ai == n-1 for ai in a_list) or sum(a_list) != n*(n-1)//2 for n in range(1, 31)))\",\n      \"description\": \"If no tournament exists (e.g., sum of scores is not n(n-1)/2 for any n, or all scores are 0 or all are n-1), output '=('. Otherwise, output a valid tournament matrix.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.startswith(str(n)) and n >= m and n <= 31 and all(len(line) == n and all(c in '01' for c in line) and line[i] == '0' for i in range(n)) for line in stdout.splitlines()[1:])\",\n      \"description\": \"If a tournament exists, output the minimal n (number of vertices) followed by an n×n adjacency matrix where each row i represents outgoing edges from vertex i (1=outgoing, 0=incoming), with zeros on the diagonal.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(any(ai == sum(row) for ai in a_list) for row in stdout.splitlines()[1:]) if stdout != '=(' else True\",\n      \"description\": \"Each row sum in the matrix must match one of the input scores (allowing duplicates).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(all(row[j] == 0 or row[j] == 1 for j in range(n)) and all(row[i] == 0 for i in range(n)) for row in stdout.splitlines()[1:]) if stdout != '=(' else True\",\n      \"description\": \"The matrix is a valid tournament: binary entries, zero diagonal, and exactly one directed edge between every pair of vertices (i.e., row[i][j] + row[j][i] == 1 for all i ≠ j).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1489,
+  "generated_tokens": 654,
+  "hit_output_limit": false,
+  "generation_seconds": 28.848,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:45:34.783621+00:00"
+}

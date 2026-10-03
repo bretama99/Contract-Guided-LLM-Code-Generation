@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_5812",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 500000 and 0 <= m <= 500000 and 2 <= k <= 500000",
+        "description": "Input bounds for number of students (n), acquaintances (m), and groups (k) are valid."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= c_i <= k for c_i in c) and len(c) == n",
+        "description": "Each student's group assignment c_i is a valid group number between 1 and k, and there are exactly n assignments."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n and a_i != b_i for (a_i, b_i) in acquaintances) and len(acquaintances) == m",
+        "description": "Each acquaintance pair (a_i, b_i) consists of distinct student indices between 1 and n, and there are exactly m such pairs."
+      },
+      {
+        "id": "P4",
+        "expression": "all(a_i < b_i or (a_i > b_i and (a_i, b_i) not in [(x, y) for (x, y) in acquaintances if x != y]) for (a_i, b_i) in acquaintances)",
+        "description": "No unordered pair of acquaintances is listed more than once."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(count_valid_group_pairs(n, c, acquaintances, k))",
+        "description": "The output is the count of valid pairs of distinct groups (g1, g2) where it is possible to partition the students in g1 and g2 into two teams such that no team contains any acquaintance pair."
+      },
+      {
+        "id": "Q2",
+        "expression": "count_valid_group_pairs(n, c, acquaintances, k) == sum(1 for g1 in range(1, k+1) for g2 in range(g1+1, k+1) if is_valid_group_pair(g1, g2, c, acquaintances))",
+        "description": "The count is computed by checking all possible pairs of distinct groups (g1, g2) and counting those where the students in g1 and g2 can be partitioned into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q3",
+        "expression": "is_valid_group_pair(g1, g2, c, acquaintances) == (not any((a in students_g1_g2 and b in students_g1_g2) for (a, b) in acquaintances)) or (can_partition_into_teams(students_g1_g2, acquaintances))",
+        "description": "A group pair (g1, g2) is valid if either there are no acquaintances within the combined students of g1 and g2, or the students can be partitioned into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q4",
+        "expression": "students_g1_g2 == [i for i in range(1, n+1) if c[i-1] == g1 or c[i-1] == g2]",
+        "description": "students_g1_g2 is the list of student indices belonging to either group g1 or g2."
+      },
+      {
+        "id": "Q5",
+        "expression": "can_partition_into_teams(students, acquaintances) == (not any((a in students and b in students) for (a, b) in acquaintances)) or (is_bipartite(students, acquaintances))",
+        "description": "The students can be partitioned into two teams with no acquaintance pairs within any team if either there are no acquaintances among them or their acquaintance graph is bipartite."
+      },
+      {
+        "id": "Q6",
+        "expression": "is_bipartite(students, acquaintances) == (len(students) == 0) or (can_color_graph(students, acquaintances, 2))",
+        "description": "The graph induced by the students and their acquaintances is bipartite if it can be colored with two colors such that no two adjacent vertices share the same color."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 500000 and 0 <= m <= 500000 and 2 <= k <= 500000\",\n      \"description\": \"Input bounds for number of students (n), acquaintances (m), and groups (k) are valid.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= c_i <= k for c_i in c) and len(c) == n\",\n      \"description\": \"Each student's group assignment c_i is a valid group number between 1 and k, and there are exactly n assignments.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a_i <= n and 1 <= b_i <= n and a_i != b_i for (a_i, b_i) in acquaintances) and len(acquaintances) == m\",\n      \"description\": \"Each acquaintance pair (a_i, b_i) consists of distinct student indices between 1 and n, and there are exactly m such pairs.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(a_i < b_i or (a_i > b_i and (a_i, b_i) not in [(x, y) for (x, y) in acquaintances if x != y]) for (a_i, b_i) in acquaintances)\",\n      \"description\": \"No unordered pair of acquaintances is listed more than once.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == str(count_valid_group_pairs(n, c, acquaintances, k))\",\n      \"description\": \"The output is the count of valid pairs of distinct groups (g1, g2) where it is possible to partition the students in g1 and g2 into two teams such that no team contains any acquaintance pair.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"count_valid_group_pairs(n, c, acquaintances, k) == sum(1 for g1 in range(1, k+1) for g2 in range(g1+1, k+1) if is_valid_group_pair(g1, g2, c, acquaintances))\",\n      \"description\": \"The count is computed by checking all possible pairs of distinct groups (g1, g2) and counting those where the students in g1 and g2 can be partitioned into two teams with no acquaintance pairs within any team.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"is_valid_group_pair(g1, g2, c, acquaintances) == (not any((a in students_g1_g2 and b in students_g1_g2) for (a, b) in acquaintances)) or (can_partition_into_teams(students_g1_g2, acquaintances))\",\n      \"description\": \"A group pair (g1, g2) is valid if either there are no acquaintances within the combined students of g1 and g2, or the students can be partitioned into two teams with no acquaintance pairs within any team.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"students_g1_g2 == [i for i in range(1, n+1) if c[i-1] == g1 or c[i-1] == g2]\",\n      \"description\": \"students_g1_g2 is the list of student indices belonging to either group g1 or g2.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"can_partition_into_teams(students, acquaintances) == (not any((a in students and b in students) for (a, b) in acquaintances)) or (is_bipartite(students, acquaintances))\",\n      \"description\": \"The students can be partitioned into two teams with no acquaintance pairs within any team if either there are no acquaintances among them or their acquaintance graph is bipartite.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"is_bipartite(students, acquaintances) == (len(students) == 0) or (can_color_graph(students, acquaintances, 2))\",\n      \"description\": \"The graph induced by the students and their acquaintances is bipartite if it can be colored with two colors such that no two adjacent vertices share the same color.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1838,
+  "generated_tokens": 1032,
+  "hit_output_limit": false,
+  "generation_seconds": 47.748,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:32:15.316811+00:00"
+}

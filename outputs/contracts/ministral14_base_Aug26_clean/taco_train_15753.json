@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_15753",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(0 < int(line.split()[0]) <= 100000 for line in stdin.splitlines() if line.strip() and ' ' in line) and all(0 <= int(x) <= 10000000 for x in stdin.split() if x.isdigit() and int(x) <= 10000000)",
+        "description": "Input must contain valid integers for n (stations), m (commuters), and K (nitro units) where 0 < n ≤ 100000, 0 < m ≤ 100000, and 0 ≤ K ≤ 10000000. All distances (d_i) are positive integers ≤ 100, and all commuter times (t_i) are non-negative integers ≤ 10000000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == n + m + 1 and all(len(line.split()) == 3 for line in stdin.splitlines()[2:])",
+        "description": "Input must have exactly n + 1 lines for stations and distances, followed by m lines for commuters, each with exactly 3 space-separated integers (t_i, s_i, e_i)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(s_i) < int(e_i) <= n for line in stdin.splitlines()[2:] for s_i, e_i in [line.split()[1:3]])",
+        "description": "For each commuter, boarding station s_i must be strictly less than destination station e_i, and both must be within valid station bounds (1 ≤ s_i < e_i ≤ n)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10000000 * 100000",
+        "description": "Output is a non-negative integer representing the minimal total travel time for all commuters, bounded by the maximum possible sum of travel times (m * max_possible_travel_time)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(t_i) <= 10000000 for line in stdin.splitlines()[2:] for t_i in [line.split()[0]])",
+        "description": "The output is derived from the input commuter arrival times (t_i), station distances, and optimal nitro usage to minimize the sum of individual commuter travel times."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= int(s_i) < int(e_i) <= n for line in stdin.splitlines()[2:] for s_i, e_i in [line.split()[1:3]])",
+        "description": "The output accounts for all commuters' boarding (s_i) and destination (e_i) stations, ensuring each commuter's travel time is calculated from their boarding to deboarding stations."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(0 <= int(d_i) <= 100 for d_i in stdin.splitlines()[1].split())",
+        "description": "The output considers the distances between consecutive stations (d_i) and optimally applies nitro to reduce travel time where beneficial."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(0 <= int(K) <= 10000000) and int(K) == sum(int(t) for t in nitro_usage) if (nitro_usage := [int(t) for t in stdout.split() if t.isdigit()]) else True",
+        "description": "The total nitro units used (K) is non-negative and does not exceed the available nitro, and the output reflects the optimal allocation of nitro to minimize total travel time."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(0 < int(line.split()[0]) <= 100000 for line in stdin.splitlines() if line.strip() and ' ' in line) and all(0 <= int(x) <= 10000000 for x in stdin.split() if x.isdigit() and int(x) <= 10000000)\",\n      \"description\": \"Input must contain valid integers for n (stations), m (commuters), and K (nitro units) where 0 < n ≤ 100000, 0 < m ≤ 100000, and 0 ≤ K ≤ 10000000. All distances (d_i) are positive integers ≤ 100, and all commuter times (t_i) are non-negative integers ≤ 10000000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == n + m + 1 and all(len(line.split()) == 3 for line in stdin.splitlines()[2:])\",\n      \"description\": \"Input must have exactly n + 1 lines for stations and distances, followed by m lines for commuters, each with exactly 3 space-separated integers (t_i, s_i, e_i).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(s_i) < int(e_i) <= n for line in stdin.splitlines()[2:] for s_i, e_i in [line.split()[1:3]])\",\n      \"description\": \"For each commuter, boarding station s_i must be strictly less than destination station e_i, and both must be within valid station bounds (1 ≤ s_i < e_i ≤ n).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10000000 * 100000\",\n      \"description\": \"Output is a non-negative integer representing the minimal total travel time for all commuters, bounded by the maximum possible sum of travel times (m * max_possible_travel_time).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(t_i) <= 10000000 for line in stdin.splitlines()[2:] for t_i in [line.split()[0]])\",\n      \"description\": \"The output is derived from the input commuter arrival times (t_i), station distances, and optimal nitro usage to minimize the sum of individual commuter travel times.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= int(s_i) < int(e_i) <= n for line in stdin.splitlines()[2:] for s_i, e_i in [line.split()[1:3]])\",\n      \"description\": \"The output accounts for all commuters' boarding (s_i) and destination (e_i) stations, ensuring each commuter's travel time is calculated from their boarding to deboarding stations.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(0 <= int(d_i) <= 100 for d_i in stdin.splitlines()[1].split())\",\n      \"description\": \"The output considers the distances between consecutive stations (d_i) and optimally applies nitro to reduce travel time where beneficial.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(0 <= int(K) <= 10000000) and int(K) == sum(int(t) for t in nitro_usage) if (nitro_usage := [int(t) for t in stdout.split() if t.isdigit()]) else True\",\n      \"description\": \"The total nitro units used (K) is non-negative and does not exceed the available nitro, and the output reflects the optimal allocation of nitro to minimize total travel time.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2036,
+  "generated_tokens": 957,
+  "hit_output_limit": false,
+  "generation_seconds": 43.873,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:38:33.146394+00:00"
+}

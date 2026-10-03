@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_7221",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 1000 and 1 <= m <= 1000 and 1 <= n * m <= 200000 for n, m in [(int(line.split()[0]) if line.strip() else 0, int(line.split()[1]) if len(line.split()) > 1 else 0) for line in stdin.splitlines()[:1]])",
+        "description": "Input dimensions n and m are integers where 1 ≤ n, m ≤ 1000 and 1 ≤ n·m ≤ 200000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == n + 1 and all(len(line.split()) == m for line in stdin.splitlines()[1:])",
+        "description": "The input consists of exactly n+1 lines: the first line contains n and m, and the next n lines contain m integers each."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(f) <= n * m for line in stdin.splitlines()[1:] for f in line.split())",
+        "description": "Each f_{i,j} is an integer between 1 and n·m inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "len({int(f) for line in stdin.splitlines()[1:] for f in line.split()}) == n * m",
+        "description": "All f_{i,j} are distinct (permutation of 1 to n·m)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= (n * m) * (n * m + 1) // 2",
+        "description": "Output is a non-negative integer representing the count of pleasant segments [l, r], where 1 ≤ l ≤ r ≤ n·m."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= l <= r <= n * m for l in range(1, n * m + 1) for r in range(l, n * m + 1) if (l, r) in pleasant_segments) and len(pleasant_segments) == int(stdout.strip())",
+        "description": "A segment [l, r] is pleasant if and only if the set S of cells (i, j) with l ≤ f_{i,j} ≤ r forms a connected acyclic graph (tree) under 4-directional adjacency (up, down, left, right). The output counts all such valid segments."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(pleasant_segments) == sum(1 for l in range(1, n * m + 1) for r in range(l, n * m + 1) if is_pleasant_segment(l, r))",
+        "description": "The output is the total count of all valid pleasant segments [l, r], where is_pleasant_segment(l, r) checks if the induced subgraph of cells with f_{i,j} in [l, r] is a tree (connected and acyclic)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 1000 and 1 <= m <= 1000 and 1 <= n * m <= 200000 for n, m in [(int(line.split()[0]) if line.strip() else 0, int(line.split()[1]) if len(line.split()) > 1 else 0) for line in stdin.splitlines()[:1]])\",\n      \"description\": \"Input dimensions n and m are integers where 1 ≤ n, m ≤ 1000 and 1 ≤ n·m ≤ 200000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == n + 1 and all(len(line.split()) == m for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input consists of exactly n+1 lines: the first line contains n and m, and the next n lines contain m integers each.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(f) <= n * m for line in stdin.splitlines()[1:] for f in line.split())\",\n      \"description\": \"Each f_{i,j} is an integer between 1 and n·m inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len({int(f) for line in stdin.splitlines()[1:] for f in line.split()}) == n * m\",\n      \"description\": \"All f_{i,j} are distinct (permutation of 1 to n·m).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= (n * m) * (n * m + 1) // 2\",\n      \"description\": \"Output is a non-negative integer representing the count of pleasant segments [l, r], where 1 ≤ l ≤ r ≤ n·m.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= l <= r <= n * m for l in range(1, n * m + 1) for r in range(l, n * m + 1) if (l, r) in pleasant_segments) and len(pleasant_segments) == int(stdout.strip())\",\n      \"description\": \"A segment [l, r] is pleasant if and only if the set S of cells (i, j) with l ≤ f_{i,j} ≤ r forms a connected acyclic graph (tree) under 4-directional adjacency (up, down, left, right). The output counts all such valid segments.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(pleasant_segments) == sum(1 for l in range(1, n * m + 1) for r in range(l, n * m + 1) if is_pleasant_segment(l, r))\",\n      \"description\": \"The output is the total count of all valid pleasant segments [l, r], where is_pleasant_segment(l, r) checks if the induced subgraph of cells with f_{i,j} in [l, r] is a tree (connected and acyclic).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1720,
+  "generated_tokens": 794,
+  "hit_output_limit": false,
+  "generation_seconds": 36.584,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:02:28.602764+00:00"
+}

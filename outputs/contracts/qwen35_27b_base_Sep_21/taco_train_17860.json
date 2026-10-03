@@ -1,0 +1,62 @@
+{
+  "task_id": "taco_train_17860",
+  "task_index": 217,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(q, int) and 1 <= q <= 10",
+        "description": "The number of queries q is an integer between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(a, str) and isinstance(b, str) and 1 <= len(a) <= 100000 and 1 <= len(b) <= 100000 for a, b in queries)",
+        "description": "Each query consists of two non-empty strings a and b with lengths up to 10^5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(all(c.islower() and c.isalpha() for c in a) and all(c.islower() and c.isalpha() for c in b) for a, b in queries)",
+        "description": "All characters in strings a and b are lowercase English letters."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(len(a) for a, b in queries) <= 200000 and sum(len(b) for a, b in queries) <= 200000",
+        "description": "The sum of lengths of all a strings and all b strings across queries does not exceed 2*10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == q",
+        "description": "The output contains exactly q lines, one for each query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((output_lines[i] == '-1') or (is_palindrome(output_lines[i]) and exists_valid_decomposition(output_lines[i], queries[i][0], queries[i][1])) for i in range(q))",
+        "description": "For each query i, the output is either '-1' or a valid palindromic string S that can be decomposed into a non-empty substring of a and a non-empty substring of b."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output_lines[i] == '-1') or (is_maximal_length(output_lines[i], queries[i][0], queries[i][1]) and is_lexicographically_first(output_lines[i], queries[i][0], queries[i][1])) for i in range(q))",
+        "description": "If a valid string exists for query i, the output string has the maximum possible length among all valid strings, and among those with maximum length, it is the lexicographically smallest."
+      }
+    ],
+    "invariants": [],
+    "semantic_helpers": {
+      "is_palindrome": "lambda s: s == s[::-1]",
+      "exists_valid_decomposition": "lambda s, a, b: any((s.startswith(sa) and s.endswith(sb) and len(sa) >= 1 and len(sb) >= 1 and sa in a and sb in b) for sa in (s[:k] for k in range(1, len(s))) for sb in (s[k:] for k in range(1, len(s))))",
+      "is_maximal_length": "lambda s, a, b: all(len(s) >= len(s2) for s2 in all_valid_strings(a, b))",
+      "is_lexicographically_first": "lambda s, a, b: all(s <= s2 for s2 in all_valid_strings(a, b) if len(s2) == len(s))",
+      "all_valid_strings": "lambda a, b: [sa + sb for sa in (a[i:j] for i in range(len(a)) for j in range(i+1, len(a)+1)) for sb in (b[k:l] for k in range(len(b)) for l in range(k+1, len(b)+1)) if is_palindrome(sa + sb)]"
+    }
+  },
+  "generation_seconds": 86.627,
+  "seed": 259,
+  "generated_at": "2026-09-21T08:44:30.647437+00:00"
+}

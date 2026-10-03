@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_119",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(c.isdigit() for c in stdin.split()) and len(stdin.split()) == 2",
+        "description": "stdin contains exactly two space-separated integers n and m, each between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "n >= 1 and m >= 1 and n <= 100 and m <= 100",
+        "description": "n and m are integers satisfying 1 ≤ n, m ≤ 100."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().splitlines()[0].isdigit() and int(stdout.strip().splitlines()[0]) >= 0",
+        "description": "The first line of stdout is a non-negative integer k, representing the size of the beautiful set."
+      },
+      {
+        "id": "Q2",
+        "expression": "k == int(stdout.strip().splitlines()[0]) and k == len([line for line in stdout.strip().splitlines()[1:] if line.strip()])",
+        "description": "The number of points k matches the number of subsequent coordinate lines."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(line.strip().count(' ') == 1 for line in stdout.strip().splitlines()[1:])",
+        "description": "Each of the k subsequent lines contains exactly two space-separated integers representing coordinates (x, y)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(0 <= int(x) <= n and 0 <= int(y) <= m and int(x) + int(y) > 0 for line in stdout.strip().splitlines()[1:] for x, y in [line.strip().split()])",
+        "description": "All points (x, y) in the output satisfy 0 ≤ x ≤ n, 0 ≤ y ≤ m, and x + y > 0."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(not (int(x1) == int(x2) and int(y1) == int(y2)) for i in range(k) for j in range(i+1, k) for line1, line2 in [(stdout.strip().splitlines()[i+1], stdout.strip().splitlines()[j+1])] for x1, y1 in [line1.strip().split()] for x2, y2 in [line2.strip().split()])",
+        "description": "All points in the output are distinct."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(not (int((int(x1) - int(x2))**2 + (int(y1) - int(y2))**2) == int((int(x1) - int(x2))**2 + (int(y1) - int(y2))**2)) for i in range(k) for j in range(i+1, k) for line1, line2 in [(stdout.strip().splitlines()[i+1], stdout.strip().splitlines()[j+1])] for x1, y1 in [line1.strip().split()] for x2, y2 in [line2.strip().split()])",
+        "description": "For any two distinct points (x1, y1) and (x2, y2) in the output, the squared distance ((x1-x2)² + (y1-y2)²) is not an integer, ensuring the distance is non-integer."
+      },
+      {
+        "id": "Q7",
+        "expression": "k == max(len(set_of_points) for set_of_points in [set()]) if not any(set_of_points) else k == max(len(set_of_points) for set_of_points in [set() for set_of_points in [set() for _ in range(10000)] if all(0 <= x <= n and 0 <= y <= m and x + y > 0 for x, y in set_of_points) and all(not (x1 == x2 and y1 == y2) for (x1, y1) in set_of_points for (x2, y2) in set_of_points) and all(not ((x1 - x2)**2 + (y1 - y2)**2 == int((x1 - x2)**2 + (y1 - y2)**2)) for (x1, y1) in set_of_points for (x2, y2) in set_of_points)])",
+        "description": "The size k of the output set is the maximum possible size of a beautiful set of points under the given constraints."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(c.isdigit() for c in stdin.split()) and len(stdin.split()) == 2\",\n      \"description\": \"stdin contains exactly two space-separated integers n and m, each between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"n >= 1 and m >= 1 and n <= 100 and m <= 100\",\n      \"description\": \"n and m are integers satisfying 1 ≤ n, m ≤ 100.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().splitlines()[0].isdigit() and int(stdout.strip().splitlines()[0]) >= 0\",\n      \"description\": \"The first line of stdout is a non-negative integer k, representing the size of the beautiful set.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"k == int(stdout.strip().splitlines()[0]) and k == len([line for line in stdout.strip().splitlines()[1:] if line.strip()])\",\n      \"description\": \"The number of points k matches the number of subsequent coordinate lines.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(line.strip().count(' ') == 1 for line in stdout.strip().splitlines()[1:])\",\n      \"description\": \"Each of the k subsequent lines contains exactly two space-separated integers representing coordinates (x, y).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(0 <= int(x) <= n and 0 <= int(y) <= m and int(x) + int(y) > 0 for line in stdout.strip().splitlines()[1:] for x, y in [line.strip().split()])\",\n      \"description\": \"All points (x, y) in the output satisfy 0 ≤ x ≤ n, 0 ≤ y ≤ m, and x + y > 0.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(not (int(x1) == int(x2) and int(y1) == int(y2)) for i in range(k) for j in range(i+1, k) for line1, line2 in [(stdout.strip().splitlines()[i+1], stdout.strip().splitlines()[j+1])] for x1, y1 in [line1.strip().split()] for x2, y2 in [line2.strip().split()])\",\n      \"description\": \"All points in the output are distinct.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(not (int((int(x1) - int(x2))**2 + (int(y1) - int(y2))**2) == int((int(x1) - int(x2))**2 + (int(y1) - int(y2))**2)) for i in range(k) for j in range(i+1, k) for line1, line2 in [(stdout.strip().splitlines()[i+1], stdout.strip().splitlines()[j+1])] for x1, y1 in [line1.strip().split()] for x2, y2 in [line2.strip().split()])\",\n      \"description\": \"For any two distinct points (x1, y1) and (x2, y2) in the output, the squared distance ((x1-x2)² + (y1-y2)²) is not an integer, ensuring the distance is non-integer.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"k == max(len(set_of_points) for set_of_points in [set()]) if not any(set_of_points) else k == max(len(set_of_points) for set_of_points in [set() for set_of_points in [set() for _ in range(10000)] if all(0 <= x <= n and 0 <= y <= m and x + y > 0 for x, y in set_of_points) and all(not (x1 == x2 and y1 == y2) for (x1, y1) in set_of_points for (x2, y2) in set_of_points) and all(not ((x1 - x2)**2 + (y1 - y2)**2 == int((x1 - x2)**2 + (y1 - y2)**2)) for (x1, y1) in set_of_points for (x2, y2) in set_of_points)])\",\n      \"description\": \"The size k of the output set is the maximum possible size of a beautiful set of points under the given constraints.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1438,
+  "generated_tokens": 1101,
+  "hit_output_limit": false,
+  "generation_seconds": 48.411,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:51:39.242053+00:00"
+}

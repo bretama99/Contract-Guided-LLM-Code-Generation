@@ -1,0 +1,75 @@
+{
+  "task_id": "taco_train_12888",
+  "task_index": 263,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= n <= 100000",
+        "description": "The number of vertices n is between 3 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "0 <= m <= min(n * (n - 1) // 2, 100000)",
+        "description": "The number of edges m is non-negative and within the valid range for a simple graph."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in edges)",
+        "description": "All edge endpoints are valid vertex indices within [1, n] and no loops exist."
+      },
+      {
+        "id": "P4",
+        "expression": "len(edges) == len(set(tuple(sorted(e)) for e in edges))",
+        "description": "The input graph contains no parallel edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "t == 0 if has_odd_cycle else (1 if has_edge_between_odd_components else 2)",
+        "description": "The minimum edges t is 0 if an odd cycle already exists, 1 if adding one edge between two vertices in different bipartite components (or within a non-bipartite component) creates an odd cycle, and 2 otherwise."
+      },
+      {
+        "id": "Q2",
+        "expression": "w == count_odd_cycles if t == 0 else (count_pairs_for_t1 if t == 1 else count_pairs_for_t2)",
+        "description": "The number of ways w corresponds to the count of existing odd cycles if t=0, the count of valid edge additions creating an odd cycle if t=1, or the count of valid edge additions creating an odd cycle if t=2."
+      },
+      {
+        "id": "Q3",
+        "expression": "has_odd_cycle == any(not is_bipartite(comp) for comp in connected_components)",
+        "description": "An odd cycle exists if and only if at least one connected component is not bipartite."
+      },
+      {
+        "id": "Q4",
+        "expression": "count_odd_cycles == sum(len(odd_cycles_in_comp) for comp in connected_components if not is_bipartite(comp))",
+        "description": "If t=0, w is the total number of simple odd cycles in the graph."
+      },
+      {
+        "id": "Q5",
+        "expression": "count_pairs_for_t1 == sum(size(comp_i) * size(comp_j) for comp_i, comp_j in pairs_of_bipartite_components) + sum(size(part0) * size(part1) for comp in bipartite_components)",
+        "description": "If t=1, w is the number of pairs of vertices (u, v) such that adding edge (u, v) creates an odd cycle. This includes pairs within the same bipartite component (connecting different partitions) and pairs between different bipartite components."
+      },
+      {
+        "id": "Q6",
+        "expression": "count_pairs_for_t2 == n * (n - 1) // 2 - m - count_pairs_for_t1",
+        "description": "If t=2, w is the number of non-adjacent pairs of vertices that do not form an odd cycle with a single edge addition, which implies the graph is bipartite and all single-edge additions fail to create an odd cycle (requiring 2 edges)."
+      },
+      {
+        "id": "Q7",
+        "expression": "output_line == f\"{t} {w}\"",
+        "description": "The output consists of a single line containing t and w separated by a space."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 86.826,
+  "seed": 305,
+  "generated_at": "2026-09-21T09:27:07.928519+00:00"
+}

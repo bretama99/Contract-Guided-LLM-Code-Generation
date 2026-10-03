@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4100",
+  "task_index": 869,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_4100.json",
+  "code": "import sys\nfrom collections import deque\n\ndef bfs(graph, start):\n    n = len(graph)\n    dist = [float('inf')] * n\n    dist[start] = 0\n    queue = deque([start])\n    while queue:\n        u = queue.popleft()\n        for v in graph[u]:\n            if dist[v] == float('inf'):\n                dist[v] = dist[u] + 1\n                queue.append(v)\n    return dist\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    N = int(input[0])\n    roads = [(int(input[2*i+1])-1, int(input[2*i+2])-1) for i in range(N-1)]\n    \n    graph = [[] for _ in range(N)]\n    for a, b in roads:\n        graph[a].append(b)\n        graph[b].append(a)\n    \n    total_length = float('inf')\n    best_assignment = None\n    \n    for root in range(N):\n        dist = bfs(graph, root)\n        assignment = [0] * N\n        used = [False] * N\n        \n        def dfs(node, parent):\n            nonlocal used\n            available = [i for i in range(N) if not used[i] and i != node]\n            if not available:\n                return False\n            assignment[node] = available[0]\n            used[available[0]] = True\n            for neighbor in graph[node]:\n                if neighbor != parent:\n                    if not dfs(neighbor, node):\n                        return False\n            return True\n        \n        used[root] = True\n        if dfs(root, -1):\n            current_length = sum(dist[assignment[i]] for i in range(N))\n            if current_length < total_length:\n                total_length = current_length\n                best_assignment = [x + 1 for x in assignment]\n    \n    print(total_length)\n    print(' '.join(map(str, best_assignment)))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 37.118,
+  "generated_at": "2026-09-23T20:22:13.632895+00:00"
+}

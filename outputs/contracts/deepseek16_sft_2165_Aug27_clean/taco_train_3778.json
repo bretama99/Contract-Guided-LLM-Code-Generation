@@ -1,0 +1,119 @@
+{
+  "task_id": "taco_train_3778",
+  "model": "deepseek16-sft-2165-Aug27-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 30000",
+        "description": "The number of servers is between 1 and 30,000."
+      },
+      {
+        "id": "P2",
+        "expression": "1 <= a_i, b_i, c_i <= n",
+        "description": "Each server number in the rules is between 1 and n."
+      },
+      {
+        "id": "P3",
+        "expression": "Each number from 1 to n appears exactly four times among a_i.",
+        "description": "Each server has exactly four processes to start with."
+      },
+      {
+        "id": "P4",
+        "expression": "Each number from 1 to n appears eight times among b_i and c_i.",
+        "description": "Each server has a total of eight process placements due to replication."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "output == 'YES' or output == 'NO'",
+        "description": "The output is either 'YES' or 'NO' indicating whether a valid order exists."
+      },
+      {
+        "id": "Q2",
+        "expression": "output == 'YES' ==> len(second_line) == 4*n",
+        "description": "If 'YES' is output, the second line contains a permutation of the 4n rules."
+      },
+      {
+        "id": "Q3",
+        "expression": "output == 'YES' ==> all(second_line[i] in range(1, 4*n+1) for i in range(4*n))",
+        "description": "If 'YES' is output, the permutation contains all numbers from 1 to 4n exactly once."
+      },
+      {
+        "id": "Q4",
+        "expression": "output == 'YES' ==> all(sum(second_line.count(x) for x in range(1, 4*n+1)) == 1 for i in range(4*n))",
+        "description": "If 'YES' is output, each number from 1 to 4n appears exactly once in the permutation."
+      },
+      {
+        "id": "Q5",
+        "expression": "output == 'YES' ==> is_valid_order(second_line, rules)",
+        "description": "If 'YES' is output, the permutation represents a valid order of applying the rules."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "len(rules) == 4*n",
+        "description": "There are exactly 4n rules."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= a_i, b_i, c_i <= n for a_i, b_i, c_i in rules)",
+        "description": "Each rule specifies a valid server number."
+      },
+      {
+        "id": "I3",
+        "expression": "all(rules[i] != rules[j] for i in range(4*n) for j in range(i+1, 4*n))",
+        "description": "All rules are unique."
+      },
+      {
+        "id": "I4",
+        "expression": "all(rules[i][0] in range(1, n+1) for i in range(4*n))",
+        "description": "Each rule specifies a valid server number."
+      },
+      {
+        "id": "I5",
+        "expression": "all(rules[i][1] in range(1, n+1) and rules[i][2] in range(1, n+1) for i in range(4*n))",
+        "description": "Each rule specifies a valid server number for replication."
+      },
+      {
+        "id": "I6",
+        "expression": "all(rules[i][1] != rules[i][2] for i in range(4*n))",
+        "description": "No rule replicates a process to the same server."
+      },
+      {
+        "id": "I7",
+        "expression": "all(rules[i][0] != rules[i][1] and rules[i][0] != rules[i][2] for i in range(4*n))",
+        "description": "No rule replicates a process to the original server."
+      },
+      {
+        "id": "I8",
+        "expression": "all(rules[i][1] != rules[j][1] or rules[i][2] != rules[j][2] for i in range(4*n) for j in range(i+1, 4*n))",
+        "description": "No two rules replicate to the same pair of servers."
+      },
+      {
+        "id": "I9",
+        "expression": "all(sum(1 for a_i in range(1, n+1) if a_i == rules[i][0]) == 4 for i in range(4*n))",
+        "description": "Each original server has exactly four processes."
+      },
+      {
+        "id": "I10",
+        "expression": "all(sum(1 for a_i in range(1, n+1) if a_i == rules[i][1] or a_i == rules[i][2]) == 8 for i in range(4*n))",
+        "description": "Each server has a total of eight process placements due to replication."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 30000\",\n      \"description\": \"The number of servers is between 1 and 30,000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"1 <= a_i, b_i, c_i <= n\",\n      \"description\": \"Each server number in the rules is between 1 and n.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"Each number from 1 to n appears exactly four times among a_i.\",\n      \"description\": \"Each server has exactly four processes to start with.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"Each number from 1 to n appears eight times among b_i and c_i.\",\n      \"description\": \"Each server has a total of eight process placements due to replication.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"output == 'YES' or output == 'NO'\",\n      \"description\": \"The output is either 'YES' or 'NO' indicating whether a valid order exists.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"output == 'YES' ==> len(second_line) == 4*n\",\n      \"description\": \"If 'YES' is output, the second line contains a permutation of the 4n rules.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"output == 'YES' ==> all(second_line[i] in range(1, 4*n+1) for i in range(4*n))\",\n      \"description\": \"If 'YES' is output, the permutation contains all numbers from 1 to 4n exactly once.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"output == 'YES' ==> all(sum(second_line.count(x) for x in range(1, 4*n+1)) == 1 for i in range(4*n))\",\n      \"description\": \"If 'YES' is output, each number from 1 to 4n appears exactly once in the permutation.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"output == 'YES' ==> is_valid_order(second_line, rules)\",\n      \"description\": \"If 'YES' is output, the permutation represents a valid order of applying the rules.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"len(rules) == 4*n\",\n      \"description\": \"There are exactly 4n rules.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(1 <= a_i, b_i, c_i <= n for a_i, b_i, c_i in rules)\",\n      \"description\": \"Each rule specifies a valid server number.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"all(rules[i] != rules[j] for i in range(4*n) for j in range(i+1, 4*n))\",\n      \"description\": \"All rules are unique.\"\n    },\n    {\n      \"id\": \"I4\",\n      \"expression\": \"all(rules[i][0] in range(1, n+1) for i in range(4*n))\",\n      \"description\": \"Each rule specifies a valid server number.\"\n    },\n    {\n      \"id\": \"I5\",\n      \"expression\": \"all(rules[i][1] in range(1, n+1) and rules[i][2] in range(1, n+1) for i in range(4*n))\",\n      \"description\": \"Each rule specifies a valid server number for replication.\"\n    },\n    {\n      \"id\": \"I6\",\n      \"expression\": \"all(rules[i][1] != rules[i][2] for i in range(4*n))\",\n      \"description\": \"No rule replicates a process to the same server.\"\n    },\n    {\n      \"id\": \"I7\",\n      \"expression\": \"all(rules[i][0] != rules[i][1] and rules[i][0] != rules[i][2] for i in range(4*n))\",\n      \"description\": \"No rule replicates a process to the original server.\"\n    },\n    {\n      \"id\": \"I8\",\n      \"expression\": \"all(rules[i][1] != rules[j][1] or rules[i][2] != rules[j][2] for i in range(4*n) for j in range(i+1, 4*n))\",\n      \"description\": \"No two rules replicate to the same pair of servers.\"\n    },\n    {\n      \"id\": \"I9\",\n      \"expression\": \"all(sum(1 for a_i in range(1, n+1) if a_i == rules[i][0]) == 4 for i in range(4*n))\",\n      \"description\": \"Each original server has exactly four processes.\"\n    },\n    {\n      \"id\": \"I10\",\n      \"expression\": \"all(sum(1 for a_i in range(1, n+1) if a_i == rules[i][1] or a_i == rules[i][2]) == 8 for i in range(4*n))\",\n      \"description\": \"Each server has a total of eight process placements due to replication.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": false,
+  "prompt_tokens": 2621,
+  "generated_tokens": 1378,
+  "hit_output_limit": false,
+  "generation_issue": null,
+  "generated_at": "2026-08-28T03:14:35.304584+00:00"
+}

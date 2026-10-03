@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_12587",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(n) <= 100000 and 1 <= int(m) <= 100000 and 2 <= int(h) <= 100000",
+        "description": "Input constraints for n (data centers), m (clients), and h (hours per day) must be satisfied."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(u) < int(h) for u in u_list.split())",
+        "description": "Each maintenance hour u_j must be in the range [0, h-1]."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(c1) <= int(n) and 1 <= int(c2) <= int(n) and int(c1) != int(c2) for c1, c2 in client_pairs)",
+        "description": "Each client pair (c_{i,1}, c_{i,2}) must consist of two distinct data center indices within the valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "len(u_list.split()) == int(n) and len(client_pairs) == int(m)",
+        "description": "The number of maintenance hours must match n, and the number of client pairs must match m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)",
+        "description": "The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+        "description": "For every client pair, the original maintenance hours of their data centers are not equal to each other's shifted hours (mod h)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs if c1 in selected_indices and c2 in selected_indices)",
+        "description": "For every client pair where both data centers are selected, their shifted maintenance hours are not equal."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) or (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+        "description": "For every client pair, at least one of the following holds: the original maintenance hours are not equal to each other's shifted hours (mod h)."
+      },
+      {
+        "id": "Q5",
+        "expression": "1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices)",
+        "description": "The output k is a valid count of selected data centers, and the selected indices are within the valid range."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"2 <= int(n) <= 100000 and 1 <= int(m) <= 100000 and 2 <= int(h) <= 100000\",\n      \"description\": \"Input constraints for n (data centers), m (clients), and h (hours per day) must be satisfied.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= int(u) < int(h) for u in u_list.split())\",\n      \"description\": \"Each maintenance hour u_j must be in the range [0, h-1].\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(c1) <= int(n) and 1 <= int(c2) <= int(n) and int(c1) != int(c2) for c1, c2 in client_pairs)\",\n      \"description\": \"Each client pair (c_{i,1}, c_{i,2}) must consist of two distinct data center indices within the valid range.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(u_list.split()) == int(n) and len(client_pairs) == int(m)\",\n      \"description\": \"The number of maintenance hours must match n, and the number of client pairs must match m.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)\",\n      \"description\": \"The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)\",\n      \"description\": \"For every client pair, the original maintenance hours of their data centers are not equal to each other's shifted hours (mod h).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs if c1 in selected_indices and c2 in selected_indices)\",\n      \"description\": \"For every client pair where both data centers are selected, their shifted maintenance hours are not equal.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) or (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)\",\n      \"description\": \"For every client pair, at least one of the following holds: the original maintenance hours are not equal to each other's shifted hours (mod h).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices)\",\n      \"description\": \"The output k is a valid count of selected data centers, and the selected indices are within the valid range.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2168,
+  "generated_tokens": 902,
+  "hit_output_limit": false,
+  "generation_seconds": 40.335,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:06:05.932234+00:00"
+}

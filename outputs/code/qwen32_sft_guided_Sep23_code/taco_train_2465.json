@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_2465",
+  "task_index": 0,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_2465.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef dfs(node, parent, depth, values, adj, xor_values, depths):\n    xor_values[node] = values[node]\n    depths[node] = depth\n    for child in adj[node]:\n        if child != parent:\n            dfs(child, node, depth + 1, values, adj, xor_values, depths)\n\ndef lca_query(u, v, parent, depths):\n    while depths[u] > depths[v]:\n        u = parent[u]\n    while depths[v] > depths[u]:\n        v = parent[v]\n    while u != v:\n        u = parent[u]\n        v = parent[v]\n    return u\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    q = int(input[index + 1])\n    index += 2\n    values = [0] * (n + 1)\n    for i in range(1, n + 1):\n        values[i] = int(input[index + i - 1])\n    index += n\n    adj = defaultdict(list)\n    for _ in range(n - 1):\n        u = int(input[index])\n        v = int(input[index + 1])\n        adj[u].append(v)\n        adj[v].append(u)\n        index += 2\n    parent = [0] * (n + 1)\n    xor_values = [0] * (n + 1)\n    depths = [0] * (n + 1)\n    dfs(1, 0, 0, values, adj, xor_values, depths)\n    for i in range(1, n + 1):\n        if parent[i] != 0:\n            xor_values[i] ^= xor_values[parent[i]]\n    for _ in range(q):\n        u = int(input[index])\n        v = int(input[index +1])\n        index += 2\n        lca = lca_query(u, v, parent, depths)\n        max_xor = 0\n        for node in [u, v, lca]:\n            current_xor = xor_values[node] ^ (depths[v] - depths[node])\n            if current_xor > max_xor:\n                max_xor = current_xor\n        print(max_xor)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 44.157,
+  "generated_at": "2026-09-23T16:58:24.950175+00:00"
+}

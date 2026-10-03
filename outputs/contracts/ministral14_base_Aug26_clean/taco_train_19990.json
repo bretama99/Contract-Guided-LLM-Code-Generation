@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_19990",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.readline()) and 1 <= T <= 100",
+        "description": "The first line of input is an integer T (1 ≤ T ≤ 100) representing the number of independent games."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line.strip()) <= 10**9 for line in stdin if line.strip().isdigit() and not line.startswith('?') and not line.startswith('!'))",
+        "description": "Each hidden X in the T games satisfies 1 ≤ X ≤ 10^9 (implicitly, since the interactor enforces this)."
+      },
+      {
+        "id": "P3",
+        "expression": "True",
+        "description": "The interactor is non-adaptive: X is fixed before all queries in a game."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(Q) <= 10**18 for Q in (line.split()[1] for line in stdin if line.startswith('?')))",
+        "description": "Each query Q must satisfy 1 ≤ Q ≤ 10^18."
+      },
+      {
+        "id": "P5",
+        "expression": "all(line.strip().startswith('? ') or line.strip().startswith('! ') for line in stdin if line.strip())",
+        "description": "Output lines are either queries ('? Q') or answers ('! ans')."
+      },
+      {
+        "id": "P6",
+        "expression": "len([line for line in stdin if line.strip().startswith('?')]) <= 22 * T",
+        "description": "No more than 22 queries are made per game (total ≤ 22*T)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((lambda: (ans := int(stdout_line.split()[1]), d := len([1] + [i for i in range(2, int(X)+1) if X % i == 0]), abs(ans - d) <= 7 or (1/2 <= ans/d <= 2)))() for X, stdout_line in zip([int(line.strip()) for line in stdin if line.strip().isdigit() and not line.startswith('?') and not line.startswith('!')], [line for line in stdout if line.strip().startswith('!')]))",
+        "description": "For each hidden X, the answer ans must satisfy |ans - d| ≤ 7 or 1/2 ≤ ans/d ≤ 2, where d is the true number of divisors of X."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.strip().startswith('! ') for line in stdout if line.strip() and not any(line.strip().startswith('?') for _ in range(22)))",
+        "description": "Each game must end with exactly one answer ('! ans') after at most 22 queries."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda: (queries := [int(line.split()[1]) for line in stdin if line.startswith('?')], gcds := [int(input()) for _ in queries], len(queries) == len(gcds)))() for _ in range(T))",
+        "description": "For each game, every query Q must receive exactly one gcd(X, Q) response before the answer is submitted."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.readline()) and 1 <= T <= 100\",\n      \"description\": \"The first line of input is an integer T (1 ≤ T ≤ 100) representing the number of independent games.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(line.strip()) <= 10**9 for line in stdin if line.strip().isdigit() and not line.startswith('?') and not line.startswith('!'))\",\n      \"description\": \"Each hidden X in the T games satisfies 1 ≤ X ≤ 10^9 (implicitly, since the interactor enforces this).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"True\",\n      \"description\": \"The interactor is non-adaptive: X is fixed before all queries in a game.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(Q) <= 10**18 for Q in (line.split()[1] for line in stdin if line.startswith('?')))\",\n      \"description\": \"Each query Q must satisfy 1 ≤ Q ≤ 10^18.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(line.strip().startswith('? ') or line.strip().startswith('! ') for line in stdin if line.strip())\",\n      \"description\": \"Output lines are either queries ('? Q') or answers ('! ans').\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"len([line for line in stdin if line.strip().startswith('?')]) <= 22 * T\",\n      \"description\": \"No more than 22 queries are made per game (total ≤ 22*T).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all((lambda: (ans := int(stdout_line.split()[1]), d := len([1] + [i for i in range(2, int(X)+1) if X % i == 0]), abs(ans - d) <= 7 or (1/2 <= ans/d <= 2)))() for X, stdout_line in zip([int(line.strip()) for line in stdin if line.strip().isdigit() and not line.startswith('?') and not line.startswith('!')], [line for line in stdout if line.strip().startswith('!')]))\",\n      \"description\": \"For each hidden X, the answer ans must satisfy |ans - d| ≤ 7 or 1/2 ≤ ans/d ≤ 2, where d is the true number of divisors of X.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line.strip().startswith('! ') for line in stdout if line.strip() and not any(line.strip().startswith('?') for _ in range(22)))\",\n      \"description\": \"Each game must end with exactly one answer ('! ans') after at most 22 queries.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((lambda: (queries := [int(line.split()[1]) for line in stdin if line.startswith('?')], gcds := [int(input()) for _ in queries], len(queries) == len(gcds)))() for _ in range(T))\",\n      \"description\": \"For each game, every query Q must receive exactly one gcd(X, Q) response before the answer is submitted.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2153,
+  "generated_tokens": 845,
+  "hit_output_limit": false,
+  "generation_seconds": 38.6,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:26:07.886960+00:00"
+}

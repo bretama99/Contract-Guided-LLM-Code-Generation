@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_6011",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.split()[0]) and t >= 1 and t <= 50000",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 50000) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1::] if line.strip() and ':' not in line)",
+        "description": "Each test case starts with a line containing two integers n and k (2 ≤ k ≤ n ≤ 10^5), where n is the number of nodes and k is the maximum allowed number of connected components (k-1 is the maximum edges to delete)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == n for line in stdin.splitlines()[2::] if line.strip() and ':' not in line and line.split()[0].isdigit())",
+        "description": "The second line of each test case contains n integers a_1, a_2, ..., a_n (1 ≤ a_i ≤ 10^9), representing the values of the nodes."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[3::] if line.strip() and ':' not in line and line.split()[0].isdigit())",
+        "description": "The next n-1 lines describe the edges of the tree, each line containing two integers u_i and v_i (1 ≤ u_i, v_i ≤ n, u_i ≠ v_i), representing an edge between nodes u_i and v_i."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(u) <= n and 1 <= int(v) <= n and int(u) != int(v) for line in stdin.splitlines()[3::] if line.strip() and ':' not in line and line.split()[0].isdigit() for u, v in [line.split()])",
+        "description": "Each edge connects two distinct nodes within the valid range [1, n]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip() in ['YES', 'NO'] for stdout in [line.strip() for line in stdin.splitlines()[1::] if line.strip() and ':' not in line and line.split()[0].isdigit()])",
+        "description": "For each test case, the output is either 'YES' or 'NO', indicating whether it is possible to delete between 1 and k-1 edges to achieve equal XOR values for all connected components."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((lambda: (lambda lines: (lambda: (lambda n, k, a, edges: (lambda: (lambda possible: possible))(any(all((lambda cc: (lambda xor: xor == target_xor)([(lambda nodes: (lambda: (lambda xor: xor))(reduce(lambda acc, x: acc ^ x, [a[node-1] for node in nodes], 0)))(nodes)]) for cc in components) for target_xor in [reduce(lambda acc, x: acc ^ x, a, 0) ^ (reduce(lambda acc, x: acc ^ x, [a[node-1] for node in nodes_to_delete], 0)) for nodes_to_delete in combinations(range(1, n+1), m) for m in range(1, k)]) or (lambda: (lambda: False))() if k == n else False))(edges, n, k, a, lines)))(lines)))(stdin.splitlines()[i:i+2+n-1]) for i in range(1, len(stdin.splitlines()), 2+n-1))",
+        "description": "The output is 'YES' if and only if there exists a way to delete between 1 and k-1 edges such that the XOR of node values in every connected component is the same. This is true if either (1) all node values are already equal (k ≥ n), or (2) there exists a subset of nodes whose XOR equals the total XOR of all nodes, allowing the tree to be split into components with equal XORs."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda: (lambda lines: (lambda: (lambda n, k, a, edges: (lambda: (lambda possible: possible))(all(a_i == a_j for i in range(n) for j in range(n)) or k >= n))(edges, n, k, a, lines)))(lines)))(stdin.splitlines()[i:i+2+n-1]) for i in range(1, len(stdin.splitlines()), 2+n-1))",
+        "description": "If all node values are equal, the answer is always 'YES' because any split will result in equal XORs (each component's XOR will be the same as any single node's value)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.split()[0]) and t >= 1 and t <= 50000\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 50000) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1::] if line.strip() and ':' not in line)\",\n      \"description\": \"Each test case starts with a line containing two integers n and k (2 ≤ k ≤ n ≤ 10^5), where n is the number of nodes and k is the maximum allowed number of connected components (k-1 is the maximum edges to delete).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == n for line in stdin.splitlines()[2::] if line.strip() and ':' not in line and line.split()[0].isdigit())\",\n      \"description\": \"The second line of each test case contains n integers a_1, a_2, ..., a_n (1 ≤ a_i ≤ 10^9), representing the values of the nodes.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[3::] if line.strip() and ':' not in line and line.split()[0].isdigit())\",\n      \"description\": \"The next n-1 lines describe the edges of the tree, each line containing two integers u_i and v_i (1 ≤ u_i, v_i ≤ n, u_i ≠ v_i), representing an edge between nodes u_i and v_i.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(u) <= n and 1 <= int(v) <= n and int(u) != int(v) for line in stdin.splitlines()[3::] if line.strip() and ':' not in line and line.split()[0].isdigit() for u, v in [line.split()])\",\n      \"description\": \"Each edge connects two distinct nodes within the valid range [1, n].\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout.strip() in ['YES', 'NO'] for stdout in [line.strip() for line in stdin.splitlines()[1::] if line.strip() and ':' not in line and line.split()[0].isdigit()])\",\n      \"description\": \"For each test case, the output is either 'YES' or 'NO', indicating whether it is possible to delete between 1 and k-1 edges to achieve equal XOR values for all connected components.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((lambda: (lambda lines: (lambda: (lambda n, k, a, edges: (lambda: (lambda possible: possible))(any(all((lambda cc: (lambda xor: xor == target_xor)([(lambda nodes: (lambda: (lambda xor: xor))(reduce(lambda acc, x: acc ^ x, [a[node-1] for node in nodes], 0)))(nodes)]) for cc in components) for target_xor in [reduce(lambda acc, x: acc ^ x, a, 0) ^ (reduce(lambda acc, x: acc ^ x, [a[node-1] for node in nodes_to_delete], 0)) for nodes_to_delete in combinations(range(1, n+1), m) for m in range(1, k)]) or (lambda: (lambda: False))() if k == n else False))(edges, n, k, a, lines)))(lines)))(stdin.splitlines()[i:i+2+n-1]) for i in range(1, len(stdin.splitlines()), 2+n-1))\",\n      \"description\": \"The output is 'YES' if and only if there exists a way to delete between 1 and k-1 edges such that the XOR of node values in every connected component is the same. This is true if either (1) all node values are already equal (k ≥ n), or (2) there exists a subset of nodes whose XOR equals the total XOR of all nodes, allowing the tree to be split into components with equal XORs.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((lambda: (lambda lines: (lambda: (lambda n, k, a, edges: (lambda: (lambda possible: possible))(all(a_i == a_j for i in range(n) for j in range(n)) or k >= n))(edges, n, k, a, lines)))(lines)))(stdin.splitlines()[i:i+2+n-1]) for i in range(1, len(stdin.splitlines()), 2+n-1))\",\n      \"description\": \"If all node values are equal, the answer is always 'YES' because any split will result in equal XORs (each component's XOR will be the same as any single node's value).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1831,
+  "generated_tokens": 1201,
+  "hit_output_limit": false,
+  "generation_seconds": 55.283,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:44:42.159489+00:00"
+}

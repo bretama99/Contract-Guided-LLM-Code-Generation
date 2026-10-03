@@ -1,0 +1,624 @@
+{
+  "task_id": "taco_train_4770",
+  "task_index": 877,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 100",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 100) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N == int(line) and N >= 2 and N <= 10000 and N % 2 == 0 for line in stdin.splitlines()[1::] if line.strip() and int(line.split()[0]) <= N)",
+        "description": "For each test case, the first line is an integer N (2 ≤ N ≤ 10000, even) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == N - 1 for edges in [stdin.splitlines()[i:i+N-1] for i in range(1, len(stdin.splitlines()), N)] if edges)",
+        "description": "Each test case has exactly N-1 edges, each edge is a pair of integers (u, v) where 1 ≤ u, v ≤ N."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(u) <= N and 1 <= int(v) <= N for line in stdin.splitlines()[1:] if line.strip() and (u, v) := tuple(map(int, line.split())))",
+        "description": "Each edge (u, v) has vertices u and v within the range [1, N]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 3 * T for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "For each test case, the output consists of exactly three lines: the minimum k, the set U, and the set V."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(k == int(output_lines[0]) and k >= 0 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "The first line of each test case's output is an integer k, representing the minimum value of k such that H_k is good."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(set(output_lines[1].split())) == N // 2 and len(set(output_lines[2].split())) == N // 2 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "The second and third lines of each test case's output contain exactly N/2 distinct integers each, representing the sets U and V."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(set(output_lines[1].split()) | set(output_lines[2].split()) == set(str(i) for i in range(1, N + 1)) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (N := int(stdin.splitlines()[i].strip())))",
+        "description": "The union of sets U and V contains all vertices from 1 to N exactly once."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any(all(int(v) in set(output_lines[1].split()) and int(u) in set(output_lines[2].split()) for u, v in edges) for edges in [get_edges_for_k(G, k) for k in range(int(output_lines[0]))] if edges) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (G := get_tree_from_input(stdin.splitlines()[i+1:i+N])) and (k := int(output_lines[0])))",
+        "description": "For the computed k, the graph H_k is good, meaning there exists a partition (U, V) such that every edge in H_k connects U and V, and the bipartite graph is connected."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 100",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 100) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N == int(line) and N >= 2 and N <= 10000 and N % 2 == 0 for line in stdin.splitlines()[1::] if line.strip() and int(line.split()[0]) <= N)",
+        "description": "For each test case, the first line is an integer N (2 ≤ N ≤ 10000, even) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == N - 1 for edges in [stdin.splitlines()[i:i+N-1] for i in range(1, len(stdin.splitlines()), N)] if edges)",
+        "description": "Each test case has exactly N-1 edges, each edge is a pair of integers (u, v) where 1 ≤ u, v ≤ N."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(u) <= N and 1 <= int(v) <= N for line in stdin.splitlines()[1:] if line.strip() and (u, v) := tuple(map(int, line.split())))",
+        "description": "Each edge (u, v) has vertices u and v within the range [1, N]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 3 * T for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "For each test case, the output consists of exactly three lines: the minimum k, the set U, and the set V."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(k == int(output_lines[0]) and k >= 0 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "The first line of each test case's output is an integer k, representing the minimum value of k such that H_k is good."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(set(output_lines[1].split())) == N // 2 and len(set(output_lines[2].split())) == N // 2 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "The second and third lines of each test case's output contain exactly N/2 distinct integers each, representing the sets U and V."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(set(output_lines[1].split()) | set(output_lines[2].split()) == set(str(i) for i in range(1, N + 1)) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (N := int(stdin.splitlines()[i].strip())))",
+        "description": "The union of sets U and V contains all vertices from 1 to N exactly once."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any(all(int(v) in set(output_lines[1].split()) and int(u) in set(output_lines[2].split()) for u, v in edges) for edges in [get_edges_for_k(G, k) for k in range(int(output_lines[0]))] if edges) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (G := get_tree_from_input(stdin.splitlines()[i+1:i+N])) and (k := int(output_lines[0])))",
+        "description": "For the computed k, the graph H_k is good, meaning there exists a partition (U, V) such that every edge in H_k connects U and V, and the bipartite graph is connected."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "1614309232751d27dfc1ab813c01938a3cba01422983db8bfa673f9d64f1c39e",
+  "selected_contract_fingerprint": "1614309232751d27dfc1ab813c01938a3cba01422983db8bfa673f9d64f1c39e",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_4770.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+      "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+      "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+        "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+        "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+        "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the computed `k` is the **minimum** value for which `H_k` is good. The current contract does not enforce minimality of `k`.",
+        "task_evidence": "Your task is to find the **minimum** value of k such that H_k is a good graph...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression does not verify that the bipartition (U, V) satisfies the connectivity requirement for `H_k`. The task requires that the bipartite graph formed by edges between `U` and `V` is connected.",
+        "task_evidence": "It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks edges for all `k` up to the output `k` instead of only the output `k`. The task requires verification only for the computed `k`.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression does not verify that **all edges in `H_k`** are between `U` and `V` (bipartition property). The current expression only checks a subset of edges (those in `G`).",
+        "task_evidence": "For each edge (u, v) in G, there is an edge (u, v) in H_k too. For each pair of vertices (u, v) in G such that their distance is at most k, there is an edge (u, v) in H_k.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[3].expression",
+        "detail": "invalid syntax (<unknown>, line 1)"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+      "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+      "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+        "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+        "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+        "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the computed `k` is the **minimum** value for which `H_k` is good. The current contract does not enforce minimality of `k`.",
+        "task_evidence": "Your task is to find the **minimum** value of k such that H_k is a good graph...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression does not verify that the bipartition (U, V) satisfies the connectivity requirement for `H_k`. The task requires that the bipartite graph formed by edges between `U` and `V` is connected.",
+        "task_evidence": "It is possible to reach any vertex from any other vertex using only the edges in E.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks edges for all `k` up to the output `k` instead of only the output `k`. The task requires verification only for the computed `k`.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression does not verify that **all edges in `H_k`** are between `U` and `V` (bipartition property). The current expression only checks a subset of edges (those in `G`).",
+        "task_evidence": "For each edge (u, v) in G, there is an edge (u, v) in H_k too. For each pair of vertices (u, v) in G such that their distance is at most k, there is an edge (u, v) in H_k.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[3].expression",
+        "detail": "invalid syntax (<unknown>, line 1)"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+          "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+          "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+            "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+            "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression in Q5 is incorrect. It checks the wrong condition for `H_k` being good. The task requires that **every edge in `H_k` connects `U` and `V` (bipartition property)** and that the bipartite graph is connected. The current expression only checks if edges in `H_k` are bipartite (which is not sufficient) and does not verify connectivity. Additionally, it checks edges for all `k` up to the output `k` (which is wrong; it should only check for the output `k`).",
+            "task_evidence": "We call a graph *good* if its vertices can be split into two sets U and V satisfying the following: Each vertex appears in exactly one set; |U| = |V| = N/2. Let E be the set of edges (u, v) such that u ∈ U and v ∈ V. It is possible to reach any vertex from any other vertex using only the edges in E.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 244.241,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:53:41.170397+00:00"
+}

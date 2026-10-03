@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_778",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(len(line.split()) == 1 for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line) <= 1e5)",
+        "description": "Each non-empty line (excluding digit-only lines) has exactly one string of length ≤ 10^5, representing either the row or column terminal outcomes."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line) <= 1e5 for line in stdin.splitlines() if line.strip().isdigit() and int(line) <= 1e5)",
+        "description": "All integer inputs (T, N, M, Q, x, y) are between 1 and 10^5 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x <= N and 1 <= y <= M for line in stdin.splitlines() if ' ' in line and (x, y) := tuple(map(int, line.split())))",
+        "description": "Each query (x, y) satisfies 1 ≤ x ≤ N and 1 ≤ y ≤ M, where N and M are the dimensions from the current test case."
+      },
+      {
+        "id": "P4",
+        "expression": "all(c in '01' for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line) > 0)",
+        "description": "Terminal outcome strings consist only of '0' (win) or '1' (lose) characters."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(line) == M if line.strip() and not line.strip().isdigit() and ' ' not in line and line.strip().isdigit() == False else len(line) == N for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and ' ' not in line)",
+        "description": "The first terminal string has length M (columns), and the second has length N (rows)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == ''.join(['1' if (x, y) in winning_positions else '0' for (x, y) in queries])",
+        "description": "For each query (x, y), the output character is '1' if Alice wins from (x, y) and '0' if Bob wins, where winning_positions are all (x, y) where the current player can force a win using optimal play."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.strip()) == sum(int(line) for line in stdin.splitlines() if line.strip().isdigit() and ' ' not in line and int(line) == Q)",
+        "description": "The output string has exactly Q characters, one for each query in the current test case."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(stdout_line) == Q for stdout_line in stdout.splitlines() if stdout_line.strip())",
+        "description": "Each test case's output is a single line of length Q."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(winning_positions := set(), all((x, y) in winning_positions or (x, y) not in losing_positions for (x, y) in queries), all((x, y) in losing_positions or (x, y) not in winning_positions for (x, y) in queries))",
+        "description": "The game outcome for each (x, y) is determined by dynamic programming: a position is losing if both (x-1, y) and (x, y-1) are winning, and winning otherwise, with terminal conditions given by the input strings."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(len(line.split()) == 1 for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line) <= 1e5)\",\n      \"description\": \"Each non-empty line (excluding digit-only lines) has exactly one string of length ≤ 10^5, representing either the row or column terminal outcomes.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(line) <= 1e5 for line in stdin.splitlines() if line.strip().isdigit() and int(line) <= 1e5)\",\n      \"description\": \"All integer inputs (T, N, M, Q, x, y) are between 1 and 10^5 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= x <= N and 1 <= y <= M for line in stdin.splitlines() if ' ' in line and (x, y) := tuple(map(int, line.split())))\",\n      \"description\": \"Each query (x, y) satisfies 1 ≤ x ≤ N and 1 ≤ y ≤ M, where N and M are the dimensions from the current test case.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(c in '01' for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line) > 0)\",\n      \"description\": \"Terminal outcome strings consist only of '0' (win) or '1' (lose) characters.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(line) == M if line.strip() and not line.strip().isdigit() and ' ' not in line and line.strip().isdigit() == False else len(line) == N for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and ' ' not in line)\",\n      \"description\": \"The first terminal string has length M (columns), and the second has length N (rows).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == ''.join(['1' if (x, y) in winning_positions else '0' for (x, y) in queries])\",\n      \"description\": \"For each query (x, y), the output character is '1' if Alice wins from (x, y) and '0' if Bob wins, where winning_positions are all (x, y) where the current player can force a win using optimal play.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.strip()) == sum(int(line) for line in stdin.splitlines() if line.strip().isdigit() and ' ' not in line and int(line) == Q)\",\n      \"description\": \"The output string has exactly Q characters, one for each query in the current test case.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(stdout_line) == Q for stdout_line in stdout.splitlines() if stdout_line.strip())\",\n      \"description\": \"Each test case's output is a single line of length Q.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(winning_positions := set(), all((x, y) in winning_positions or (x, y) not in losing_positions for (x, y) in queries), all((x, y) in losing_positions or (x, y) not in winning_positions for (x, y) in queries))\",\n      \"description\": \"The game outcome for each (x, y) is determined by dynamic programming: a position is losing if both (x-1, y) and (x, y-1) are winning, and winning otherwise, with terminal conditions given by the input strings.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1804,
+  "generated_tokens": 922,
+  "hit_output_limit": false,
+  "generation_seconds": 40.588,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:23:07.402322+00:00"
+}

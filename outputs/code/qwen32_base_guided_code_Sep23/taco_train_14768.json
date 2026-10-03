@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_14768",
+  "task_index": 347,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_14768.json",
+  "code": "import sys\nfrom collections import defaultdict\nfrom math import comb\n\ndef find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, x, y):\n    rootX = find(parent, x)\n    rootY = find(parent, y)\n    if rootX != rootY:\n        if rank[rootX] > rank[rootY]:\n            parent[rootY] = rootX\n        elif rank[rootX] < rank[rootY]:\n            parent[rootX] = rootY\n        else:\n            parent[rootY] = rootX\n            rank[rootX] += 1\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    m = int(input[1])\n    k = int(input[2])\n    links = [(int(input[2*i+3]), int(input[2*i+4])) for i in range(m)]\n\n    parent = list(range(n + 1))\n    rank = [0] * (n + 1)\n\n    for a, b in links:\n        union(parent, rank, a, b)\n\n    sizes = defaultdict(int)\n    for i in range(1, n + 1):\n        root = find(parent, i)\n        sizes[root] += 1\n\n    components = list(sizes.values())\n    total_edges_needed = sum(c * (c - 1) // 2 for c in components)\n    t = total_edges_needed - m\n\n    if t < 0:\n        print(0)\n        return\n\n    result = 1\n    for c in components:\n        result = result * comb(c, 2) % k\n\n    print(result)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 21.15,
+  "generated_at": "2026-09-23T21:59:29.007491+00:00"
+}

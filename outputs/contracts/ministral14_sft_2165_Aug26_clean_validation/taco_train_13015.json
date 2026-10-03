@@ -1,0 +1,261 @@
+{
+  "task_id": "taco_train_13015",
+  "task_index": 854,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 140582",
+        "description": "The integer n must be between 2 and 140582 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(b) == n and all(0 <= int(x) <= 187126 for x in b)",
+        "description": "The array b must have exactly n elements, each between 0 and 187126 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' and len(a) == n and all(1 <= int(x) <= 10**18 for x in a)",
+        "description": "If a valid array a exists, output 'YES' followed by the array a of length n, where each element is between 1 and 10^18 inclusive."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'NO'",
+        "description": "If no valid array a exists, output 'NO'."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'YES' implies all(int(a[i]) % int(a[(i % n) + 1]) == int(b[i]) for i in range(n))",
+        "description": "If 'YES' is output, the array a must satisfy b_i = a_i mod a_{(i mod n) + 1} for all i from 1 to n."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 140582",
+        "description": "The integer n must be between 2 and 140582 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(b) == n and all(0 <= int(x) <= 187126 for x in b)",
+        "description": "The array b must have exactly n elements, each between 0 and 187126 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' and len(a) == n and all(1 <= int(x) <= 10**18 for x in a)",
+        "description": "If a valid array a exists, output 'YES' followed by the array a of length n, where each element is between 1 and 10^18 inclusive."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'NO'",
+        "description": "If no valid array a exists, output 'NO'."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'YES' implies all(int(a[i]) % int(a[(i % n) + 1]) == int(b[i]) for i in range(n))",
+        "description": "If 'YES' is output, the array a must satisfy b_i = a_i mod a_{(i mod n) + 1} for all i from 1 to n."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "ec46fd6aa1aff9914ebeb34a3b598b0a7e624787c25b9fd43ba15fa3ee0cf44c",
+  "selected_contract_fingerprint": "ec46fd6aa1aff9914ebeb34a3b598b0a7e624787c25b9fd43ba15fa3ee0cf44c",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_13015.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression must ensure that the array `a` is derived from the input `b` in a way that satisfies the cyclic modulo condition for all indices, including the wrap-around case (i.e., `a[n] mod a[1]`). The current expression does not explicitly enforce this for the case where `(i % n) + 1` equals `1` (i.e., when `i == n`). The expression must also ensure that the output `a` is consistent with the input `b` in a way that matches the task's requirement of reconstructing `a` from `b`.",
+        "task_evidence": "b_i = a_i mod a_{(i mod n) + 1} for all i from 1 to n",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output `a` is uniquely determined by the input `b` (if possible) and that the solution is correct for all cyclic cases, including the wrap-around. The task does not require uniqueness, but it does require correctness for any valid `a` that satisfies the condition.",
+        "task_evidence": "If it is possible to restore some array a of length n so that b_i = a_i mod a_{(i mod n) + 1} holds for all i = 1, 2, ..., n",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "invalid syntax (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression must ensure that the array `a` is derived from the input `b` in a way that satisfies the cyclic modulo condition for all indices, including the wrap-around case (i.e., `a[n] mod a[1]`). The current expression does not explicitly enforce this for the case where `(i % n) + 1` equals `1` (i.e., when `i == n`). The expression must also ensure that the output `a` is consistent with the input `b` in a way that matches the task's requirement of reconstructing `a` from `b`.",
+        "task_evidence": "b_i = a_i mod a_{(i mod n) + 1} for all i from 1 to n",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output `a` is uniquely determined by the input `b` (if possible) and that the solution is correct for all cyclic cases, including the wrap-around. The task does not require uniqueness, but it does require correctness for any valid `a` that satisfies the condition.",
+        "task_evidence": "If it is possible to restore some array a of length n so that b_i = a_i mod a_{(i mod n) + 1} holds for all i = 1, 2, ..., n",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "invalid syntax (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 17.942,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:09:35.397360+00:00"
+}

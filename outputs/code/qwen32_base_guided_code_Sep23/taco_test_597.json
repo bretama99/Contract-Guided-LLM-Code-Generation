@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_597",
+  "task_index": 223,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_597.json",
+  "code": "import sys\n\ndef count_imbalanced_people(s):\n    n = len(s)\n    parent_count = [0] * (n + 1)\n    for i in range(1, n + 1):\n        if s[i - 1] != 0:\n            parent_count[s[i - 1]] += 1\n\n    ancestors = [0] * (n + 1)\n    for i in reversed(range(1, n + 1)):\n        if s[i - 1] != 0:\n            ancestors[i] = 1 + ancestors[s[i - 1]]\n\n    imbalanced = 0\n    for i in range(1, n + 1):\n        if parent_count[i] == 2:\n            left, right = 0, 0\n            for j in range(1, n + 1):\n                if s[j - 1] == i:\n                    if left == 0:\n                        left = ancestors[j]\n                    else:\n                        right = ancestors[j]\n            if max(left, right) >= 2 * min(left, right):\n                imbalanced += 1\n    return imbalanced\n\ndef construct(n, k):\n    if k > n // 2:\n        return \"NO\"\n    \n    s = [0] * n\n    if k == 0:\n        s[0] = 1\n        for i in range(1, n):\n            s[i] = i + 1\n        return \"YES \" + \" \".join(map(str, s))\n    \n    s[0] = 2\n    s[1] = 3\n    current = 4\n    imbalanced = 0\n    stack = [(2, 1)]\n    \n    while imbalanced < k:\n        if current > n:\n            return \"NO\"\n        parent, depth = stack.pop()\n        if depth % 2 == 0:\n            s[current - 1] = parent\n            current += 1\n            stack.append((parent, depth + 1))\n            stack.append((current - 1, 1))\n            imbalanced += 1\n        else:\n            s[current - 1] = parent\n            current += 2\n            stack.append((current - 2, 1))\n            stack.append((current - 1, 1))\n    \n    for i in range(current - 1, n):\n        s[i] = i + 1\n    \n    return \"YES \" + \" \".join(map(str, s))\n\ninput = sys.stdin.read().strip().split()\nn = int(input[0])\nk = int(input[1])\nprint(construct(n, k))",
+  "generation_seconds": 49.405,
+  "generated_at": "2026-09-23T21:23:22.412628+00:00"
+}

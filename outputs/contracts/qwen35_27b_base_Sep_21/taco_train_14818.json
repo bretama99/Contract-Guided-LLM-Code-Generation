@@ -1,0 +1,70 @@
+{
+  "task_id": "taco_train_14818",
+  "task_index": 579,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10 and 1 <= m <= 10 and 1 <= k <= 1000 and 1 <= w <= 1000",
+        "description": "The dimensions n, m, number of levels k, and weight w are within the specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "len(levels) == k and all(len(row) == m for level in levels for row in level)",
+        "description": "There are exactly k levels, each consisting of n rows with m characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.' for level in levels for row in level for c in row)",
+        "description": "Each cell in every level contains either a letter (case-sensitive) or a dot."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == k + 1",
+        "description": "The output contains exactly k+1 lines: one for the total cost and k lines for the transfer plan."
+      },
+      {
+        "id": "Q2",
+        "expression": "total_cost == int(output_lines[0])",
+        "description": "The first line of output is the integer representing the minimum total traffic."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit() for parts in (line.split() for line in output_lines[1:]))",
+        "description": "Each of the k subsequent lines contains exactly two integers representing a level index and a reference index."
+      },
+      {
+        "id": "Q4",
+        "expression": "set(plan_level_ids) == set(range(1, k + 1))",
+        "description": "The plan specifies a transfer method for every level from 1 to k exactly once."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((ref == 0) or (ref in seen) for (level, ref) in plan for seen in [set()])",
+        "description": "This clause is logically flawed in isolation; the correct logic is that for any level L transferred at step i with reference R, if R != 0, then R must have been transferred at some step j < i. The output order defines the transfer sequence."
+      },
+      {
+        "id": "Q6",
+        "expression": "total_cost == sum((n * m) if ref == 0 else (diff_cost(levels[level-1], levels[ref-1]) * w) for (level, ref) in plan)",
+        "description": "The total cost equals the sum of costs for each level: n*m if transferred fully (ref=0), or the number of differing cells multiplied by w if transferred as a difference from a previously transferred level."
+      },
+      {
+        "id": "Q7",
+        "expression": "total_cost == min_possible_cost",
+        "description": "The calculated total_cost is the minimum possible traffic required to transmit all k levels."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 74.105,
+  "seed": 621,
+  "generated_at": "2026-09-21T06:43:02.407591+00:00"
+}

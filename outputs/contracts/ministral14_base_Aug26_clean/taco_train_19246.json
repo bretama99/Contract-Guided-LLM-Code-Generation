@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_19246",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and m >= n - 1 and m <= min(3 * 10**5, n * (n - 1) // 2) and 1 <= k <= n",
+        "description": "The graph has n vertices (2 ≤ n ≤ 3e5), m edges (n-1 ≤ m ≤ min(3e5, n(n-1)/2)), and k special vertices (1 ≤ k ≤ n)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= v <= n for v in v_special) and len(set(v_special)) == k",
+        "description": "The k special vertices are distinct and within the valid vertex range (1 ≤ v_i ≤ n)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= c <= 10**9 for c in c_values) and len(c_values) == n",
+        "description": "Each vertex has a non-negative reward c_i (0 ≤ c_i ≤ 1e9)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= w <= 10**9 for w in w_values) and len(w_values) == m",
+        "description": "Each edge has a non-negative cost w_i (0 ≤ w_i ≤ 1e9) if left undirected."
+      },
+      {
+        "id": "P5",
+        "expression": "len(edges) == m and all(1 <= x <= n and 1 <= y <= n and x != y for x, y in edges)",
+        "description": "The graph has m edges, each connecting distinct vertices within the valid range (1 ≤ x_i, y_i ≤ n)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(x != y for x, y in edges) and len(set((min(x, y), max(x, y)) for x, y in edges)) == m",
+        "description": "There is at most one edge between each pair of vertices (no duplicates)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_profit) == n and all(isinstance(p, int) for p in output_profit)",
+        "description": "The output is a list of n integers, where the i-th integer (1-based) is the maximum profit when vertex i must be saturated."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= p <= sum(c_values) for p in output_profit)",
+        "description": "Each profit value is non-negative and does not exceed the sum of all vertex rewards (upper bound)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(p_i == max(sum(c_j for j in saturated_vertices(i)) - sum(w_j for j in undirected_edges(i)) for saturated_vertices, undirected_edges in valid_configurations(i)) for i in range(1, n + 1))",
+        "description": "For each vertex i (1-based), the output profit p_i is the maximum possible profit achievable when vertex i is saturated, computed as the sum of rewards for all saturated vertices minus the sum of costs for undirected edges in the optimal configuration. A configuration is valid if it directs edges (or leaves them undirected) such that vertex i is reachable from all special vertices, and the set of saturated vertices is maximal under this constraint."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(vertex_i_saturated(i, directed_edges, undirected_edges) for i in range(1, n + 1) for directed_edges, undirected_edges in valid_configurations(i))",
+        "description": "In every valid configuration for vertex i, vertex i is reachable from all special vertices (saturated). The reachability is defined over the graph where undirected edges are bidirectional and directed edges are unidirectional."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(undirected_edges.isdisjoint(directed_edges) and undirected_edges.union(directed_edges) == set(range(m)) for directed_edges, undirected_edges in valid_configurations(i) for i in range(1, n + 1))",
+        "description": "Every edge is either directed (included in directed_edges) or undirected (included in undirected_edges), with no overlap."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and m >= n - 1 and m <= min(3 * 10**5, n * (n - 1) // 2) and 1 <= k <= n\",\n      \"description\": \"The graph has n vertices (2 ≤ n ≤ 3e5), m edges (n-1 ≤ m ≤ min(3e5, n(n-1)/2)), and k special vertices (1 ≤ k ≤ n).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= v <= n for v in v_special) and len(set(v_special)) == k\",\n      \"description\": \"The k special vertices are distinct and within the valid vertex range (1 ≤ v_i ≤ n).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= c <= 10**9 for c in c_values) and len(c_values) == n\",\n      \"description\": \"Each vertex has a non-negative reward c_i (0 ≤ c_i ≤ 1e9).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= w <= 10**9 for w in w_values) and len(w_values) == m\",\n      \"description\": \"Each edge has a non-negative cost w_i (0 ≤ w_i ≤ 1e9) if left undirected.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(edges) == m and all(1 <= x <= n and 1 <= y <= n and x != y for x, y in edges)\",\n      \"description\": \"The graph has m edges, each connecting distinct vertices within the valid range (1 ≤ x_i, y_i ≤ n).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(x != y for x, y in edges) and len(set((min(x, y), max(x, y)) for x, y in edges)) == m\",\n      \"description\": \"There is at most one edge between each pair of vertices (no duplicates).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output_profit) == n and all(isinstance(p, int) for p in output_profit)\",\n      \"description\": \"The output is a list of n integers, where the i-th integer (1-based) is the maximum profit when vertex i must be saturated.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= p <= sum(c_values) for p in output_profit)\",\n      \"description\": \"Each profit value is non-negative and does not exceed the sum of all vertex rewards (upper bound).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(p_i == max(sum(c_j for j in saturated_vertices(i)) - sum(w_j for j in undirected_edges(i)) for saturated_vertices, undirected_edges in valid_configurations(i)) for i in range(1, n + 1))\",\n      \"description\": \"For each vertex i (1-based), the output profit p_i is the maximum possible profit achievable when vertex i is saturated, computed as the sum of rewards for all saturated vertices minus the sum of costs for undirected edges in the optimal configuration. A configuration is valid if it directs edges (or leaves them undirected) such that vertex i is reachable from all special vertices, and the set of saturated vertices is maximal under this constraint.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(vertex_i_saturated(i, directed_edges, undirected_edges) for i in range(1, n + 1) for directed_edges, undirected_edges in valid_configurations(i))\",\n      \"description\": \"In every valid configuration for vertex i, vertex i is reachable from all special vertices (saturated). The reachability is defined over the graph where undirected edges are bidirectional and directed edges are unidirectional.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(undirected_edges.isdisjoint(directed_edges) and undirected_edges.union(directed_edges) == set(range(m)) for directed_edges, undirected_edges in valid_configurations(i) for i in range(1, n + 1))\",\n      \"description\": \"Every edge is either directed (included in directed_edges) or undirected (included in undirected_edges), with no overlap.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1851,
+  "generated_tokens": 1056,
+  "hit_output_limit": false,
+  "generation_seconds": 53.779,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:22:05.309149+00:00"
+}

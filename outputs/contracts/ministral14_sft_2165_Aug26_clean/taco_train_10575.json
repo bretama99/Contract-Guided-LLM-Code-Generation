@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_10575",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100000",
+        "description": "The number of test cases t is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= m <= 10**6 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n')))",
+        "description": "For each test case, n (number of residents/cats) and m (number of friendship pairs) satisfy 1 ≤ n ≤ m ≤ 10^6."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)",
+        "description": "Each friendship pair (a_i, b_i) has resident index a_i and cat index b_i in the range [1, n]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any(a_i == i and b_i == i for a_i, b_i in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)) for i in range(1, n+1))",
+        "description": "For every resident i, there exists a friendship pair (i, i) indicating the resident knows their own cat."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and any('Yes' in line for line in stdout.splitlines()))",
+        "description": "The output for each test case is either 'No' (impossible) or starts with 'Yes' followed by valid jury and contestant selections."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('Yes' in line for line in stdout.splitlines() if line.strip() == 'Yes') and all('No' in line for line in stdout.splitlines() if line.strip() == 'No')",
+        "description": "Each test case output is either 'No' or starts with 'Yes' followed by valid selections."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('Yes' in line and (line.split()[1] == 'j' and line.split()[2] == 'p' and int(line.split()[1]) + int(line.split()[2]) == n) for line in stdout.splitlines() if line.strip() == 'Yes')",
+        "description": "If 'Yes', the second line contains integers j and p such that j + p = n, where j is the number of jury members and p is the number of contestants."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('Yes' in line and (len(set(jury)) == j and len(set(contestants)) == p) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (p := int(line.split()[2])) and (contestants := [int(x) for x in next(line.splitlines()).split()]))",
+        "description": "If 'Yes', the jury and contestant lists contain exactly j and p distinct integers respectively."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('Yes' in line and all(1 <= x <= n for x in jury) and all(1 <= x <= n for x in contestants) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]))",
+        "description": "If 'Yes', all jury and contestant indices are within the valid range [1, n]."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('Yes' in line and all(a_i not in contestants or b_i not in jury for a_i, b_i in friendships) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]) and (friendships := [(int(a), int(b)) for a, b in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\n') and ' ' in line)]))",
+        "description": "If 'Yes', no resident in the jury knows any cat in the contestants (i.e., no friendship pair (a_i, b_i) exists where a_i is in jury and b_i is in contestants)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all('Yes' in line and (j > 0 and p > 0) for line in stdout.splitlines() if line.strip() == 'Yes' and (j := int(line.split()[1])) and (p := int(line.split()[2])))",
+        "description": "If 'Yes', the number of jury members j and contestants p are both at least 1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= t <= 100000\",\n      \"description\": \"The number of test cases t is between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= n <= m <= 10**6 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\\\n')))\",\n      \"description\": \"For each test case, n (number of residents/cats) and m (number of friendship pairs) satisfy 1 ≤ n ≤ m ≤ 10^6.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a_i <= n and 1 <= b_i <= n for line in stdin.splitlines() if line.strip() and not line.startswith('\\\\n') and ' ' in line)\",\n      \"description\": \"Each friendship pair (a_i, b_i) has resident index a_i and cat index b_i in the range [1, n].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(any(a_i == i and b_i == i for a_i, b_i in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\\\n') and ' ' in line)) for i in range(1, n+1))\",\n      \"description\": \"For every resident i, there exists a friendship pair (i, i) indicating the resident knows their own cat.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'No' or (stdout.strip() == 'Yes' and any('Yes' in line for line in stdout.splitlines()))\",\n      \"description\": \"The output for each test case is either 'No' (impossible) or starts with 'Yes' followed by valid jury and contestant selections.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all('Yes' in line for line in stdout.splitlines() if line.strip() == 'Yes') and all('No' in line for line in stdout.splitlines() if line.strip() == 'No')\",\n      \"description\": \"Each test case output is either 'No' or starts with 'Yes' followed by valid selections.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all('Yes' in line and (line.split()[1] == 'j' and line.split()[2] == 'p' and int(line.split()[1]) + int(line.split()[2]) == n) for line in stdout.splitlines() if line.strip() == 'Yes')\",\n      \"description\": \"If 'Yes', the second line contains integers j and p such that j + p = n, where j is the number of jury members and p is the number of contestants.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all('Yes' in line and (len(set(jury)) == j and len(set(contestants)) == p) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (p := int(line.split()[2])) and (contestants := [int(x) for x in next(line.splitlines()).split()]))\",\n      \"description\": \"If 'Yes', the jury and contestant lists contain exactly j and p distinct integers respectively.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all('Yes' in line and all(1 <= x <= n for x in jury) and all(1 <= x <= n for x in contestants) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]))\",\n      \"description\": \"If 'Yes', all jury and contestant indices are within the valid range [1, n].\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all('Yes' in line and all(a_i not in contestants or b_i not in jury for a_i, b_i in friendships) for line in stdout.splitlines() if line.strip() == 'Yes' and (jury := [int(x) for x in next(line.splitlines()).split()]) and (contestants := [int(x) for x in next(line.splitlines()).split()]) and (friendships := [(int(a), int(b)) for a, b in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('\\\\n') and ' ' in line)]))\",\n      \"description\": \"If 'Yes', no resident in the jury knows any cat in the contestants (i.e., no friendship pair (a_i, b_i) exists where a_i is in jury and b_i is in contestants).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all('Yes' in line and (j > 0 and p > 0) for line in stdout.splitlines() if line.strip() == 'Yes' and (j := int(line.split()[1])) and (p := int(line.split()[2])))\",\n      \"description\": \"If 'Yes', the number of jury members j and contestants p are both at least 1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1891,
+  "generated_tokens": 1273,
+  "hit_output_limit": false,
+  "generation_seconds": 61.921,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:25:29.444889+00:00"
+}

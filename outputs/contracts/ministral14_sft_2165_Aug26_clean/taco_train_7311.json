@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_7311",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 100 and 1 <= m <= 100 and n * m <= 200 and 1 <= k <= min(n * m, 7)",
+        "description": "Garden dimensions n and m are within bounds, and k important squares are within valid limits."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= aij <= 1000 for row in a for aij in row)",
+        "description": "Each flower count aij in the garden is between 1 and 1000."
+      },
+      {
+        "id": "P3",
+        "expression": "len(important_squares) == k and all(1 <= x <= n and 1 <= y <= m for x, y in important_squares)",
+        "description": "Exactly k important squares are provided, each with valid coordinates."
+      },
+      {
+        "id": "P4",
+        "expression": "all((x1, y1) != (x2, y2) for i, (x1, y1) in enumerate(important_squares) for (x2, y2) in important_squares[i+1:])",
+        "description": "All important squares have distinct coordinates."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "min_dead_plants == sum(a[i-1][j-1] for i in range(1, n+1) for j in range(1, m+1) if plan[i-1][j-1] == 'X')",
+        "description": "min_dead_plants is the sum of flower counts for all squares covered with concrete ('X')."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(plan[i-1][j-1] == 'X' for i, j in important_squares)",
+        "description": "All important squares are covered with concrete ('X')."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(any(plan[x1-1][y1-1] == 'X' and plan[x2-1][y2-1] == 'X' and connected(x1, y1, x2, y2, plan) for x1, y1 in important_squares) for x2, y2 in important_squares)",
+        "description": "There exists a path of concrete-covered squares ('X') between every pair of important squares, where connected(x1, y1, x2, y2, plan) is true if there is a path from (x1, y1) to (x2, y2) using adjacent 'X' squares."
+      },
+      {
+        "id": "Q4",
+        "expression": "not any(sum(a[i-1][j-1] for i in range(1, n+1) for j in range(1, m+1) if plan[i-1][j-1] == 'X') < min_dead_plants)",
+        "description": "min_dead_plants is the minimum possible total flower count for any valid concrete plan."
+      },
+      {
+        "id": "Q5",
+        "expression": "len(plan) == n and all(len(row) == m for row in plan) and all(row in ['X', '.'] * m for row in plan)",
+        "description": "The plan is an n x m grid of 'X' or '.' characters."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 100 and 1 <= m <= 100 and n * m <= 200 and 1 <= k <= min(n * m, 7)\",\n      \"description\": \"Garden dimensions n and m are within bounds, and k important squares are within valid limits.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= aij <= 1000 for row in a for aij in row)\",\n      \"description\": \"Each flower count aij in the garden is between 1 and 1000.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(important_squares) == k and all(1 <= x <= n and 1 <= y <= m for x, y in important_squares)\",\n      \"description\": \"Exactly k important squares are provided, each with valid coordinates.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all((x1, y1) != (x2, y2) for i, (x1, y1) in enumerate(important_squares) for (x2, y2) in important_squares[i+1:])\",\n      \"description\": \"All important squares have distinct coordinates.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"min_dead_plants == sum(a[i-1][j-1] for i in range(1, n+1) for j in range(1, m+1) if plan[i-1][j-1] == 'X')\",\n      \"description\": \"min_dead_plants is the sum of flower counts for all squares covered with concrete ('X').\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(plan[i-1][j-1] == 'X' for i, j in important_squares)\",\n      \"description\": \"All important squares are covered with concrete ('X').\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(any(plan[x1-1][y1-1] == 'X' and plan[x2-1][y2-1] == 'X' and connected(x1, y1, x2, y2, plan) for x1, y1 in important_squares) for x2, y2 in important_squares)\",\n      \"description\": \"There exists a path of concrete-covered squares ('X') between every pair of important squares, where connected(x1, y1, x2, y2, plan) is true if there is a path from (x1, y1) to (x2, y2) using adjacent 'X' squares.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"not any(sum(a[i-1][j-1] for i in range(1, n+1) for j in range(1, m+1) if plan[i-1][j-1] == 'X') < min_dead_plants)\",\n      \"description\": \"min_dead_plants is the minimum possible total flower count for any valid concrete plan.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"len(plan) == n and all(len(row) == m for row in plan) and all(row in ['X', '.'] * m for row in plan)\",\n      \"description\": \"The plan is an n x m grid of 'X' or '.' characters.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1640,
+  "generated_tokens": 845,
+  "hit_output_limit": false,
+  "generation_seconds": 37.071,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:11:10.211253+00:00"
+}

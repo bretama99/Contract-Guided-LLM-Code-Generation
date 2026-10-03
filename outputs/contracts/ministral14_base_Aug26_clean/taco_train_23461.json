@@ -1,0 +1,91 @@
+{
+  "task_id": "taco_train_23461",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= int(stdin.split()[0]) <= 70",
+        "description": "The number of points n is an integer between 3 and 70 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[1:4]) == 3 and all(1 <= int(x) <= int(stdin.split()[0]) for x in stdin.split()[1:4])",
+        "description": "The initial positions of the three stones are three distinct integers between 1 and n inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "stdin.count('\\n') == int(stdin.split()[0]) + 2 and all(len(line.split()) == int(stdin.split()[0]) for line in stdin.split('\\n')[2:])",
+        "description": "The input contains exactly n lines of diagonal color matrices, each line having exactly n characters."
+      },
+      {
+        "id": "P4",
+        "expression": "all(line[i] == line[j] for line in stdin.split('\\n')[2:] for i in range(int(stdin.split()[0])) for j in range(int(stdin.split()[0])) if i != j and line[i] == line[j])",
+        "description": "The diagonal color matrix is symmetric (i.e., the color between point i and j is the same as between j and i)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(line[i] == '*' for line in stdin.split('\\n')[2:] for i in range(int(stdin.split()[0])))",
+        "description": "The main diagonal of the matrix is filled with '*' characters (no self-diagonals)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz' for line in stdin.split('\\n')[2:] for c in line if c != '*')",
+        "description": "Diagonal colors are lowercase English letters (a-z)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "(stdout.strip() == '-1') or (len(stdout.split()) >= 1 and all(line.strip().count(' ') == 1 for line in stdout.split('\\n')[1:]))",
+        "description": "If no solution exists, output is '-1'. Otherwise, the first line is the minimal number of moves (a non-negative integer), followed by that many lines, each describing a move as two integers separated by a space."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(x) <= int(stdin.split()[0]) for line in stdout.split('\\n')[1:] for x in line.split()) if stdout.strip() != '-1' else True",
+        "description": "Each move's source and destination points are integers between 1 and n inclusive."
+      },
+      {
+        "id": "Q3",
+        "expression": "(stdout.strip() == '-1') or (len(stdout.split('\\n')[1:]) == int(stdout.split()[0]) and all(int(line.split()[0]) != int(line.split()[1]) for line in stdout.split('\\n')[1:]))",
+        "description": "If a solution exists, the number of move lines matches the minimal number of moves, and no move is from a point to itself."
+      },
+      {
+        "id": "Q4",
+        "expression": "(stdout.strip() == '-1') or (all(1 <= int(line.split()[0]) <= int(stdin.split()[0]) and 1 <= int(line.split()[1]) <= int(stdin.split()[0]) for line in stdout.split('\\n')[1:]) and all(int(line.split()[0]) != int(line.split()[1]) for line in stdout.split('\\n')[1:]))",
+        "description": "Each move is valid: source and destination are distinct points within the range [1, n]."
+      },
+      {
+        "id": "Q5",
+        "expression": "(stdout.strip() == '-1') or (len(stdout.split('\\n')[1:]) == int(stdout.split()[0]) and all(is_valid_move(stdin, int(line.split()[0]), int(line.split()[1]), current_positions) for line, current_positions in zip(stdout.split('\\n')[1:], get_positions_after_moves(stdin, stdout.split('\\n')[1:]))))",
+        "description": "Each move in the sequence is valid according to the game rules: the diagonal color between the source and destination must match the color of the diagonal between the other two stones at the time of the move."
+      },
+      {
+        "id": "Q6",
+        "expression": "(stdout.strip() == '-1') or (get_final_positions(stdin, stdout.split('\\n')[1:]) == {1, 2, 3})",
+        "description": "If a solution exists, the final positions of the stones are exactly {1, 2, 3} after all moves."
+      },
+      {
+        "id": "Q7",
+        "expression": "(stdout.strip() == '-1') or (len(stdout.split('\\n')[1:]) == min_moves(stdin))",
+        "description": "If a solution exists, the number of moves is minimal."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"3 <= int(stdin.split()[0]) <= 70\",\n      \"description\": \"The number of points n is an integer between 3 and 70 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()[1:4]) == 3 and all(1 <= int(x) <= int(stdin.split()[0]) for x in stdin.split()[1:4])\",\n      \"description\": \"The initial positions of the three stones are three distinct integers between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"stdin.count('\\\\n') == int(stdin.split()[0]) + 2 and all(len(line.split()) == int(stdin.split()[0]) for line in stdin.split('\\\\n')[2:])\",\n      \"description\": \"The input contains exactly n lines of diagonal color matrices, each line having exactly n characters.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(line[i] == line[j] for line in stdin.split('\\\\n')[2:] for i in range(int(stdin.split()[0])) for j in range(int(stdin.split()[0])) if i != j and line[i] == line[j])\",\n      \"description\": \"The diagonal color matrix is symmetric (i.e., the color between point i and j is the same as between j and i).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(line[i] == '*' for line in stdin.split('\\\\n')[2:] for i in range(int(stdin.split()[0])))\",\n      \"description\": \"The main diagonal of the matrix is filled with '*' characters (no self-diagonals).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(c in 'abcdefghijklmnopqrstuvwxyz' for line in stdin.split('\\\\n')[2:] for c in line if c != '*')\",\n      \"description\": \"Diagonal colors are lowercase English letters (a-z).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"(stdout.strip() == '-1') or (len(stdout.split()) >= 1 and all(line.strip().count(' ') == 1 for line in stdout.split('\\\\n')[1:]))\",\n      \"description\": \"If no solution exists, output is '-1'. Otherwise, the first line is the minimal number of moves (a non-negative integer), followed by that many lines, each describing a move as two integers separated by a space.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(x) <= int(stdin.split()[0]) for line in stdout.split('\\\\n')[1:] for x in line.split()) if stdout.strip() != '-1' else True\",\n      \"description\": \"Each move's source and destination points are integers between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"(stdout.strip() == '-1') or (len(stdout.split('\\\\n')[1:]) == int(stdout.split()[0]) and all(int(line.split()[0]) != int(line.split()[1]) for line in stdout.split('\\\\n')[1:]))\",\n      \"description\": \"If a solution exists, the number of move lines matches the minimal number of moves, and no move is from a point to itself.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"(stdout.strip() == '-1') or (all(1 <= int(line.split()[0]) <= int(stdin.split()[0]) and 1 <= int(line.split()[1]) <= int(stdin.split()[0]) for line in stdout.split('\\\\n')[1:]) and all(int(line.split()[0]) != int(line.split()[1]) for line in stdout.split('\\\\n')[1:]))\",\n      \"description\": \"Each move is valid: source and destination are distinct points within the range [1, n].\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"(stdout.strip() == '-1') or (len(stdout.split('\\\\n')[1:]) == int(stdout.split()[0]) and all(is_valid_move(stdin, int(line.split()[0]), int(line.split()[1]), current_positions) for line, current_positions in zip(stdout.split('\\\\n')[1:], get_positions_after_moves(stdin, stdout.split('\\\\n')[1:]))))\",\n      \"description\": \"Each move in the sequence is valid according to the game rules: the diagonal color between the source and destination must match the color of the diagonal between the other two stones at the time of the move.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"(stdout.strip() == '-1') or (get_final_positions(stdin, stdout.split('\\\\n')[1:]) == {1, 2, 3})\",\n      \"description\": \"If a solution exists, the final positions of the stones are exactly {1, 2, 3} after all moves.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"(stdout.strip() == '-1') or (len(stdout.split('\\\\n')[1:]) == min_moves(stdin))\",\n      \"description\": \"If a solution exists, the number of moves is minimal.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1619,
+  "generated_tokens": 1258,
+  "hit_output_limit": false,
+  "generation_seconds": 53.907,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:05:27.981270+00:00"
+}

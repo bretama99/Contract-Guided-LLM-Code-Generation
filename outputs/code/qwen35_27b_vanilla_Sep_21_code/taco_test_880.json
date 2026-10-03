@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_test_880",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T11:22:46.486791+00:00",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    \n    try:\n        N = int(next(iterator))\n    except StopIteration:\n        return\n\n    L = [0] * N\n    R = [0] * N\n    \n    total_ones = 0\n    \n    for i in range(N):\n        l_val = int(next(iterator))\n        r_val = int(next(iterator))\n        L[i] = l_val\n        R[i] = r_val\n        count = r_val - l_val + 1\n        total_ones += count\n    \n    col_counts = [0] * (N + 2)\n    \n    for i in range(N):\n        l_val = L[i]\n        r_val = R[i]\n        col_counts[l_val] += 1\n        col_counts[r_val + 1] -= 1\n    \n    for i in range(1, N + 1):\n        col_counts[i] += col_counts[i - 1]\n    \n    try:\n        Q_str = next(iterator)\n        Q = int(Q_str)\n    except StopIteration:\n        Q = 0\n        \n    output = []\n    \n    for _ in range(Q):\n        x = int(next(iterator))\n        y = int(next(iterator))\n        \n        x_idx = x - 1\n        y_idx = y\n        \n        row_ones = R[x_idx] - L[x_idx] + 1\n        intersection = 0\n        if L[x_idx] <= y_idx <= R[x_idx]:\n            intersection = 1\n            \n        current_sum = total_ones - row_ones - col_counts[y_idx] + intersection\n        \n        if current_sum % 2 == 0:\n            output.append('E')\n        else:\n            output.append('O')\n            \n    sys.stdout.write('\\n'.join(output) + '\\n')\n\nif __name__ == \"__main__\":\n    main()"
+}

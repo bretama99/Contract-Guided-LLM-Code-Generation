@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_0",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.split()[0]) and 1 <= n <= 30",
+        "description": "The first line of stdin is an integer n (1 ≤ n ≤ 30) representing the number of points to be named."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(x) <= 10**9 and 0 <= int(y) <= 10**9 for x, y in [line.split() for line in stdout.splitlines() if line.strip() and not line.strip().startswith('black') and not line.strip().startswith('white')])",
+        "description": "All printed points (x, y) must be distinct integers within bounds 0 ≤ x, y ≤ 10^9, and printed before their color is revealed."
+      },
+      {
+        "id": "P3",
+        "expression": "len([line for line in stdout.splitlines() if line.strip() and not line.strip().startswith('black') and not line.strip().startswith('white')]) == n",
+        "description": "Exactly n distinct points must be printed before the line is reported."
+      },
+      {
+        "id": "P4",
+        "expression": "all(line.strip() in ['black', 'white'] for line in stdin.splitlines()[1:])",
+        "description": "After each point is printed, the next line of stdin is either 'black' or 'white', indicating the color of the last printed point."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((x1*(y2 - y) + x2*(y - y1) + x*(y1 - y2)) * (x1*(y2 - y) + x2*(y - y1) + x*(y1 - y2)) > 0 for (x, y), color in zip(points, colors))",
+        "description": "The line defined by (x1, y1) and (x2, y2) must strictly separate all points into two groups: all points of one color lie on one side of the line, and all points of the other color lie on the other side. No point lies on the line."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(points) == n and len(colors) == n and all(points[i] != points[j] for i in range(n) for j in range(i+1, n))",
+        "description": "The points and colors lists must contain exactly n distinct points and their corresponding colors, where colors are either 'black' or 'white'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((x1*(y2 - y) + x2*(y - y1) + x*(y1 - y2)) * (x1*(y2 - y') + x2*(y' - y1) + x'*(y1 - y2)) > 0 for (x, y), (x', y'), color, color_ in zip(points, points, colors, colors) if color != color_)",
+        "description": "For every pair of points with different colors, they must lie on opposite sides of the line defined by (x1, y1) and (x2, y2)."
+      },
+      {
+        "id": "Q4",
+        "expression": "x1 != x2 or y1 != y2",
+        "description": "The line must be valid, meaning the two points (x1, y1) and (x2, y2) must not coincide."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.split()[0]) and 1 <= n <= 30\",\n      \"description\": \"The first line of stdin is an integer n (1 ≤ n ≤ 30) representing the number of points to be named.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= int(x) <= 10**9 and 0 <= int(y) <= 10**9 for x, y in [line.split() for line in stdout.splitlines() if line.strip() and not line.strip().startswith('black') and not line.strip().startswith('white')])\",\n      \"description\": \"All printed points (x, y) must be distinct integers within bounds 0 ≤ x, y ≤ 10^9, and printed before their color is revealed.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len([line for line in stdout.splitlines() if line.strip() and not line.strip().startswith('black') and not line.strip().startswith('white')]) == n\",\n      \"description\": \"Exactly n distinct points must be printed before the line is reported.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(line.strip() in ['black', 'white'] for line in stdin.splitlines()[1:])\",\n      \"description\": \"After each point is printed, the next line of stdin is either 'black' or 'white', indicating the color of the last printed point.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all((x1*(y2 - y) + x2*(y - y1) + x*(y1 - y2)) * (x1*(y2 - y) + x2*(y - y1) + x*(y1 - y2)) > 0 for (x, y), color in zip(points, colors))\",\n      \"description\": \"The line defined by (x1, y1) and (x2, y2) must strictly separate all points into two groups: all points of one color lie on one side of the line, and all points of the other color lie on the other side. No point lies on the line.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(points) == n and len(colors) == n and all(points[i] != points[j] for i in range(n) for j in range(i+1, n))\",\n      \"description\": \"The points and colors lists must contain exactly n distinct points and their corresponding colors, where colors are either 'black' or 'white'.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((x1*(y2 - y) + x2*(y - y1) + x*(y1 - y2)) * (x1*(y2 - y') + x2*(y' - y1) + x'*(y1 - y2)) > 0 for (x, y), (x', y'), color, color_ in zip(points, points, colors, colors) if color != color_)\",\n      \"description\": \"For every pair of points with different colors, they must lie on opposite sides of the line defined by (x1, y1) and (x2, y2).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"x1 != x2 or y1 != y2\",\n      \"description\": \"The line must be valid, meaning the two points (x1, y1) and (x2, y2) must not coincide.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1953,
+  "generated_tokens": 872,
+  "hit_output_limit": false,
+  "generation_seconds": 39.832,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:23:57.298537+00:00"
+}

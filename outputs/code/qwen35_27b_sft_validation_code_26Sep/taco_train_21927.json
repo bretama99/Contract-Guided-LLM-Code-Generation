@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_21927",
+  "task_index": 207,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_21927.json",
+  "code": "import sys\nsys.setrecursionlimit(300000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    \n    a = []\n    for _ in range(n):\n        a.append(int(next(iterator)))\n    \n    if n == 1:\n        print(0)\n        return\n    \n    adj = [[] for _ in range(n)]\n    for _ in range(n - 1):\n        u = int(next(iterator)) - 1\n        v = int(next(iterator)) - 1\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    parent = [-1] * n\n    order = []\n    stack = [0]\n    visited = [False] * n\n    visited[0] = True\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n    \n    subtree_sum = [0] * n\n    depth = [0] * n\n    \n    for i in range(n - 1, -1, -1):\n        u = order[i]\n        s = a[u]\n        for v in adj[u]:\n            if v != parent[u]:\n                s += subtree_sum[v]\n        subtree_sum[u] = s\n    \n    current_cost = 0\n    for i in range(n):\n        current_cost += depth[i] * a[i]\n    \n    max_cost = current_cost\n    \n    for u in order:\n        if u == 0:\n            continue\n        p = parent[u]\n        size_u = subtree_sum[u]\n        total_sum = subtree_sum[0]\n        \n        cost_p = current_cost\n        cost_u = cost_p - size_u + (total_sum - size_u)\n        \n        if cost_u > max_cost:\n            max_cost = cost_u\n        \n        current_cost = cost_u\n    \n    print(max_cost)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 40.798,
+  "generated_at": "2026-09-26T21:19:22.920290+00:00"
+}

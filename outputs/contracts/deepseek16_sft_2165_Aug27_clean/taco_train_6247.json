@@ -1,0 +1,99 @@
+{
+  "task_id": "taco_train_6247",
+  "model": "deepseek16-sft-2165-Aug27-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= m <= 3000",
+        "description": "The number of players m and the number of top results n are within the specified range."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= p <= 2 * m for p in top_points)",
+        "description": "Each of the top n points is non-negative and does not exceed twice the number of games."
+      },
+      {
+        "id": "P3",
+        "expression": "isinstance(top_points, list) and len(top_points) == n and all(isinstance(p, int) for p in top_points)",
+        "description": "The top n points are provided as a list of integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(top_points[i] >= top_points[i + 1] for i in range(n - 1))",
+        "description": "The top n points are provided in non-ascending order."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "output == 'yes' or output == 'no'",
+        "description": "The output is either 'yes' or 'no' indicating whether a valid tournament exists."
+      },
+      {
+        "id": "Q2",
+        "expression": "output == 'yes'",
+        "description": "If there is a valid tournament, the output is 'yes' and the following conditions are met:"
+      },
+      {
+        "id": "Q3",
+        "expression": "all(line[i] == 'X' for i, line in enumerate(tournament_table))",
+        "description": "The main diagonal is filled with 'X'."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(sum(row) == 2 * (m - 1) for row in tournament_table)",
+        "description": "Each row in the tournament table has exactly two 'W' entries, indicating a total of 2 points per row."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(sum(col) == 2 * (m - 1) for col in zip(*tournament_table))",
+        "description": "Each column in the tournament table has exactly two 'W' entries, indicating a total of 2 points per column."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(sum(row[i] == 'W' for row in tournament_table) * 2 + sum(row[i] == 'D' for row in tournament_table) == top_points[i] for i in range(n))",
+        "description": "The top n rows of the tournament table match the points remembered by Ostap."
+      },
+      {
+        "id": "Q7",
+        "expression": "output == 'no' or (output == 'yes' and tournament_table is not None)",
+        "description": "If the output is 'no', no tournament table is provided. If the output is 'yes', a valid tournament table is provided."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(tournament_table[i][j] != 'W' for i in range(m) for j in range(m) if i != j)",
+        "description": "No player plays against themselves."
+      },
+      {
+        "id": "I2",
+        "expression": "all(tournament_table[i][j] != 'L' for i in range(m) for j in range(m) if i != j)",
+        "description": "No player loses to themselves."
+      },
+      {
+        "id": "I3",
+        "expression": "all(tournament_table[i][j] != 'D' for i in range(m) for j in range(m) if i != j)",
+        "description": "No player draws with themselves."
+      },
+      {
+        "id": "I4",
+        "expression": "all(tournament_table[i][j] == tournament_table[j][i] for i in range(m) for j in range(m) if i != j)",
+        "description": "The tournament table is symmetric."
+      }
+    ]
+  },
+  "raw_response": "{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= m <= 3000\",\n      \"description\": \"The number of players m and the number of top results n are within the specified range.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= p <= 2 * m for p in top_points)\",\n      \"description\": \"Each of the top n points is non-negative and does not exceed twice the number of games.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"isinstance(top_points, list) and len(top_points) == n and all(isinstance(p, int) for p in top_points)\",\n      \"description\": \"The top n points are provided as a list of integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(top_points[i] >= top_points[i + 1] for i in range(n - 1))\",\n      \"description\": \"The top n points are provided in non-ascending order.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"output == 'yes' or output == 'no'\",\n      \"description\": \"The output is either 'yes' or 'no' indicating whether a valid tournament exists.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"output == 'yes'\",\n      \"description\": \"If there is a valid tournament, the output is 'yes' and the following conditions are met:\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(line[i] == 'X' for i, line in enumerate(tournament_table))\",\n      \"description\": \"The main diagonal is filled with 'X'.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(sum(row) == 2 * (m - 1) for row in tournament_table)\",\n      \"description\": \"Each row in the tournament table has exactly two 'W' entries, indicating a total of 2 points per row.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(sum(col) == 2 * (m - 1) for col in zip(*tournament_table))\",\n      \"description\": \"Each column in the tournament table has exactly two 'W' entries, indicating a total of 2 points per column.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(sum(row[i] == 'W' for row in tournament_table) * 2 + sum(row[i] == 'D' for row in tournament_table) == top_points[i] for i in range(n))\",\n      \"description\": \"The top n rows of the tournament table match the points remembered by Ostap.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"output == 'no' or (output == 'yes' and tournament_table is not None)\",\n      \"description\": \"If the output is 'no', no tournament table is provided. If the output is 'yes', a valid tournament table is provided.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(tournament_table[i][j] != 'W' for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"No player plays against themselves.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(tournament_table[i][j] != 'L' for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"No player loses to themselves.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"all(tournament_table[i][j] != 'D' for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"No player draws with themselves.\"\n    },\n    {\n      \"id\": \"I4\",\n      \"expression\": \"all(tournament_table[i][j] == tournament_table[j][i] for i in range(m) for j in range(m) if i != j)\",\n      \"description\": \"The tournament table is symmetric.\"\n    }\n  ]\n}",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1748,
+  "generated_tokens": 1091,
+  "hit_output_limit": false,
+  "generation_issue": null,
+  "generated_at": "2026-08-28T01:41:41.373934+00:00"
+}

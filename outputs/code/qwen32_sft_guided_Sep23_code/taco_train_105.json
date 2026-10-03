@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_105",
+  "task_index": 234,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_105.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    import math\n    import bisect\n\n    def find_best_progression(arr, N, K):\n        arr.sort()\n        diffs = defaultdict(list)\n        for i in range(N):\n            for j in range(i + 1, N):\n                diff = arr[j] - arr[i]\n                if diff != 0:\n                    diffs[diff].append((arr[i], j - i))\n        \n        best_a0 = -10**10\n        best_d = -10**10\n        best_changes = float('inf')\n        \n        for d in sorted(diffs.keys()):\n            positions = diffs[d]\n            prefix_sum = [0] * (N + 1)\n            for a0, length in positions:\n                index = bisect.bisect_left(arr, a0)\n                prefix_sum[index + length] += 1\n            \n            for i in range(1, N + 1):\n                prefix_sum[i] += prefix_sum[i - 1]\n            \n            for i in range(N):\n                a0 = arr[i]\n                expected_count = (arr[-1] - a0) // d + 1\n                actual_count = prefix_sum[bisect.bisect_right(arr, a0 + (N - 1) * d)]\n                changes = N - actual_count\n                if changes <= K and (a0 < best_a0 or (a0 == best_a0 and d < best_d)):\n                    best_a0 = a0\n                    best_d = d\n                    best_changes = changes\n        \n        if best_d == -10**10:\n            best_a0 = arr[0]\n            best_d = 0\n        \n        result = [best_a0 + i * best_d for i in range(N)]\n        return ' '.join(map(str, result))\n\n    input = sys.stdin.read().strip().split()\n    N = int(input[0])\n    K = int(input[1])\n    A = list(map(int, input[2:]))\n    print(find_best_progression(A, N, K))\n\nmain()",
+  "generation_seconds": 39.639,
+  "generated_at": "2026-09-23T18:41:04.425438+00:00"
+}

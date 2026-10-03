@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16910",
+  "task_index": 662,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_16910.json",
+  "code": "import sys\nsys.setrecursionlimit(200000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    m = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    degree = [0] * (n + 1)\n    \n    for _ in range(m):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n        degree[u] += 1\n        degree[v] += 1\n    \n    visited = [False] * (n + 1)\n    separate_count = 0\n    \n    def dfs(start_node):\n        stack = [start_node]\n        visited[start_node] = True\n        has_cycle = False\n        \n        while stack:\n            u = stack.pop()\n            \n            for v in adj[u]:\n                if not visited[v]:\n                    visited[v] = True\n                    stack.append(v)\n        \n        # Check for cycle in this component\n        # A component with E >= V has a cycle\n        node_count = 0\n        edge_count = 0\n        stack = [start_node]\n        local_visited = {start_node}\n        \n        while stack:\n            u = stack.pop()\n            node_count += 1\n            edge_count += len(adj[u])\n            \n            for v in adj[u]:\n                if v not in local_visited:\n                    local_visited.add(v)\n                    stack.append(v)\n        \n        # Each undirected edge counted twice\n        edge_count //= 2\n        \n        if edge_count < node_count:\n            return 1\n        else:\n            return 0\n    \n    for i in range(1, n + 1):\n        if not visited[i]:\n            separate_count += dfs(i)\n    \n    print(separate_count)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 41.89,
+  "generated_at": "2026-09-25T03:51:17.900645+00:00"
+}

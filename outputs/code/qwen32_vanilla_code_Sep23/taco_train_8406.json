@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_8406",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:34:54.516980+00:00",
+  "code": "import sys\nfrom math import factorial\n\nMOD = 998244353\n\ndef count_distinct_subarrays(n):\n    def z_function(s):\n        n = len(s)\n        z = [0] * n\n        l, r = 0, 0\n        for i in range(1, n):\n            if i <= r:\n                z[i] = min(r - i + 1, z[i - l])\n            while i + z[i] < n and s[z[i]] == s[i + z[i]]:\n                z[i] += 1\n            if i + z[i] - 1 > r:\n                l, r = i, i + z[i] - 1\n        return z\n\n    fact = [1] * (n + 1)\n    for i in range(2, n + 1):\n        fact[i] = fact[i - 1] * i % MOD\n\n    inv_fact = [1] * (n + 1)\n    inv_fact[n] = pow(fact[n], MOD - 2, MOD)\n    for i in range(n - 1, 0, -1):\n        inv_fact[i] = inv_fact[i + 1] * (i + 1) % MOD\n\n    def comb(n, k):\n        if k < 0 or k > n:\n            return 0\n        return fact[n] * inv_fact[k] % MOD * inv_fact[n - k] % MOD\n\n    total_length = n * factorial(n)\n    s = ''.join(str(i) for i in range(1, n + 1)) * factorial(n)\n    z = z_function(s)\n\n    distinct_subarrays = 0\n    for i in range(total_length):\n        distinct_subarrays = (distinct_subarrays + total_length - i - z[i]) % MOD\n\n    return distinct_subarrays\n\nn = int(sys.stdin.read().strip())\nprint(count_distinct_subarrays(n))"
+}

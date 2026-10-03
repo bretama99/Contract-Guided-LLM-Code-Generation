@@ -1,0 +1,96 @@
+{
+  "task_id": "taco_train_16190",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 1000",
+        "description": "The first line of each test case is an integer n (1 ≤ n ≤ 1000) representing the number of packages."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) >= 1 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n package lines contains at least one token (the package name)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(deps) <= 20 for line in stdin.splitlines()[1:] for deps in [line.split()[1:]])",
+        "description": "Each package has at most 20 dependencies."
+      },
+      {
+        "id": "P4",
+        "expression": "all(' ' in line or len(line.split()) == 1 for line in stdin.splitlines()[1:])",
+        "description": "A package line either has a package name followed by space-separated dependencies or just the package name (no dependencies)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(name) <= 40 for line in stdin.splitlines()[1:] for name in [line.split()[0]])",
+        "description": "Each package name is a string of up to 40 non-whitespace characters."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_+-.' for c in name) for line in stdin.splitlines()[1:] for name in [line.split()[0]])",
+        "description": "Each package name consists only of allowed characters (a-z, A-Z, 0-9, _, -, ., +)."
+      },
+      {
+        "id": "P7",
+        "expression": "all(dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdin.splitlines()[1:] for dep in line.split()[1:])",
+        "description": "Each dependency of a package is one of the other n-1 packages in the test case."
+      },
+      {
+        "id": "P8",
+        "expression": "stdin.splitlines()[0] == '0' or int(stdin.splitlines()[0]) > 0",
+        "description": "Input ends when n is zero, and each test case starts with n > 0."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(package not in [dep for pkg in stdin.splitlines()[1:] for dep in pkg.split()[1:]] for package in stdout.splitlines())",
+        "description": "If the output is not 'cannot be ordered', then no package appears before its dependencies in the output list."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for i, package in enumerate(stdout.splitlines()) for dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:] if pkg.split()[0] == package][0].split()[1:]))",
+        "description": "For each package in the output list, all its dependencies appear before it in the output list."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([pkg.split()[0] for pkg in stdin.splitlines()[1:]])",
+        "description": "The output list contains exactly the same set of package names as the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or stdout.splitlines()[-1] != '')",
+        "description": "If the output is not 'cannot be ordered', it is either empty or ends with a newline-separated package name."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))",
+        "description": "If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() == '' or line.strip() in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdout.splitlines()))",
+        "description": "Each line in the output is either empty or a valid package name from the input."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(stdin.splitlines()[0]) <= 1000\",\n      \"description\": \"The first line of each test case is an integer n (1 ≤ n ≤ 1000) representing the number of packages.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) >= 1 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n package lines contains at least one token (the package name).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(deps) <= 20 for line in stdin.splitlines()[1:] for deps in [line.split()[1:]])\",\n      \"description\": \"Each package has at most 20 dependencies.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(' ' in line or len(line.split()) == 1 for line in stdin.splitlines()[1:])\",\n      \"description\": \"A package line either has a package name followed by space-separated dependencies or just the package name (no dependencies).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(name) <= 40 for line in stdin.splitlines()[1:] for name in [line.split()[0]])\",\n      \"description\": \"Each package name is a string of up to 40 non-whitespace characters.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_+-.' for c in name) for line in stdin.splitlines()[1:] for name in [line.split()[0]])\",\n      \"description\": \"Each package name consists only of allowed characters (a-z, A-Z, 0-9, _, -, ., +).\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdin.splitlines()[1:] for dep in line.split()[1:])\",\n      \"description\": \"Each dependency of a package is one of the other n-1 packages in the test case.\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"stdin.splitlines()[0] == '0' or int(stdin.splitlines()[0]) > 0\",\n      \"description\": \"Input ends when n is zero, and each test case starts with n > 0.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or all(package not in [dep for pkg in stdin.splitlines()[1:] for dep in pkg.split()[1:]] for package in stdout.splitlines())\",\n      \"description\": \"If the output is not 'cannot be ordered', then no package appears before its dependencies in the output list.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for i, package in enumerate(stdout.splitlines()) for dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:] if pkg.split()[0] == package][0].split()[1:]))\",\n      \"description\": \"For each package in the output list, all its dependencies appear before it in the output list.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([pkg.split()[0] for pkg in stdin.splitlines()[1:]])\",\n      \"description\": \"The output list contains exactly the same set of package names as the input.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or stdout.splitlines()[-1] != '')\",\n      \"description\": \"If the output is not 'cannot be ordered', it is either empty or ends with a newline-separated package name.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))\",\n      \"description\": \"If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() == '' or line.strip() in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdout.splitlines()))\",\n      \"description\": \"Each line in the output is either empty or a valid package name from the input.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1731,
+  "generated_tokens": 1192,
+  "hit_output_limit": false,
+  "generation_seconds": 52.016,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:35:00.725802+00:00"
+}

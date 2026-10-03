@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_10348",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(x, str) and x != '' for x in stdin.splitlines()[2:2+n]) and len(stdin.splitlines()) == n + 2 and all(len(x) <= 100 for x in stdin.splitlines()[2:2+n])",
+        "description": "The input consists of exactly n+2 lines: first line contains two integers n and k (1 ≤ n, k ≤ 100), followed by n distinct non-empty passwords (each ≤ 100 chars), and the last line is the correct password (guaranteed to be one of the n passwords)."
+      },
+      {
+        "id": "P2",
+        "expression": "n >= 1 and k >= 1 and n <= 100 and k <= 100",
+        "description": "The integers n (number of passwords) and k (failed tries before 5-second delay) are within the bounds 1 ≤ n, k ≤ 100."
+      },
+      {
+        "id": "P3",
+        "expression": "correct_password in passwords and len(set(passwords)) == n",
+        "description": "The correct password is exactly one of the n distinct passwords provided, where `passwords` is the list of n passwords and `correct_password` is the last line of input."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == f'{best_case} {worst_case}' and best_case >= 1 and worst_case >= best_case",
+        "description": "The output consists of two integers: `best_case` (minimum time in seconds) and `worst_case` (maximum time in seconds) for Vanya to enter the correct password, where `best_case` is the minimal possible time and `worst_case` is the maximal possible time under the given constraints."
+      },
+      {
+        "id": "Q2",
+        "expression": "best_case == 1 if correct_password == passwords[0] else best_case == sum(1 for p in passwords if len(p) < len(correct_password)) + 1 + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password)",
+        "description": "The `best_case` is the minimal time achieved by entering all passwords of shorter length first (in any order), then the correct password immediately after (if it is the first of its length) or after all shorter-length passwords (if it is not)."
+      },
+      {
+        "id": "Q3",
+        "expression": "worst_case == sum(1 for p in passwords if len(p) < len(correct_password)) + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password) + 1 + 5 * (sum(1 for p in passwords if len(p) < len(correct_password)) + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password) // k) * (sum(1 for p in passwords if len(p) < len(correct_password)) + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password) % k != 0)",
+        "description": "The `worst_case` is the maximal time achieved by entering all incorrect passwords first (in non-decreasing length order), then the correct password last, accounting for 5-second delays after every k failed attempts. The delays are calculated as `5 * (total_failed_attempts // k) * (total_failed_attempts % k != 0)` where `total_failed_attempts` is the number of incorrect passwords entered before the correct one."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(x, str) and x != '' for x in stdin.splitlines()[2:2+n]) and len(stdin.splitlines()) == n + 2 and all(len(x) <= 100 for x in stdin.splitlines()[2:2+n])\",\n      \"description\": \"The input consists of exactly n+2 lines: first line contains two integers n and k (1 ≤ n, k ≤ 100), followed by n distinct non-empty passwords (each ≤ 100 chars), and the last line is the correct password (guaranteed to be one of the n passwords).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"n >= 1 and k >= 1 and n <= 100 and k <= 100\",\n      \"description\": \"The integers n (number of passwords) and k (failed tries before 5-second delay) are within the bounds 1 ≤ n, k ≤ 100.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"correct_password in passwords and len(set(passwords)) == n\",\n      \"description\": \"The correct password is exactly one of the n distinct passwords provided, where `passwords` is the list of n passwords and `correct_password` is the last line of input.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == f'{best_case} {worst_case}' and best_case >= 1 and worst_case >= best_case\",\n      \"description\": \"The output consists of two integers: `best_case` (minimum time in seconds) and `worst_case` (maximum time in seconds) for Vanya to enter the correct password, where `best_case` is the minimal possible time and `worst_case` is the maximal possible time under the given constraints.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"best_case == 1 if correct_password == passwords[0] else best_case == sum(1 for p in passwords if len(p) < len(correct_password)) + 1 + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password)\",\n      \"description\": \"The `best_case` is the minimal time achieved by entering all passwords of shorter length first (in any order), then the correct password immediately after (if it is the first of its length) or after all shorter-length passwords (if it is not).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"worst_case == sum(1 for p in passwords if len(p) < len(correct_password)) + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password) + 1 + 5 * (sum(1 for p in passwords if len(p) < len(correct_password)) + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password) // k) * (sum(1 for p in passwords if len(p) < len(correct_password)) + sum(1 for p in passwords if len(p) == len(correct_password) and p != correct_password) % k != 0)\",\n      \"description\": \"The `worst_case` is the maximal time achieved by entering all incorrect passwords first (in non-decreasing length order), then the correct password last, accounting for 5-second delays after every k failed attempts. The delays are calculated as `5 * (total_failed_attempts // k) * (total_failed_attempts % k != 0)` where `total_failed_attempts` is the number of incorrect passwords entered before the correct one.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1766,
+  "generated_tokens": 887,
+  "hit_output_limit": false,
+  "generation_seconds": 41.418,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:57:17.296399+00:00"
+}

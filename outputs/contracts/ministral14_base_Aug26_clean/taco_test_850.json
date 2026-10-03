@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_test_850",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.split()[0]) and t >= 1 and t <= 10**4",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10^4) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == n for line in stdin.splitlines()[1:])",
+        "description": "Each test case has exactly n integers in the b array and p permutation, where n is the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= n for line in stdin.splitlines()[1:] for x in line.split())",
+        "description": "All elements in b and p are integers between 1 and n (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(b[i] == i+1 for i in range(n) if b[i] == i+1).count(True) == 1",
+        "description": "The b array encodes a rooted tree with exactly one root (b[i] == i+1 for exactly one i)."
+      },
+      {
+        "id": "P5",
+        "expression": "len(set(p)) == n",
+        "description": "The permutation p contains all vertices from 1 to n exactly once."
+      },
+      {
+        "id": "P6",
+        "expression": "n >= 1 and n <= 2 * 10**5",
+        "description": "The number of vertices n in each test case satisfies 1 ≤ n ≤ 2 * 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "any(output_line.strip() == '-1' or (len(output_line.split()) == n and all(0 <= int(w) <= 10**9 for w in output_line.split())), for output_line in stdout.splitlines())",
+        "description": "For each test case, the output is either '-1' (no solution) or an array of n integers w_i (0 ≤ w_i ≤ 10^9), where w_i is the weight of the edge from b_i to i (or 0 if i is the root)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(dist[p[i]] < dist[p[i+1]] for i in range(n-1)) if output_line.strip() != '-1' else True",
+        "description": "If a solution exists, the distances from the root to vertices, computed as the sum of edge weights along the path from the root, must satisfy dist[p[i]] < dist[p[i+1]] for all i from 0 to n-2, where p is the given permutation."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(dist[u] != dist[v] for u in range(1, n+1) for v in range(1, n+1) if u != v) if output_line.strip() != '-1' else True",
+        "description": "If a solution exists, all vertices must have distinct distances from the root (no two vertices can have the same distance)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(w_i == 0 or w_i >= 1 for w_i in map(int, output_line.split())) if output_line.strip() != '-1' else True",
+        "description": "If a solution exists, all non-root edge weights w_i must be positive integers (1 ≤ w_i ≤ 10^9)."
+      },
+      {
+        "id": "Q5",
+        "expression": "any(output_line.strip() == '-1' or (all(dist[u] == sum(w_i for i in path_to_root(u)) for u in range(1, n+1)) and sorted(dist.values()) == [dist[p[i]] for i in range(n)]), for output_line in stdout.splitlines())",
+        "description": "If a solution exists, the computed distances from the root must match the permutation p when sorted in ascending order, where dist[u] is the sum of edge weights along the path from the root to u."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.split()[0]) and t >= 1 and t <= 10**4\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10^4) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == n for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each test case has exactly n integers in the b array and p permutation, where n is the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= n for line in stdin.splitlines()[1:] for x in line.split())\",\n      \"description\": \"All elements in b and p are integers between 1 and n (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(b[i] == i+1 for i in range(n) if b[i] == i+1).count(True) == 1\",\n      \"description\": \"The b array encodes a rooted tree with exactly one root (b[i] == i+1 for exactly one i).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(set(p)) == n\",\n      \"description\": \"The permutation p contains all vertices from 1 to n exactly once.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"n >= 1 and n <= 2 * 10**5\",\n      \"description\": \"The number of vertices n in each test case satisfies 1 ≤ n ≤ 2 * 10^5.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"any(output_line.strip() == '-1' or (len(output_line.split()) == n and all(0 <= int(w) <= 10**9 for w in output_line.split())), for output_line in stdout.splitlines())\",\n      \"description\": \"For each test case, the output is either '-1' (no solution) or an array of n integers w_i (0 ≤ w_i ≤ 10^9), where w_i is the weight of the edge from b_i to i (or 0 if i is the root).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(dist[p[i]] < dist[p[i+1]] for i in range(n-1)) if output_line.strip() != '-1' else True\",\n      \"description\": \"If a solution exists, the distances from the root to vertices, computed as the sum of edge weights along the path from the root, must satisfy dist[p[i]] < dist[p[i+1]] for all i from 0 to n-2, where p is the given permutation.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(dist[u] != dist[v] for u in range(1, n+1) for v in range(1, n+1) if u != v) if output_line.strip() != '-1' else True\",\n      \"description\": \"If a solution exists, all vertices must have distinct distances from the root (no two vertices can have the same distance).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(w_i == 0 or w_i >= 1 for w_i in map(int, output_line.split())) if output_line.strip() != '-1' else True\",\n      \"description\": \"If a solution exists, all non-root edge weights w_i must be positive integers (1 ≤ w_i ≤ 10^9).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"any(output_line.strip() == '-1' or (all(dist[u] == sum(w_i for i in path_to_root(u)) for u in range(1, n+1)) and sorted(dist.values()) == [dist[p[i]] for i in range(n)]), for output_line in stdout.splitlines())\",\n      \"description\": \"If a solution exists, the computed distances from the root must match the permutation p when sorted in ascending order, where dist[u] is the sum of edge weights along the path from the root to u.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2227,
+  "generated_tokens": 1012,
+  "hit_output_limit": false,
+  "generation_seconds": 45.826,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:27:44.587920+00:00"
+}

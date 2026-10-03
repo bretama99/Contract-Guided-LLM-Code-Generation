@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_16190",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.strip()) <= 1000 for line in stdin.splitlines() if line.strip().isdigit())",
+        "description": "The first line of each test case is an integer n (1 ≤ n ≤ 1000) representing the number of packages. Input ends when n is zero."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) >= 1 for line in stdin.splitlines() if not line.strip().isdigit())",
+        "description": "Each package line starts with a package name followed by zero or more space-separated dependency names."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(package_name) <= 40 for line in stdin.splitlines() if not line.strip().isdigit() for package_name in [line.split()[0]])",
+        "description": "Each package name is a string of up to 40 non-whitespace characters using a-z, A-Z, 0-9, _, -, ., +."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(dependencies) <= 20 for line in stdin.splitlines() if not line.strip().isdigit() for dependencies in [line.split()[1:]])",
+        "description": "Each package has at most 20 dependencies."
+      },
+      {
+        "id": "P5",
+        "expression": "all(dep in all_packages for line in stdin.splitlines() if not line.strip().isdigit() for dep in line.split()[1:] if dep)",
+        "description": "Each dependency is one of the other n-1 packages in the same test case. all_packages is the set of all package names in the current test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(package in stdout.splitlines() for package in all_packages)",
+        "description": "If a valid topological order exists, stdout contains all package names in the test case exactly once, in lexicographically smallest valid order. Otherwise, stdout is 'cannot be ordered'."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(package not in [dep for dep in dependencies] for package in stdout.splitlines() for dependencies in [line.split()[1:] for line in stdin.splitlines() if not line.strip().isdigit() if line.split()[0] == package])",
+        "description": "For every package in the output order, all its dependencies appear before it in the output."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(stdout.splitlines().index(package) < stdout.splitlines().index(dep) for package in all_packages for dep in [line.split()[0] for line in stdin.splitlines() if not line.strip().isdigit() if dep in line.split()[1:]])",
+        "description": "If a valid order exists, the output is the lexicographically smallest topological sort (using ASCII values for string ordering)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.strip()) <= 1000 for line in stdin.splitlines() if line.strip().isdigit())\",\n      \"description\": \"The first line of each test case is an integer n (1 ≤ n ≤ 1000) representing the number of packages. Input ends when n is zero.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) >= 1 for line in stdin.splitlines() if not line.strip().isdigit())\",\n      \"description\": \"Each package line starts with a package name followed by zero or more space-separated dependency names.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(package_name) <= 40 for line in stdin.splitlines() if not line.strip().isdigit() for package_name in [line.split()[0]])\",\n      \"description\": \"Each package name is a string of up to 40 non-whitespace characters using a-z, A-Z, 0-9, _, -, ., +.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(dependencies) <= 20 for line in stdin.splitlines() if not line.strip().isdigit() for dependencies in [line.split()[1:]])\",\n      \"description\": \"Each package has at most 20 dependencies.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(dep in all_packages for line in stdin.splitlines() if not line.strip().isdigit() for dep in line.split()[1:] if dep)\",\n      \"description\": \"Each dependency is one of the other n-1 packages in the same test case. all_packages is the set of all package names in the current test case.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or all(package in stdout.splitlines() for package in all_packages)\",\n      \"description\": \"If a valid topological order exists, stdout contains all package names in the test case exactly once, in lexicographically smallest valid order. Otherwise, stdout is 'cannot be ordered'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or all(package not in [dep for dep in dependencies] for package in stdout.splitlines() for dependencies in [line.split()[1:] for line in stdin.splitlines() if not line.strip().isdigit() if line.split()[0] == package])\",\n      \"description\": \"For every package in the output order, all its dependencies appear before it in the output.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'cannot be ordered' or all(stdout.splitlines().index(package) < stdout.splitlines().index(dep) for package in all_packages for dep in [line.split()[0] for line in stdin.splitlines() if not line.strip().isdigit() if dep in line.split()[1:]])\",\n      \"description\": \"If a valid order exists, the output is the lexicographically smallest topological sort (using ASCII values for string ordering).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1731,
+  "generated_tokens": 782,
+  "hit_output_limit": false,
+  "generation_seconds": 36.435,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:11:25.617711+00:00"
+}

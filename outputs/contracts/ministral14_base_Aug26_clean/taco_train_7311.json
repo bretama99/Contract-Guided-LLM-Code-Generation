@@ -1,0 +1,82 @@
+{
+  "task_id": "taco_train_7311",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 100 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[1]) <= 100 for line in stdin.splitlines()[0:1]) and 1 <= int(stdin.splitlines()[0].split()[2]) <= min(int(stdin.splitlines()[0].split()[0]) * int(stdin.splitlines()[0].split()[1]), 7)",
+        "description": "Input must contain valid integers n, m, k where 1 ≤ n, m ≤ 100, n·m ≤ 200, and 1 ≤ k ≤ min(n·m, 7)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == n + k + 1 and all(len(line.split()) == m for line in stdin.splitlines()[1:n+1]) and all(1 <= int(aij) <= 1000 for line in stdin.splitlines()[1:n+1] for aij in line.split())",
+        "description": "Input must contain exactly n lines of m integers (1 ≤ aij ≤ 1000) followed by k lines of coordinates (x, y) where 1 ≤ x ≤ n and 1 ≤ y ≤ m."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[n+1:]) and all(1 <= int(line.split()[0]) <= n and 1 <= int(line.split()[1]) <= m for line in stdin.splitlines()[n+1:])",
+        "description": "Important squares coordinates must be within the garden bounds (1 ≤ x ≤ n, 1 ≤ y ≤ m)."
+      },
+      {
+        "id": "P4",
+        "expression": "len({(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[n+1:]}) == k",
+        "description": "All k important squares must have unique coordinates."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].isdigit() and int(stdout.splitlines()[0]) >= sum(aij for (i, line) in enumerate(stdin.splitlines()[1:n+1], 1) for (j, aij) in enumerate(line.split(), 1) if (i, j) in important_squares)",
+        "description": "The first line of stdout must be a non-negative integer representing the minimum total number of dead plants, which is at least the sum of flowers in all important squares (since they must be covered)."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()) == n and all(len(line) == m for line in stdout.splitlines()[1:]) and all(c in '.X' for line in stdout.splitlines()[1:] for c in line)",
+        "description": "The next n lines of stdout must form an n × m grid where each cell is either '.' (not covered) or 'X' (covered with concrete)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((i, j) in important_squares for i in range(1, n+1) for j in range(1, m+1) if stdout.splitlines()[i].split()[j-1] == 'X')",
+        "description": "All important squares must be covered with concrete ('X')."
+      },
+      {
+        "id": "Q4",
+        "expression": "is_connected(important_squares, stdout.splitlines()[1:])",
+        "description": "The concrete-covered squares ('X') must form a connected region that includes all important squares, where connectivity is defined by adjacent squares (sharing a side)."
+      },
+      {
+        "id": "Q5",
+        "expression": "int(stdout.splitlines()[0]) == sum(int(aij) for (i, line) in enumerate(stdin.splitlines()[1:n+1], 1) for (j, aij) in enumerate(line.split(), 1) if stdout.splitlines()[i][j-1] == 'X')",
+        "description": "The first line of stdout must equal the total number of flowers in all concrete-covered squares ('X')."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "important_squares := {(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[n+1:]}",
+        "description": "important_squares is the set of all k important square coordinates (1-based)."
+      },
+      {
+        "id": "I2",
+        "expression": "def is_connected(important_squares, grid):\n    # grid is a list of strings, 1-based indexing for rows and columns\n    covered = set()\n    for i in range(1, len(grid)+1):\n        for j in range(1, len(grid[0])+1):\n            if grid[i-1][j-1] == 'X':\n                covered.add((i, j))\n    if important_squares - covered:\n        return False\n    # BFS to check connectivity\n    from collections import deque\n    queue = deque(important_squares)\n    visited = set(queue)\n    while queue:\n        x, y = queue.popleft()\n        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:\n            nx, ny = x + dx, y + dy\n            if (nx, ny) in covered and (nx, ny) not in visited:\n                visited.add((nx, ny))\n                queue.append((nx, ny))\n    return visited == covered",
+        "description": "is_connected checks if all concrete-covered squares ('X') form a single connected region that includes all important squares."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 100 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[1]) <= 100 for line in stdin.splitlines()[0:1]) and 1 <= int(stdin.splitlines()[0].split()[2]) <= min(int(stdin.splitlines()[0].split()[0]) * int(stdin.splitlines()[0].split()[1]), 7)\",\n      \"description\": \"Input must contain valid integers n, m, k where 1 ≤ n, m ≤ 100, n·m ≤ 200, and 1 ≤ k ≤ min(n·m, 7).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == n + k + 1 and all(len(line.split()) == m for line in stdin.splitlines()[1:n+1]) and all(1 <= int(aij) <= 1000 for line in stdin.splitlines()[1:n+1] for aij in line.split())\",\n      \"description\": \"Input must contain exactly n lines of m integers (1 ≤ aij ≤ 1000) followed by k lines of coordinates (x, y) where 1 ≤ x ≤ n and 1 ≤ y ≤ m.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[n+1:]) and all(1 <= int(line.split()[0]) <= n and 1 <= int(line.split()[1]) <= m for line in stdin.splitlines()[n+1:])\",\n      \"description\": \"Important squares coordinates must be within the garden bounds (1 ≤ x ≤ n, 1 ≤ y ≤ m).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len({(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[n+1:]}) == k\",\n      \"description\": \"All k important squares must have unique coordinates.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].isdigit() and int(stdout.splitlines()[0]) >= sum(aij for (i, line) in enumerate(stdin.splitlines()[1:n+1], 1) for (j, aij) in enumerate(line.split(), 1) if (i, j) in important_squares)\",\n      \"description\": \"The first line of stdout must be a non-negative integer representing the minimum total number of dead plants, which is at least the sum of flowers in all important squares (since they must be covered).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.splitlines()) == n and all(len(line) == m for line in stdout.splitlines()[1:]) and all(c in '.X' for line in stdout.splitlines()[1:] for c in line)\",\n      \"description\": \"The next n lines of stdout must form an n × m grid where each cell is either '.' (not covered) or 'X' (covered with concrete).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((i, j) in important_squares for i in range(1, n+1) for j in range(1, m+1) if stdout.splitlines()[i].split()[j-1] == 'X')\",\n      \"description\": \"All important squares must be covered with concrete ('X').\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"is_connected(important_squares, stdout.splitlines()[1:])\",\n      \"description\": \"The concrete-covered squares ('X') must form a connected region that includes all important squares, where connectivity is defined by adjacent squares (sharing a side).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"int(stdout.splitlines()[0]) == sum(int(aij) for (i, line) in enumerate(stdin.splitlines()[1:n+1], 1) for (j, aij) in enumerate(line.split(), 1) if stdout.splitlines()[i][j-1] == 'X')\",\n      \"description\": \"The first line of stdout must equal the total number of flowers in all concrete-covered squares ('X').\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"important_squares := {(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[n+1:]}\",\n      \"description\": \"important_squares is the set of all k important square coordinates (1-based).\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"def is_connected(important_squares, grid):\\n    # grid is a list of strings, 1-based indexing for rows and columns\\n    covered = set()\\n    for i in range(1, len(grid)+1):\\n        for j in range(1, len(grid[0])+1):\\n            if grid[i-1][j-1] == 'X':\\n                covered.add((i, j))\\n    if important_squares - covered:\\n        return False\\n    # BFS to check connectivity\\n    from collections import deque\\n    queue = deque(important_squares)\\n    visited = set(queue)\\n    while queue:\\n        x, y = queue.popleft()\\n        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:\\n            nx, ny = x + dx, y + dy\\n            if (nx, ny) in covered and (nx, ny) not in visited:\\n                visited.add((nx, ny))\\n                queue.append((nx, ny))\\n    return visited == covered\",\n      \"description\": \"is_connected checks if all concrete-covered squares ('X') form a single connected region that includes all important squares.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1640,
+  "generated_tokens": 1403,
+  "hit_output_limit": false,
+  "generation_seconds": 84.065,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:57:28.387400+00:00"
+}

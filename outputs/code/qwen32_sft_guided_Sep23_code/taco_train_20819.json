@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_20819",
+  "task_index": 650,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_20819.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nMOD = 1000000007\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    N = int(input[0])\n    current_desks = []\n    desired_desks = []\n    for i in range(N):\n        current, desired = map(int, input[2*i+1:2*i+3])\n        current_desks.append(current)\n        desired_desks.append(desired)\n\n    graph = defaultdict(list)\n    indegree = [0] * (2 * N + 1)\n    for i in range(N):\n        if current_desks[i] != desired_desks[i]:\n            graph[current_desks[i]].append(desired_desks[i])\n            indegree[desired_desks[i]] += 1\n\n    from collections import deque\n    queue = deque([i for i in range(1, 2 * N + 1) if indegree[i] == 0])\n    topological_order = []\n    while queue:\n        node = queue.popleft()\n        topological_order.append(node)\n        for neighbor in graph[node]:\n            indegree[neighbor] -= 1\n            if indegree[neighbor] == 0:\n                queue.append(neighbor)\n\n    visited = [False] * (2 * N + 1)\n    def dfs(node):\n        if visited[node]:\n            return 0\n        visited[node] = True\n        size = 1\n        for neighbor in graph[node]:\n            size += dfs(neighbor)\n        return size\n\n    result = 1\n    for node in topological_order:\n        if not visited[node]:\n            component_size = dfs(node)\n            result = (result * component_size) % MOD\n\n    print(result)\n\nmain()",
+  "generation_seconds": 33.133,
+  "generated_at": "2026-09-23T17:53:43.280136+00:00"
+}

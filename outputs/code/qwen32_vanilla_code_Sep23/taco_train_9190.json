@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_9190",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:14:25.317516+00:00",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef find_custom_alphabet(n, names):\n    graph = defaultdict(set)\n    in_degree = {chr(i): 0 for i in range(ord('a'), ord('z') + 1)}\n    \n    for i in range(n - 1):\n        for j in range(min(len(names[i]), len(names[i + 1]))):\n            if names[i][j] != names[i + 1][j]:\n                if names[i + 1][j] not in graph[names[i][j]]:\n                    graph[names[i][j]].add(names[i + 1][j])\n                    in_degree[names[i + 1][j]] += 1\n                break\n        else:\n            if len(names[i]) > len(names[i + 1]):\n                return \"Impossible\"\n    \n    queue = deque([char for char in in_degree if in_degree[char] == 0])\n    result = []\n    \n    while queue:\n        current = queue.popleft()\n        result.append(current)\n        for neighbor in graph[current]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    if len(result) == 26:\n        return ''.join(result)\n    else:\n        return \"Impossible\"\n\ninput = sys.stdin.read().strip().split('\\n')\nn = int(input[0])\nnames = input[1:]\nprint(find_custom_alphabet(n, names))"
+}

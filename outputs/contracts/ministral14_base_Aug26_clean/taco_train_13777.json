@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_13777",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(32 <= ord(c) <= 127 for line in stdin.splitlines() for c in line)",
+        "description": "Every character in every input line has ASCII code between 32 and 127 (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin) <= 1048576",
+        "description": "The total input size (including newlines) does not exceed 1,048,576 bytes."
+      },
+      {
+        "id": "P3",
+        "expression": "stdin.endswith('\\n')",
+        "description": "The input ends with a newline character (Windows-style #13#10 or Unix-style #10)."
+      },
+      {
+        "id": "P4",
+        "expression": "any(c != '\\n' for c in stdin)",
+        "description": "The input contains at least one non-newline character."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all('\\n' in line or line == '' for line in stdout.splitlines())",
+        "description": "Every output line (including empty lines) is followed by a newline character."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('\\n' in line or line == '' for line in stdout.splitlines()) and stdout.endswith('\\n')",
+        "description": "The output ends with a newline character."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('\\n' in line or line == '' for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line, original_line in zip(stdout.splitlines(), stdin.splitlines()))",
+        "description": "For each line in the output: (1) If the original line was amplifying (starts with '#' after stripping leading spaces), the output line is identical to the original line (including spaces and newlines). (2) If the original line was not amplifying, all spaces are removed from it."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('\\n' in line or line == '' for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line, original_line in zip(stdout.splitlines(), stdin.splitlines())) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line in stdout.splitlines())",
+        "description": "Non-amplifying lines are concatenated if they are consecutive and neither is amplifying, preserving the order and removing all spaces from the concatenated result."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('\\n' in line or line == '' for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line, original_line in zip(stdout.splitlines(), stdin.splitlines())) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line in stdout.splitlines())",
+        "description": "Empty lines are preserved only if they are surrounded by amplifying lines on both sides; otherwise, they are concatenated with adjacent non-amplifying lines."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(32 <= ord(c) <= 127 for line in stdin.splitlines() for c in line)\",\n      \"description\": \"Every character in every input line has ASCII code between 32 and 127 (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin) <= 1048576\",\n      \"description\": \"The total input size (including newlines) does not exceed 1,048,576 bytes.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"stdin.endswith('\\\\n')\",\n      \"description\": \"The input ends with a newline character (Windows-style #13#10 or Unix-style #10).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"any(c != '\\\\n' for c in stdin)\",\n      \"description\": \"The input contains at least one non-newline character.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all('\\\\n' in line or line == '' for line in stdout.splitlines())\",\n      \"description\": \"Every output line (including empty lines) is followed by a newline character.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all('\\\\n' in line or line == '' for line in stdout.splitlines()) and stdout.endswith('\\\\n')\",\n      \"description\": \"The output ends with a newline character.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all('\\\\n' in line or line == '' for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line, original_line in zip(stdout.splitlines(), stdin.splitlines()))\",\n      \"description\": \"For each line in the output: (1) If the original line was amplifying (starts with '#' after stripping leading spaces), the output line is identical to the original line (including spaces and newlines). (2) If the original line was not amplifying, all spaces are removed from it.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all('\\\\n' in line or line == '' for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line, original_line in zip(stdout.splitlines(), stdin.splitlines())) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line in stdout.splitlines())\",\n      \"description\": \"Non-amplifying lines are concatenated if they are consecutive and neither is amplifying, preserving the order and removing all spaces from the concatenated result.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all('\\\\n' in line or line == '' for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line, original_line in zip(stdout.splitlines(), stdin.splitlines())) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line in stdout.splitlines()) and all(line == '' or (line.lstrip()[0] == '#' and line == original_line) or (line.lstrip()[0] != '#' and ' ' not in line) for line in stdout.splitlines())\",\n      \"description\": \"Empty lines are preserved only if they are surrounded by amplifying lines on both sides; otherwise, they are concatenated with adjacent non-amplifying lines.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1842,
+  "generated_tokens": 970,
+  "hit_output_limit": false,
+  "generation_seconds": 43.5,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:40:22.672091+00:00"
+}

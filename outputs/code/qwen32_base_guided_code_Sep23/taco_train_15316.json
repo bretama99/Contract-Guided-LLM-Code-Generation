@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_15316",
+  "task_index": 281,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_15316.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef dfs(node, parent, bees, wasps, graph):\n    total_bees = bees[node]\n    total_wasps = wasps[node]\n    for neighbor in graph[node]:\n        if neighbor != parent:\n            b, w = dfs(neighbor, node, bees, wasps, graph)\n            total_bees += b\n            total_wasps += w\n    return total_bees, total_wasps\n\ndef max_villages_wasp_wins(n, m, bees, wasps, adjacencies):\n    graph = defaultdict(list)\n    for x, y in adjacencies:\n        graph[x - 1].append(y - 1)\n        graph[y - 1].append(x - 1)\n    \n    results = []\n    stack = [(0, -1)]\n    while stack:\n        node, parent = stack.pop()\n        b, w = dfs(node, parent, bees, wasps, graph)\n        results.append((b, w))\n        for neighbor in graph[node]:\n            if neighbor != parent:\n                stack.append((neighbor, node))\n    \n    results.sort(key=lambda x: x[1] - x[0], reverse=True)\n    wasp_wins = sum(1 for b, w in results[:m] if w > b)\n    return wasp_wins\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    t = int(input[index])\n    index += 1\n    outputs = []\n    for _ in range(t):\n        n = int(input[index])\n        m = int(input[index + 1])\n        index += 2\n        bees = list(map(int, input[index:index + n]))\n        index += n\n        wasps = list(map(int, input[index:index + n]))\n        index += n\r\n        adjacencies = []\n        for _ in range(n - 1):\n            x = int(input[index])\n            y = int(input[index + 1])\n            adjacencies.append((x, y))\n            index += 2\n        outputs.append(max_villages_wasp_wins(n, m, bees, wasps,\nadjacencies))\n    for output in outputs:\n        print(output)\n\nmain()",
+  "generation_seconds": 43.505,
+  "generated_at": "2026-09-23T21:47:25.388707+00:00"
+}

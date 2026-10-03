@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_102",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T14:41:47.932159+00:00",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    k = int(input[index + 1])\n    index += 2\n    main_courses = set(map(int, input[index:index + k]))\n    index += k\n    graph = {i: [] for i in range(1, n + 1)}\n    in_degree = [0] * (n + 1)\n    for i in range(1, n + 1):\n        num_prerequisites = int(input[index])\n        index += 1\n        for _ in range(num_prerequisites):\n            prerequisite = int(input[index])\n            index += 1\n            graph[prerequisite].append(i)\n            in_degree[i] += 1\n\n    queue = deque([i for i in range(1, n + 1) if in_degree[i] == 0])\n    topological_order = []\n    while queue:\n        node = queue.popleft()\n        topological_order.append(node)\n        for neighbor in graph[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n\n    if len(topological_order) != n:\n        print(-1)\n        return\n\n    result = []\n    visited = set()\n    for course in topological_order:\n        if course in main_courses and course not in visited:\n            result.append(course)\n            visited.add(course)\n        elif course not in main_courses:\n            for dependent in graph[course]:\n                if dependent in main_courses and dependent not in visited:\n                    result.append(dependent)\n                    visited.add(dependent)\n        if len(visited) == k:\n            break\n\n    if len(result) < k:\n        print(-1)\n    else:\n        print(len(result))\n        print(' '.join(map(str, result)))\n\nif __name__ == \"__main__\":\n    main()"
+}

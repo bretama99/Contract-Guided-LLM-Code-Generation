@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_1038",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "numberToWords",
+      "signature": "numberToWords(num: int) -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "0 <= num < 2**31",
+        "description": "The input integer `num` is a non-negative integer strictly less than 2³¹ (2147483648)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(1 <= len(word) <= 10 for word in return_value.split())",
+        "description": "Every word in the output string is a valid English word (1–10 letters) representing a digit, scale, or hyphenated compound (e.g., 'Twenty-One')."
+      },
+      {
+        "id": "Q2",
+        "expression": "return_value == 'Zero' if num == 0 else True",
+        "description": "If the input is zero, the output is exactly the string 'Zero'. Otherwise, the output is a space-separated sequence of words."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= int(''.join(c for c in word if c.isdigit())) <= 9 for word in return_value.split() if any(c.isdigit() for c in word))",
+        "description": "Every numeric word (e.g., 'One', 'Twenty', 'One Hundred') corresponds to a digit or hyphenated digit sequence in [1, 9]."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(word in {'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety', 'Hundred', 'Thousand', 'Million', 'Billion'} for word in return_value.split())",
+        "description": "Every word in the output is a valid English word for digits, scales, or hyphenated compounds (e.g., 'Twenty-One' is split into 'Twenty' and 'One')."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(' ' not in word for word in return_value.split() if word not in {'Hundred', 'Thousand', 'Million', 'Billion'})",
+        "description": "Non-scale words (e.g., 'One', 'Twenty') are not split further and appear as single tokens."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(' ' not in word for word in return_value.split() if word in {'Hundred', 'Thousand', 'Million', 'Billion'})",
+        "description": "Scale words ('Hundred', 'Thousand', 'Million', 'Billion') appear as single tokens without internal spaces."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(' ' not in word for word in return_value.split() if '-' in word)",
+        "description": "Hyphenated words (e.g., 'Twenty-One') are treated as single tokens in the output string."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(' ' not in word for word in return_value.split() if word not in {'Zero', 'One', 'Two', ..., 'Ninety', 'Hundred', 'Thousand', 'Million', 'Billion'})",
+        "description": "No other words (e.g., 'And') appear in the output."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(' ' not in word for word in return_value.split() if word not in {'Twenty-One', 'Twenty-Two', ..., 'Ninety-Nine'})",
+        "description": "Hyphenated compounds (e.g., 'Twenty-One') are valid and appear as single tokens."
+      },
+      {
+        "id": "Q10",
+        "expression": "return_value == ' '.join(numberToWords(num // 1000) + ' Thousand' if num >= 1000 else '' for num in [num]) + ' '.join(numberToWords(num % 1000) if num % 1000 != 0 else '' for num in [num]) if num < 1000000 else ' '.join(numberToWords(num // 1000000) + ' Million' if num >= 1000000 else '' for num in [num]) + ' '.join(numberToWords(num % 1000000) if num % 1000000 != 0 else '' for num in [num]) if num < 1000000000 else ' '.join(numberToWords(num // 1000000000) + ' Billion' if num >= 1000000000 else '' for num in [num]) + ' '.join(numberToWords(num % 1000000000) if num % 1000000000 != 0 else '' for num in [num])",
+        "description": "The output string is constructed by recursively breaking down the number into chunks of three digits (hundreds, thousands, millions, billions) and concatenating their English representations with the appropriate scale words ('Thousand', 'Million', 'Billion')."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"numberToWords\",\n    \"signature\": \"numberToWords(num: int) -> str\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"0 <= num < 2**31\",\n      \"description\": \"The input integer `num` is a non-negative integer strictly less than 2³¹ (2147483648).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(1 <= len(word) <= 10 for word in return_value.split())\",\n      \"description\": \"Every word in the output string is a valid English word (1–10 letters) representing a digit, scale, or hyphenated compound (e.g., 'Twenty-One').\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"return_value == 'Zero' if num == 0 else True\",\n      \"description\": \"If the input is zero, the output is exactly the string 'Zero'. Otherwise, the output is a space-separated sequence of words.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= int(''.join(c for c in word if c.isdigit())) <= 9 for word in return_value.split() if any(c.isdigit() for c in word))\",\n      \"description\": \"Every numeric word (e.g., 'One', 'Twenty', 'One Hundred') corresponds to a digit or hyphenated digit sequence in [1, 9].\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(word in {'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety', 'Hundred', 'Thousand', 'Million', 'Billion'} for word in return_value.split())\",\n      \"description\": \"Every word in the output is a valid English word for digits, scales, or hyphenated compounds (e.g., 'Twenty-One' is split into 'Twenty' and 'One').\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(' ' not in word for word in return_value.split() if word not in {'Hundred', 'Thousand', 'Million', 'Billion'})\",\n      \"description\": \"Non-scale words (e.g., 'One', 'Twenty') are not split further and appear as single tokens.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(' ' not in word for word in return_value.split() if word in {'Hundred', 'Thousand', 'Million', 'Billion'})\",\n      \"description\": \"Scale words ('Hundred', 'Thousand', 'Million', 'Billion') appear as single tokens without internal spaces.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(' ' not in word for word in return_value.split() if '-' in word)\",\n      \"description\": \"Hyphenated words (e.g., 'Twenty-One') are treated as single tokens in the output string.\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"all(' ' not in word for word in return_value.split() if word not in {'Zero', 'One', 'Two', ..., 'Ninety', 'Hundred', 'Thousand', 'Million', 'Billion'})\",\n      \"description\": \"No other words (e.g., 'And') appear in the output.\"\n    },\n    {\n      \"id\": \"Q9\",\n      \"expression\": \"all(' ' not in word for word in return_value.split() if word not in {'Twenty-One', 'Twenty-Two', ..., 'Ninety-Nine'})\",\n      \"description\": \"Hyphenated compounds (e.g., 'Twenty-One') are valid and appear as single tokens.\"\n    },\n    {\n      \"id\": \"Q10\",\n      \"expression\": \"return_value == ' '.join(numberToWords(num // 1000) + ' Thousand' if num >= 1000 else '' for num in [num]) + ' '.join(numberToWords(num % 1000) if num % 1000 != 0 else '' for num in [num]) if num < 1000000 else ' '.join(numberToWords(num // 1000000) + ' Million' if num >= 1000000 else '' for num in [num]) + ' '.join(numberToWords(num % 1000000) if num % 1000000 != 0 else '' for num in [num]) if num < 1000000000 else ' '.join(numberToWords(num // 1000000000) + ' Billion' if num >= 1000000000 else '' for num in [num]) + ' '.join(numberToWords(num % 1000000000) if num % 1000000000 != 0 else '' for num in [num])\",\n      \"description\": \"The output string is constructed by recursively breaking down the number into chunks of three digits (hundreds, thousands, millions, billions) and concatenating their English representations with the appropriate scale words ('Thousand', 'Million', 'Billion').\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1218,
+  "generated_tokens": 1318,
+  "hit_output_limit": false,
+  "generation_seconds": 68.241,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:16:13.435402+00:00"
+}

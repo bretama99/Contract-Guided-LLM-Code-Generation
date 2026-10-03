@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_16580",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T07:17:50.662342+00:00",
+  "code": "import sys\nfrom collections import deque\n\ndef findString(N, K):\n    if N == 1:\n        return ''.join(str(i) for i in range(K))\n    \n    # We use Hierholzer's algorithm to find Eulerian circuit\n    # Nodes are strings of length N-1\n    # Edges represent adding a character\n    \n    adj = {}\n    visited_edges = set()\n    \n    # Initialize adjacency list\n    for i in range(K ** (N - 1)):\n        node = \"\"\n        temp = i\n        for _ in range(N - 1):\n            node = str(temp % K) + node\n            temp //= K\n        adj[node] = []\n        for c in range(K):\n            adj[node].append(c)\n    \n    # To keep track of used edges efficiently\n    # We'll use a pointer for each node to avoid checking all edges repeatedly\n    edge_ptr = {node: 0 for node in adj}\n    \n    def dfs(u):\n        while edge_ptr[u] < len(adj[u]):\n            c = adj[u][edge_ptr[u]]\n            edge_ptr[u] += 1\n            \n            v = u[1:] + str(c)\n            if dfs(v):\n                result.append(c)\n                return True\n        return False\n    \n    result = []\n    start_node = \"0\" * (N - 1)\n    dfs(start_node)\n    \n    # The result list contains the last character of each edge in reverse order\n    # The full string is start_node + reversed(result)\n    return start_node + \"\".join(reversed(result))\n\ndef main():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        parts = list(map(int, line.split()))\n        if len(parts) >= 2:\n            N, K = parts[0], parts[1]\n            res = findString(N, K)\n            print(res)\n    except Exception:\n        pass\n\nif __name__ == \"__main__\":\n    main()"
+}

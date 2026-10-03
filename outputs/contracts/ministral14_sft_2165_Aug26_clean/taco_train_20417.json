@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_20417",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and T > 0",
+        "description": "T is a positive integer representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N.is_integer() and N > 0 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')])",
+        "description": "Each test case starts with a positive integer N, the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(C) == N for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "For each test case, the string C has length N, where each character is 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in {'R', 'G', 'B'} for c in C) for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each character in C is either 'R', 'G', or 'B'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(edges) == N - 1 for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each test case has exactly N-1 edges, forming a tree."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(1 <= u <= N and 1 <= v <= N and u != v for u, v in edges) for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])",
+        "description": "Each edge connects two distinct vertices within the range 1 to N."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])",
+        "description": "For each test case, the output is either 'Yes' or 'No' (case-insensitive)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout.strip().lower() == 'yes') == (all(not any(C[u-1] == 'B' and C[v-1] == 'B' and u != v for u, v in pairs) or any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path) for pairs in [(u, v) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B']) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "For each test case, the output is 'Yes' if and only if for every pair of Blue vertices (u, v), there exists at least one Red and one Green vertex on the simple path between u and v. If there are no Blue vertices or no pairs of Blue vertices, the output is 'Yes'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T.is_integer() and T > 0\",\n      \"description\": \"T is a positive integer representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(N.is_integer() and N > 0 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')])\",\n      \"description\": \"Each test case starts with a positive integer N, the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(C) == N for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])\",\n      \"description\": \"For each test case, the string C has length N, where each character is 'R', 'G', or 'B'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(c in {'R', 'G', 'B'} for c in C) for N, C in [(int(line.split()[0]), line.split()[1]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])\",\n      \"description\": \"Each character in C is either 'R', 'G', or 'B'.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(edges) == N - 1 for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])\",\n      \"description\": \"Each test case has exactly N-1 edges, forming a tree.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(all(1 <= u <= N and 1 <= v <= N and u != v for u, v in edges) for N, edges in [(int(line.split()[0]), [tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()]) for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line])\",\n      \"description\": \"Each edge connects two distinct vertices within the range 1 to N.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout.strip().lower() in ['yes', 'no'] for stdout in [line.strip() for line in stdout.splitlines() if line.strip()])\",\n      \"description\": \"For each test case, the output is either 'Yes' or 'No' (case-insensitive).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout.strip().lower() == 'yes') == (all(not any(C[u-1] == 'B' and C[v-1] == 'B' and u != v for u, v in pairs) or any(C[node-1] == 'R' and C[other_node-1] == 'G' for node, other_node in path) for pairs in [(u, v) for u in range(1, N+1) for v in range(u+1, N+1) if C[u-1] == 'B' and C[v-1] == 'B']) for N, C, edges, stdout in zip([int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.startswith('T')], [line.split()[1] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [[tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.split()[0].isdigit() and line.split()[1].isdigit()] for line in stdin.splitlines() if line.strip() and 'R' in line or 'G' in line or 'B' in line], [line.strip() for line in stdout.splitlines() if line.strip()]))\",\n      \"description\": \"For each test case, the output is 'Yes' if and only if for every pair of Blue vertices (u, v), there exists at least one Red and one Green vertex on the simple path between u and v. If there are no Blue vertices or no pairs of Blue vertices, the output is 'Yes'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1678,
+  "generated_tokens": 1128,
+  "hit_output_limit": false,
+  "generation_seconds": 50.357,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:46:19.594795+00:00"
+}

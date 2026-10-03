@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_8839",
+  "task_index": 901,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_8839.json",
+  "code": "import sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    t = data[1]\n    \n    n = len(s)\n    m = len(t)\n    MOD = 10**9 + 7\n    \n    if m > n:\n        print(0)\n        return\n    \n    pi = [0] * m\n    k = 0\n    for i in range(1, m):\n        while k > 0 and t[k] != t[i]:\n            k = pi[k-1]\n        if t[k] == t[i]:\n            k += 1\n        pi[i] = k\n    \n    j = 0\n    match_end = [-1] * n\n    for i in range(n):\n        while j > 0 and s[i] != t[j]:\n            j = pi[j-1]\n        if s[i] == t[j]:\n            j += 1\n        if j == m:\n            match_end[i] = i\n            j = pi[j-1]\n    \n    first_valid_start = [0] * n\n    current_first = -1\n    for i in range(n):\n        if match_end[i] != -1:\n            current_first = i - m + 1\n        if current_first != -1:\n            first_valid_start[i] = current_first\n        else:\n            first_valid_start[i] = -1\n    \n    dp = [0] * (n + 1)\n    sum_dp = [0] * (n + 1)\n    \n    for i in range(n):\n        idx = i + 1\n        prev_sum = sum_dp[i] if i > 0 else 0\n        \n        if first_valid_start[i] != -1:\n            start_idx = first_valid_start[i]\n            if start_idx == 0:\n                count = 1\n            else:\n                count = dp[start_idx] + 1\n            \n            term = (count * (i - start_idx + 1)) % MOD\n            total = (prev_sum + term) % MOD\n        else:\n            total = prev_sum\n        \n        dp[idx] = total\n        sum_dp[idx] = (sum_dp[i] + total) % MOD\n    \n    print(sum_dp[n])\n\nsolve()",
+  "generation_seconds": 57.582,
+  "generated_at": "2026-09-26T21:14:45.985971+00:00"
+}

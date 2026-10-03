@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_4066",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t.is_integer() and 1 <= t <= 10**4",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10^4), representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n.is_integer() and 2 <= n <= 2*10**5 for n in [int(line.split()[0]) for line in stdin.splitlines()[1:]] if line.strip())",
+        "description": "Each test case starts with an integer n (2 ≤ n ≤ 2*10^5), representing the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n-1 lines following n contains three integers p_j, a_j, b_j (1 ≤ p_j ≤ n; 1 ≤ a_j, b_j ≤ 10^9), where p_j is the parent of vertex j, and a_j, b_j are edge values."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(p_j) <= n for p_j in [line.split()[0] for line in stdin.splitlines()[1:]] if line.strip())",
+        "description": "For each edge, p_j is a valid vertex number (1 ≤ p_j ≤ n), ensuring the tree is correctly rooted at vertex 1."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == n-1 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "For each test case, the output line contains exactly n-1 integers, corresponding to r_2, r_3, ..., r_n."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(r_i.is_integer() and 0 <= r_i <= path_length for r_i, path_length in zip(output_line.split(), [len(get_path_to(i, tree)) for i in range(2, n+1)]))",
+        "description": "For each vertex i (2 ≤ i ≤ n), r_i is a non-negative integer (0 ≤ r_i ≤ path_length), where path_length is the length of the path from root (1) to i. r_i is the length of the maximum prefix of this path such that the sum of b_j along this prefix does not exceed the sum of a_j along the entire path."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(sum(b_j for b_j in get_prefix_b_sum(path_to_i, r_i+1)) <= sum(a_j for a_j in get_path_a_sum(path_to_i)) for r_i, path_to_i in zip(output_line.split(), [get_path_to(i, tree) for i in range(2, n+1)]))",
+        "description": "For each vertex i, the sum of b_j along the first r_i+1 edges of the path to i must not exceed the sum of a_j along the entire path to i."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(not exists(r_i+1 < len(path_to_i) and sum(b_j for b_j in get_prefix_b_sum(path_to_i, r_i+2)) <= sum(a_j for a_j in get_path_a_sum(path_to_i))) for r_i, path_to_i in zip(output_line.split(), [get_path_to(i, tree) for i in range(2, n+1)]))",
+        "description": "For each vertex i, r_i is the maximum possible length such that the sum of b_j along the first r_i+1 edges of the path to i does not exceed the sum of a_j along the entire path to i."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t.is_integer() and 1 <= t <= 10**4\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10^4), representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(n.is_integer() and 2 <= n <= 2*10**5 for n in [int(line.split()[0]) for line in stdin.splitlines()[1:]] if line.strip())\",\n      \"description\": \"Each test case starts with an integer n (2 ≤ n ≤ 2*10^5), representing the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n-1 lines following n contains three integers p_j, a_j, b_j (1 ≤ p_j ≤ n; 1 ≤ a_j, b_j ≤ 10^9), where p_j is the parent of vertex j, and a_j, b_j are edge values.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(p_j) <= n for p_j in [line.split()[0] for line in stdin.splitlines()[1:]] if line.strip())\",\n      \"description\": \"For each edge, p_j is a valid vertex number (1 ≤ p_j ≤ n), ensuring the tree is correctly rooted at vertex 1.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line.split()) == n-1 for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"For each test case, the output line contains exactly n-1 integers, corresponding to r_2, r_3, ..., r_n.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(r_i.is_integer() and 0 <= r_i <= path_length for r_i, path_length in zip(output_line.split(), [len(get_path_to(i, tree)) for i in range(2, n+1)]))\",\n      \"description\": \"For each vertex i (2 ≤ i ≤ n), r_i is a non-negative integer (0 ≤ r_i ≤ path_length), where path_length is the length of the path from root (1) to i. r_i is the length of the maximum prefix of this path such that the sum of b_j along this prefix does not exceed the sum of a_j along the entire path.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(sum(b_j for b_j in get_prefix_b_sum(path_to_i, r_i+1)) <= sum(a_j for a_j in get_path_a_sum(path_to_i)) for r_i, path_to_i in zip(output_line.split(), [get_path_to(i, tree) for i in range(2, n+1)]))\",\n      \"description\": \"For each vertex i, the sum of b_j along the first r_i+1 edges of the path to i must not exceed the sum of a_j along the entire path to i.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(not exists(r_i+1 < len(path_to_i) and sum(b_j for b_j in get_prefix_b_sum(path_to_i, r_i+2)) <= sum(a_j for a_j in get_path_a_sum(path_to_i))) for r_i, path_to_i in zip(output_line.split(), [get_path_to(i, tree) for i in range(2, n+1)]))\",\n      \"description\": \"For each vertex i, r_i is the maximum possible length such that the sum of b_j along the first r_i+1 edges of the path to i does not exceed the sum of a_j along the entire path to i.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2565,
+  "generated_tokens": 938,
+  "hit_output_limit": false,
+  "generation_seconds": 44.029,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:14:41.250760+00:00"
+}

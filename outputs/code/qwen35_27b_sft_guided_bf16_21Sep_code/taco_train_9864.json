@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_9864",
+  "task_index": 514,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_9864.json",
+  "code": "import sys\nsys.setrecursionlimit(200000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        N = int(next(iterator))\n        M = int(next(iterator))\n        P = int(next(iterator))\n    except StopIteration:\n        return\n\n    adj = [[] for _ in range(N + 1)]\n    \n    for _ in range(M):\n        try:\n            u = int(next(iterator))\n            v = int(next(iterator))\n            adj[u].append(v)\n            adj[v].append(u)\n        except StopIteration:\n            break\n\n    tin = [-1] * (N + 1)\n    low = [-1] * (N + 1)\n    timer = 0\n    parent = [0] * (N + 1)\n    visited = [False] * (N + 1)\n    subtree_size = [0] * (N + 1)\n    critical_count = 0\n\n    def dfs(u):\n        nonlocal timer\n        visited[u] = True\n        tin[u] = low[u] = timer\n        timer += 1\n        sz = 1\n        \n        for v in adj[u]:\n            if not visited[v]:\n                parent[v] = u\n                s = dfs(v)\n                sz += s\n                subtree_size[v] = s\n                low[u] = min(low[u], low[v])\n                \n                if low[v] > tin[u]:\n                    size_side1 = s\n                    size_side2 = N - s\n                    if abs(size_side1 - size_side2) < P:\n                        nonlocal critical_count\n                        critical_count += 1\n            elif v != parent[u]:\n                low[u] = min(low[u], tin[v])\n        \n        subtree_size[u] = sz\n        return sz\n\n    for i in range(1, N + 1):\n        if not visited[i]:\n            dfs(i)\n\n    print(critical_count)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 43.421,
+  "generated_at": "2026-09-22T21:30:37.096775+00:00"
+}

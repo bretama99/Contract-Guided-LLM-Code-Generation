@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_3462",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 5 * 10**5 and 1 <= m <= 5 * 10**5 for n, m in [int(x) for x in stdin.split()[:2]])",
+        "description": "Input integers n (number of vectors) and m (dimensions) satisfy 1 ≤ n, m ≤ 5 ⋅ 10^5."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) >= 1 and len(line.split()) <= 3 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n subsequent lines describes a vector with either 1 or 2 coordinates set to 1 (k ∈ {1, 2})."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= m for line in stdin.splitlines()[1:] for x in line.split()[1:])",
+        "description": "All coordinate indices in the vectors are between 1 and m (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "len(set(tuple(sorted(int(x) for x in line.split()[1:])) for line in stdin.splitlines()[1:])) == n",
+        "description": "No two vectors in S are identical (all vectors are unique)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].split() == [str(|T| % (10**9 + 7)), str(|S'|)]",
+        "description": "First line of output contains two integers: the size of T modulo 10^9+7 and the size of the minimal subset S'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(x) <= n for x in stdout.splitlines()[1].split())",
+        "description": "Second line contains indices of vectors in S' (1-based, ascending order)."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(int(x) for x in stdout.splitlines()[1].split())) == int(stdout.splitlines()[0].split()[1])",
+        "description": "The indices in the second line are unique and correspond to |S'| distinct vectors."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= int(x) <= n for x in stdout.splitlines()[1].split()) and sorted(int(x) for x in stdout.splitlines()[1].split()) == list(int(x) for x in stdout.splitlines()[1].split())",
+        "description": "Indices in S' are in strictly ascending order and lexicographically smallest among all minimal subsets."
+      },
+      {
+        "id": "Q5",
+        "expression": "T == {tuple(sum((int(line.split()[i+j] in x) for j in range(1, len(line.split()))) for i in range(0, len(line.split())-1, len(line.split())-1)) for line in stdin.splitlines()[1:]) for x in itertools.product([0, 1], repeat=len(S'))}",
+        "description": "The set T is the span of S' (all possible sums of subsets of S' generate all vectors in T)."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any(len(S'') < len(S') and T == {tuple(sum((int(line.split()[i+j] in x) for j in range(1, len(line.split()))) for i in range(0, len(line.split())-1, len(line.split())-1)) for line in stdin.splitlines()[1:]) for x in itertools.product([0, 1], repeat=len(S''))} for S'' in itertools.combinations(range(1, n+1), len(S')-1))",
+        "description": "S' is a minimal subset of S such that its span equals T (no smaller subset exists)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 5 * 10**5 and 1 <= m <= 5 * 10**5 for n, m in [int(x) for x in stdin.split()[:2]])\",\n      \"description\": \"Input integers n (number of vectors) and m (dimensions) satisfy 1 ≤ n, m ≤ 5 ⋅ 10^5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) >= 1 and len(line.split()) <= 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n subsequent lines describes a vector with either 1 or 2 coordinates set to 1 (k ∈ {1, 2}).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= m for line in stdin.splitlines()[1:] for x in line.split()[1:])\",\n      \"description\": \"All coordinate indices in the vectors are between 1 and m (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(set(tuple(sorted(int(x) for x in line.split()[1:])) for line in stdin.splitlines()[1:])) == n\",\n      \"description\": \"No two vectors in S are identical (all vectors are unique).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].split() == [str(|T| % (10**9 + 7)), str(|S'|)]\",\n      \"description\": \"First line of output contains two integers: the size of T modulo 10^9+7 and the size of the minimal subset S'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdout.splitlines()[1].split())\",\n      \"description\": \"Second line contains indices of vectors in S' (1-based, ascending order).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(set(int(x) for x in stdout.splitlines()[1].split())) == int(stdout.splitlines()[0].split()[1])\",\n      \"description\": \"The indices in the second line are unique and correspond to |S'| distinct vectors.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdout.splitlines()[1].split()) and sorted(int(x) for x in stdout.splitlines()[1].split()) == list(int(x) for x in stdout.splitlines()[1].split())\",\n      \"description\": \"Indices in S' are in strictly ascending order and lexicographically smallest among all minimal subsets.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"T == {tuple(sum((int(line.split()[i+j] in x) for j in range(1, len(line.split()))) for i in range(0, len(line.split())-1, len(line.split())-1)) for line in stdin.splitlines()[1:]) for x in itertools.product([0, 1], repeat=len(S'))}\",\n      \"description\": \"The set T is the span of S' (all possible sums of subsets of S' generate all vectors in T).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"not any(len(S'') < len(S') and T == {tuple(sum((int(line.split()[i+j] in x) for j in range(1, len(line.split()))) for i in range(0, len(line.split())-1, len(line.split())-1)) for line in stdin.splitlines()[1:]) for x in itertools.product([0, 1], repeat=len(S''))} for S'' in itertools.combinations(range(1, n+1), len(S')-1))\",\n      \"description\": \"S' is a minimal subset of S such that its span equals T (no smaller subset exists).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2218,
+  "generated_tokens": 975,
+  "hit_output_limit": false,
+  "generation_seconds": 45.537,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:54:56.679504+00:00"
+}

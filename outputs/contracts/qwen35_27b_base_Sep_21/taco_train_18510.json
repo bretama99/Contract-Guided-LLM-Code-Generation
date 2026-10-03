@@ -1,0 +1,50 @@
+{
+  "task_id": "taco_train_18510",
+  "task_index": 109,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 100 and 1 <= m <= 100 and 1 <= k <= 100",
+        "description": "Dimensions n, m, k are integers between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(lines) == n * m + (n - 1) and all(len(line) == k or line == '' for line in lines)",
+        "description": "Input contains n blocks of m lines each with k characters, separated by exactly one empty line between blocks."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c in '01' for line in lines if line for c in line)",
+        "description": "All non-empty lines contain only '0' or '1' characters representing CPU states."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "output == str(sum(1 for x in range(n) for y in range(m) for z in range(k) if grid[x][y][z] == '1' and is_critical(x, y, z, grid, n, m, k)))",
+        "description": "Output is the count of critical CPUs, where a working CPU is critical if removing it breaks at least one existing control path between two other distinct working CPUs."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((x, y, z) in [(x, y, z) for x in range(n) for y in range(m) for z in range(k) if grid[x][y][z] == '1'] for x, y, z in critical_cpus)",
+        "description": "Only currently working CPUs (state '1') can be critical; broken CPUs are never counted."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(not exists_path(a, b, c, d, e, f, grid, n, m, k, exclude=(x, y, z)) for (x, y, z) in critical_cpus for (a, b, c), (d, e, f) in pairs_controlled_by(x, y, z, grid, n, m, k))",
+        "description": "For each critical CPU, there exists at least one pair of distinct working CPUs (source, target) such that a control path exists before removal but no path exists after removal."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 59.347,
+  "seed": 151,
+  "generated_at": "2026-09-21T07:07:58.175955+00:00"
+}

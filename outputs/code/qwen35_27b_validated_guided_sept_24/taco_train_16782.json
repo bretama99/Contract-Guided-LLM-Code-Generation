@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16782",
+  "task_index": 351,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_16782.json",
+  "code": "import sys\nsys.setrecursionlimit(200000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        V = int(next(iterator))\n    except StopIteration:\n        return\n\n    adj = [[] for _ in range(V)]\n    \n    try:\n        while True:\n            u_str = next(iterator)\n            v_str = next(iterator)\n            u = int(u_str)\n            v = int(v_str)\n            adj[u].append(v)\n            adj[v].append(u)\n    except StopIteration:\n        pass\n\n    disc = [-1] * V\n    low = [-1] * V\n    parent = [-1] * V\n    timer = [0]\n    bridges = []\n\n    def dfs(u):\n        disc[u] = low[u] = timer[0]\n        timer[0] += 1\n        \n        for v in adj[u]:\n            if disc[v] == -1:\n                parent[v] = u\n                dfs(v)\n                low[u] = min(low[u], low[v])\n                if low[v] > disc[u]:\n                    if u < v:\n                        bridges.append([u, v])\n                    else:\n                        bridges.append([v, u])\n            elif v != parent[u]:\n                low[u] = min(low[u], disc[v])\n\n    for i in range(V):\n        if disc[i] == -1:\n            dfs(i)\n\n    bridges.sort()\n    \n    for bridge in bridges:\n        print(f\"{bridge[0]} {bridge[1]}\")\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 36.113,
+  "generated_at": "2026-09-25T09:50:30.720506+00:00"
+}

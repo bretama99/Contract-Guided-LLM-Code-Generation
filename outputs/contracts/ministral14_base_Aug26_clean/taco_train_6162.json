@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_6162",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(T) and T >= 1 and T <= 10**5",
+        "description": "T is an integer representing the number of test cases, where 1 ≤ T ≤ 10^5."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N == int(N) and M == int(M) and 2 <= N <= 2*10**5 and 0 <= M <= min(N*(N-1)//2, 3*10**5) for N, M in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('1 ') and not line.startswith('2 ') and not line.startswith('3 ')))",
+        "description": "For each test case, N is the number of provinces (2 ≤ N ≤ 2*10^5) and M is the number of destroyed roads (0 ≤ M ≤ min(N*(N-1)/2, 3*10^5))."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 and all(int(x) in range(1, N+1) for x in line.split()) for line in stdin.splitlines() if line.strip() and line.startswith('1 ') or line.startswith('2 ') or line.startswith('3 '))",
+        "description": "Each destroyed road is represented by two distinct integers u and v (1 ≤ u, v ≤ N, u ≠ v) in the input."
+      },
+      {
+        "id": "P4",
+        "expression": "all(u != v for u, v in (tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.startswith('1 ') or line.startswith('2 ') or line.startswith('3 ')))",
+        "description": "Each destroyed road connects two distinct provinces (u ≠ v)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(str(count_ways(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin)) + '\\n'",
+        "description": "For each test case, stdout contains the number of valid ways to deploy Sena X and Sena Y, where the deployment satisfies all given constraints. The function `count_ways` computes this count based on N, M, and the set of destroyed edges."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(count_ways(N, M, destroyed_edges) == int(count_ways(N, M, destroyed_edges)) and count_ways(N, M, destroyed_edges) >= 0 for N, M, destroyed_edges in parse_input(stdin))",
+        "description": "The output for each test case is a non-negative integer representing the number of valid deployments."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= count_ways(N, M, destroyed_edges) <= 2**N for N, M, destroyed_edges in parse_input(stdin))",
+        "description": "The count of valid deployments is bounded by 2^N (all possible subsets of provinces for Sena X)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(subset and not subset == set(range(1, N+1)) for subset in valid_deployments(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin))",
+        "description": "There exists at least one valid deployment where Sena X is assigned to at least one province and Sena Y to at least one province."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all(not any(u in subset and v in subset for u, v in destroyed_edges) for subset in valid_deployments(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin))",
+        "description": "In every valid deployment, no two provinces connected by a destroyed road are both assigned to Sena X (since all roads not destroyed are bidirectional and must not have adjacent Sena X provinces)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(all(v in neighbors(u) for v in range(1, N+1) if v not in subset) for u in subset) for subset in valid_deployments(N, M, destroyed_edges))",
+        "description": "For every province u in Sena X, all provinces not in Sena X (i.e., in Sena Y) must be adjacent to u in the original complete graph (i.e., not separated by a destroyed road)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(not any(u in subset and v not in subset and (u, v) not in edges and (v, u) not in edges for u, v in destroyed_edges) for subset in valid_deployments(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin))",
+        "description": "For every province u in Sena X, all provinces v in Sena Y must be adjacent to u in the remaining graph (i.e., the road between u and v is not destroyed)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(T) and T >= 1 and T <= 10**5\",\n      \"description\": \"T is an integer representing the number of test cases, where 1 ≤ T ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(N == int(N) and M == int(M) and 2 <= N <= 2*10**5 and 0 <= M <= min(N*(N-1)//2, 3*10**5) for N, M in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('1 ') and not line.startswith('2 ') and not line.startswith('3 ')))\",\n      \"description\": \"For each test case, N is the number of provinces (2 ≤ N ≤ 2*10^5) and M is the number of destroyed roads (0 ≤ M ≤ min(N*(N-1)/2, 3*10^5)).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 and all(int(x) in range(1, N+1) for x in line.split()) for line in stdin.splitlines() if line.strip() and line.startswith('1 ') or line.startswith('2 ') or line.startswith('3 '))\",\n      \"description\": \"Each destroyed road is represented by two distinct integers u and v (1 ≤ u, v ≤ N, u ≠ v) in the input.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(u != v for u, v in (tuple(map(int, line.split())) for line in stdin.splitlines() if line.strip() and line.startswith('1 ') or line.startswith('2 ') or line.startswith('3 ')))\",\n      \"description\": \"Each destroyed road connects two distinct provinces (u ≠ v).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '\\\\n'.join(str(count_ways(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin)) + '\\\\n'\",\n      \"description\": \"For each test case, stdout contains the number of valid ways to deploy Sena X and Sena Y, where the deployment satisfies all given constraints. The function `count_ways` computes this count based on N, M, and the set of destroyed edges.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(count_ways(N, M, destroyed_edges) == int(count_ways(N, M, destroyed_edges)) and count_ways(N, M, destroyed_edges) >= 0 for N, M, destroyed_edges in parse_input(stdin))\",\n      \"description\": \"The output for each test case is a non-negative integer representing the number of valid deployments.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= count_ways(N, M, destroyed_edges) <= 2**N for N, M, destroyed_edges in parse_input(stdin))\",\n      \"description\": \"The count of valid deployments is bounded by 2^N (all possible subsets of provinces for Sena X).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(subset and not subset == set(range(1, N+1)) for subset in valid_deployments(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin))\",\n      \"description\": \"There exists at least one valid deployment where Sena X is assigned to at least one province and Sena Y to at least one province.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(all(not any(u in subset and v in subset for u, v in destroyed_edges) for subset in valid_deployments(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin))\",\n      \"description\": \"In every valid deployment, no two provinces connected by a destroyed road are both assigned to Sena X (since all roads not destroyed are bidirectional and must not have adjacent Sena X provinces).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(all(all(v in neighbors(u) for v in range(1, N+1) if v not in subset) for u in subset) for subset in valid_deployments(N, M, destroyed_edges))\",\n      \"description\": \"For every province u in Sena X, all provinces not in Sena X (i.e., in Sena Y) must be adjacent to u in the original complete graph (i.e., not separated by a destroyed road).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(all(not any(u in subset and v not in subset and (u, v) not in edges and (v, u) not in edges for u, v in destroyed_edges) for subset in valid_deployments(N, M, destroyed_edges)) for N, M, destroyed_edges in parse_input(stdin))\",\n      \"description\": \"For every province u in Sena X, all provinces v in Sena Y must be adjacent to u in the remaining graph (i.e., the road between u and v is not destroyed).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1855,
+  "generated_tokens": 1230,
+  "hit_output_limit": false,
+  "generation_seconds": 77.074,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:04:15.707552+00:00"
+}

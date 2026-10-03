@@ -1,0 +1,890 @@
+{
+  "task_id": "taco_train_22231",
+  "task_index": 981,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and 1 <= T <= 150000",
+        "description": "T is an integer between 1 and 150000 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n.is_integer() and 2 <= n <= 300000 for n in [int(line.split()[0]) for line in stdin.splitlines()[1::] if line.strip() and line.split()[0].isdigit()])",
+        "description": "Each test case starts with an integer n between 2 and 300000 inclusive, representing the number of monsters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(a_i) == 2 and a_i[0].is_integer() and a_i[1].is_integer() and 1 <= a_i[0] <= 10**12 and 1 <= a_i[1] <= 10**12 for a_i in [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()])",
+        "description": "For each monster, a_i and b_i are integers between 1 and 10^12 inclusive, representing health and explosion damage respectively."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(output_line.is_integer() and output_line >= 0 for output_line in [int(line) for line in stdout.splitlines() if line.strip()])",
+        "description": "Each output line is a non-negative integer representing the minimum number of bullets required to kill all monsters in the corresponding test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_lines) == T for output_lines in [stdout.splitlines() if stdout.strip() else []])",
+        "description": "The number of output lines equals the number of test cases T."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= bullets <= sum(a_i for a_i in monster_data) for bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+        "description": "The minimum bullets required for each test case is between 0 and the sum of all monster health values in that test case."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(min_bullets == min_bullets_calculated for min_bullets, min_bullets_calculated in zip([int(line) for line in stdout.splitlines() if line.strip()], [calculate_min_bullets(monster_data) for monster_data in [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]]))",
+        "description": "The output for each test case is the minimum number of bullets required to kill all monsters, calculated as the sum of health values minus the maximum possible explosion damage chain that can be triggered."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and 1 <= T <= 150000",
+        "description": "T is an integer between 1 and 150000 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n.is_integer() and 2 <= n <= 300000 for n in [int(line.split()[0]) for line in stdin.splitlines()[1::] if line.strip() and line.split()[0].isdigit()])",
+        "description": "Each test case starts with an integer n between 2 and 300000 inclusive, representing the number of monsters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(a_i) == 2 and a_i[0].is_integer() and a_i[1].is_integer() and 1 <= a_i[0] <= 10**12 and 1 <= a_i[1] <= 10**12 for a_i in [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()])",
+        "description": "For each monster, a_i and b_i are integers between 1 and 10^12 inclusive, representing health and explosion damage respectively."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(output_line.is_integer() and output_line >= 0 for output_line in [int(line) for line in stdout.splitlines() if line.strip()])",
+        "description": "Each output line is a non-negative integer representing the minimum number of bullets required to kill all monsters in the corresponding test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_lines) == T for output_lines in [stdout.splitlines() if stdout.strip() else []])",
+        "description": "The number of output lines equals the number of test cases T."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= bullets <= sum(a_i for a_i in monster_data) for bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+        "description": "The minimum bullets required for each test case is between 0 and the sum of all monster health values in that test case."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(min_bullets == min_bullets_calculated for min_bullets, min_bullets_calculated in zip([int(line) for line in stdout.splitlines() if line.strip()], [calculate_min_bullets(monster_data) for monster_data in [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]]))",
+        "description": "The output for each test case is the minimum number of bullets required to kill all monsters, calculated as the sum of health values minus the maximum possible explosion damage chain that can be triggered."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "9c50be369a8913b2f51696de897d7cc55a1b6cf21e48507d1fb7cb1c6a2be1b1",
+  "selected_contract_fingerprint": "9c50be369a8913b2f51696de897d7cc55a1b6cf21e48507d1fb7cb1c6a2be1b1",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_22231.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+      "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+      "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with a **direct mathematical formulation** of the minimum bullets required. The expression must explicitly model the **explosion chain optimization** (e.g., using dynamic programming or greedy selection of explosion chains) rather than relying on an undefined `calculate_min_bullets` helper. The expression must be **self-contained** and derived from the task's core logic (e.g., `min_bullets = sum(a_i) - max_possible_explosion_chain_damage`).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output for each test case is **consistent with the explosion propagation rules** (e.g., if a monster's explosion kills the next monster, the chain continues until no further explosions occur). The expression must enforce that the output is derived from a **valid sequence of shots and explosions** that adheres to the task's rules.",
+        "task_evidence": "when the health of some monster i becomes 0 or less than 0, it dies and explodes, dealing b_i damage to the next monster... If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+      "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+      "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with a **direct mathematical formulation** of the minimum bullets required. The expression must explicitly model the **explosion chain optimization** (e.g., using dynamic programming or greedy selection of explosion chains) rather than relying on an undefined `calculate_min_bullets` helper. The expression must be **self-contained** and derived from the task's core logic (e.g., `min_bullets = sum(a_i) - max_possible_explosion_chain_damage`).",
+        "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output for each test case is **consistent with the explosion propagation rules** (e.g., if a monster's explosion kills the next monster, the chain continues until no further explosions occur). The expression must enforce that the output is derived from a **valid sequence of shots and explosions** that adheres to the task's rules.",
+        "task_evidence": "when the health of some monster i becomes 0 or less than 0, it dies and explodes, dealing b_i damage to the next monster... If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that enforces the **minimum bullets** calculation as the sum of all monster health values minus the **maximum possible explosion damage chain** that can be triggered in any valid sequence of shots. The expression must capture the **substantive input-output relation** where the output is derived from the **optimal explosion chain** (e.g., a chain where explosions propagate maximally to reduce bullet usage).",
+          "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "expression": "all(min_bullets == sum(a_i for a_i in monster_data) - max_explosion_chain(monster_data) for min_bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+          "description": "The minimum bullets required for each test case equals the sum of all monster health values minus the maximum possible explosion damage chain that can be triggered in any valid sequence of shots, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "7bf7aff063d46305cdf30042a0d29c48c0d5bd50a618e76f80a3ef6ae3983ed8",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that enforces the **minimum bullets required** is computed as the **sum of all monster health values minus the maximum possible explosion damage chain** that can be triggered in **any valid sequence of shots**, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle, considering the circular nature and the fact that explosions only propagate to the next alive monster.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that enforces the **minimum bullets required** is computed as the **sum of all monster health values minus the maximum possible explosion damage chain** that can be triggered in **any valid sequence of shots**, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle, considering the circular nature and the fact that explosions only propagate to the next alive monster.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to explicitly model the **explosion chain propagation** as a **directed acyclic graph (DAG) problem** where the maximum explosion chain is the **longest path** in the DAG formed by the circular dependencies, accounting for the fact that explosions only propagate to the next alive monster and cannot loop infinitely (since dead monsters do not trigger further explosions). The expression must capture the **optimal sequence of shots** that maximizes the explosion chain.",
+            "task_evidence": "when the health of some monster i becomes 0 or less than 0, it dies and explodes, dealing b_i damage to the next monster (monster i + 1, if i < n, or monster 1, if i = n). If the next monster is already dead, then nothing happens. If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "Remove this clause entirely, as it is redundant and does not capture the **explosion chain propagation logic** required by the task.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[4].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that enforces the **minimum bullets required** is computed as the **sum of all monster health values minus the maximum possible explosion damage chain** that can be triggered in **any valid sequence of shots**, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle, considering the circular nature and the fact that explosions only propagate to the next alive monster.",
+          "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(min_bullets == sum(a_i for a_i, b_i in monster_data) - max_explosion_chain(monster_data) for min_bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+          "description": "The minimum bullets required for each test case equals the sum of all monster health values minus the maximum possible explosion damage chain that can be triggered by optimally ordering the shots to maximize the sum of b_i values from explosions propagating to the next alive monster in the circle, where explosions stop at dead monsters and do not loop infinitely."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "4aebd18d12ea3c40ff3e0bbf314e162f9eb011248218e86f474fb262646d8e94",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant `monster_data` unpacking of `b_i` since it is not used in the expression and does not affect correctness. The expression should directly reference `monster_data` as a list of `(a_i, b_i)` pairs.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all(min_bullets == sum(a_i for a_i, _ in monster_data) - max_explosion_chain(monster_data) for min_bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))`",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the explosion chain calculation respects the circular nature of the monster arrangement and that explosions stop at dead monsters (no infinite loops).",
+            "task_evidence": "when the health of some monster i becomes 0 or less than 0, it dies and explodes, dealing b_i damage to the next monster (monster i + 1, if i < n, or monster 1, if i = n). If the next monster is already dead, then nothing happens.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the explosion chain is calculated as the sum of b_i values from explosions that propagate to the next alive monster in the circle, where explosions stop at dead monsters.",
+            "task_evidence": "If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the minimum bullets required for each test case is calculated as the sum of all monster health values minus the maximum possible explosion damage chain that can be triggered by optimally ordering the shots.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 6
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that enforces the **minimum bullets required** is computed as the **sum of all monster health values minus the maximum possible explosion damage chain** that can be triggered in **any valid sequence of shots**, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle, considering the circular nature and the fact that explosions only propagate to the next alive monster.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(output_line.is_integer() and output_line >= 0 for output_line in [int(line) for line in stdout.splitlines() if line.strip()])",
+            "description": "Each output line is a non-negative integer representing the minimum number of bullets required to kill all monsters in the corresponding test case."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(len(output_lines) == T for output_lines in [stdout.splitlines() if stdout.strip() else []])",
+            "description": "The number of output lines equals the number of test cases T."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(0 <= bullets <= sum(a_i for a_i, _ in monster_data) for bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+            "description": "The minimum bullets required for each test case is between 0 and the sum of all monster health values in that test case."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(min_bullets == sum(a_i for a_i, _ in monster_data) - max_explosion_chain(monster_data) for min_bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+            "description": "For each test case, the minimum bullets required equals the sum of all monster health values minus the maximum possible explosion damage chain that can be triggered by optimally ordering shots, where explosions propagate to the next alive monster in the circle and stop at dead monsters."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "7749051ebcf1ea3b6b81d58ecdda023327b11fb827e2b8e801af2e760618c674",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the minimum bullets required for each test case is computed correctly by considering the optimal ordering of shots to maximize explosion chain damage, where explosions propagate to the next alive monster in the circle and stop at dead monsters. The expression must capture the core logic: `min_bullets == sum(a_i for a_i, _ in monster_data) - max_possible_explosion_chain(monster_data)` where `max_possible_explosion_chain` is derived from the task's explosion propagation rules.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all $n$ monsters in the circle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a task-correct one that explicitly models the explosion chain logic. The current expression is underspecified and does not capture the explosion propagation rules (e.g., how explosions chain, stop at dead monsters, or propagate in a circle).",
+            "task_evidence": "when the health of some monster $i$ becomes $0$ or less than $0$, it dies and explodes, dealing $b_i$ damage to the next monster (monster $i + 1$, if $i < n$, or monster $1$, if $i = n$). If the next monster is already dead, then nothing happens. If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the explosion chain is computed correctly for circular propagation (i.e., monster $n$'s explosion affects monster $1$ if it is alive).",
+            "task_evidence": "monster $i + 1$, if $i < n$, or monster $1$, if $i = n$",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that enforces the **minimum bullets required** is computed as the **sum of all monster health values minus the maximum possible explosion damage chain** that can be triggered in **any valid sequence of shots**, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle, considering the circular nature and the fact that explosions only propagate to the next alive monster.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(output_line.is_integer() and output_line >= 0 for output_line in [int(line) for line in stdout.splitlines() if line.strip()])",
+            "description": "Each output line is a non-negative integer representing the minimum number of bullets required to kill all monsters in the corresponding test case."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(len(output_lines) == T for output_lines in [stdout.splitlines() if stdout.strip() else []])",
+            "description": "The number of output lines equals the number of test cases T."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(0 <= bullets <= sum(a_i for a_i, _ in monster_data) for bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+            "description": "The minimum bullets required for each test case is between 0 and the sum of all monster health values in that test case."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(min_bullets == sum(a_i for a_i, _ in monster_data) - max_explosion_chain(monster_data) for min_bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+            "description": "For each test case, the minimum bullets required equals the sum of all monster health values minus the maximum possible explosion damage chain that can be triggered by optimally ordering shots, where explosions propagate to the next alive monster in the circle (i+1 or 1 if i=n) and stop at dead monsters, and the chain is calculated as the sum of b_i values from explosions that propagate through alive monsters in sequence."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "063cf9825b599c4d56c3fa89d7d72db6afc8f6552bce352ae68d22eebdb8b877",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the explosion chain calculation respects the circular nature of the monster arrangement (i.e., explosions propagate to the next alive monster in the circle, wrapping around from n to 1). The current expression does not explicitly enforce this circular propagation rule in the `max_explosion_chain` logic.",
+            "task_evidence": "when the health of some monster i becomes 0 or less than 0, it dies and explodes, dealing b_i damage to the next monster (monster i + 1, if i < n, or monster 1, if i = n). If the next monster is already dead, then nothing happens.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the explosion chain calculation accounts for the fact that explosions stop at dead monsters (i.e., the chain terminates if the next monster in the circle is already dead).",
+            "task_evidence": "If the next monster is already dead, then nothing happens.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the explosion chain calculation respects the sequential propagation of explosions (i.e., if an explosion kills the next monster, it triggers another explosion, and so on).",
+            "task_evidence": "If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the explosion chain calculation is computed for all possible valid shot orderings (i.e., the maximum possible explosion chain is derived from optimally ordering shots to maximize explosion damage).",
+            "task_evidence": "the minimum number of bullets you have to fire to kill all n monsters in the circle... where explosions propagate to the next alive monster in the circle... and the chain is calculated as the sum of b_i values from explosions that propagate through alive monsters in sequence.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to explicitly define `max_explosion_chain` as a function that computes the maximum possible explosion chain damage for a given test case, considering circular propagation, termination at dead monsters, and sequential explosion triggers. The current expression is underspecified and does not capture these rules.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 5
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that enforces the **minimum bullets required** is computed as the **sum of all monster health values minus the maximum possible explosion damage chain** that can be triggered in **any valid sequence of shots**, where the explosion chain is calculated as the sum of explosion damages (b_i) that can be optimally propagated through the circle, considering the circular nature and the fact that explosions only propagate to the next alive monster.",
+            "task_evidence": "You have to calculate the minimum number of bullets you have to fire to kill all n monsters in the circle.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(output_line.is_integer() and output_line >= 0 for output_line in [int(line) for line in stdout.splitlines() if line.strip()])",
+            "description": "Each output line is a non-negative integer representing the minimum number of bullets required to kill all monsters in the corresponding test case."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(len(output_lines) == T for output_lines in [stdout.splitlines() if stdout.strip() else []])",
+            "description": "The number of output lines equals the number of test cases T."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(0 <= bullets <= sum(a_i for a_i, _ in monster_data) for bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+            "description": "The minimum bullets required for each test case is between 0 and the sum of all monster health values in that test case."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(min_bullets == sum(a_i for a_i, _ in monster_data) - max_explosion_chain(monster_data) for min_bullets, monster_data in zip([int(line) for line in stdout.splitlines() if line.strip()], [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and not line.split()[0].isdigit()]))",
+            "description": "For each test case, the minimum bullets required equals the sum of all monster health values minus the maximum possible explosion damage chain that can be triggered by optimally ordering shots, where explosions propagate to the next alive monster in the circle (monster i+1 or monster 1 if i=n), and the chain terminates if the next monster is already dead."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "9dc6188e03f7f5bae10a5a9f7f0604528da9364e62cb9b891359666f2eedd1ab",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that enforces the **minimum bullets** requirement by ensuring the output is the **smallest possible** achievable by optimally ordering shots to maximize explosion chain damage. The current Q4 expression is underspecified because it references `max_explosion_chain`, which is not defined in the contract and cannot be derived from the task's expressions alone. The task requires computing the **minimum bullets** as `sum(a_i) - max_possible_explosion_damage`, where the explosion chain is triggered by optimally ordering shots to maximize damage propagation (e.g., killing monsters in an order that maximizes the sum of `b_i` for consecutive alive monsters).",
+            "task_evidence": "You have to calculate the **minimum number of bullets** you have to fire to kill all $n$ monsters in the circle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "vague_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the vague `max_explosion_chain` with a **precise expression** that computes the **maximum possible explosion damage** achievable by optimally ordering shots. The explosion chain must account for circular propagation (monster `i+1` or `1` if `i=n`), termination when the next monster is dead, and the sum of `b_i` for all monsters killed in the chain. The expression must explicitly model the **optimal ordering** of shots to maximize this sum.",
+            "task_evidence": "when the health of some monster $i$ becomes $0$ or less than $0$, it dies and explodes, dealing $b_i$ damage to the next monster (monster $i + 1$, if $i < n$, or monster $1$, if $i = n$). If the next monster is already dead, then nothing happens. If the explosion kills the next monster, it explodes too, damaging the monster after it and possibly triggering another explosion, and so on.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the **explosion chain is computed correctly for all possible shot orderings** and that the **minimum bullets** is derived as `sum(a_i) - max_explosion_damage`. The current contract does not enforce that the output is derived from a **valid explosion chain** (e.g., no double-counting of `b_i` or incorrect propagation).",
+            "task_evidence": "You have to calculate the **minimum number of bullets** you have to fire to kill all $n$ monsters in the circle.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 385.333,
+  "processing_error": null,
+  "finished_at": "2026-09-04T14:32:23.408950+00:00"
+}

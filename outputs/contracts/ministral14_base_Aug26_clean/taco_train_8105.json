@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_8105",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line) <= 10**5 for line in stdin.splitlines() if line.strip().isdigit())",
+        "description": "The first line of stdin is an integer t (1 ≤ t ≤ 10^5) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(s) == int(n) and all(c in {'a', 'b', 'c'} for c in s) for n, s in zip(stdin.splitlines()[1::2], stdin.splitlines()[2::2]) if n.strip().isdigit())",
+        "description": "For each test case, the first line is an integer n (2 ≤ n ≤ 10^6) and the second line is a string s of length n containing only 'a', 'b', or 'c'."
+      },
+      {
+        "id": "P3",
+        "expression": "sum(int(n) for n, s in zip(stdin.splitlines()[1::2], stdin.splitlines()[2::2]) if n.strip().isdigit()) <= 10**6",
+        "description": "The sum of n over all test cases does not exceed 10^6."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line) > 0 and (stdout_line == '-1' or (stdout_line.isdigit() and 2 <= int(stdout_line) <= max(2, len(s)))) for s in [line for i, line in enumerate(stdin.splitlines()[2::2]) if i % 2 == 0])",
+        "description": "For each test case, stdout contains either -1 (no valid substring) or an integer representing the length of the smallest substring where 'a' occurs strictly more times than both 'b' and 'c', and the substring length is at least 2."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_line != '-1') == any(all(count_a > count_b and count_a > count_c for count_a, count_b, count_c in [(sub.count('a'), sub.count('b'), sub.count('c')) for sub in [s[i:j] for i in range(len(s)) for j in range(i + 2, len(s) + 1)]]) for s in [line for i, line in enumerate(stdin.splitlines()[2::2]) if i % 2 == 0])",
+        "description": "If stdout_line is not -1, there exists at least one substring of length stdout_line where 'a' occurs strictly more times than both 'b' and 'c'. If stdout_line is -1, no such substring exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout_line == '-1' or int(stdout_line) == min(len(sub) for sub in [s[i:j] for i in range(len(s)) for j in range(i + 2, len(s) + 1)] if (count_a := sub.count('a')) > sub.count('b') and count_a > sub.count('c'))) if any(count_a > count_b and count_a > count_c for count_a, count_b, count_c in [(sub.count('a'), sub.count('b'), sub.count('c')) for sub in [s[i:j] for i in range(len(s)) for j in range(i + 2, len(s) + 1)]]) else stdout_line == '-1' for s in [line for i, line in enumerate(stdin.splitlines()[2::2]) if i % 2 == 0])",
+        "description": "If valid substrings exist, stdout_line is the length of the smallest such substring. If no valid substrings exist, stdout_line is -1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line) <= 10**5 for line in stdin.splitlines() if line.strip().isdigit())\",\n      \"description\": \"The first line of stdin is an integer t (1 ≤ t ≤ 10^5) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(s) == int(n) and all(c in {'a', 'b', 'c'} for c in s) for n, s in zip(stdin.splitlines()[1::2], stdin.splitlines()[2::2]) if n.strip().isdigit())\",\n      \"description\": \"For each test case, the first line is an integer n (2 ≤ n ≤ 10^6) and the second line is a string s of length n containing only 'a', 'b', or 'c'.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"sum(int(n) for n, s in zip(stdin.splitlines()[1::2], stdin.splitlines()[2::2]) if n.strip().isdigit()) <= 10**6\",\n      \"description\": \"The sum of n over all test cases does not exceed 10^6.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_line) > 0 and (stdout_line == '-1' or (stdout_line.isdigit() and 2 <= int(stdout_line) <= max(2, len(s)))) for s in [line for i, line in enumerate(stdin.splitlines()[2::2]) if i % 2 == 0])\",\n      \"description\": \"For each test case, stdout contains either -1 (no valid substring) or an integer representing the length of the smallest substring where 'a' occurs strictly more times than both 'b' and 'c', and the substring length is at least 2.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout_line != '-1') == any(all(count_a > count_b and count_a > count_c for count_a, count_b, count_c in [(sub.count('a'), sub.count('b'), sub.count('c')) for sub in [s[i:j] for i in range(len(s)) for j in range(i + 2, len(s) + 1)]]) for s in [line for i, line in enumerate(stdin.splitlines()[2::2]) if i % 2 == 0])\",\n      \"description\": \"If stdout_line is not -1, there exists at least one substring of length stdout_line where 'a' occurs strictly more times than both 'b' and 'c'. If stdout_line is -1, no such substring exists.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout_line == '-1' or int(stdout_line) == min(len(sub) for sub in [s[i:j] for i in range(len(s)) for j in range(i + 2, len(s) + 1)] if (count_a := sub.count('a')) > sub.count('b') and count_a > sub.count('c'))) if any(count_a > count_b and count_a > count_c for count_a, count_b, count_c in [(sub.count('a'), sub.count('b'), sub.count('c')) for sub in [s[i:j] for i in range(len(s)) for j in range(i + 2, len(s) + 1)]]) else stdout_line == '-1' for s in [line for i, line in enumerate(stdin.splitlines()[2::2]) if i % 2 == 0])\",\n      \"description\": \"If valid substrings exist, stdout_line is the length of the smallest such substring. If no valid substrings exist, stdout_line is -1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1563,
+  "generated_tokens": 923,
+  "hit_output_limit": false,
+  "generation_seconds": 40.265,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:01:33.889451+00:00"
+}

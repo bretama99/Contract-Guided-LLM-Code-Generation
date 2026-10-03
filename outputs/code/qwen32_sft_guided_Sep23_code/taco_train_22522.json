@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_22522",
+  "task_index": 240,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_22522.json",
+  "code": "import sys\nfrom itertools import combinations\n\ndef landau_criterion(d):\n    n = len(d)\n    for k in range(n - 1):\n        if sum(d[:k + 1]) > k * (k + 1) // 2 + sum(d[k + 1:n]):\n            return False\n    return sum(d) == n * (n - 1) // 2\n\ndef construct_tournament(scores):\n    n = len(scores)\n    matrix = [[0] * n for _ in range(n)]\n    used = [False] * n\n    for i in range(n):\n        for j in range(n):\n            if i != j and not used[j] and scores[i] > 0:\n                matrix[i][j] = 1\n                scores[i] -= 1\n                used[j] = True\n    return matrix\n\ndef find_min_tournament(S):\n    S = sorted(S)\n    for n in range(len(S), 32):\n        for comb in combinations(range(n), len(S)):\n            scores = [0] * n\n            for i, s in enumerate(S):\n                scores[comb[i]] = s\n            if landau_criterion(scores):\n                matrix = construct_tournament(scores[:])\n                return n, matrix\n    return None\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    m = int(input[0])\n    S = list(map(int, input[1:]))\n    result = find_min_tournament(S)\n    if result is None:\n        print('=(')\n    else:\n        n, matrix = result\n        print(n)\n        for row in matrix:\n            print(''.join(map(str, row)))\n\nmain()",
+  "generation_seconds": 32.205,
+  "generated_at": "2026-09-23T18:43:18.818358+00:00"
+}

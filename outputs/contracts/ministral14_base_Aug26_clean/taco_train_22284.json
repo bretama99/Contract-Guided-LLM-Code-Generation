@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_22284",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "5 <= len(stdin.strip()) <= 10**4",
+        "description": "The input string s has length between 5 and 10,000 (inclusive), consisting of lowercase English letters."
+      },
+      {
+        "id": "P2",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz' for c in stdin.strip())",
+        "description": "All characters in the input string are lowercase English letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().splitlines()[0].isdigit() and (k := int(stdout.strip().splitlines()[0])) >= 0",
+        "description": "The first line of stdout is a non-negative integer k, representing the count of distinct valid suffixes."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.strip().splitlines()) == k + 1",
+        "description": "The total number of lines in stdout is exactly k + 1 (k suffixes + the count line)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(suffix) in {2, 3} for suffix in stdout.strip().splitlines()[1:])",
+        "description": "Each suffix in the output (lines 2 to k+1) has length exactly 2 or 3."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(suffix in set(s[i:i+L] for i in range(len(s)) for L in [2, 3] if i + L <= len(s)) for suffix in stdout.strip().splitlines()[1:])",
+        "description": "Every suffix in the output is a substring of length 2 or 3 present in the input string s."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(suffix not in {s[i:i+L] for i in range(len(s)-1) if i + L <= len(s) and s[i:i+L] == s[i+L:i+2*L]} for suffix in stdout.strip().splitlines()[1:]) or (len(s) < 5 and k == 0)",
+        "description": "A suffix is included in the output only if it does not appear consecutively twice in the input string (i.e., no two identical suffixes of length 2 or 3 appear consecutively in s). If the input string length is less than 5, no suffixes are allowed (k = 0)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(suffix == s[i:i+len(suffix)] for suffix in stdout.strip().splitlines()[1:] for i in range(len(s) - len(suffix) + 1) if s[i:i+len(suffix)] == suffix)",
+        "description": "Each suffix in the output is a valid suffix in at least one possible decomposition of s into a root (length > 4) and suffixes (length 2 or 3), with no two identical suffixes appearing consecutively."
+      },
+      {
+        "id": "Q7",
+        "expression": "sorted(stdout.strip().splitlines()[1:]) == sorted(set(stdout.strip().splitlines()[1:]))",
+        "description": "All suffixes in the output are distinct (no duplicates)."
+      },
+      {
+        "id": "Q8",
+        "expression": "sorted(stdout.strip().splitlines()[1:]) == sorted([suffix for suffix in set(s[i:i+L] for i in range(len(s)) for L in [2, 3] if i + L <= len(s)) if not any(suffix == s[i:i+len(suffix)] and suffix == s[i+len(suffix):i+2*len(suffix)] for i in range(len(s) - len(suffix) + 1))])",
+        "description": "The output suffixes are exactly the distinct substrings of length 2 or 3 in s that do not appear consecutively twice in s, sorted lexicographically."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"5 <= len(stdin.strip()) <= 10**4\",\n      \"description\": \"The input string s has length between 5 and 10,000 (inclusive), consisting of lowercase English letters.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(c in 'abcdefghijklmnopqrstuvwxyz' for c in stdin.strip())\",\n      \"description\": \"All characters in the input string are lowercase English letters.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().splitlines()[0].isdigit() and (k := int(stdout.strip().splitlines()[0])) >= 0\",\n      \"description\": \"The first line of stdout is a non-negative integer k, representing the count of distinct valid suffixes.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.strip().splitlines()) == k + 1\",\n      \"description\": \"The total number of lines in stdout is exactly k + 1 (k suffixes + the count line).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(suffix) in {2, 3} for suffix in stdout.strip().splitlines()[1:])\",\n      \"description\": \"Each suffix in the output (lines 2 to k+1) has length exactly 2 or 3.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(suffix in set(s[i:i+L] for i in range(len(s)) for L in [2, 3] if i + L <= len(s)) for suffix in stdout.strip().splitlines()[1:])\",\n      \"description\": \"Every suffix in the output is a substring of length 2 or 3 present in the input string s.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(suffix not in {s[i:i+L] for i in range(len(s)-1) if i + L <= len(s) and s[i:i+L] == s[i+L:i+2*L]} for suffix in stdout.strip().splitlines()[1:]) or (len(s) < 5 and k == 0)\",\n      \"description\": \"A suffix is included in the output only if it does not appear consecutively twice in the input string (i.e., no two identical suffixes of length 2 or 3 appear consecutively in s). If the input string length is less than 5, no suffixes are allowed (k = 0).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(suffix == s[i:i+len(suffix)] for suffix in stdout.strip().splitlines()[1:] for i in range(len(s) - len(suffix) + 1) if s[i:i+len(suffix)] == suffix)\",\n      \"description\": \"Each suffix in the output is a valid suffix in at least one possible decomposition of s into a root (length > 4) and suffixes (length 2 or 3), with no two identical suffixes appearing consecutively.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"sorted(stdout.strip().splitlines()[1:]) == sorted(set(stdout.strip().splitlines()[1:]))\",\n      \"description\": \"All suffixes in the output are distinct (no duplicates).\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"sorted(stdout.strip().splitlines()[1:]) == sorted([suffix for suffix in set(s[i:i+L] for i in range(len(s)) for L in [2, 3] if i + L <= len(s)) if not any(suffix == s[i:i+len(suffix)] and suffix == s[i+len(suffix):i+2*len(suffix)] for i in range(len(s) - len(suffix) + 1))])\",\n      \"description\": \"The output suffixes are exactly the distinct substrings of length 2 or 3 in s that do not appear consecutively twice in s, sorted lexicographically.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1557,
+  "generated_tokens": 980,
+  "hit_output_limit": false,
+  "generation_seconds": 47.226,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:45:10.436943+00:00"
+}

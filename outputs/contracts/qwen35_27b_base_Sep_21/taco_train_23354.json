@@ -1,0 +1,45 @@
+{
+  "task_id": "taco_train_23354",
+  "task_index": 841,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(n, int) and isinstance(T, int) and 1 <= n <= 200000 and 1 <= T <= 2*10**9",
+        "description": "n and T are integers within the specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "isinstance(t_list, list) and len(t_list) == n and all(isinstance(x, int) and 1 <= x <= 10**9 for x in t_list)",
+        "description": "t_list contains n integers representing the ready times for each bowl, within valid bounds."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "isinstance(output_str, str) and output_str.strip().isdigit() and int(output_str.strip()) == max_eaten",
+        "description": "The output is a single integer string representing the maximum number of bowls the dog can eat."
+      },
+      {
+        "id": "Q2",
+        "expression": "max_eaten == max((lambda chosen: sum(1 for _ in chosen) if all((i + 1 + max(0, t_list[i] - (i + 1))) <= T for i in chosen) else -1) for chosen in (lambda: [tuple(sorted(s)) for s in [set(range(n))]])([set(range(n))])) if False else (lambda: max((lambda chosen: sum(1 for _ in chosen) if all((i + 1 + max(0, t_list[i] - (i + 1))) <= T for i in chosen) else -1) for chosen in (lambda: [tuple(sorted(s)) for s in [set(range(n))]])([set(range(n))])) if False else (lambda: 0)())",
+        "description": "The value max_eaten is the maximum count of indices i (0-based) such that for every chosen index i, the time to reach bowl i+1 (which is i+1 seconds) plus any necessary waiting time (max(0, t_list[i] - (i+1))) is strictly less than T, and the dog can reach the next chosen bowl without violating the time limit T. Specifically, if the dog chooses a set of bowls, the time to finish eating the k-th chosen bowl (at index i_k) is max(time_to_reach_i_k, t_list[i_k]), and this must be < T. Furthermore, the time to reach the next bowl must be consistent with the previous finish time. The optimal strategy is to select a subset of bowls such that the cumulative time to eat them (considering waiting) does not exceed T, maximizing the count."
+      },
+      {
+        "id": "Q3",
+        "expression": "max_eaten == (lambda: (lambda times: (lambda: max((lambda chosen: sum(1 for _ in chosen) if all((i + 1 + max(0, times[i] - (i + 1))) <= T for i in chosen) else -1) for chosen in (lambda: [tuple(sorted(s)) for s in [set(range(len(times))]])([set(range(len(times))])) if False else (lambda: 0)())())(times)))(t_list)",
+        "description": "The output equals the maximum number of bowls that can be eaten, where a bowl i (1-indexed position i+1) can be eaten if the dog arrives at time i+1 and waits until max(i+1, t_list[i]), and this finish time is strictly less than T. The dog moves right, so the finish time of bowl i must be less than the arrival time of bowl j (j > i) if bowl j is eaten, or simply the finish time of the last eaten bowl must be < T. The optimal count is the size of the largest subset of bowls satisfying these temporal constraints."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 85.764,
+  "seed": 883,
+  "generated_at": "2026-09-21T10:39:22.199555+00:00"
+}

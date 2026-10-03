@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_7337",
+  "task_index": 506,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_7337.json",
+  "code": "import sys\nfrom collections import deque\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    m = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    for _ in range(n - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    attacked = []\n    for _ in range(m):\n        attacked.append(int(next(iterator)))\n    \n    attacked_set = set(attacked)\n    \n    def bfs(start_node):\n        dist = [-1] * (n + 1)\n        dist[start_node] = 0\n        queue = deque([start_node])\n        max_dist = 0\n        \n        while queue:\n            u = queue.popleft()\n            d = dist[u]\n            if u in attacked_set:\n                if d > max_dist:\n                    max_dist = d\n            \n            for v in adj[u]:\n                if dist[v] == -1:\n                    dist[v] = d + 1\n                    queue.append(v)\n        \n        return max_dist, dist\n    \n    best_city = None\n    min_max_dist = float('inf')\n    \n    for start_node in sorted(attacked):\n        max_d, _ = bfs(start_node)\n        if max_d < min_max_dist:\n            min_max_dist = max_d\n            best_city = start_node\n        elif max_d == min_max_dist:\n            if best_city is None or start_node < best_city:\n                best_city = start_node\n    \n    print(best_city)\n    print(min_max_dist)\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 37.67,
+  "generated_at": "2026-09-22T21:23:45.960705+00:00"
+}

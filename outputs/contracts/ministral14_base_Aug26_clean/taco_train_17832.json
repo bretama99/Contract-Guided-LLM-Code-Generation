@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_17832",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(line, str) for line in stdin.splitlines())",
+        "description": "Input consists of lines of text, where the first line is T (number of test cases), followed by T test cases, each with two lines: first line contains N and K, second line contains N space-separated integers."
+      },
+      {
+        "id": "P2",
+        "expression": "T == int(stdin.splitlines()[0]) and T >= 1 and T <= 10**5",
+        "description": "T is a positive integer within the constraint 1 ≤ T ≤ 10^5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1::2]) and all(len(line.split()) == N for line in stdin.splitlines()[2::2])",
+        "description": "For each test case, the first line contains exactly two integers N and K, and the second line contains exactly N integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(N) <= 10**5 for N, K in (line.split() for line in stdin.splitlines()[1::2])) and all(1 <= int(K) <= int(N) for N, K in (line.split() for line in stdin.splitlines()[1::2]))",
+        "description": "For each test case, N and K satisfy 1 ≤ K ≤ N ≤ 10^5."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(A_i) <= 10**6 for A_i in line.split() for line in stdin.splitlines()[2::2])",
+        "description": "Each element A_i in the array satisfies 1 ≤ A_i ≤ 10^6."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['YES', 'NO', 'yes', 'no', 'Yes', 'No', 'yEs', 'nO'] for stdout_line in stdout.splitlines())",
+        "description": "For each test case, the output is a string that is case-insensitive equivalent to 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout_line) == 2 or len(stdout_line) == 3 for stdout_line in stdout.splitlines())",
+        "description": "Each output line is either 2 or 3 characters long (e.g., 'YES', 'NO', 'yes', 'no')."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(stdout_line.upper() == 'YES' or stdout_line.upper() == 'NO' for stdout_line in stdout.splitlines())",
+        "description": "Each output line, when converted to uppercase, is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((lambda A, K: all(A[i] == A[N - 1 - i] + (d_i - d_j) for i in range(N // 2) for j in range(N // 2) if i == j) or all(A[i] + d_i == A[N - 1 - i] + d_j for i in range(N // 2) for j in range(N // 2) for d_i in range(0, max_diff + 1) for d_j in range(0, max_diff + 1) if (d_i - d_j) % K == 0 and (d_i - d_j) >= 0))(list(map(int, line.split())), int(K)) for line in stdin.splitlines()[2::2]) if stdout_line.upper() == 'YES' else True",
+        "description": "For each test case, the output is 'YES' if and only if there exists a way to make the array A palindromic by incrementing K distinct indices any number of times. This is true if for every pair of symmetric indices (i, N-1-i), the difference (A[i] - A[N-1-i]) is divisible by K and non-negative, or if the differences can be balanced by incrementing the appropriate indices."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((lambda A, K: any((A[i] - A[N - 1 - i]) % K == 0 and (A[i] - A[N - 1 - i]) >= 0 for i in range(N // 2)) or all((A[i] - A[N - 1 - i]) % K == 0 and (A[i] - A[N - 1 - i]) >= 0 for i in range(N // 2))) for N, A, K in [(int(N), list(map(int, line.split())), int(K)) for line in zip(stdin.splitlines()[1::2], stdin.splitlines()[2::2])]) if stdout_line.upper() == 'YES' else True",
+        "description": "For each test case, the output is 'YES' if and only if for every pair of symmetric indices (i, N-1-i), the difference (A[i] - A[N-1-i]) is non-negative and divisible by K. This ensures that the required increments can be applied to make the array palindromic."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(line, str) for line in stdin.splitlines())\",\n      \"description\": \"Input consists of lines of text, where the first line is T (number of test cases), followed by T test cases, each with two lines: first line contains N and K, second line contains N space-separated integers.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"T == int(stdin.splitlines()[0]) and T >= 1 and T <= 10**5\",\n      \"description\": \"T is a positive integer within the constraint 1 ≤ T ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1::2]) and all(len(line.split()) == N for line in stdin.splitlines()[2::2])\",\n      \"description\": \"For each test case, the first line contains exactly two integers N and K, and the second line contains exactly N integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(N) <= 10**5 for N, K in (line.split() for line in stdin.splitlines()[1::2])) and all(1 <= int(K) <= int(N) for N, K in (line.split() for line in stdin.splitlines()[1::2]))\",\n      \"description\": \"For each test case, N and K satisfy 1 ≤ K ≤ N ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(A_i) <= 10**6 for A_i in line.split() for line in stdin.splitlines()[2::2])\",\n      \"description\": \"Each element A_i in the array satisfies 1 ≤ A_i ≤ 10^6.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line in ['YES', 'NO', 'yes', 'no', 'Yes', 'No', 'yEs', 'nO'] for stdout_line in stdout.splitlines())\",\n      \"description\": \"For each test case, the output is a string that is case-insensitive equivalent to 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout_line) == 2 or len(stdout_line) == 3 for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line is either 2 or 3 characters long (e.g., 'YES', 'NO', 'yes', 'no').\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(stdout_line.upper() == 'YES' or stdout_line.upper() == 'NO' for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line, when converted to uppercase, is either 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((lambda A, K: all(A[i] == A[N - 1 - i] + (d_i - d_j) for i in range(N // 2) for j in range(N // 2) if i == j) or all(A[i] + d_i == A[N - 1 - i] + d_j for i in range(N // 2) for j in range(N // 2) for d_i in range(0, max_diff + 1) for d_j in range(0, max_diff + 1) if (d_i - d_j) % K == 0 and (d_i - d_j) >= 0))(list(map(int, line.split())), int(K)) for line in stdin.splitlines()[2::2]) if stdout_line.upper() == 'YES' else True\",\n      \"description\": \"For each test case, the output is 'YES' if and only if there exists a way to make the array A palindromic by incrementing K distinct indices any number of times. This is true if for every pair of symmetric indices (i, N-1-i), the difference (A[i] - A[N-1-i]) is divisible by K and non-negative, or if the differences can be balanced by incrementing the appropriate indices.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((lambda A, K: any((A[i] - A[N - 1 - i]) % K == 0 and (A[i] - A[N - 1 - i]) >= 0 for i in range(N // 2)) or all((A[i] - A[N - 1 - i]) % K == 0 and (A[i] - A[N - 1 - i]) >= 0 for i in range(N // 2))) for N, A, K in [(int(N), list(map(int, line.split())), int(K)) for line in zip(stdin.splitlines()[1::2], stdin.splitlines()[2::2])]) if stdout_line.upper() == 'YES' else True\",\n      \"description\": \"For each test case, the output is 'YES' if and only if for every pair of symmetric indices (i, N-1-i), the difference (A[i] - A[N-1-i]) is non-negative and divisible by K. This ensures that the required increments can be applied to make the array palindromic.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1791,
+  "generated_tokens": 1259,
+  "hit_output_limit": false,
+  "generation_seconds": 62.985,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:20:31.235300+00:00"
+}

@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_5505",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= q <= 100",
+        "description": "The number of queries q must be between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 50 for line in stdin.splitlines()[1:] for n in [int(line.split()[0])])",
+        "description": "For each query, the array size n must be between 1 and 50 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= s <= 200 for line in stdin.splitlines()[1:] for s in [int(line.split()[1])])",
+        "description": "For each query, the sum s must be between 0 and 200 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= k <= 2000 for line in stdin.splitlines()[1:] for k in [int(line.split()[2])])",
+        "description": "For each query, the sum of absolute differences k must be between 0 and 2000 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == n or output_line.strip() == '-1' for output_line in stdout.splitlines() for n in [int(stdin.splitlines()[i+1].split()[0]) for i in range(q)])",
+        "description": "For each query, the output line must either contain exactly n space-separated integers or be '-1'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(0 <= int(x) for x in output_line.split()) if output_line.strip() != '-1' else True for output_line in stdout.splitlines())",
+        "description": "All elements in the output array must be non-negative integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(sum(int(x) for x in output_line.split()) == s if output_line.strip() != '-1' else True for output_line, (n, s, k) in zip(stdout.splitlines(), [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]]))",
+        "description": "For each query, if the output is not '-1', the sum of the array elements must equal s."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(sum(abs(int(output_line.split()[i]) - int(output_line.split()[j])) for i in range(n) for j in range(i+1, n)) == k if output_line.strip() != '-1' else True for output_line, (n, s, k) in zip(stdout.splitlines(), [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]]))",
+        "description": "For each query, if the output is not '-1', the sum of absolute differences between each pair of elements must equal k."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(output_line == '-1' or all(int(output_line.split()[i]) <= int(output_line.split()[j]) for i in range(n) for j in range(i+1, n)) or all(int(output_line.split()[i]) >= int(output_line.split()[j]) for i in range(n) for j in range(i+1, n)) for output_line in stdout.splitlines() for n in [int(stdin.splitlines()[stdout.splitlines().index(output_line)+1].split()[0])])",
+        "description": "If the output is not '-1', the array must be either non-decreasing or non-increasing (lexicographically smallest implies non-decreasing)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(output_line == '-1' or output_line == ' '.join(map(str, sorted([int(x) for x in output_line.split()], reverse=False))) for output_line in stdout.splitlines() if output_line.strip() != '-1')",
+        "description": "If the output is not '-1', it must be the lexicographically smallest array satisfying the conditions."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= q <= 100\",\n      \"description\": \"The number of queries q must be between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= n <= 50 for line in stdin.splitlines()[1:] for n in [int(line.split()[0])])\",\n      \"description\": \"For each query, the array size n must be between 1 and 50 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= s <= 200 for line in stdin.splitlines()[1:] for s in [int(line.split()[1])])\",\n      \"description\": \"For each query, the sum s must be between 0 and 200 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= k <= 2000 for line in stdin.splitlines()[1:] for k in [int(line.split()[2])])\",\n      \"description\": \"For each query, the sum of absolute differences k must be between 0 and 2000 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line.split()) == n or output_line.strip() == '-1' for output_line in stdout.splitlines() for n in [int(stdin.splitlines()[i+1].split()[0]) for i in range(q)])\",\n      \"description\": \"For each query, the output line must either contain exactly n space-separated integers or be '-1'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(all(0 <= int(x) for x in output_line.split()) if output_line.strip() != '-1' else True for output_line in stdout.splitlines())\",\n      \"description\": \"All elements in the output array must be non-negative integers.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(sum(int(x) for x in output_line.split()) == s if output_line.strip() != '-1' else True for output_line, (n, s, k) in zip(stdout.splitlines(), [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]]))\",\n      \"description\": \"For each query, if the output is not '-1', the sum of the array elements must equal s.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(sum(abs(int(output_line.split()[i]) - int(output_line.split()[j])) for i in range(n) for j in range(i+1, n)) == k if output_line.strip() != '-1' else True for output_line, (n, s, k) in zip(stdout.splitlines(), [(int(line.split()[0]), int(line.split()[1]), int(line.split()[2])) for line in stdin.splitlines()[1:]]))\",\n      \"description\": \"For each query, if the output is not '-1', the sum of absolute differences between each pair of elements must equal k.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(output_line == '-1' or all(int(output_line.split()[i]) <= int(output_line.split()[j]) for i in range(n) for j in range(i+1, n)) or all(int(output_line.split()[i]) >= int(output_line.split()[j]) for i in range(n) for j in range(i+1, n)) for output_line in stdout.splitlines() for n in [int(stdin.splitlines()[stdout.splitlines().index(output_line)+1].split()[0])])\",\n      \"description\": \"If the output is not '-1', the array must be either non-decreasing or non-increasing (lexicographically smallest implies non-decreasing).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(output_line == '-1' or output_line == ' '.join(map(str, sorted([int(x) for x in output_line.split()], reverse=False))) for output_line in stdout.splitlines() if output_line.strip() != '-1')\",\n      \"description\": \"If the output is not '-1', it must be the lexicographically smallest array satisfying the conditions.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1777,
+  "generated_tokens": 1022,
+  "hit_output_limit": false,
+  "generation_seconds": 46.183,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:11:46.868147+00:00"
+}

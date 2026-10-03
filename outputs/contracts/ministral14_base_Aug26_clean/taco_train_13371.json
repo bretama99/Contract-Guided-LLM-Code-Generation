@@ -1,0 +1,102 @@
+{
+  "task_id": "taco_train_13371",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "Q == int(stdin.split()[0]) and Q >= 1 and Q <= 400000",
+        "description": "Q is the number of queries (1 ≤ Q ≤ 400000) and is the first line of input."
+      },
+      {
+        "id": "P2",
+        "expression": "all(line.strip() and len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each query line (after the first) contains exactly three space-separated integers."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(p) <= 10**18 and 1 <= int(q) <= 10**18 for line in stdin.splitlines()[1:] for p, q in [line.split()[1:3]])",
+        "description": "For each query, p and q are integers in [1, 10^18]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(line.split()[1]) <= cnt for line in stdin.splitlines()[1:] if line.split()[0] == '2')",
+        "description": "For type-2 queries, R (first integer) is a valid node index (1 ≤ R ≤ cnt)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= int(line.split()[2]) <= 10**15 for line in stdin.splitlines()[1:] if line.split()[0] == '2')",
+        "description": "For type-2 queries, X (third integer) is a non-negative integer (0 ≤ X ≤ 10^15)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(line.split()[2]) <= cnt for line in stdin.splitlines()[1:] if line.split()[0] == '1')",
+        "description": "For type-1 queries, R (second integer) is a valid node index (1 ≤ R ≤ cnt)."
+      },
+      {
+        "id": "P7",
+        "expression": "all(0 <= int(line.split()[3]) <= 10**9 for line in stdin.splitlines()[1:] if line.split()[0] == '1')",
+        "description": "For type-1 queries, W (third integer) is a non-negative integer (0 ≤ W ≤ 10^9)."
+      },
+      {
+        "id": "P8",
+        "expression": "cnt == 1 and nodes == {1: {'weight': 0, 'parent': None, 'children': []}}",
+        "description": "Initially, the tree has one node (index 1) with weight 0, no parent, and no children."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(line.strip() in stdout.splitlines() for line in [stdout.splitlines()[i] for i in range(len(stdout.splitlines())) if i % 2 == 0])",
+        "description": "For each type-2 query, the output line corresponds exactly to the answer for that query (in order)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(output) <= cnt for output in stdout.splitlines() if output.strip())",
+        "description": "Each output for a type-2 query is a non-negative integer ≤ current cnt."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(sequence) == int(output) and sum(nodes[node]['weight'] for node in sequence) <= X and all(nodes[sequence[i]]['weight'] >= nodes[sequence[i+1]]['weight'] for i in range(len(sequence)-1)) and all(not any(nodes[k]['weight'] >= nodes[sequence[i+1]]['weight'] for k in path(sequence[i], sequence[i+1])) for i in range(len(sequence)-1)) for line in stdin.splitlines()[1:] if line.split()[0] == '2' for output in [stdout.splitlines()[int(line.split()[0]) - 1]] for sequence in find_sequences(line.split()[1], int(line.split()[2])) if len(sequence) == int(output))",
+        "description": "For each type-2 query (R, X), the output is the maximum length of a sequence starting at R where:\n1. Every node in the sequence is an ancestor of its predecessor.\n2. Sum of weights ≤ X.\n3. For consecutive nodes i, j (i ancestor of j), w[i] ≥ w[j] and no node k on the path from i to j has w[k] ≥ w[j]."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(nodes[cnt + 1] == {'weight': W, 'parent': R, 'children': []} for line in stdin.splitlines()[1:] if line.split()[0] == '1' for cnt, W, R in [(len(nodes), int(line.split()[3]), int(line.split()[2]))])",
+        "description": "For each type-1 query (p, q), a new node with index cnt+1, weight W = p XOR q, and parent R = p XOR q is added to the tree."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(nodes[node]['parent'] is None or nodes[node]['parent'] in nodes for node in nodes)",
+        "description": "Every node's parent is either None (root) or a valid node in the tree."
+      },
+      {
+        "id": "I2",
+        "expression": "all(node in nodes[nodes[node]['parent']]['children'] if nodes[node]['parent'] is not None else True for node in nodes)",
+        "description": "Every node (except root) is in its parent's children list."
+      },
+      {
+        "id": "I3",
+        "expression": "all(nodes[node]['weight'] >= 0 for node in nodes)",
+        "description": "Every node's weight is non-negative."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"Q == int(stdin.split()[0]) and Q >= 1 and Q <= 400000\",\n      \"description\": \"Q is the number of queries (1 ≤ Q ≤ 400000) and is the first line of input.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(line.strip() and len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each query line (after the first) contains exactly three space-separated integers.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(p) <= 10**18 and 1 <= int(q) <= 10**18 for line in stdin.splitlines()[1:] for p, q in [line.split()[1:3]])\",\n      \"description\": \"For each query, p and q are integers in [1, 10^18].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(line.split()[1]) <= cnt for line in stdin.splitlines()[1:] if line.split()[0] == '2')\",\n      \"description\": \"For type-2 queries, R (first integer) is a valid node index (1 ≤ R ≤ cnt).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(0 <= int(line.split()[2]) <= 10**15 for line in stdin.splitlines()[1:] if line.split()[0] == '2')\",\n      \"description\": \"For type-2 queries, X (third integer) is a non-negative integer (0 ≤ X ≤ 10^15).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= int(line.split()[2]) <= cnt for line in stdin.splitlines()[1:] if line.split()[0] == '1')\",\n      \"description\": \"For type-1 queries, R (second integer) is a valid node index (1 ≤ R ≤ cnt).\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(0 <= int(line.split()[3]) <= 10**9 for line in stdin.splitlines()[1:] if line.split()[0] == '1')\",\n      \"description\": \"For type-1 queries, W (third integer) is a non-negative integer (0 ≤ W ≤ 10^9).\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"cnt == 1 and nodes == {1: {'weight': 0, 'parent': None, 'children': []}}\",\n      \"description\": \"Initially, the tree has one node (index 1) with weight 0, no parent, and no children.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(line.strip() in stdout.splitlines() for line in [stdout.splitlines()[i] for i in range(len(stdout.splitlines())) if i % 2 == 0])\",\n      \"description\": \"For each type-2 query, the output line corresponds exactly to the answer for that query (in order).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(output) <= cnt for output in stdout.splitlines() if output.strip())\",\n      \"description\": \"Each output for a type-2 query is a non-negative integer ≤ current cnt.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(sequence) == int(output) and sum(nodes[node]['weight'] for node in sequence) <= X and all(nodes[sequence[i]]['weight'] >= nodes[sequence[i+1]]['weight'] for i in range(len(sequence)-1)) and all(not any(nodes[k]['weight'] >= nodes[sequence[i+1]]['weight'] for k in path(sequence[i], sequence[i+1])) for i in range(len(sequence)-1)) for line in stdin.splitlines()[1:] if line.split()[0] == '2' for output in [stdout.splitlines()[int(line.split()[0]) - 1]] for sequence in find_sequences(line.split()[1], int(line.split()[2])) if len(sequence) == int(output))\",\n      \"description\": \"For each type-2 query (R, X), the output is the maximum length of a sequence starting at R where:\\n1. Every node in the sequence is an ancestor of its predecessor.\\n2. Sum of weights ≤ X.\\n3. For consecutive nodes i, j (i ancestor of j), w[i] ≥ w[j] and no node k on the path from i to j has w[k] ≥ w[j].\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(nodes[cnt + 1] == {'weight': W, 'parent': R, 'children': []} for line in stdin.splitlines()[1:] if line.split()[0] == '1' for cnt, W, R in [(len(nodes), int(line.split()[3]), int(line.split()[2]))])\",\n      \"description\": \"For each type-1 query (p, q), a new node with index cnt+1, weight W = p XOR q, and parent R = p XOR q is added to the tree.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(nodes[node]['parent'] is None or nodes[node]['parent'] in nodes for node in nodes)\",\n      \"description\": \"Every node's parent is either None (root) or a valid node in the tree.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(node in nodes[nodes[node]['parent']]['children'] if nodes[node]['parent'] is not None else True for node in nodes)\",\n      \"description\": \"Every node (except root) is in its parent's children list.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"all(nodes[node]['weight'] >= 0 for node in nodes)\",\n      \"description\": \"Every node's weight is non-negative.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1917,
+  "generated_tokens": 1438,
+  "hit_output_limit": false,
+  "generation_seconds": 66.014,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:03:34.627079+00:00"
+}

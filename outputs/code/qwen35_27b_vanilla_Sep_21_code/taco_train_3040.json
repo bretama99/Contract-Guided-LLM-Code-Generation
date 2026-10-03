@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_3040",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T10:19:47.351960+00:00",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    \n    try:\n        V = int(next(iterator))\n        E = int(next(iterator))\n    except StopIteration:\n        return\n\n    adj = [[] for _ in range(V)]\n    \n    for _ in range(E):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        w = int(next(iterator))\n        adj[u].append((v, w))\n        \n    s = int(next(iterator))\n    t = int(next(iterator))\n    \n    INF = float('inf')\n    dist = [INF] * V\n    count = [0] * V\n    \n    dist[s] = 0\n    count[s] = 1\n    \n    # Use a queue for 0-1 BFS or Dijkstra-like processing\n    # Since weights are small positive integers (1-99), we can use a simple \n    # approach similar to Dijkstra but optimized for the constraints.\n    # However, given V up to 10000 and E up to 200000, standard Dijkstra \n    # with a heap is efficient enough O(E log V).\n    \n    import heapq\n    \n    pq = [(0, s)]\n    \n    while pq:\n        d, u = heapq.heappop(pq)\n        \n        if d > dist[u]:\n            continue\n        \n        for v, w in adj[u]:\n            new_dist = d + w\n            \n            if new_dist < dist[v]:\n                dist[v] = new_dist\n                count[v] = count[u]\n                heapq.heappush(pq, (new_dist, v))\n            elif new_dist == dist[v]:\n                count[v] += count[u]\n    \n    if dist[t] == INF:\n        print(0)\n    else:\n        print(count[t])\n\nif __name__ == \"__main__\":\n    main()"
+}

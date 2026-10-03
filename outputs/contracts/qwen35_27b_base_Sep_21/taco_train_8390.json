@@ -1,0 +1,55 @@
+{
+  "task_id": "taco_train_8390",
+  "task_index": 552,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "q >= 1 and q <= 1000",
+        "description": "The number of events q is between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(line, str) and len(line.strip()) > 0 for line in stdin_lines[1:])",
+        "description": "Each of the q event lines is non-empty."
+      },
+      {
+        "id": "P3",
+        "expression": "all((1 <= v <= 10**18 and 1 <= u <= 10**18 and v != u and (1 <= w <= 10**9 if t == 1 else True)) for t, v, u, w in parsed_events)",
+        "description": "For each event, v and u are positive integers up to 10^18 and distinct; if type 1, w is between 1 and 10^9."
+      },
+      {
+        "id": "P4",
+        "expression": "all(t in (1, 2) for t, _, _, _ in parsed_events)",
+        "description": "Each event type t is either 1 or 2."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == len([e for e in parsed_events if e[0] == 2])",
+        "description": "The number of output lines equals the number of type-2 events."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout_lines[i]) == sum_cost_for_path(parsed_events, i) for i in range(len(stdout_lines)))",
+        "description": "Each output line i contains the sum of current road fees on the unique shortest path between the v and u of the i-th type-2 event, where sum_cost_for_path computes the cumulative fee updates applied to edges on that path."
+      },
+      {
+        "id": "Q3",
+        "expression": "sum_cost_for_path(parsed_events, i) == sum((fee_map.get((min(a, b), max(a, b)), 0) for a, b in path_edges(parsed_events, i)))",
+        "description": "The cost for a query is the sum of fees of all edges on the path, where each edge (x, y) with x<y has a fee accumulated from all type-1 events covering that edge."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 49.1,
+  "seed": 594,
+  "generated_at": "2026-09-21T06:20:28.391990+00:00"
+}

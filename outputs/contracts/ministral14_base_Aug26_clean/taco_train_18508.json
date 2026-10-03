@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_18508",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 10",
+        "description": "The first line of input is an integer T (1 ≤ T ≤ 10) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == N for line in stdin.splitlines()[1:2*T+1:2] if line.strip() and line.split()[0].isdigit())",
+        "description": "For each test case, the first line after T is an integer N (1 ≤ N ≤ 10^5) representing the array size, and the next line contains exactly N space-separated integers (1 ≤ A[i] ≤ 10^9)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == 2 for line in stdout.splitlines())",
+        "description": "The output consists of exactly T lines, each containing two space-separated integers: the selected rotation index and the maximum number of inversions."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(line.split()[0]) < int(stdin.splitlines()[1 + 2*(i-1)].strip()) for i, line in enumerate(stdout.splitlines(), 1))",
+        "description": "For each test case i, the selected rotation index is within the valid range [0, N-1), where N is the array size for that test case."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(line.split()[1]) == max(inversions(a, k) for k in range(N)) for i, line in enumerate(stdout.splitlines(), 1) if (N := int(stdin.splitlines()[1 + 2*(i-1)].strip())) and (a := list(map(int, stdin.splitlines()[2 + 2*(i-1)].strip().split()))) and (inversions := lambda arr, k: sum(1 for j in range(k, N) for l in range(j+1, N) if arr[j] > arr[l] + sum(1 for j in range(N-1, k-1, -1) for l in range(j+1, N) if arr[j] > arr[l])))",
+        "description": "For each test case, the second number in the output line is the maximum number of inversions achievable by any left rotation of the array."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((k1, inv1) < (k2, inv2) or (inv1 == inv2 and k1 < k2) for i, line in enumerate(stdout.splitlines(), 1) if (N := int(stdin.splitlines()[1 + 2*(i-1)].strip())) and (a := list(map(int, stdin.splitlines()[2 + 2*(i-1)].strip().split()))) and (k1 := int(line.split()[0])) and (inv1 := int(line.split()[1])) and any((k2 := k, inv2 := sum(1 for j in range(k, N) for l in range(j+1, N) if a[(j+k)%N] > a[(l+k)%N] + sum(1 for j in range(N-1, k-1, -1) for l in range(j+1, N) if a[j] > a[l]))) for k in range(N)))",
+        "description": "For each test case, among all rotations with the maximum number of inversions, the selected rotation index is the smallest one. If there are multiple rotations with the same maximum inversions and lexicographically smallest, the smallest index is chosen."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 10\",\n      \"description\": \"The first line of input is an integer T (1 ≤ T ≤ 10) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == N for line in stdin.splitlines()[1:2*T+1:2] if line.strip() and line.split()[0].isdigit())\",\n      \"description\": \"For each test case, the first line after T is an integer N (1 ≤ N ≤ 10^5) representing the array size, and the next line contains exactly N space-separated integers (1 ≤ A[i] ≤ 10^9).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdout.splitlines())\",\n      \"description\": \"The output consists of exactly T lines, each containing two space-separated integers: the selected rotation index and the maximum number of inversions.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(line.split()[0]) < int(stdin.splitlines()[1 + 2*(i-1)].strip()) for i, line in enumerate(stdout.splitlines(), 1))\",\n      \"description\": \"For each test case i, the selected rotation index is within the valid range [0, N-1), where N is the array size for that test case.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(line.split()[1]) == max(inversions(a, k) for k in range(N)) for i, line in enumerate(stdout.splitlines(), 1) if (N := int(stdin.splitlines()[1 + 2*(i-1)].strip())) and (a := list(map(int, stdin.splitlines()[2 + 2*(i-1)].strip().split()))) and (inversions := lambda arr, k: sum(1 for j in range(k, N) for l in range(j+1, N) if arr[j] > arr[l] + sum(1 for j in range(N-1, k-1, -1) for l in range(j+1, N) if arr[j] > arr[l])))\",\n      \"description\": \"For each test case, the second number in the output line is the maximum number of inversions achievable by any left rotation of the array.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((k1, inv1) < (k2, inv2) or (inv1 == inv2 and k1 < k2) for i, line in enumerate(stdout.splitlines(), 1) if (N := int(stdin.splitlines()[1 + 2*(i-1)].strip())) and (a := list(map(int, stdin.splitlines()[2 + 2*(i-1)].strip().split()))) and (k1 := int(line.split()[0])) and (inv1 := int(line.split()[1])) and any((k2 := k, inv2 := sum(1 for j in range(k, N) for l in range(j+1, N) if a[(j+k)%N] > a[(l+k)%N] + sum(1 for j in range(N-1, k-1, -1) for l in range(j+1, N) if a[j] > a[l]))) for k in range(N)))\",\n      \"description\": \"For each test case, among all rotations with the maximum number of inversions, the selected rotation index is the smallest one. If there are multiple rotations with the same maximum inversions and lexicographically smallest, the smallest index is chosen.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1672,
+  "generated_tokens": 904,
+  "hit_output_limit": false,
+  "generation_seconds": 42.157,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:40:11.458164+00:00"
+}

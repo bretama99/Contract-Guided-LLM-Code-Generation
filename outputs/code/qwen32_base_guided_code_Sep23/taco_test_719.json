@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_719",
+  "task_index": 611,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_719.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    index += 1\n    edges = []\n    for _ in range(n - 1):\n        x = int(input[index])\n        y = int(input[index + 1])\n        edges.append((x, y))\n        index += 2\n    m = int(input[index])\n    index += 1\n    queries = []\n    for _ in range(m):\n        v_i = int(input[index])\n        d_i = int(input[index + 1])\n        x_i = int(input[index + 2])\n        queries.append((v_i, d_i, x_i))\n        index += 3\n\n    graph = defaultdict(list)\n    for x, y in edges:\n        graph[x].append(y)\n        graph[y].append(x)\n\n    depth = [0] * (n + 1)\n    parent = [0] * (n + 1)\n    queue = deque([1])\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph[node]:\n            if neighbor != parent[node]:\n                parent[neighbor] = node\n                depth[neighbor] = depth[node] + 1\n                queue.append(neighbor)\n\n    max_depth = max(depth)\n    updates = [defaultdict(int) for _ in range(max_depth + 2)]\n\n    for v_i, d_i, x_i in queries:\n        current = v_i\n        current_depth = depth[v_i]\n        while current != 0 and current_depth >= 0:\n            if current_depth <= d_i:\n                updates[current_depth][current] += x_i\n            else:\n                break\n            current = parent[current]\n            current_depth -= 1\n\n    result = [0] * (n + 1)\n    queue = deque([(1, 0)])\n    while queue:\n        node, node_depth = queue.popleft()\n        for child in graph[node]:\n            if depth[child] > node_depth:\n                result[child] = result[node] + updates[node_depth][child]\n                queue.append((child, depth[child]))\n\n    print(\" \".join(map(str, result[1:])))\nmain()",
+  "generation_seconds": 42.685,
+  "generated_at": "2026-09-23T20:10:26.460861+00:00"
+}

@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_77",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 10",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 10) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= H <= 1000 and 1 <= W <= 1000 and 1 <= N <= 200 for H, W, N in [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and ' '.join(line.split()) != ''][:T])",
+        "description": "For each test case, the first line contains three integers H, W, N (1 ≤ H, W ≤ 1000, 1 ≤ N ≤ 200) representing grid dimensions and number of particles."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == W and all(abs(int(val)) <= 1000 for val in line.split()) for line in stdin.splitlines()[2:2+T*H])",
+        "description": "The next H lines for each test case contain W integers each, representing grid values h_{i,j} (|h_{i,j}| ≤ 1000)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 3 and 1 <= int(y) <= H and 1 <= int(x) <= W and 1 <= int(abs_p) <= 100 for line in stdin.splitlines()[2+T*H:2+T*H+T*N])",
+        "description": "The next N lines for each test case contain three integers y_i, x_i, |p_i| (1 ≤ y_i ≤ H, 1 ≤ x_i ≤ W, 1 ≤ |p_i| ≤ 100) representing particle positions and absolute values."
+      },
+      {
+        "id": "P5",
+        "expression": "all((y1, x1) != (y2, x2) for i, (y1, x1, _) in enumerate([tuple(map(int, line.split()))[:2] for line in stdin.splitlines()[2+T*H:2+T*H+T*N]]) for j, (y2, x2, _) in enumerate([tuple(map(int, line.split()))[:2] for line in stdin.splitlines()[2+T*H:2+T*H+T*N]]) if i != j)",
+        "description": "No two particles are located in the same cell."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line.split()) == 1 and stdout_line.split()[0].isdigit() for stdout_line in stdout.splitlines()[::2])",
+        "description": "For each test case, the first line of output is a single integer representing the maximum value of V."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(line.split()) == N and all(sign in ['1', '-1'] for sign in line.split()) for line in stdout.splitlines()[1::2])",
+        "description": "For each test case, the second line of output contains N space-separated integers, each being either 1 or -1, representing the chosen signs for each particle's value."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= i <= T for i in range(1, T+1)) and all(1 <= j <= N for j in range(1, N+1))",
+        "description": "The output corresponds to the order of test cases and particles as given in the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(calculate_V(stdin, signs) == int(stdout.splitlines()[2*i-2]) for i, signs in enumerate([line.split() for line in stdout.splitlines()[1::2]], 1))",
+        "description": "The maximum value of V is correctly computed for each test case, where signs are the chosen sign assignments for each particle."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 10\",\n      \"description\": \"The first line of input is a single integer T (1 ≤ T ≤ 10) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= H <= 1000 and 1 <= W <= 1000 and 1 <= N <= 200 for H, W, N in [list(map(int, line.split())) for line in stdin.splitlines()[1::] if line.strip() and ' '.join(line.split()) != ''][:T])\",\n      \"description\": \"For each test case, the first line contains three integers H, W, N (1 ≤ H, W ≤ 1000, 1 ≤ N ≤ 200) representing grid dimensions and number of particles.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == W and all(abs(int(val)) <= 1000 for val in line.split()) for line in stdin.splitlines()[2:2+T*H])\",\n      \"description\": \"The next H lines for each test case contain W integers each, representing grid values h_{i,j} (|h_{i,j}| ≤ 1000).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 3 and 1 <= int(y) <= H and 1 <= int(x) <= W and 1 <= int(abs_p) <= 100 for line in stdin.splitlines()[2+T*H:2+T*H+T*N])\",\n      \"description\": \"The next N lines for each test case contain three integers y_i, x_i, |p_i| (1 ≤ y_i ≤ H, 1 ≤ x_i ≤ W, 1 ≤ |p_i| ≤ 100) representing particle positions and absolute values.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all((y1, x1) != (y2, x2) for i, (y1, x1, _) in enumerate([tuple(map(int, line.split()))[:2] for line in stdin.splitlines()[2+T*H:2+T*H+T*N]]) for j, (y2, x2, _) in enumerate([tuple(map(int, line.split()))[:2] for line in stdin.splitlines()[2+T*H:2+T*H+T*N]]) if i != j)\",\n      \"description\": \"No two particles are located in the same cell.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_line.split()) == 1 and stdout_line.split()[0].isdigit() for stdout_line in stdout.splitlines()[::2])\",\n      \"description\": \"For each test case, the first line of output is a single integer representing the maximum value of V.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(line.split()) == N and all(sign in ['1', '-1'] for sign in line.split()) for line in stdout.splitlines()[1::2])\",\n      \"description\": \"For each test case, the second line of output contains N space-separated integers, each being either 1 or -1, representing the chosen signs for each particle's value.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= i <= T for i in range(1, T+1)) and all(1 <= j <= N for j in range(1, N+1))\",\n      \"description\": \"The output corresponds to the order of test cases and particles as given in the input.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(calculate_V(stdin, signs) == int(stdout.splitlines()[2*i-2]) for i, signs in enumerate([line.split() for line in stdout.splitlines()[1::2]], 1))\",\n      \"description\": \"The maximum value of V is correctly computed for each test case, where signs are the chosen sign assignments for each particle.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1985,
+  "generated_tokens": 1004,
+  "hit_output_limit": false,
+  "generation_seconds": 46.191,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:19:33.208505+00:00"
+}

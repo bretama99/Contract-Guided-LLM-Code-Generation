@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_11103",
+  "task_index": 171,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_11103.json",
+  "code": "import sys\n\ndef resolve_type(type_name, type_map):\n    if type_name not in type_map:\n        return 'errtype'\n    resolved = type_map[type_name]\n    while resolved != 'void' and resolved != 'errtype' and resolved in type_map:\n        resolved = type_map[resolved]\n    return resolved\n\ndef apply_operations(operators):\n    type_map = {}\n    results = []\n    for operator in operators:\n        if operator.startswith('typedef'):\n            _, a, b = operator.split()\n            if b not in type_map and b not in {'void', 'errtype'}:\n                type_map[b] = a\n        elif operator.startswith('typeof'):\n            _, a = operator.split()\n            resolved = resolve_type(a, type_map)\n            if resolved == 'errtype':\n                results.append('errtype')\n            else:\n                count_amps = 0\n                count_stars = 0\n                while resolved.startswith('&'):\n                    count_amps += 1\n                    resolved = resolved[1:]\n                while resolved.endswith('*'):\n                    count_stars += 1\n                    resolved = resolved[:-1]\n                if resolved != 'void':\n                    results.append('errtype')\n                else:\n                    results.append('void' + '*' * (count_amps - count_stars))\n    return results\n\ndef main():\n    import sys\n    input = sys.stdin.read().splitlines()\n    n = int(input[0])\n    operators = input[1:n+1]\n    results = apply_operations(operators)\n    for result in results:\n        print(result)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 31.117,
+  "generated_at": "2026-09-23T18:13:43.008120+00:00"
+}

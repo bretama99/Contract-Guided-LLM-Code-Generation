@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_12708",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 100000 for line in stdin.splitlines()[1:]) and all(1 <= int(line.split()[1]) <= 100000 for line in stdin.splitlines()[1:]) and all(0 <= int(line.split()[2]) <= 10**18 for line in stdin.splitlines()[1:])",
+        "description": "Vertices are numbered from 1 to n (1 ≤ n ≤ 100 000), edges have non-negative integer weights (0 ≤ t ≤ 10^18), and no self-loops or multiple edges exist."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1 and all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Input has exactly m + 1 lines: first line contains n and m, followed by m lines of edge descriptions."
+      },
+      {
+        "id": "P3",
+        "expression": "n == int(stdin.splitlines()[0].split()[0]) and m == int(stdin.splitlines()[0].split()[1])",
+        "description": "First line of input contains integers n (vertices) and m (edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and int(stdout) >= 0 and int(stdout) <= 10**9 + 6",
+        "description": "Output is a non-negative integer representing the sum of all s values for interesting triples (u, v, s), modulo 10^9 + 7."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= u < v <= n for u, v, s in interesting_triples) and all(s >= 0 for u, v, s in interesting_triples) and sum(s for u, v, s in interesting_triples) % (10**9 + 7) == int(stdout)",
+        "description": "For every interesting triple (u, v, s) where u < v, there exists a path between u and v such that the XOR of edge weights along the path equals s. The output is the sum of all such s values modulo 10^9 + 7."
+      },
+      {
+        "id": "Q3",
+        "expression": "interesting_triples == [(u, v, s) for u in range(1, n + 1) for v in range(u + 1, n + 1) for s in possible_s_values(u, v)]",
+        "description": "An interesting triple (u, v, s) exists if and only if there is a path from u to v where the XOR of edge weights equals s. `possible_s_values(u, v)` returns all such s values for the pair (u, v)."
+      },
+      {
+        "id": "Q4",
+        "expression": "possible_s_values(u, v) == {xor_sum for path in all_paths(u, v) for xor_sum in compute_xor(path)}",
+        "description": "For a given pair (u, v), `possible_s_values(u, v)` is the set of all possible XOR sums of edge weights along any path from u to v, including non-simple paths."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 100000 for line in stdin.splitlines()[1:]) and all(1 <= int(line.split()[1]) <= 100000 for line in stdin.splitlines()[1:]) and all(0 <= int(line.split()[2]) <= 10**18 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Vertices are numbered from 1 to n (1 ≤ n ≤ 100 000), edges have non-negative integer weights (0 ≤ t ≤ 10^18), and no self-loops or multiple edges exist.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1 and all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Input has exactly m + 1 lines: first line contains n and m, followed by m lines of edge descriptions.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"n == int(stdin.splitlines()[0].split()[0]) and m == int(stdin.splitlines()[0].split()[1])\",\n      \"description\": \"First line of input contains integers n (vertices) and m (edges).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.isdigit() and int(stdout) >= 0 and int(stdout) <= 10**9 + 6\",\n      \"description\": \"Output is a non-negative integer representing the sum of all s values for interesting triples (u, v, s), modulo 10^9 + 7.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= u < v <= n for u, v, s in interesting_triples) and all(s >= 0 for u, v, s in interesting_triples) and sum(s for u, v, s in interesting_triples) % (10**9 + 7) == int(stdout)\",\n      \"description\": \"For every interesting triple (u, v, s) where u < v, there exists a path between u and v such that the XOR of edge weights along the path equals s. The output is the sum of all such s values modulo 10^9 + 7.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"interesting_triples == [(u, v, s) for u in range(1, n + 1) for v in range(u + 1, n + 1) for s in possible_s_values(u, v)]\",\n      \"description\": \"An interesting triple (u, v, s) exists if and only if there is a path from u to v where the XOR of edge weights equals s. `possible_s_values(u, v)` returns all such s values for the pair (u, v).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"possible_s_values(u, v) == {xor_sum for path in all_paths(u, v) for xor_sum in compute_xor(path)}\",\n      \"description\": \"For a given pair (u, v), `possible_s_values(u, v)` is the set of all possible XOR sums of edge weights along any path from u to v, including non-simple paths.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1840,
+  "generated_tokens": 830,
+  "hit_output_limit": false,
+  "generation_seconds": 43.053,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:20:10.802514+00:00"
+}

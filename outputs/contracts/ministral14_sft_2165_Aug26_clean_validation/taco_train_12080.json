@@ -1,0 +1,607 @@
+{
+  "task_id": "taco_train_12080",
+  "task_index": 884,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "AlphaNum_NumAlpha",
+      "signature": "str -> str"
+    },
+    "preconditions": [
+      {
+        "description": "The input string contains only alphabetic characters (a-z, case-insensitive) and numeric digits (0-9) representing values 1-26, where numeric values are either single-digit (1-9) or two-digit (10-26), and no numeric sequence exceeds two digits.",
+        "expression": "all(c.isalpha() or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in input_string) and not any(len(re.findall(r'\\d+', input_string)[i]) > 2 for i in range(len(re.findall(r'\\d+', input_string))))",
+        "id": "P1"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((c.isalpha() and (c in alphabetnums or c.lower() in alphabetnums)) or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in output_string)",
+        "description": "Every character in the output string is either a valid letter (a-z) or a valid numeric representation (1-26, including '26')."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((c.isalpha() and (output_string[i] == str(alphabet.index(c.lower()) + 1) if c.islower() else str(alphabet.index(c.upper()) + 1))) or (c.isdigit() and (int(c) <= 26 and output_string[i] == alphabet[int(c) - 1])) for i, c in enumerate(input_string))",
+        "description": "For each alphabetic character in the input, the output contains its numeric equivalent (1-26), and for each numeric character in the input, the output contains its corresponding letter (a-z)."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(output_string) == len(input_string)",
+        "description": "The output string has the same length as the input string."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "AlphaNum_NumAlpha",
+      "signature": "str -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(c.isalpha() or c.isdigit() for c in input_string)",
+        "description": "The input string contains only alphabetic characters (a-z) and numeric digits (0-9)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(num) == 1 or (len(num) == 2 and num[0] == '2' and num[1] in '0123456') for num in re.findall(r'\\d+', input_string))",
+        "description": "Any numeric sequence in the input is either a single digit or a two-digit number starting with '2' (i.e., 20-26)."
+      },
+      {
+        "id": "P3",
+        "expression": "not re.search(r'\\d{3,}', input_string)",
+        "description": "No numeric sequence in the input has three or more digits."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((c.isalpha() and (c in alphabetnums or c.lower() in alphabetnums)) or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in output_string)",
+        "description": "Every character in the output string is either a valid letter (a-z) or a valid numeric representation (1-26, including '26')."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((c.isalpha() and (output_string[i] == str(alphabet.index(c.lower()) + 1) if c.islower() else str(alphabet.index(c.upper()) + 1))) or (c.isdigit() and (int(c) <= 26 and output_string[i] == alphabet[int(c) - 1])) for i, c in enumerate(input_string))",
+        "description": "For each alphabetic character in the input, the output contains its numeric equivalent (1-26), and for each numeric character in the input, the output contains its corresponding letter (a-z)."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(output_string) == len(input_string)",
+        "description": "The output string has the same length as the input string."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "89beee15aeec7f22981d18e98b56b1e69e329045650d83b07c09c7d04c5613b5",
+  "selected_contract_fingerprint": "10b526a01b3edfdd101c8aea68ce129e5f55b4901ef95974c093bf28126ac5af",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_12080.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[1].expression",
+      "action": "replace",
+      "instruction": "Remove the regex-based numeric sequence validation (P2 and P3) since the task guarantees no invalid numeric sequences (e.g., '262' or '99') will appear in test cases. The task explicitly states: 'Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...'",
+      "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "ISSUE",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[1].expression",
+      "action": "replace",
+      "instruction": "Remove the regex-based numeric sequence validation (P2 and P3) since the task guarantees no invalid numeric sequences (e.g., '262' or '99') will appear in test cases. The task explicitly states: 'Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...'",
+      "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[1].expression",
+        "action": "replace",
+        "instruction": "Remove the regex-based numeric sequence validation (P2 and P3) since the task guarantees no invalid numeric sequences (e.g., '262' or '99') will appear in test cases. The task explicitly states: 'Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...'",
+        "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[1].expression",
+        "action": "replace",
+        "instruction": "Remove the regex-based numeric sequence validation (P2 and P3) since the task guarantees no invalid numeric sequences (e.g., '262' or '99') will appear in test cases. The task explicitly states: 'Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...'",
+        "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[1].expression",
+        "action": "replace",
+        "instruction": "Remove the regex-based numeric sequence validation (P2 and P3) since the task guarantees no invalid numeric sequences (e.g., '262' or '99') will appear in test cases. The task explicitly states: 'Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...'",
+        "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace with a task-supported assumption: numeric digits in input are only 1-26 (including '26') or single digits. The task guarantees no invalid numeric sequences, so the precondition should only enforce that digits are valid for letter representation (1-26).",
+        "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely. The task does not require explicit validation of output characters beyond the input-output mapping. The expression is redundant and does not capture the core requirement.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace with a correct expression that handles multi-digit numbers (e.g., '26') and case insensitivity for letters. The current expression fails to account for '26' as a valid input and does not handle multi-digit outputs correctly.",
+        "task_evidence": "the letter `a` will become `1` and number `1` will become `a`; `z` will become `26` and `26` will become `z`",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that multi-digit numeric inputs (e.g., '26') are correctly converted to their corresponding letters (e.g., 'z') and vice versa.",
+        "task_evidence": "`z` will become `26` and `26` will become `z`",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output string preserves the original order of characters (letters and numbers) from the input string.",
+        "task_evidence": "Example: `\"a25bz\"` would become `\"1y226\"`",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "preconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "preconditions[0].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "functional",
+        "class_name": null,
+        "function_name": "AlphaNum_NumAlpha",
+        "signature": "str -> str"
+      },
+      "preconditions": [
+        {
+          "description": "The input string contains only alphabetic characters (a-z, case-insensitive) and numeric digits (0-9) representing values 1-26, where numeric values are either single-digit (1-9) or two-digit (10-26), and no numeric sequence exceeds two digits.",
+          "expression": "all(c.isalpha() or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in input_string) and not any(len(re.findall(r'\\d+', input_string)[i]) > 2 for i in range(len(re.findall(r'\\d+', input_string))))",
+          "id": "P1"
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "all((c.isalpha() and (c in alphabetnums or c.lower() in alphabetnums)) or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in output_string)",
+          "description": "Every character in the output string is either a valid letter (a-z) or a valid numeric representation (1-26, including '26')."
+        },
+        {
+          "id": "Q2",
+          "expression": "all((c.isalpha() and (output_string[i] == str(alphabet.index(c.lower()) + 1) if c.islower() else str(alphabet.index(c.upper()) + 1))) or (c.isdigit() and (int(c) <= 26 and output_string[i] == alphabet[int(c) - 1])) for i, c in enumerate(input_string))",
+          "description": "For each alphabetic character in the input, the output contains its numeric equivalent (1-26), and for each numeric character in the input, the output contains its corresponding letter (a-z)."
+        },
+        {
+          "id": "Q3",
+          "expression": "len(output_string) == len(input_string)",
+          "description": "The output string has the same length as the input string."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: audit keys must be exactly checks,issues"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions[1].expression",
+          "action": "replace",
+          "instruction": "Remove the regex-based numeric sequence validation (P2 and P3) since the task guarantees no invalid numeric sequences (e.g., '262' or '99') will appear in test cases. The task explicitly states: 'Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...'",
+          "task_evidence": "Numbers representing letters (n <= 26) will always be separated by letters, for all test cases: ...",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "P2",
+          "expression": "True",
+          "description": "The input string contains only valid alphabetic characters (a-z) and numeric digits (0-9) representing values 1-26, with no invalid numeric sequences (e.g., '262' or '99') as guaranteed by the task constraints."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "d1732d1e6641ac4b4b1b2c04ee7f1bcb13d474d93eba4fdf33e0d89ea73cc3f0",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "ISSUE",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is a placeholder (`True`) and does not express any meaningful precondition.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is a placeholder (`True`) and does not express any meaningful precondition.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace with `True` or remove, as the task guarantees no numeric sequences of three or more digits (e.g., '262' or '99') are present, making this precondition redundant.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Replace with `all(c.isalpha() and c in alphabetnums or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in output_string)` to correctly reflect that numeric representations are either single-digit (1-9) or two-digit ('10'-'26').",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace with `all((c.isalpha() and output_string[i] == str(alphabet.index(c.lower()) + 1)) or (c.isdigit() and output_string[i] == alphabet[int(c) - 1]) for i, c in enumerate(input_string))` to handle case insensitivity and numeric-to-letter conversion correctly.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that multi-digit numeric inputs (e.g., '26') are correctly converted to their corresponding letters (e.g., 'z'). The expression should cover cases where `c` is a multi-digit string (e.g., '26') and map it to the correct letter.",
+            "task_evidence": "Numbers representing letters (`n <= 26`) will always be separated by letters, for all test cases: ... `z` will become `26` and `26` will become `z`.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "preconditions[1].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "preconditions[2].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions[1].expression",
+          "action": "replace",
+          "instruction": "Remove this clause entirely as it is a placeholder (`True`) and does not express any meaningful precondition.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "P2",
+          "expression": "all(c.isalpha() or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in input_string)",
+          "description": "The input string contains only alphabetic characters (a-z) and numeric digits representing values 1-26, where numeric values are either single-digit (1-9) or two-digit (10-26)."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "2bd90c80c760463944d03002452a9d0ac3651be7131dfaad127cf5be26ee8224",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "ISSUE",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "UNCERTAIN",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant `len(c) == 2` check for single-digit numbers (1-9) and ensure the expression correctly enforces that numeric values are either single-digit (1-9) or two-digit (10-26).",
+            "task_evidence": "Numbers representing letters (`n <= 26`) will always be separated by letters, for all test cases: ...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[2].expression",
+            "action": "remove",
+            "instruction": "The task does not mention or require restrictions on numeric sequence length (e.g., no 3+ digit sequences). This is not a material requirement.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all((c.isalpha() and c.lower() in alphabetnums) or (c.isdigit() and (1 <= int(c) <= 26)) for c in output_string)`",
+            "task_evidence": "the letter `a` will become `1` and number `1` will become `a`; `z` will become `26` and `26` will become `z`",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all((c.isalpha() and output_string[i] == alphabetnums[c.lower()]) or (c.isdigit() and output_string[i] == alphabet[int(c) - 1]) for i, c in enumerate(input_string))`",
+            "task_evidence": "the letter `a` will become `1` and number `1` will become `a`; `z` will become `26` and `26` will become `z`",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "preconditions[1].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete preconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "preconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is a placeholder (`True`) and does not express any meaningful precondition.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The input string contains only alphabetic characters (a-z, case-insensitive) and numeric digits (0-9) representing values 1-26, where numeric values are either single-digit (1-9) or two-digit (10-26), and no numeric sequence exceeds two digits.",
+            "expression": "all(c.isalpha() or (c.isdigit() and (int(c) <= 26 or (len(c) == 2 and int(c) <= 26))) for c in input_string) and not any(len(re.findall(r'\\d+', input_string)[i]) > 2 for i in range(len(re.findall(r'\\d+', input_string))))",
+            "id": "P1"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "10b526a01b3edfdd101c8aea68ce129e5f55b4901ef95974c093bf28126ac5af",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 162.611,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:07:01.797953+00:00"
+}

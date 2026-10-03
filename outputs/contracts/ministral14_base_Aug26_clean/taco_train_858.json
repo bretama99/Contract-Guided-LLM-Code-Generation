@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_858",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= T <= 1000 for T in [int(stdin.split()[0])])",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 1000) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 10**5 and 2 <= K <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2])",
+        "description": "For each test case, the first line contains two integers N (1 ≤ N ≤ 10^5) and K (2 ≤ K ≤ 10^5), where N is the number of days and K is the number of places."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == N for line in stdin.splitlines()[1:] if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2])",
+        "description": "For each test case, the second line contains exactly N space-separated integers A₁, A₂, ..., Aₙ, where each Aᵢ is either -1 or an integer between 1 and K (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= A_i <= K or A_i == -1 for A_i in [int(x) for x in line.split()] if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2])",
+        "description": "Each Aᵢ in the sequence is either -1 (undecided) or an integer between 1 and K (inclusive)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(A_i != A_j for i, j in [(i, i+1) for i in range(N-1)] if A_i != -1 and A_j != -1 and A_i == A_j for A_i, A_j in zip([int(x) for x in line.split()], [int(x) for x in line.split()][1:]) if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2]) == False",
+        "description": "For each test case, if Aᵢ ≠ -1 and Aᵢ₊₁ ≠ -1, then Aᵢ ≠ Aᵢ₊₁ (no two consecutive days have the same fixed place)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO', indicating whether it is possible to complete the plan without visiting the same place on two consecutive days."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout_line.split()) == N for stdout_line in stdout.splitlines()[1::2] if stdout_line.strip())",
+        "description": "If the answer is 'YES', the second line of output contains exactly N space-separated integers representing the completed plan."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= A_i <= K for A_i in [int(x) for x in stdout_line.split()] if stdout_line.strip() and 'YES' in stdout.splitlines()[stdout.splitlines().index(stdout_line) - 1])",
+        "description": "In the completed plan, every Aᵢ is an integer between 1 and K (inclusive)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(A_i != A_j for i, j in [(i, i+1) for i in range(N-1)] if A_i != -1 and A_j != -1 and A_i == A_j for A_i, A_j in zip([int(x) for x in stdout_line.split()], [int(x) for x in stdout_line.split()][1:]) if stdout_line.strip() and 'YES' in stdout.splitlines()[stdout.splitlines().index(stdout_line) - 1]) == False",
+        "description": "In the completed plan, no two consecutive days have the same place (Aᵢ ≠ Aᵢ₊₁ for all i)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(A_i == original_A_i or original_A_i == -1 for A_i, original_A_i in zip([int(x) for x in stdout_line.split()], [int(x) for x in line.split()]) if stdout_line.strip() and 'YES' in stdout.splitlines()[stdout.splitlines().index(stdout_line) - 1])",
+        "description": "In the completed plan, every fixed place (original_Aᵢ ≠ -1) remains unchanged."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= T <= 1000 for T in [int(stdin.split()[0])])\",\n      \"description\": \"The first line of input is a single integer T (1 ≤ T ≤ 1000) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= N <= 10**5 and 2 <= K <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2])\",\n      \"description\": \"For each test case, the first line contains two integers N (1 ≤ N ≤ 10^5) and K (2 ≤ K ≤ 10^5), where N is the number of days and K is the number of places.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == N for line in stdin.splitlines()[1:] if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2])\",\n      \"description\": \"For each test case, the second line contains exactly N space-separated integers A₁, A₂, ..., Aₙ, where each Aᵢ is either -1 or an integer between 1 and K (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= A_i <= K or A_i == -1 for A_i in [int(x) for x in line.split()] if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2])\",\n      \"description\": \"Each Aᵢ in the sequence is either -1 (undecided) or an integer between 1 and K (inclusive).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(A_i != A_j for i, j in [(i, i+1) for i in range(N-1)] if A_i != -1 and A_j != -1 and A_i == A_j for A_i, A_j in zip([int(x) for x in line.split()], [int(x) for x in line.split()][1:]) if line.strip() and ' '.join(line.split()).split()[0:2] == line.split()[:2]) == False\",\n      \"description\": \"For each test case, if Aᵢ ≠ -1 and Aᵢ₊₁ ≠ -1, then Aᵢ ≠ Aᵢ₊₁ (no two consecutive days have the same fixed place).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())\",\n      \"description\": \"For each test case, the first line of output is either 'YES' or 'NO', indicating whether it is possible to complete the plan without visiting the same place on two consecutive days.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout_line.split()) == N for stdout_line in stdout.splitlines()[1::2] if stdout_line.strip())\",\n      \"description\": \"If the answer is 'YES', the second line of output contains exactly N space-separated integers representing the completed plan.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= A_i <= K for A_i in [int(x) for x in stdout_line.split()] if stdout_line.strip() and 'YES' in stdout.splitlines()[stdout.splitlines().index(stdout_line) - 1])\",\n      \"description\": \"In the completed plan, every Aᵢ is an integer between 1 and K (inclusive).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(A_i != A_j for i, j in [(i, i+1) for i in range(N-1)] if A_i != -1 and A_j != -1 and A_i == A_j for A_i, A_j in zip([int(x) for x in stdout_line.split()], [int(x) for x in stdout_line.split()][1:]) if stdout_line.strip() and 'YES' in stdout.splitlines()[stdout.splitlines().index(stdout_line) - 1]) == False\",\n      \"description\": \"In the completed plan, no two consecutive days have the same place (Aᵢ ≠ Aᵢ₊₁ for all i).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(A_i == original_A_i or original_A_i == -1 for A_i, original_A_i in zip([int(x) for x in stdout_line.split()], [int(x) for x in line.split()]) if stdout_line.strip() and 'YES' in stdout.splitlines()[stdout.splitlines().index(stdout_line) - 1])\",\n      \"description\": \"In the completed plan, every fixed place (original_Aᵢ ≠ -1) remains unchanged.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1822,
+  "generated_tokens": 1213,
+  "hit_output_limit": false,
+  "generation_seconds": 77.918,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:12:58.830235+00:00"
+}

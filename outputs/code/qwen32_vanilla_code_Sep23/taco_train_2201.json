@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_2201",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T14:07:49.777766+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\nMOD = 10**9 + 7\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    \n    index = 0\n    n = int(input[index])\n    index += 1\n    \n    edges = []\n    for _ in range(n - 1):\n        u = int(input[index]) - 1\n        v = int(input[index + 1]) - 1\n        edges.append((u, v))\n        index += 2\n    \n    decorations = list(map(int, input[index:index + n]))\n    index += n\n    \n    parent = list(range(n))\n    size = [1] * n\n    \n    def find(x):\n        if parent[x] != x:\n            parent[x] = find(parent[x])\n        return parent[x]\n    \n    def union(x, y):\n        rootX = find(x)\n        rootY = find(y)\n        if rootX != rootY:\n            if size[rootX] > size[rootY]:\n                rootX, rootY = rootY, rootX\n            parent[rootX] = rootY\n            size[rootY] += size[rootX]\n    \n    for u, v in edges:\n        union(u, v)\n    \n    groups = defaultdict(list)\n    for i in range(n):\n        groups[find(i)].append(decorations[i])\n    \n    from math import factorial\n    \n    result = 1\n    for group in groups.values():\n        count = [0] * (n + 1)\n        for dec in group:\n            if dec != 0:\n                count[dec] += 1\n        non_zero_count = sum(count)\n        total_ways = factorial(non_zero_count)\n        for c in count:\n            if c > 1:\n                total_ways = (total_ways * pow(factorial(c), MOD - 2, MOD)) % MOD\n        zeros = group.count(0)\n        total_ways = (total_ways * pow(2, zeros, MOD)) % MOD\n        result = (result * total_ways) % MOD\n    \n    print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

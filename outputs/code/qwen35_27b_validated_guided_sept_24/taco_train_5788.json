@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_5788",
+  "task_index": 183,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_5788.json",
+  "code": "import sys\n\nsys.setrecursionlimit(300005)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    q = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    for i in range(2, n + 1):\n        p = int(next(iterator))\n        adj[p].append(i)\n    \n    sz = [0] * (n + 1)\n    order = []\n    stack = [1]\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            stack.append(v)\n    \n    for u in reversed(order):\n        s = 1\n        for v in adj[u]:\n            s += sz[v]\n        sz[u] = s\n    \n    centroid = [0] * (n + 1)\n    \n    for u in order:\n        curr = u\n        total = sz[u]\n        \n        while True:\n            max_comp = 0\n            heavy_child = -1\n            \n            for v in adj[curr]:\n                if sz[v] > max_comp:\n                    max_comp = sz[v]\n                    heavy_child = v\n            \n            up_part = total - sz[curr]\n            \n            if max_comp <= total // 2 and up_part <= total // 2:\n                break\n            \n            if heavy_child != -1 and sz[heavy_child] > total // 2:\n                curr = heavy_child\n            else:\n                break\n        \n        centroid[u] = curr\n    \n    results = []\n    for _ in range(q):\n        v = int(next(iterator))\n        results.append(str(centroid[v]))\n    \n    sys.stdout.write('\\n'.join(results) + '\\n')\n\nif __name__ == '__main__':\n    main()",
+  "generation_seconds": 36.817,
+  "generated_at": "2026-09-25T08:40:21.280439+00:00"
+}

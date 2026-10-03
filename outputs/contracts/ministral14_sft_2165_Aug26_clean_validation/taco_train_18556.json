@@ -1,0 +1,580 @@
+{
+  "task_id": "taco_train_18556",
+  "task_index": 664,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 10**5",
+        "description": "The number of nodes n must be between 2 and 10^5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 4 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n-1 lines must contain exactly four integers: u_i, v_i, x_i, c_i."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(u) <= n and 1 <= int(v) <= n for u, v, _, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each node u_i and v_i must be between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(x) <= 10**9 + 6 for _, _, x, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each clamminess value x_i must be between 1 and 10^9 + 6 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(c in ['0', '1'] for _, _, _, c in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each thread color c_i must be either '0' (red) or '1' (black)."
+      },
+      {
+        "id": "P6",
+        "expression": "len(set((u, v) for u, v, _, _ in (line.split() for line in stdin.splitlines()[1:])) | set((v, u) for u, v, _, _ in (line.split() for line in stdin.splitlines()[1:])))) == n - 1",
+        "description": "The cobweb must be a tree (no cycles, connected, n-1 edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit()",
+        "description": "The output must be a single integer."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(stdout.strip()) == 1 or (all(0 <= abs(red_count - black_count) <= 2 for red_count, black_count in path_stats) and int(stdout.strip()) == product_of_products % (10**9 + 7))",
+        "description": "If there are no valid paths (where the difference between red and black threads is at most 2), the output must be 1. Otherwise, the output must be the product of the clamminess products of all valid paths, modulo 10^9 + 7. Here, path_stats is a list of (red_count, black_count) pairs for all valid paths, and product_of_products is the product of the clamminess products of these paths."
+      },
+      {
+        "id": "Q3",
+        "expression": "int(stdout.strip()) % (10**9 + 7) == int(stdout.strip())",
+        "description": "The output must be congruent to itself modulo 10^9 + 7."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 10**5",
+        "description": "The number of nodes n must be between 2 and 10^5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 4 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n-1 lines must contain exactly four integers: u_i, v_i, x_i, c_i."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(u) <= n and 1 <= int(v) <= n for u, v, _, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each node u_i and v_i must be between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(x) <= 10**9 + 6 for _, _, x, _ in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each clamminess value x_i must be between 1 and 10^9 + 6 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(c in ['0', '1'] for _, _, _, c in (line.split() for line in stdin.splitlines()[1:]))",
+        "description": "Each thread color c_i must be either '0' (red) or '1' (black)."
+      },
+      {
+        "id": "P6",
+        "expression": "len(set((u, v) for u, v, _, _ in (line.split() for line in stdin.splitlines()[1:])) | set((v, u) for u, v, _, _ in (line.split() for line in stdin.splitlines()[1:])))) == n - 1",
+        "description": "The cobweb must be a tree (no cycles, connected, n-1 edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit()",
+        "description": "The output must be a single integer."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(stdout.strip()) == 1 or (all(0 <= abs(red_count - black_count) <= 2 for red_count, black_count in path_stats) and int(stdout.strip()) == product_of_products % (10**9 + 7))",
+        "description": "If there are no valid paths (where the difference between red and black threads is at most 2), the output must be 1. Otherwise, the output must be the product of the clamminess products of all valid paths, modulo 10^9 + 7. Here, path_stats is a list of (red_count, black_count) pairs for all valid paths, and product_of_products is the product of the clamminess products of these paths."
+      },
+      {
+        "id": "Q3",
+        "expression": "int(stdout.strip()) % (10**9 + 7) == int(stdout.strip())",
+        "description": "The output must be congruent to itself modulo 10^9 + 7."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "2a22b2f6956f1e1dfe69dda127cba1064c9437fc0cd4446432cddbc869ed800a",
+  "selected_contract_fingerprint": "2a22b2f6956f1e1dfe69dda127cba1064c9437fc0cd4446432cddbc869ed800a",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_18556.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+      "task_evidence": "Those paths that differ by direction only are counted only once.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+      "task_evidence": "Those paths that differ by direction only are counted only once.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Those paths that differ by direction only are counted only once.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Those paths that differ by direction only are counted only once.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Those paths that differ by direction only are counted only once.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed **only for shortest paths** between each pair of nodes. The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Consider those of the shortest paths between each pair of nodes...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed **only for paths where the difference between red and black threads is at most 2**. The current contract's expression is underspecified because it does not explicitly tie the `path_stats` to the **shortest paths** requirement or the **unique undirected paths** requirement.",
+        "task_evidence": "Consider those of the shortest paths between each pair of nodes on which the numbers of red and black threads differ at most twice.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly capture the **shortest paths**, **unique undirected paths**, and **difference between red and black threads ≤ 2** requirements. The current expression is too vague and does not enforce these constraints.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed **for all pairs of nodes** (not just some subset). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "For each such path compute the product of the clamminess of threads on the path. The jelliness of the cobweb is the product of all obtained values among all paths.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[5].expression",
+        "detail": "unmatched ')' (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+      "task_evidence": "Those paths that differ by direction only are counted only once.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+      "task_evidence": "Those paths that differ by direction only are counted only once.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Those paths that differ by direction only are counted only once.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Those paths that differ by direction only are counted only once.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Those paths that differ by direction only are counted only once.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed **only for shortest paths** between each pair of nodes. The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "Consider those of the shortest paths between each pair of nodes...",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed **only for paths where the difference between red and black threads is at most 2**. The current contract's expression is underspecified because it does not explicitly tie the `path_stats` to the **shortest paths** requirement or the **unique undirected paths** requirement.",
+        "task_evidence": "Consider those of the shortest paths between each pair of nodes on which the numbers of red and black threads differ at most twice.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly capture the **shortest paths**, **unique undirected paths**, and **difference between red and black threads ≤ 2** requirements. The current expression is too vague and does not enforce these constraints.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the product of clamminess products is computed **for all pairs of nodes** (not just some subset). The current contract does not explicitly enforce this, which is a material requirement.",
+        "task_evidence": "For each such path compute the product of the clamminess of threads on the path. The jelliness of the cobweb is the product of all obtained values among all paths.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[5].expression",
+        "detail": "unmatched ')' (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+          "task_evidence": "Those paths that differ by direction only are counted only once.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+          "task_evidence": "Those paths that differ by direction only are counted only once.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"},{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[3].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Those paths that differ by direction only are counted only once.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+            "task_evidence": "Those paths that differ by direction only are counted only once.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Those paths that differ by direction only are counted only once.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+            "task_evidence": "Those paths that differ by direction only are counted only once.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Those paths that differ by direction only are counted only once.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the product of clamminess products is computed only for **unique undirected paths** (i.e., paths where direction does not matter, as per the task). The current contract does not explicitly enforce this, which is a material requirement.",
+            "task_evidence": "Those paths that differ by direction only are counted only once.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 156.556,
+  "processing_error": null,
+  "finished_at": "2026-09-04T04:07:19.597254+00:00"
+}

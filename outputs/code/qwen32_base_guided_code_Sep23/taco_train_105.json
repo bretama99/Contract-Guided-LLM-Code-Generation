@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_105",
+  "task_index": 234,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_105.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    import math\n    import bisect\n\n    def find_best_progression(N, K, A):\n        A.sort()\n        diffs = defaultdict(list)\n        for i in range(N):\n            for j in range(i + 1, N):\n                d = A[j] - A[i]\n                if d == 0:\n                    continue\n                diffs[d].append((A[i], j - i))\n        \n        best_a0 = -10**9 - 1\n        best_d = -10**9 - 1\n        best_changes = float('inf')\n        \n        for d in sorted(diffs.keys()):\n            pairs = diffs[d]\n            prefix_sums = [0] * (len(pairs) + 1)\n            for k in range(len(pairs)):\n                prefix_sums[k + 1] = prefix_sums[k] + pairs[k][1]\n            \n            for i in range(N):\n                target = A[i]\n                index = bisect.bisect_left(pairs, (target, 0))\n                \n                left_changes = index * i - prefix_sums[index]\n                right_changes = prefix_sums[-1] - prefix_sums[index] - (N - index) * (i + 1)\n                total_changes = left_changes + right_changes\n                \n                if total_changes <= K:\n                    a0 = target - i * d\n                    if (a0, d) > (best_a0, best_d) or (a0, d) == (best_a0, best_d) and total_changes < best_changes:\n                        best_a0 = a0\n                        best_d = d\n                        best_changes = total_changes\n        \n        return [best_a0 + i * best_d for i in range(N)]\n\n    input = sys.stdin.read().strip().split()\n    N = int(input[0])\n    K = int(input[1])\n    A = list(map(int, input[2:]))\n    result = find_best_progression(N, K, A)\n    print(\" \".join(map(str, result)))\n\nmain()",
+  "generation_seconds": 39.727,
+  "generated_at": "2026-09-23T21:28:36.773695+00:00"
+}

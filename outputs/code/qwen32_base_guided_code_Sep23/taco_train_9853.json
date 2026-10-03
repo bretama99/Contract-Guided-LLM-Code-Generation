@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_9853",
+  "task_index": 612,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_9853.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef dfs(node, parent, depth, depths, children):\n    depths[node] = depth\n    for neighbor in adj[node]:\n        if neighbor != parent:\n            children[node].append(neighbor)\n            dfs(neighbor, node, depth + 1, depths, children)\n\ndef lca(u, v, depths, children, parent):\n    while depths[u] > depths[v]:\n        u = parent[u]\n    while depths[v] > depths[u]:\n        v = parent[v]\n    while u != v:\n        u = parent[u]\n        v = parent[v]\n    return u\n\ndef count_pairs(n, edges):\n    global adj, parent, depths, children\n    adj = defaultdict(list)\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n    parent = [0] * (n + 1)\n    depths = [0] * (n + 1)\n    children = defaultdict(list)\n    dfs(1, 0, 0, depths, children)\n    for node in range(1, n + 1):\n        for child in children[node]:\n            parent[child] = node\n    total_pairs = 0\n    for a in range(1, n + 1):\n        for b in range(a + 1, n + 1):\n            for c in range(1, n + 1):\n                if c == a or c == b:\n                    continue\n                for d in range(c + 1, n + 1):\n                    if d == a or d == b:\n                        continue\n                    ab_lca = lca(a, b, depths, children, parent)\n                    cd_lca = lca(c, d, depths, children, parent)\n                    if ab_lca != cd_lca and ab_lca != c and ab_lca != d and cd_lca != a and cd_lca != b:\n                        total_pairs += 1\n    return total_pairs\n\nn = int(sys.stdin.readline())\nedges = [tuple(map(int, sys.stdin.readline().split())) for _ in range(n - 1)]\nprint(count_pairs(n, edges))",
+  "generation_seconds": 40.439,
+  "generated_at": "2026-09-23T20:11:06.905554+00:00"
+}

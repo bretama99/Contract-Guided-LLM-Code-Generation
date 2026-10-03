@@ -1,0 +1,51 @@
+{
+  "task_id": "taco_train_25107",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.split()[0]) and n >= 1 and n <= 1000",
+        "description": "The first line of stdin is an integer n (1 ≤ n ≤ 1000) representing the number of rounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each of the next n lines contains exactly two space-separated tokens: a player name (non-empty lowercase Latin letters, length 1–32) and an integer score (-1000 ≤ score ≤ 1000)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(line.split()[1].isdigit() for line in stdin.splitlines()[1:])",
+        "description": "The score in each round is an integer between -1000 and 1000 (inclusive)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() in {line.split()[0] for line in stdin.splitlines()[1:]}",
+        "description": "The output is the name of a player who participated in at least one round."
+      },
+      {
+        "id": "Q2",
+        "expression": "let rounds = stdin.splitlines()[1:]; let player_scores = {name: sum(int(score) for name, score in (line.split() for line in rounds) if name == name) for name in set(name for name, score in (line.split() for line in rounds))}; let max_score = max(player_scores.values()); let candidates = [name for name, score in player_scores.items() if score == max_score]; let first_to_reach = min((i for i, line in enumerate(rounds) if sum(int(score) for name, score in (line.split() for line in rounds[:i+1]) if name == name) >= max_score for name in candidates), default=None); stdout.strip() == candidates[first_to_reach] if first_to_reach is not None else candidates[0]",
+        "description": "If there is exactly one player with the maximum total score, that player is the winner. If multiple players tie for the maximum score, the winner is the one who first reached or exceeded that maximum score during the game. The winner's name is printed exactly as it appeared in the input."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.split()[0]) and n >= 1 and n <= 1000\",\n      \"description\": \"The first line of stdin is an integer n (1 ≤ n ≤ 1000) representing the number of rounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the next n lines contains exactly two space-separated tokens: a player name (non-empty lowercase Latin letters, length 1–32) and an integer score (-1000 ≤ score ≤ 1000).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(line.split()[1].isdigit() for line in stdin.splitlines()[1:])\",\n      \"description\": \"The score in each round is an integer between -1000 and 1000 (inclusive).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() in {line.split()[0] for line in stdin.splitlines()[1:]}\",\n      \"description\": \"The output is the name of a player who participated in at least one round.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"let rounds = stdin.splitlines()[1:]; let player_scores = {name: sum(int(score) for name, score in (line.split() for line in rounds) if name == name) for name in set(name for name, score in (line.split() for line in rounds))}; let max_score = max(player_scores.values()); let candidates = [name for name, score in player_scores.items() if score == max_score]; let first_to_reach = min((i for i, line in enumerate(rounds) if sum(int(score) for name, score in (line.split() for line in rounds[:i+1]) if name == name) >= max_score for name in candidates), default=None); stdout.strip() == candidates[first_to_reach] if first_to_reach is not None else candidates[0]\",\n      \"description\": \"If there is exactly one player with the maximum total score, that player is the winner. If multiple players tie for the maximum score, the winner is the one who first reached or exceeded that maximum score during the game. The winner's name is printed exactly as it appeared in the input.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1425,
+  "generated_tokens": 615,
+  "hit_output_limit": false,
+  "generation_seconds": 27.499,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:32:04.260758+00:00"
+}

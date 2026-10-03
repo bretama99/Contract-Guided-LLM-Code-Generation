@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_23995",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) < G for line in stdin.splitlines()[1:1+N])",
+        "description": "Every mutation rule's left-hand side (gene) is an integer between 2 and G-1 (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(int(line.split()[1]) >= 1 for line in stdin.splitlines()[1:1+N])",
+        "description": "Each mutation rule's right-hand side (replacement sequence) has at least one gene."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(b) < G for line in stdin.splitlines()[1:1+N] for b in line.split()[2:])",
+        "description": "All genes in mutation rules' right-hand sides are valid (0 ≤ gene < G)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(2 <= a < G for a in {int(line.split()[0]) for line in stdin.splitlines()[1:1+N]}) == set(range(2, G))",
+        "description": "Every gene from 2 to G-1 appears as a left-hand side in at least one mutation rule."
+      },
+      {
+        "id": "P5",
+        "expression": "all(int(line.split()[0]) >= 1 for line in stdin.splitlines()[1+N:])",
+        "description": "Each antibody's length is at least 1."
+      },
+      {
+        "id": "P6",
+        "expression": "all(0 <= int(c) <= 1 for line in stdin.splitlines()[1+N:] for c in line.split()[1:])",
+        "description": "All genes in antibodies are either 0 or 1."
+      },
+      {
+        "id": "P7",
+        "expression": "G > 2 and N >= G - 2 and M >= 0",
+        "description": "Input constraints: G > 2, N ≥ G - 2, M ≥ 0."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines() == [answer_line for gene in range(2, G) for answer_line in [f'YES' if all_detectable(gene) else f'NO {min_undetectable_length(gene)}']]",
+        "description": "For each gene from 2 to G-1, output 'YES' if all possible viruses derived from it are detectable by the given antibodies, otherwise output 'NO' followed by the minimal length of an undetectable virus."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('YES' in line or ('NO' in line and line.split()[1].isdigit()) for line in stdout.splitlines())",
+        "description": "Each output line is either 'YES' or 'NO' followed by a valid integer (minimal length)."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(stdout.splitlines()) == G - 2",
+        "description": "Exactly G-2 lines are output, one for each gene from 2 to G-1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) < G for line in stdin.splitlines()[1:1+N])\",\n      \"description\": \"Every mutation rule's left-hand side (gene) is an integer between 2 and G-1 (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(int(line.split()[1]) >= 1 for line in stdin.splitlines()[1:1+N])\",\n      \"description\": \"Each mutation rule's right-hand side (replacement sequence) has at least one gene.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(b) < G for line in stdin.splitlines()[1:1+N] for b in line.split()[2:])\",\n      \"description\": \"All genes in mutation rules' right-hand sides are valid (0 ≤ gene < G).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(2 <= a < G for a in {int(line.split()[0]) for line in stdin.splitlines()[1:1+N]}) == set(range(2, G))\",\n      \"description\": \"Every gene from 2 to G-1 appears as a left-hand side in at least one mutation rule.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(int(line.split()[0]) >= 1 for line in stdin.splitlines()[1+N:])\",\n      \"description\": \"Each antibody's length is at least 1.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(0 <= int(c) <= 1 for line in stdin.splitlines()[1+N:] for c in line.split()[1:])\",\n      \"description\": \"All genes in antibodies are either 0 or 1.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"G > 2 and N >= G - 2 and M >= 0\",\n      \"description\": \"Input constraints: G > 2, N ≥ G - 2, M ≥ 0.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines() == [answer_line for gene in range(2, G) for answer_line in [f'YES' if all_detectable(gene) else f'NO {min_undetectable_length(gene)}']]\",\n      \"description\": \"For each gene from 2 to G-1, output 'YES' if all possible viruses derived from it are detectable by the given antibodies, otherwise output 'NO' followed by the minimal length of an undetectable virus.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all('YES' in line or ('NO' in line and line.split()[1].isdigit()) for line in stdout.splitlines())\",\n      \"description\": \"Each output line is either 'YES' or 'NO' followed by a valid integer (minimal length).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(stdout.splitlines()) == G - 2\",\n      \"description\": \"Exactly G-2 lines are output, one for each gene from 2 to G-1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2327,
+  "generated_tokens": 790,
+  "hit_output_limit": false,
+  "generation_seconds": 38.564,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:53:37.105555+00:00"
+}

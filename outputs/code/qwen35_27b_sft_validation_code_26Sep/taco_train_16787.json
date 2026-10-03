@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16787",
+  "task_index": 31,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_16787.json",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    coins = [int(x) for x in data[1:n+1]]\n    \n    coins.sort()\n    \n    max_val = coins[-1] + coins[-2]\n    \n    dp = [float('inf')] * (max_val + 1)\n    dp[0] = 0\n    \n    for i in range(1, max_val + 1):\n        for c in coins:\n            if c > i:\n                break\n            if dp[i - c] != float('inf'):\n                if dp[i - c] + 1 < dp[i]:\n                    dp[i] = dp[i - c] + 1\n    \n    def greedy_count(amount):\n        count = 0\n        idx = n - 1\n        current = amount\n        while current > 0:\n            while idx >= 0 and coins[idx] > current:\n                idx -= 1\n            if idx < 0:\n                break\n            count += 1\n            current -= coins[idx]\n        return count\n    \n    for x in range(1, max_val + 1):\n        g_count = greedy_count(x)\n        opt_count = dp[x]\n        if opt_count < g_count:\n            print(\"non-canonical\")\n            return\n    \n    print(\"canonical\")\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 29.483,
+  "generated_at": "2026-09-26T20:44:28.972516+00:00"
+}

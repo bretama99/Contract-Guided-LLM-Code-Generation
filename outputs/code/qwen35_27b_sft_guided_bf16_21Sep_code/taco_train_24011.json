@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_24011",
+  "task_index": 317,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_24011.json",
+  "code": "import sys\nsys.setrecursionlimit(200000)\n\ndef main():\n    input = sys.stdin.read\n    data = input().split()\n    idx = 0\n    n = int(data[idx])\n    idx += 1\n    \n    adj = [[] for _ in range(n + 1)]\n    for _ in range(n - 1):\n        u = int(data[idx])\n        v = int(data[idx + 1])\n        idx += 2\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    parent = [0] * (n + 1)\n    order = []\n    stack = [1]\n    visited = [False] * (n + 1)\n    visited[1] = True\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n    \n    sz = [1] * (n + 1)\n    for u in reversed(order):\n        if parent[u] != 0:\n            sz[parent[u]] += sz[u]\n    \n    ans = [0] * (n + 1)\n    \n    for k in range(1, n + 1):\n        count = 0\n        dp = [0] * (n + 1)\n        \n        for u in reversed(order):\n            rem = sz[u]\n            for v in adj[u]:\n                if v == parent[u]:\n                    continue\n                rem -= dp[v]\n            \n            if rem >= k:\n                count += 1\n                dp[u] = 0\n            else:\n                dp[u] = rem\n        \n        ans[k] = count\n    \n    print(' '.join(map(str, ans[1:])))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 40.438,
+  "generated_at": "2026-09-22T14:36:00.724570+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_850",
+  "task_index": 358,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_850.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef solve(n, b, p):\n    graph = defaultdict(list)\n    for i in range(n):\n        if b[i] != i + 1:\n            graph[b[i] - 1].append(i)\n    \n    pos = {x: i for i, x in enumerate(p)}\n    \n    def dfs(node, current_dist):\n        if node != -1 and dist[node] != -1:\n            return False\n        dist[node] = current_dist\n        for child in graph[node]:\n            if not dfs(child, current_dist + 1):\n                return False\n        return True\n    \n    dist = [-1] * n\n    for i in range(n):\n        if b[i] == i + 1:\n            if not dfs(i, 0):\n                return [-1]\n    \n    weights = [0] * n\n    used_weights = set()\n    \n    for v in p:\n        if b[v - 1] != v:\n            parent_dist = dist[b[v] - 2]\n            child_dist = dist[v - 1]\n            needed_weight = child_dist - parent_dist\n            for weight in range(1, 10**9 + 1):\n                if weight not in used_weights and weight >= needed_weight:\n                    weights[v - 1] = weight\n                    used_weights.add(weight)\n                    break\n            else:\n                return [-1]\n    \n    return weights\n\ninput = sys.stdin.read().splitlines()\nindex = 0\nresults = []\n\nfor _ in range(int(input[index])):\n    index += 1\n    n = int(input[index])\n    index += 1\n    b = list(map(int, input[index].split()))\n    index += 1\n    p = list(map(int, input[index].split()))\n    results.append(solve(n, b, p))\n\nfor result in results:\n    print(' '.join(map(str, result)))",
+  "generation_seconds": 22.742,
+  "generated_at": "2026-09-23T20:15:40.421809+00:00"
+}

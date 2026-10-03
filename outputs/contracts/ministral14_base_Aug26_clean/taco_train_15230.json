@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_15230",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(h) <= 1000 and 2 <= int(w) <= 1000 and 1 <= int(q) <= 10000 for h, w, q in [line.split() for line in stdin.splitlines()[0:1]])",
+        "description": "Grid dimensions h and w are integers between 2 and 1000 inclusive, and number of days q is between 1 and 10000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) >= 2 + int(q) and all(len(line) == int(w) for line in stdin.splitlines()[1:1+int(h)])",
+        "description": "The grid has exactly h rows, each with exactly w characters (either '.' or '#')."
+      },
+      {
+        "id": "P3",
+        "expression": "stdin.splitlines()[1][0] == '.' and stdin.splitlines()[1+int(h)-1][-1] == '.'",
+        "description": "The top-left cell (house) and bottom-right cell (school) are always allowed ('.') and never blocked."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(ri) <= int(h) and 1 <= int(cj) <= int(w) and stdin.splitlines()[int(ri)-1][int(cj)-1] == '.' for day in range(int(q)) for ki in [int(stdin.splitlines()[1+int(h)+day*ki][0])] for ri, cj in [tuple(map(int, stdin.splitlines()[1+int(h)+day+ki+1+idx].split())) for idx in range(ki)])",
+        "description": "Each temporarily blocked cell (ri, cj) on any day is within grid bounds, is allowed ('.'), and is not the house or school."
+      },
+      {
+        "id": "P5",
+        "expression": "all(ki >= 1 and ki <= 10 for ki in [int(stdin.splitlines()[1+int(h)+day*ki][0]) for day in range(int(q))])",
+        "description": "Each day has between 1 and 10 temporarily blocked cells (ki)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines())",
+        "description": "For each day, output is either 'YES' or 'NO' (without quotes), indicating whether the day is interesting."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout_line) == 3 for stdout_line in stdout.splitlines())",
+        "description": "Each output line is exactly 3 characters long ('YES' or 'NO')."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(has_path_to_school_and_back(stdin, day_idx) == (stdout.splitlines()[day_idx].strip() == 'YES') for day_idx in range(int(q)))",
+        "description": "For each day, output 'YES' if and only if there exists a path from house (1,1) to school (h,w) and back to house without revisiting any cell except the house, avoiding permanently and temporarily blocked cells on that day."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(h) <= 1000 and 2 <= int(w) <= 1000 and 1 <= int(q) <= 10000 for h, w, q in [line.split() for line in stdin.splitlines()[0:1]])\",\n      \"description\": \"Grid dimensions h and w are integers between 2 and 1000 inclusive, and number of days q is between 1 and 10000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) >= 2 + int(q) and all(len(line) == int(w) for line in stdin.splitlines()[1:1+int(h)])\",\n      \"description\": \"The grid has exactly h rows, each with exactly w characters (either '.' or '#').\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"stdin.splitlines()[1][0] == '.' and stdin.splitlines()[1+int(h)-1][-1] == '.'\",\n      \"description\": \"The top-left cell (house) and bottom-right cell (school) are always allowed ('.') and never blocked.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(ri) <= int(h) and 1 <= int(cj) <= int(w) and stdin.splitlines()[int(ri)-1][int(cj)-1] == '.' for day in range(int(q)) for ki in [int(stdin.splitlines()[1+int(h)+day*ki][0])] for ri, cj in [tuple(map(int, stdin.splitlines()[1+int(h)+day+ki+1+idx].split())) for idx in range(ki)])\",\n      \"description\": \"Each temporarily blocked cell (ri, cj) on any day is within grid bounds, is allowed ('.'), and is not the house or school.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(ki >= 1 and ki <= 10 for ki in [int(stdin.splitlines()[1+int(h)+day*ki][0]) for day in range(int(q))])\",\n      \"description\": \"Each day has between 1 and 10 temporarily blocked cells (ki).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines())\",\n      \"description\": \"For each day, output is either 'YES' or 'NO' (without quotes), indicating whether the day is interesting.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout_line) == 3 for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line is exactly 3 characters long ('YES' or 'NO').\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(has_path_to_school_and_back(stdin, day_idx) == (stdout.splitlines()[day_idx].strip() == 'YES') for day_idx in range(int(q)))\",\n      \"description\": \"For each day, output 'YES' if and only if there exists a path from house (1,1) to school (h,w) and back to house without revisiting any cell except the house, avoiding permanently and temporarily blocked cells on that day.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2316,
+  "generated_tokens": 834,
+  "hit_output_limit": false,
+  "generation_seconds": 39.293,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:14:55.206971+00:00"
+}

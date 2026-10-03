@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_17942",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and n <= 250000",
+        "description": "The number of vertices in the tree is an integer between 2 and 250,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b for a, b, c in edges) and len(edges) == n - 1",
+        "description": "The input contains exactly (n-1) edges, each connecting two distinct vertices in the range [1, n], with strictly positive integer weights."
+      },
+      {
+        "id": "P3",
+        "expression": "is_tree(edges, n)",
+        "description": "The given edges form a connected acyclic graph (tree) on n vertices, where `is_tree` is a helper function defined as: `is_tree(edges, n) = (len(edges) == n - 1) and (no_cycles(edges) and connected(edges, n))` and `no_cycles(edges)` checks for cycles using union-find or DFS, and `connected(edges, n)` checks if all vertices are reachable from any starting vertex."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == n and all(0 <= total_weight <= sum(c for a, b, c in edges) for total_weight in output)",
+        "description": "The output is a list of exactly n integers, each representing the smallest total weight of edges to delete for x = 0, 1, ..., n-1, respectively. Each value is non-negative and does not exceed the total weight of all edges."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(degrees_after_deletion(edges, deleted_edges, x) <= x for x in range(n) for deleted_edges in get_min_deleted_edges(edges, x))",
+        "description": "For each x in 0..n-1, the output at index x is the smallest total weight of edges to delete such that, after deletion, the degree of every vertex in the tree is at most x. Here, `degrees_after_deletion(edges, deleted_edges, x)` is a helper function that computes the degrees of all vertices after removing `deleted_edges` from `edges`, and `get_min_deleted_edges(edges, x)` is a helper function that returns all possible sets of edges whose deletion minimizes the total weight while satisfying the degree constraint."
+      },
+      {
+        "id": "Q3",
+        "expression": "output[0] == sum(c for a, b, c in edges)",
+        "description": "For x = 0, the only solution is to delete all edges, so the total weight is the sum of all edge weights."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(output[x] <= output[x + 1] for x in range(n - 1))",
+        "description": "The total weight of deleted edges is non-increasing as x increases, since a higher x allows more edges to remain (relaxing the degree constraint)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and n <= 250000\",\n      \"description\": \"The number of vertices in the tree is an integer between 2 and 250,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and a != b for a, b, c in edges) and len(edges) == n - 1\",\n      \"description\": \"The input contains exactly (n-1) edges, each connecting two distinct vertices in the range [1, n], with strictly positive integer weights.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"is_tree(edges, n)\",\n      \"description\": \"The given edges form a connected acyclic graph (tree) on n vertices, where `is_tree` is a helper function defined as: `is_tree(edges, n) = (len(edges) == n - 1) and (no_cycles(edges) and connected(edges, n))` and `no_cycles(edges)` checks for cycles using union-find or DFS, and `connected(edges, n)` checks if all vertices are reachable from any starting vertex.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output) == n and all(0 <= total_weight <= sum(c for a, b, c in edges) for total_weight in output)\",\n      \"description\": \"The output is a list of exactly n integers, each representing the smallest total weight of edges to delete for x = 0, 1, ..., n-1, respectively. Each value is non-negative and does not exceed the total weight of all edges.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(degrees_after_deletion(edges, deleted_edges, x) <= x for x in range(n) for deleted_edges in get_min_deleted_edges(edges, x))\",\n      \"description\": \"For each x in 0..n-1, the output at index x is the smallest total weight of edges to delete such that, after deletion, the degree of every vertex in the tree is at most x. Here, `degrees_after_deletion(edges, deleted_edges, x)` is a helper function that computes the degrees of all vertices after removing `deleted_edges` from `edges`, and `get_min_deleted_edges(edges, x)` is a helper function that returns all possible sets of edges whose deletion minimizes the total weight while satisfying the degree constraint.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"output[0] == sum(c for a, b, c in edges)\",\n      \"description\": \"For x = 0, the only solution is to delete all edges, so the total weight is the sum of all edge weights.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(output[x] <= output[x + 1] for x in range(n - 1))\",\n      \"description\": \"The total weight of deleted edges is non-increasing as x increases, since a higher x allows more edges to remain (relaxing the degree constraint).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1566,
+  "generated_tokens": 779,
+  "hit_output_limit": false,
+  "generation_seconds": 33.29,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:37:54.530691+00:00"
+}

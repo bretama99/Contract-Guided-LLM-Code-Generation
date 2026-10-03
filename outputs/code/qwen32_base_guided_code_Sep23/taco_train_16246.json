@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16246",
+  "task_index": 950,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_16246.json",
+  "code": "import sys\r\nfrom collections import deque\r\n\r\ndef ccw(A, B, C):\r\n    return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])\r\n\r\ndef is_valid_turn(A, B, C, direction):\r\n    return ccw(A, B, C) if direction == 'L' else not ccw(A, B, C)\r\n\r\ndef find_permutation(n, points, s):\r\n    stack = deque()\r\n    used = [False] * n\r\n    result = []\r\n\r\n    def dfs(prev, curr, index):\r\n        if index == n - 1:\r\n            result.append(curr + 1)\r\n            return True\r\n        result.append(curr + 1)\r\n        used[curr] = True\r\n        stack.append((prev, curr))\r\n        for next_point in range(n):\r\n            if not used[next_point] and (index == 0 or is_valid_turn(points[prev], points[curr], points[next_point], s[index - 1])):\r\n                if dfs(curr, next_point, index + 1):\r\n                    return True\r\n        used[curr] = False\r\n        stack.pop()\r\n        result.pop()\r\n        return False\r\n\r\n    for start in range(n):\r\n        if dfs(-1, start, 0):\r\n            return result\r\n\r\n    return -1\r\n\r\ninput = sys.stdin.read().strip().split('\\n')\r\nn = int(input[0])\r\npoints = [tuple(map(int, line.split())) for line in input[1:n+1]]\r\ns = input[-1]\r\n\r\nresult = find_permutation(n, points, s)\r\nif result == -1:\r\n    print(-1)\r\nelse:\r\n    print(' '.join(map(str, result)))",
+  "generation_seconds": 33.405,
+  "generated_at": "2026-09-23T20:56:54.471431+00:00"
+}

@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_5290",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 100000 for line in stdin.splitlines() for x in line.split() if x.isdigit())",
+        "description": "All integers in input are within the specified bounds (1 ≤ N ≤ 100000, 1 ≤ M ≤ 500000, 1 ≤ Q ≤ 200000, 1 ≤ u_i < v_i ≤ N, 1 ≤ a_j < b_j ≤ N)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 1 + M + Q",
+        "description": "Input consists of exactly N, M, Q on the first line, followed by M highway lines, then Q query lines."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:1+M])",
+        "description": "Each of the M highway lines contains exactly two integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1+M:])",
+        "description": "Each of the Q query lines contains exactly two integers."
+      },
+      {
+        "id": "P5",
+        "expression": "all(int(u) < int(v) for line in stdin.splitlines()[1:1+M] for u, v in [line.split()])",
+        "description": "For each highway, u_i < v_i."
+      },
+      {
+        "id": "P6",
+        "expression": "all(int(a) < int(b) for line in stdin.splitlines()[1+M:] for a, b in [line.split()])",
+        "description": "For each query, a_j < b_j."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.count('\\n') == Q",
+        "description": "Output contains exactly Q lines, one for each query."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.strip().isdigit() for line in stdout.splitlines())",
+        "description": "Each output line is a non-negative integer representing the minimal number of highways between the queried planets."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= int(line.strip()) <= N-1 for line in stdout.splitlines())",
+        "description": "Each output is a valid distance (at least 1, at most N-1) for a connected graph."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(line.strip()) == min_distance(a, b, highways) for line, (a, b) in zip(stdout.splitlines(), [(int(x), int(y)) for x, y in [line.split() for line in stdin.splitlines()[1+M:]]]))",
+        "description": "For each query (a_j, b_j), the output is the minimal number of highways needed to travel from a_j to b_j, where highways is the set of all given bidirectional highways."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 100000 for line in stdin.splitlines() for x in line.split() if x.isdigit())\",\n      \"description\": \"All integers in input are within the specified bounds (1 ≤ N ≤ 100000, 1 ≤ M ≤ 500000, 1 ≤ Q ≤ 200000, 1 ≤ u_i < v_i ≤ N, 1 ≤ a_j < b_j ≤ N).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 1 + M + Q\",\n      \"description\": \"Input consists of exactly N, M, Q on the first line, followed by M highway lines, then Q query lines.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:1+M])\",\n      \"description\": \"Each of the M highway lines contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1+M:])\",\n      \"description\": \"Each of the Q query lines contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(int(u) < int(v) for line in stdin.splitlines()[1:1+M] for u, v in [line.split()])\",\n      \"description\": \"For each highway, u_i < v_i.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(int(a) < int(b) for line in stdin.splitlines()[1+M:] for a, b in [line.split()])\",\n      \"description\": \"For each query, a_j < b_j.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.count('\\\\n') == Q\",\n      \"description\": \"Output contains exactly Q lines, one for each query.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line.strip().isdigit() for line in stdout.splitlines())\",\n      \"description\": \"Each output line is a non-negative integer representing the minimal number of highways between the queried planets.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= int(line.strip()) <= N-1 for line in stdout.splitlines())\",\n      \"description\": \"Each output is a valid distance (at least 1, at most N-1) for a connected graph.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(line.strip()) == min_distance(a, b, highways) for line, (a, b) in zip(stdout.splitlines(), [(int(x), int(y)) for x, y in [line.split() for line in stdin.splitlines()[1+M:]]]))\",\n      \"description\": \"For each query (a_j, b_j), the output is the minimal number of highways needed to travel from a_j to b_j, where highways is the set of all given bidirectional highways.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1733,
+  "generated_tokens": 782,
+  "hit_output_limit": false,
+  "generation_seconds": 35.306,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:09:38.384069+00:00"
+}

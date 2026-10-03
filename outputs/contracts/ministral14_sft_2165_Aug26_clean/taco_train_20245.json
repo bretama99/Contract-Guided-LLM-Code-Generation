@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_20245",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(stdin.split()[0]) <= 1000 and 1 <= int(stdin.split()[1]) <= 5000",
+        "description": "Input must contain exactly two integers n (number of cities) and m (number of flights) where 2 ≤ n ≤ 1000 and 1 ≤ m ≤ 5000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and 1 <= int(line.split()[0]) < int(line.split()[1]) <= n for line in stdin.splitlines()[1:])",
+        "description": "Each flight is a one-directional edge from city ai to city bi where 1 ≤ ai < bi ≤ n, and no two flights share the same pair of cities."
+      },
+      {
+        "id": "P3",
+        "expression": "any(all(1 <= a < b <= n for a, b in flights) for flights in [line.split() for line in stdin.splitlines()[1:]])",
+        "description": "There exists at least one path from city 1 to city n using the given flights."
+      },
+      {
+        "id": "P4",
+        "expression": "not any((a, b) in [(int(x.split()[0]), int(x.split()[1])) for x in stdin.splitlines()[1:]] for a, b in [(int(x.split()[0]), int(x.split()[1])) for x in stdin.splitlines()[1:]] if a != b)",
+        "description": "No two flights are between the same pair of cities (no duplicate edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and len(stdout.splitlines()) == m + 1 and all(1 <= int(x) <= 2 for x in stdout.splitlines()[1:]))",
+        "description": "If no valid assignment exists, output 'No'. Otherwise, output 'Yes' followed by m integers (1 or 2) representing flight durations in the same order as input."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'Yes' and all(len(line.split()) == 1 and line.strip() in ['1', '2'] for line in stdout.splitlines()[1:])",
+        "description": "If a valid assignment exists, each flight duration must be either 1 or 2."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'Yes' and (lambda: all(calculate_path_length(1, n, flights_with_durations) == calculate_path_length(1, n, flights_with_durations, path) for path in get_all_paths(1, n, flights)))(flights_with_durations)",
+        "description": "If a valid assignment exists, all paths from city 1 to city n must have the same total duration, where flights_with_durations is the list of flights with their assigned durations."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"2 <= int(stdin.split()[0]) <= 1000 and 1 <= int(stdin.split()[1]) <= 5000\",\n      \"description\": \"Input must contain exactly two integers n (number of cities) and m (number of flights) where 2 ≤ n ≤ 1000 and 1 ≤ m ≤ 5000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 and 1 <= int(line.split()[0]) < int(line.split()[1]) <= n for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each flight is a one-directional edge from city ai to city bi where 1 ≤ ai < bi ≤ n, and no two flights share the same pair of cities.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"any(all(1 <= a < b <= n for a, b in flights) for flights in [line.split() for line in stdin.splitlines()[1:]])\",\n      \"description\": \"There exists at least one path from city 1 to city n using the given flights.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"not any((a, b) in [(int(x.split()[0]), int(x.split()[1])) for x in stdin.splitlines()[1:]] for a, b in [(int(x.split()[0]), int(x.split()[1])) for x in stdin.splitlines()[1:]] if a != b)\",\n      \"description\": \"No two flights are between the same pair of cities (no duplicate edges).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'No' or (stdout.strip() == 'Yes' and len(stdout.splitlines()) == m + 1 and all(1 <= int(x) <= 2 for x in stdout.splitlines()[1:]))\",\n      \"description\": \"If no valid assignment exists, output 'No'. Otherwise, output 'Yes' followed by m integers (1 or 2) representing flight durations in the same order as input.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'Yes' and all(len(line.split()) == 1 and line.strip() in ['1', '2'] for line in stdout.splitlines()[1:])\",\n      \"description\": \"If a valid assignment exists, each flight duration must be either 1 or 2.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'Yes' and (lambda: all(calculate_path_length(1, n, flights_with_durations) == calculate_path_length(1, n, flights_with_durations, path) for path in get_all_paths(1, n, flights)))(flights_with_durations)\",\n      \"description\": \"If a valid assignment exists, all paths from city 1 to city n must have the same total duration, where flights_with_durations is the list of flights with their assigned durations.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1571,
+  "generated_tokens": 754,
+  "hit_output_limit": false,
+  "generation_seconds": 32.563,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:17:46.861609+00:00"
+}

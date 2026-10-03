@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19803",
+  "task_index": 930,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_19803.json",
+  "code": "import sys\n\ndef is_subsequence(s, t):\n    it = iter(t)\n    return all(c in it for c in s)\n\ndef is_regular_bracket_sequence(s):\n    balance = 0\n    for c in s:\n        if c == '(':\n            balance += 1\n        else:\n            balance -= 1\n        if balance < 0:\n            return False\n    return balance == 0\n\ndef merge_sequences(s, t):\n    dp = [[0] * (len(t) + 1) for _ in range(len(s) + 1)]\n    for i in range(len(s)):\n        for j in range(len(t)):\n            if s[i] == t[j]:\n                dp[i + 1][j + 1] = dp[i][j] + 1\n            else:\n                dp[i + 1][j + 1] = max(dp[i + 1][j], dp[i][j + 1])\n    \n    i, j = len(s), len(t)\n    merged = []\n    while i > 0 or j > 0:\n        if i > 0 and j > 0 and s[i - 1] == t[j - 1]:\n            merged.append(s[i - 1])\n            i -= 1\n            j -= 1\n        elif i > 0 and (j == 0 or dp[i][j - 1] <= dp[i - 1][j]):\n            merged.append(s[i - 1])\n            i -= 1\n        else:\n            merged.append(t[j - 1])\n            j -= 1\n    \n    merged.reverse()\n    balance = 0\n    result = []\n    for c in merged:\n        result.append(c)\n        if c == '(':\n            balance += 1\n        else:\n           balance -= 1\n        while balance < 0:\n            result.append('(')\n            balance += 1\n    result.extend([')'] * balance)\n    return ''.join(result)\n\ns, t = sys.stdin.read().splitlines()\nresult = merge_sequences(s, t)\nprint(result)",
+  "generation_seconds": 39.163,
+  "generated_at": "2026-09-23T20:49:54.333027+00:00"
+}

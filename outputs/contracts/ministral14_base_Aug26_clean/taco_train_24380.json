@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_24380",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.strip()) > 0 and len(stdin.strip()) <= 1000",
+        "description": "The input string is non-empty and has length at most 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(c.islower() or c.isdigit() or c == '.' for c in stdin)",
+        "description": "The input string contains only lowercase letters, digits, and dots."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(name) <= 10 and name.isalpha() and name != '' for name in re.findall(r'[a-z]+', stdin))",
+        "description": "Each purchase name is a non-empty string of lowercase letters with length at most 10."
+      },
+      {
+        "id": "P4",
+        "expression": "all(price != '' and price[0].isdigit() and price[-1].isdigit() and all(c.isdigit() or c == '.' for c in price) for price in re.findall(r'\\d+(\\.\\d+)*', stdin))",
+        "description": "Each price is a non-empty string starting and ending with a digit, containing only digits and dots."
+      },
+      {
+        "id": "P5",
+        "expression": "all('.' not in price[:-2] or price[-2] == '.' for price in re.findall(r'\\d+(\\.\\d+)*', stdin))",
+        "description": "Dots in prices are either decimal points (with exactly two digits after) or thousand separators (every three digits from the right)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(float(price.replace('.', '')) >= 0.01 and float(price.replace('.', '')) <= 10**6 for price in re.findall(r'\\d+(\\.\\d+)*', stdin))",
+        "description": "Each price is at least one cent and at most 10^6 dollars when parsed as a float."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(c.isdigit() or c == '.' for c in stdout)",
+        "description": "The output string contains only digits and dots."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout != '' and stdout[0].isdigit() and stdout[-1].isdigit()",
+        "description": "The output string is non-empty, starts and ends with a digit."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('.' not in stdout[:-2] or stdout[-2] == '.' for c in stdout)",
+        "description": "Dots in the output are either decimal points (with exactly two digits after) or thousand separators (every three digits from the right)."
+      },
+      {
+        "id": "Q4",
+        "expression": "float(stdout.replace('.', '')) == sum(float(price.replace('.', '')) for price in re.findall(r'\\d+(\\.\\d+)*', stdin))",
+        "description": "The output represents the sum of all prices in the input, parsed as floats (ignoring thousand separators)."
+      },
+      {
+        "id": "Q5",
+        "expression": "not any(stdout.count('.') > 1 and '.' not in stdout[-3:])",
+        "description": "The output does not have consecutive dots unless they are part of a thousand separator or decimal point."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(stdin.strip()) > 0 and len(stdin.strip()) <= 1000\",\n      \"description\": \"The input string is non-empty and has length at most 1000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(c.islower() or c.isdigit() or c == '.' for c in stdin)\",\n      \"description\": \"The input string contains only lowercase letters, digits, and dots.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(name) <= 10 and name.isalpha() and name != '' for name in re.findall(r'[a-z]+', stdin))\",\n      \"description\": \"Each purchase name is a non-empty string of lowercase letters with length at most 10.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(price != '' and price[0].isdigit() and price[-1].isdigit() and all(c.isdigit() or c == '.' for c in price) for price in re.findall(r'\\\\d+(\\\\.\\\\d+)*', stdin))\",\n      \"description\": \"Each price is a non-empty string starting and ending with a digit, containing only digits and dots.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all('.' not in price[:-2] or price[-2] == '.' for price in re.findall(r'\\\\d+(\\\\.\\\\d+)*', stdin))\",\n      \"description\": \"Dots in prices are either decimal points (with exactly two digits after) or thousand separators (every three digits from the right).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(float(price.replace('.', '')) >= 0.01 and float(price.replace('.', '')) <= 10**6 for price in re.findall(r'\\\\d+(\\\\.\\\\d+)*', stdin))\",\n      \"description\": \"Each price is at least one cent and at most 10^6 dollars when parsed as a float.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(c.isdigit() or c == '.' for c in stdout)\",\n      \"description\": \"The output string contains only digits and dots.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout != '' and stdout[0].isdigit() and stdout[-1].isdigit()\",\n      \"description\": \"The output string is non-empty, starts and ends with a digit.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all('.' not in stdout[:-2] or stdout[-2] == '.' for c in stdout)\",\n      \"description\": \"Dots in the output are either decimal points (with exactly two digits after) or thousand separators (every three digits from the right).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"float(stdout.replace('.', '')) == sum(float(price.replace('.', '')) for price in re.findall(r'\\\\d+(\\\\.\\\\d+)*', stdin))\",\n      \"description\": \"The output represents the sum of all prices in the input, parsed as floats (ignoring thousand separators).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"not any(stdout.count('.') > 1 and '.' not in stdout[-3:])\",\n      \"description\": \"The output does not have consecutive dots unless they are part of a thousand separator or decimal point.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1607,
+  "generated_tokens": 852,
+  "hit_output_limit": false,
+  "generation_seconds": 38.841,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:38:58.702928+00:00"
+}

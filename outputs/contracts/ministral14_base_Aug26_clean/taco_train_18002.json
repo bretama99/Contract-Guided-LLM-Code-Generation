@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_18002",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solve",
+      "signature": "solve(t: int, test_cases: list[tuple[int, int, int, list[tuple[int, int, int]], list[tuple[int, int]]]]) -> list[str]"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t >= 1 and t <= 50",
+        "description": "The number of test cases is between 1 and 50 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 1000 for (N, P, M, _, _) in test_cases)",
+        "description": "For each test case, the number of students (computers) N is between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N - 1 <= P <= 100000 for (N, P, M, _, _) in test_cases)",
+        "description": "For each test case, the number of connections P is at least N-1 (minimum spanning tree edges) and at most 100000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= M <= 100000 for (N, P, M, _, _) in test_cases)",
+        "description": "For each test case, the number of queries M is between 1 and 100000 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u <= N and 1 <= v <= N for (N, P, M, _, queries) in test_cases for (u, v) in queries)",
+        "description": "For each query in every test case, u and v are valid computer indices between 1 and N inclusive."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= d <= 1000000 for (N, P, M, connections, _) in test_cases for (u, v, d) in connections)",
+        "description": "For each connection in every test case, the distance d is between 1 and 1000000 inclusive."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(set((u, v, d) for (u, v, d) in connections)) == len(connections) for (N, P, M, connections, _) in test_cases)",
+        "description": "Within each test case, all connections (u, v, d) are unique (no duplicate edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == t and all('Case: ' in line for line in output)",
+        "description": "The output contains exactly one line per test case, each starting with 'Case: ' followed by the case number."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_lines) == M + 1 for output_lines in [line.split('\\n') for line in output] if line.count('\\n') > 0)",
+        "description": "For each test case, the output contains exactly M+1 lines (case header + M query answers)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(1 <= answer <= 1000000 for answer in [int(line) for line in output_lines[1:] if line.strip().isdigit()] for output_lines in [line.split('\\n') for line in output] if line.count('\\n') > 0)",
+        "description": "Each query answer is a valid positive integer distance (1 to 1000000)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(1 <= u <= N and 1 <= v <= N for (N, P, M, _, queries) in test_cases for (u, v) in queries for i, output_lines in enumerate([line.split('\\n') for line in output] if line.count('\\n') > 0) for j, line in enumerate(output_lines[1:]) if i == (N, P, M, _, queries).index((N, P, M, _, queries)) and j == queries.index((u, v)) and line.strip().isdigit() and int(line) == min_distance_in_mst(u, v, connections))",
+        "description": "For each query (u, v), the answer is the minimum total distance between u and v in the minimum spanning tree (MST) of the given connections. The MST is constructed using all connections, and the distance is the sum of edge weights along the unique path between u and v in the MST."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"solve\",\n    \"signature\": \"solve(t: int, test_cases: list[tuple[int, int, int, list[tuple[int, int, int]], list[tuple[int, int]]]]) -> list[str]\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t >= 1 and t <= 50\",\n      \"description\": \"The number of test cases is between 1 and 50 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= N <= 1000 for (N, P, M, _, _) in test_cases)\",\n      \"description\": \"For each test case, the number of students (computers) N is between 1 and 1000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(N - 1 <= P <= 100000 for (N, P, M, _, _) in test_cases)\",\n      \"description\": \"For each test case, the number of connections P is at least N-1 (minimum spanning tree edges) and at most 100000.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= M <= 100000 for (N, P, M, _, _) in test_cases)\",\n      \"description\": \"For each test case, the number of queries M is between 1 and 100000 inclusive.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= u <= N and 1 <= v <= N for (N, P, M, _, queries) in test_cases for (u, v) in queries)\",\n      \"description\": \"For each query in every test case, u and v are valid computer indices between 1 and N inclusive.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= d <= 1000000 for (N, P, M, connections, _) in test_cases for (u, v, d) in connections)\",\n      \"description\": \"For each connection in every test case, the distance d is between 1 and 1000000 inclusive.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(len(set((u, v, d) for (u, v, d) in connections)) == len(connections) for (N, P, M, connections, _) in test_cases)\",\n      \"description\": \"Within each test case, all connections (u, v, d) are unique (no duplicate edges).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output) == t and all('Case: ' in line for line in output)\",\n      \"description\": \"The output contains exactly one line per test case, each starting with 'Case: ' followed by the case number.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(output_lines) == M + 1 for output_lines in [line.split('\\\\n') for line in output] if line.count('\\\\n') > 0)\",\n      \"description\": \"For each test case, the output contains exactly M+1 lines (case header + M query answers).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(all(1 <= answer <= 1000000 for answer in [int(line) for line in output_lines[1:] if line.strip().isdigit()] for output_lines in [line.split('\\\\n') for line in output] if line.count('\\\\n') > 0)\",\n      \"description\": \"Each query answer is a valid positive integer distance (1 to 1000000).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(all(1 <= u <= N and 1 <= v <= N for (N, P, M, _, queries) in test_cases for (u, v) in queries for i, output_lines in enumerate([line.split('\\\\n') for line in output] if line.count('\\\\n') > 0) for j, line in enumerate(output_lines[1:]) if i == (N, P, M, _, queries).index((N, P, M, _, queries)) and j == queries.index((u, v)) and line.strip().isdigit() and int(line) == min_distance_in_mst(u, v, connections))\",\n      \"description\": \"For each query (u, v), the answer is the minimum total distance between u and v in the minimum spanning tree (MST) of the given connections. The MST is constructed using all connections, and the distance is the sum of edge weights along the unique path between u and v in the MST.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1545,
+  "generated_tokens": 1120,
+  "hit_output_limit": false,
+  "generation_seconds": 52.486,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:35:09.140912+00:00"
+}
