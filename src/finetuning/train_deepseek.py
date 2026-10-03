@@ -116,11 +116,21 @@ class ContractDataset(Dataset):
                 add_generation_prompt=False,
             )
 
-            if not isinstance(prompt_ids, list):
-                prompt_ids = list(prompt_ids)
+            def normalize_ids(value):
+                if hasattr(value, "input_ids"):
+                    value = value.input_ids
+                elif isinstance(value, dict):
+                    value = value["input_ids"]
+                if hasattr(value, "tolist"):
+                    value = value.tolist()
+                while isinstance(value, list) and len(value) == 1 and isinstance(value[0], list):
+                    value = value[0]
+                if not isinstance(value, list) or not all(isinstance(token, int) for token in value):
+                    raise TypeError("Expected a flat list of token IDs")
+                return value
 
-            if not isinstance(full_ids, list):
-                full_ids = list(full_ids)
+            prompt_ids = normalize_ids(prompt_ids)
+            full_ids = normalize_ids(full_ids)
 
             prefix_length = common_prefix_length(
                 prompt_ids,
@@ -369,7 +379,7 @@ def main() -> None:
 
     tokenizer = AutoTokenizer.from_pretrained(
         args.model_path,
-        trust_remote_code=True,
+        trust_remote_code=False,
         local_files_only=True,
     )
 
@@ -411,11 +421,13 @@ def main() -> None:
     if args.dry_run:
         return
 
-    model = AutoModelForCausalLM.from_pretrained(
+    from transformers import DeepseekV2ForCausalLM
+
+    model = DeepseekV2ForCausalLM.from_pretrained(
         args.model_path,
-        trust_remote_code=True,
+        trust_remote_code=False,
         local_files_only=True,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
     )
 
@@ -450,52 +462,10 @@ def main() -> None:
 
     model.print_trainable_parameters()
 
-    training_args = TrainingArguments(
-        output_dir=str(args.output_dir),
-        overwrite_output_dir=False,
-        num_train_epochs=args.epochs,
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=1,
-        gradient_accumulation_steps=args.grad_accum,
-        learning_rate=args.learning_rate,
-        weight_decay=0.01,
-        warmup_ratio=0.03,
-        lr_scheduler_type="cosine",
-        optim="adamw_torch",
-        bf16=True,
-        fp16=False,
-        evaluation_strategy="steps",
-        eval_steps=args.eval_steps,
-        save_strategy="steps",
-        save_steps=args.save_steps,
-        logging_strategy="steps",
-        logging_steps=5,
-        logging_first_step=True,
-        save_total_limit=2,
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        greater_is_better=False,
-        prediction_loss_only=True,
-        max_grad_norm=1.0,
-        remove_unused_columns=False,
-        dataloader_num_workers=0,
-        dataloader_pin_memory=True,
-        report_to=[],
-        seed=args.seed,
-        data_seed=args.seed,
-        save_safetensors=True,
-    )
+    from src.finetuning.train_qwen14 import make_training_arguments, make_trainer
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=val_dataset,
-        tokenizer=tokenizer,
-        data_collator=ContractCollator(
-            tokenizer.pad_token_id
-        ),
-    )
+    training_args = make_training_arguments(args)
+    trainer = make_trainer(model=model, arguments=training_args, train_dataset=train_dataset, val_dataset=val_dataset, tokenizer=tokenizer)
 
     result = trainer.train(
         resume_from_checkpoint=args.resume_from_checkpoint

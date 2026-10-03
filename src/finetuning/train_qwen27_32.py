@@ -123,7 +123,7 @@ def project_root() -> Path:
 
     for candidate in candidates:
         if (
-            (candidate / "data/processed").is_dir()
+            (candidate / "dataset/training_data").is_dir()
             and (candidate / "outputs").is_dir()
         ):
             return candidate
@@ -238,8 +238,8 @@ def check_evaluation_leakage(
     val_ids: set[str],
 ) -> None:
     evaluation_candidates = [
-        root / "data/processed/taco_selected_evaluation_25.jsonl",
-        root / "data/processed/taco_selected_evaluation_25_1100.jsonl",
+        root / "dataset/testing_data.jsonl",
+        root / "dataset/testing_data.jsonl",
     ]
 
     evaluation_file = next(
@@ -611,7 +611,11 @@ def load_model(
         bnb_4bit_use_double_quant=True,
     )
 
-    model = AutoModelForCausalLM.from_pretrained(
+    from transformers import AutoConfig, AutoModelForImageTextToText
+    config = AutoConfig.from_pretrained(str(args.model_path), local_files_only=True, trust_remote_code=False)
+    model_loader = AutoModelForImageTextToText if config.model_type == "qwen3_5" else AutoModelForCausalLM
+
+    model = model_loader.from_pretrained(
         str(args.model_path),
         trust_remote_code=True,
         local_files_only=True,
@@ -647,7 +651,7 @@ def make_training_arguments(
         "gradient_accumulation_steps": args.grad_accum,
         "learning_rate": args.learning_rate,
         "weight_decay": 0.01,
-        "warmup_ratio": 0.03,
+        ("warmup_ratio" if "warmup_ratio" in inspect.signature(TrainingArguments.__init__).parameters else "warmup_steps"): 0.03,
         "lr_scheduler_type": "cosine",
         "optim": "paged_adamw_8bit",
         "bf16": True,
@@ -1209,7 +1213,7 @@ def main() -> None:
     summary = {
         "model": {
             "path": str(args.model_path),
-            "architecture": "Qwen2.5-Coder-32B-Instruct",
+            "architecture": model.config.model_type,
             "quantization": "4bit_nf4",
             "compute_dtype": "bfloat16",
         },

@@ -412,7 +412,7 @@ def make_training_arguments(
         "gradient_accumulation_steps": args.grad_accum,
         "learning_rate": args.learning_rate,
         "weight_decay": 0.01,
-        "warmup_ratio": 0.03,
+        ("warmup_ratio" if "warmup_ratio" in parameters else "warmup_steps"): 0.03,
         "lr_scheduler_type": "cosine",
         "optim": "adamw_torch",
         "bf16": True,

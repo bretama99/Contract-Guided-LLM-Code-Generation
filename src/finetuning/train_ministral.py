@@ -32,7 +32,7 @@ PROJECTIONS = {
 
 def project_root() -> Path:
     for path in [Path.cwd(), *Path(__file__).resolve().parents]:
-        if (path / "data/processed").is_dir():
+        if (path / "dataset/training_data").is_dir():
             return path.resolve()
 
     raise FileNotFoundError("Project root not found")
@@ -64,7 +64,7 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 def locate_dataset(root: Path) -> tuple[Path, Path]:
-    base = root / "data/processed/taco_contract_sft/sft/all_cleaned"
+    base = root / "dataset/training_data"
 
     train = base / "train.jsonl"
     val = base / "val.jsonl"
@@ -395,7 +395,7 @@ def load_model(
             model_path,
             local_files_only=True,
             trust_remote_code=True,
-            torch_dtype=torch.bfloat16,
+            dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             attn_implementation="sdpa",
         )
@@ -408,7 +408,7 @@ def load_model(
             model_path,
             local_files_only=True,
             trust_remote_code=True,
-            torch_dtype=torch.bfloat16,
+            dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             attn_implementation="sdpa",
         )
@@ -493,7 +493,7 @@ def training_arguments(
 
         "learning_rate": 2e-5,
         "weight_decay": 0.01,
-        "warmup_ratio": 0.03,
+        ("warmup_ratio" if "warmup_ratio" in inspect.signature(TrainingArguments.__init__).parameters else "warmup_steps"): 0.03,
         "lr_scheduler_type": "cosine",
         "optim": "adamw_torch",
 
