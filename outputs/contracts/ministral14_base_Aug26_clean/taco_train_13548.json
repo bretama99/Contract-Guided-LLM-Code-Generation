@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_13548",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "0 <= n <= 10**18 and 0 <= c <= 1000",
+        "description": "n is the number of crimes (0 ≤ n ≤ 10¹⁸) and c is the number of conditions (0 ≤ c ≤ 1000)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= m <= 123 for (t, m) in conditions) and len(set(t for t, m in conditions)) <= 26",
+        "description": "Each condition consists of a crime type (capital Latin letter) and a positive integer multiplicity (1 ≤ m ≤ 123). The product of all multiplicities does not exceed 123, and there are at most 26 unique crime types."
+      },
+      {
+        "id": "P3",
+        "expression": "conditions == [] or all(isinstance(t, str) and len(t) == 1 and t.isupper() for t, m in conditions)",
+        "description": "Each crime type is a single uppercase Latin letter."
+      },
+      {
+        "id": "P4",
+        "expression": "stdin.splitlines()[0].strip().split() == ['n', 'c'] or (n == 0 and c == 0)",
+        "description": "If n and c are provided, the first line is 'n c'; if n=0 and c=0, input is empty (edge case)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) < 12345",
+        "description": "Output is a non-negative integer modulo 12345 representing the number of valid sequences."
+      },
+      {
+        "id": "Q2",
+        "expression": "crime_types := {t for t, m in conditions} and len(crime_types) == 0 == (n == 0)",
+        "description": "If no crime types are listed (c=0), the only valid sequence is the empty sequence (n=0)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(t in crime_types for t in sequence) and len(sequence) == n and all(count(sequence, t) % m == 0 for t, m in conditions if count(sequence, t) > 0)",
+        "description": "For each valid sequence of length n, every crime type in the sequence must be in crime_types, and for each crime type t with multiplicity m, the count of t in the sequence must be a multiple of m (or zero)."
+      },
+      {
+        "id": "Q4",
+        "expression": "count_sequences := sum(1 for sequence in product(crime_types, repeat=n) if all(count(sequence, t) % m == 0 for t, m in conditions if count(sequence, t) > 0)) and int(stdout.strip()) == count_sequences % 12345",
+        "description": "The output is the count of all valid sequences of length n modulo 12345, where a sequence is valid if it meets the multiplicity conditions for all crime types."
+      },
+      {
+        "id": "Q5",
+        "expression": "crime_types == set() == (n == 0) or (n > 0 and crime_types != set())",
+        "description": "If n > 0, at least one crime type must be provided (c > 0)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"0 <= n <= 10**18 and 0 <= c <= 1000\",\n      \"description\": \"n is the number of crimes (0 ≤ n ≤ 10¹⁸) and c is the number of conditions (0 ≤ c ≤ 1000).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= m <= 123 for (t, m) in conditions) and len(set(t for t, m in conditions)) <= 26\",\n      \"description\": \"Each condition consists of a crime type (capital Latin letter) and a positive integer multiplicity (1 ≤ m ≤ 123). The product of all multiplicities does not exceed 123, and there are at most 26 unique crime types.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"conditions == [] or all(isinstance(t, str) and len(t) == 1 and t.isupper() for t, m in conditions)\",\n      \"description\": \"Each crime type is a single uppercase Latin letter.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"stdin.splitlines()[0].strip().split() == ['n', 'c'] or (n == 0 and c == 0)\",\n      \"description\": \"If n and c are provided, the first line is 'n c'; if n=0 and c=0, input is empty (edge case).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) < 12345\",\n      \"description\": \"Output is a non-negative integer modulo 12345 representing the number of valid sequences.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"crime_types := {t for t, m in conditions} and len(crime_types) == 0 == (n == 0)\",\n      \"description\": \"If no crime types are listed (c=0), the only valid sequence is the empty sequence (n=0).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(t in crime_types for t in sequence) and len(sequence) == n and all(count(sequence, t) % m == 0 for t, m in conditions if count(sequence, t) > 0)\",\n      \"description\": \"For each valid sequence of length n, every crime type in the sequence must be in crime_types, and for each crime type t with multiplicity m, the count of t in the sequence must be a multiple of m (or zero).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"count_sequences := sum(1 for sequence in product(crime_types, repeat=n) if all(count(sequence, t) % m == 0 for t, m in conditions if count(sequence, t) > 0)) and int(stdout.strip()) == count_sequences % 12345\",\n      \"description\": \"The output is the count of all valid sequences of length n modulo 12345, where a sequence is valid if it meets the multiplicity conditions for all crime types.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"crime_types == set() == (n == 0) or (n > 0 and crime_types != set())\",\n      \"description\": \"If n > 0, at least one crime type must be provided (c > 0).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1742,
+  "generated_tokens": 862,
+  "hit_output_limit": false,
+  "generation_seconds": 38.282,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:23:33.438606+00:00"
+}

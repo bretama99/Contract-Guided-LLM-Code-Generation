@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_8390",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(q_line.strip()) <= 1000 and q_line.strip().isdigit()",
+        "description": "The first line of input is a single integer q (1 ≤ q ≤ 1000) representing the number of events."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 4 and line.split()[0] == '1' and line.split()[1].isdigit() and line.split()[2].isdigit() and line.split()[3].isdigit() for line in event_lines if line.split()[0] == '1')",
+        "description": "For each event of type 1 (rule creation), the line is formatted as '1 v u w' where v, u, and w are positive integers (1 ≤ v, u ≤ 10^18, v ≠ u, 1 ≤ w ≤ 10^9)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 3 and line.split()[0] == '2' and line.split()[1].isdigit() and line.split()[2].isdigit() for line in event_lines if line.split()[0] == '2')",
+        "description": "For each event of type 2 (Barney's trip), the line is formatted as '2 v u' where v and u are positive integers (1 ≤ v, u ≤ 10^18, v ≠ u)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(v) <= 10**18 and 1 <= int(u) <= 10**18 and int(v) != int(u) for line in event_lines for v, u in [(line.split()[1], line.split()[2])] if line.split()[0] in ['1', '2'])",
+        "description": "For all events, v and u are positive integers (1 ≤ v, u ≤ 10^18) and v ≠ u."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(w) <= 10**9 for line in event_lines if line.split()[0] == '1' for w in [line.split()[3]])",
+        "description": "For events of type 1, w is a positive integer (1 ≤ w ≤ 10^9)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(line.strip() in ['1', '2'] for line in event_lines)",
+        "description": "Each line in the input (after the first line) is either a type 1 or type 2 event."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output_line.strip().isdigit() or output_line.strip() == '0' for output_line in stdout.splitlines() if output_line.strip() != '')",
+        "description": "For each type 2 event, the output is a non-negative integer representing the total passing fee of the shortest path from v to u."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(stdout.splitlines()) == sum(1 for line in event_lines if line.split()[0] == '2')",
+        "description": "The number of output lines equals the number of type 2 events in the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(0 <= int(output_line) <= 10**18 for output_line in stdout.splitlines() if output_line.strip() != '')",
+        "description": "Each output line is a non-negative integer representing the sum of passing fees on the shortest path, bounded by the maximum possible sum given constraints."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(shortest_path_fee(v, u, rules) == int(output_line) for (v, u), output_line in zip([(int(line.split()[1]), int(line.split()[2])) for line in event_lines if line.split()[0] == '2'], stdout.splitlines()) if output_line.strip() != '')",
+        "description": "For each type 2 event (v, u), the output line is the sum of passing fees on the shortest path from v to u, computed using the rules applied up to that event. The function `shortest_path_fee(v, u, rules)` is defined as the sum of fees on the unique shortest path between v and u, where `rules` is a list of tuples (u_rule, v_rule, w) representing the applied rules up to that event."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(q_line.strip()) <= 1000 and q_line.strip().isdigit()\",\n      \"description\": \"The first line of input is a single integer q (1 ≤ q ≤ 1000) representing the number of events.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 4 and line.split()[0] == '1' and line.split()[1].isdigit() and line.split()[2].isdigit() and line.split()[3].isdigit() for line in event_lines if line.split()[0] == '1')\",\n      \"description\": \"For each event of type 1 (rule creation), the line is formatted as '1 v u w' where v, u, and w are positive integers (1 ≤ v, u ≤ 10^18, v ≠ u, 1 ≤ w ≤ 10^9).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 3 and line.split()[0] == '2' and line.split()[1].isdigit() and line.split()[2].isdigit() for line in event_lines if line.split()[0] == '2')\",\n      \"description\": \"For each event of type 2 (Barney's trip), the line is formatted as '2 v u' where v and u are positive integers (1 ≤ v, u ≤ 10^18, v ≠ u).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(v) <= 10**18 and 1 <= int(u) <= 10**18 and int(v) != int(u) for line in event_lines for v, u in [(line.split()[1], line.split()[2])] if line.split()[0] in ['1', '2'])\",\n      \"description\": \"For all events, v and u are positive integers (1 ≤ v, u ≤ 10^18) and v ≠ u.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(w) <= 10**9 for line in event_lines if line.split()[0] == '1' for w in [line.split()[3]])\",\n      \"description\": \"For events of type 1, w is a positive integer (1 ≤ w ≤ 10^9).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(line.strip() in ['1', '2'] for line in event_lines)\",\n      \"description\": \"Each line in the input (after the first line) is either a type 1 or type 2 event.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output_line.strip().isdigit() or output_line.strip() == '0' for output_line in stdout.splitlines() if output_line.strip() != '')\",\n      \"description\": \"For each type 2 event, the output is a non-negative integer representing the total passing fee of the shortest path from v to u.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(stdout.splitlines()) == sum(1 for line in event_lines if line.split()[0] == '2')\",\n      \"description\": \"The number of output lines equals the number of type 2 events in the input.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(0 <= int(output_line) <= 10**18 for output_line in stdout.splitlines() if output_line.strip() != '')\",\n      \"description\": \"Each output line is a non-negative integer representing the sum of passing fees on the shortest path, bounded by the maximum possible sum given constraints.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(shortest_path_fee(v, u, rules) == int(output_line) for (v, u), output_line in zip([(int(line.split()[1]), int(line.split()[2])) for line in event_lines if line.split()[0] == '2'], stdout.splitlines()) if output_line.strip() != '')\",\n      \"description\": \"For each type 2 event (v, u), the output line is the sum of passing fees on the shortest path from v to u, computed using the rules applied up to that event. The function `shortest_path_fee(v, u, rules)` is defined as the sum of fees on the unique shortest path between v and u, where `rules` is a list of tuples (u_rule, v_rule, w) representing the applied rules up to that event.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1784,
+  "generated_tokens": 1103,
+  "hit_output_limit": false,
+  "generation_seconds": 53.541,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:05:22.214640+00:00"
+}

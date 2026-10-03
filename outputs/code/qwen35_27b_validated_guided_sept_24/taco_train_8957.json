@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_8957",
+  "task_index": 984,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_8957.json",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    k = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    parents = [0] * (n + 1)\n    \n    for i in range(2, n + 1):\n        p = int(next(iterator))\n        parents[i] = p\n        adj[p].append(i)\n    \n    leaves = []\n    depths = [0] * (n + 1)\n    \n    q = deque([1])\n    depths[1] = 0\n    \n    while q:\n        u = q.popleft()\n        if adj[u]:\n            for v in adj[u]:\n                depths[v] = depths[u] + 1\n                q.append(v)\n        else:\n            if u != 1:\n                leaves.append(u)\n    \n    if not leaves:\n        print(0)\n        return\n    \n    def get_ancestor(u, steps):\n        while steps > 0:\n            u = parents[u]\n            steps -= 1\n        return u\n    \n    min_depths = {}\n    \n    for leaf in leaves:\n        d = depths[leaf]\n        if d <= k:\n            min_depths[leaf] = 0\n        else:\n            anc = get_ancestor(leaf, k)\n            min_depths[leaf] = depths[anc]\n    \n    sorted_leaves = sorted(leaves, key=lambda x: min_depths[x])\n    \n    max_visited = 0\n    current_min_depth = float('inf')\n    \n    for leaf in sorted_leaves:\n        req_depth = min_depths[leaf]\n        if req_depth >= current_min_depth:\n            continue\n        current_min_depth = req_depth\n        max_visited += 1\n    \n    print(max_visited)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 39.095,
+  "generated_at": "2026-09-25T10:04:44.881201+00:00"
+}

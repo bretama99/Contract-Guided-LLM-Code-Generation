@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_5545",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 10**4",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10⁴) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n == int(n) and 1 <= n <= 2 * 10**5 for n in [line.strip() for line in stdin.splitlines()[1::2]])",
+        "description": "For each test case, the first line after t is an integer n (1 ≤ n ≤ 2·10⁵) representing the length of string s."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) == n and all(c in '+-' for c in s) for n, s in zip([int(line) for line in stdin.splitlines()[1::2]], [line.strip() for line in stdin.splitlines()[2::2]]))",
+        "description": "For each test case, the second line is a string s of length n consisting only of '+' and '-' characters."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(int(n) for n in [line.strip() for line in stdin.splitlines()[1::2]]) <= 2 * 10**5",
+        "description": "The sum of all n across test cases does not exceed 2·10⁵."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(str(count_promising_substrings(s)) for s in [line.strip() for line in stdin.splitlines()[2::2]]) + '\\n'",
+        "description": "For each test case, the output is a single integer: the count of non-empty promising substrings in s. A substring is promising if it can be made balanced by replacing adjacent '--' with '+' any number of times (including zero). A balanced string has equal counts of '+' and '-'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(count_promising_substrings(s) == sum(1 for i in range(len(s)) for j in range(i + 1, len(s) + 1) if is_promising(s[i:j])) for s in [line.strip() for line in stdin.splitlines()[2::2]])",
+        "description": "The count is computed by enumerating all non-empty substrings of s and summing 1 for each substring that is promising. A substring s[i:j] is promising if there exists a sequence of operations (replacing '--' with '+') that transforms it into a balanced string."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(is_promising(substring) == (min_plus_minus(substring) <= 0) for substring in [s[i:j] for s in [line.strip() for line in stdin.splitlines()[2::2]] for i in range(len(s)) for j in range(i + 1, len(s) + 1)])",
+        "description": "A substring is promising if and only if the minimum possible difference between the number of '+' and '-' signs (after optimally applying operations) is ≤ 0. The operation reduces the count of '-' by 2 and increases '+' by 1 each time, so the difference (plus_count - minus_count) changes by +3 per operation. The minimum difference is computed as: (plus_count - minus_count) - 3 * max_possible_operations, where max_possible_operations is the maximum number of '--' pairs that can be replaced."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and 1 <= t <= 10**4\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10⁴) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(n == int(n) and 1 <= n <= 2 * 10**5 for n in [line.strip() for line in stdin.splitlines()[1::2]])\",\n      \"description\": \"For each test case, the first line after t is an integer n (1 ≤ n ≤ 2·10⁵) representing the length of string s.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(s) == n and all(c in '+-' for c in s) for n, s in zip([int(line) for line in stdin.splitlines()[1::2]], [line.strip() for line in stdin.splitlines()[2::2]]))\",\n      \"description\": \"For each test case, the second line is a string s of length n consisting only of '+' and '-' characters.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"sum(int(n) for n in [line.strip() for line in stdin.splitlines()[1::2]]) <= 2 * 10**5\",\n      \"description\": \"The sum of all n across test cases does not exceed 2·10⁵.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '\\\\n'.join(str(count_promising_substrings(s)) for s in [line.strip() for line in stdin.splitlines()[2::2]]) + '\\\\n'\",\n      \"description\": \"For each test case, the output is a single integer: the count of non-empty promising substrings in s. A substring is promising if it can be made balanced by replacing adjacent '--' with '+' any number of times (including zero). A balanced string has equal counts of '+' and '-'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(count_promising_substrings(s) == sum(1 for i in range(len(s)) for j in range(i + 1, len(s) + 1) if is_promising(s[i:j])) for s in [line.strip() for line in stdin.splitlines()[2::2]])\",\n      \"description\": \"The count is computed by enumerating all non-empty substrings of s and summing 1 for each substring that is promising. A substring s[i:j] is promising if there exists a sequence of operations (replacing '--' with '+') that transforms it into a balanced string.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(is_promising(substring) == (min_plus_minus(substring) <= 0) for substring in [s[i:j] for s in [line.strip() for line in stdin.splitlines()[2::2]] for i in range(len(s)) for j in range(i + 1, len(s) + 1)])\",\n      \"description\": \"A substring is promising if and only if the minimum possible difference between the number of '+' and '-' signs (after optimally applying operations) is ≤ 0. The operation reduces the count of '-' by 2 and increases '+' by 1 each time, so the difference (plus_count - minus_count) changes by +3 per operation. The minimum difference is computed as: (plus_count - minus_count) - 3 * max_possible_operations, where max_possible_operations is the maximum number of '--' pairs that can be replaced.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1701,
+  "generated_tokens": 889,
+  "hit_output_limit": false,
+  "generation_seconds": 40.544,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:37:45.693817+00:00"
+}

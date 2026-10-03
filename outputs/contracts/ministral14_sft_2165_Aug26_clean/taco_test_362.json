@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_362",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and t > 0 and t <= 10**5",
+        "description": "The number of test cases t is an integer between 1 and 10^5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n == int(n) and n > 0 and n <= 10**5 for n in [int(line) for line in stdin_lines[1::2]])",
+        "description": "For each test case, n is an integer between 1 and 10^5 inclusive, where 2n is the length of the binary string."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) == 2 * int(n) and all(c in {'0', '1'} for c in s) for n, s in zip([int(line) for line in stdin_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)]))",
+        "description": "For each test case, the binary string s has length exactly 2n and consists only of characters '0' and '1'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_lines) == 2 * t or (len(stdout_lines) == 2 * t - 1 and '-1' in stdout_lines[-1]) for t in [int(stdin_lines[0])])",
+        "description": "For each test case, the output is either two lines (m and p indices) or one line with '-1' if no solution exists."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((m == -1 or (m == int(m) and 0 <= m <= 2 * int(n))) for m, n in zip([int(line) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the first line of the output contains an integer m (0 ≤ m ≤ 2n) representing the number of indices in the subsequence to rotate."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((m == -1 or (len(b_indices) == m and all(1 <= int(b) <= 2 * int(n) for b in b_indices) and len(set(b_indices)) == m)) for m, b_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the first line of the output contains m distinct indices b_1, ..., b_m in increasing order, where 1 ≤ b_i ≤ 2n."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((m == -1 or (len(p_indices) == int(n) and all(1 <= int(p) <= 2 * int(n) for p in p_indices) and len(set(p_indices)) == int(n)) for m, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the second line of the output contains n distinct indices p_1, ..., p_n in increasing order, where 1 ≤ p_i ≤ 2n."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((m == -1 or (len(set(b_indices).union(set(p_indices))) == 2 * int(n) and len(set(b_indices).intersection(set(p_indices))) == 0)) for m, b_indices, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the indices b_1, ..., b_m and p_1, ..., p_n are disjoint and cover all indices from 1 to 2n exactly once."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((m == -1 or (s_rotated := list(s), [s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[i - 1]]) if i > 0 else s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[-1]]) for i in range(m)], s_p := ''.join([s_rotated[p - 1] for p in p_indices]), s_q := ''.join([s_rotated[q - 1] for q in range(1, 2 * int(n) + 1) if q not in p_indices]), s_p == s_q)) for m, b_indices, p_indices, s, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, after rotating the subsequence b_1, ..., b_m right by one position, the subsequences s^p and s^q formed by indices p_1, ..., p_n and the remaining indices respectively are equal."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and t > 0 and t <= 10**5\",\n      \"description\": \"The number of test cases t is an integer between 1 and 10^5 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(n == int(n) and n > 0 and n <= 10**5 for n in [int(line) for line in stdin_lines[1::2]])\",\n      \"description\": \"For each test case, n is an integer between 1 and 10^5 inclusive, where 2n is the length of the binary string.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(s) == 2 * int(n) and all(c in {'0', '1'} for c in s) for n, s in zip([int(line) for line in stdin_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)]))\",\n      \"description\": \"For each test case, the binary string s has length exactly 2n and consists only of characters '0' and '1'.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_lines) == 2 * t or (len(stdout_lines) == 2 * t - 1 and '-1' in stdout_lines[-1]) for t in [int(stdin_lines[0])])\",\n      \"description\": \"For each test case, the output is either two lines (m and p indices) or one line with '-1' if no solution exists.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((m == -1 or (m == int(m) and 0 <= m <= 2 * int(n))) for m, n in zip([int(line) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))\",\n      \"description\": \"If a solution exists, the first line of the output contains an integer m (0 ≤ m ≤ 2n) representing the number of indices in the subsequence to rotate.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((m == -1 or (len(b_indices) == m and all(1 <= int(b) <= 2 * int(n) for b in b_indices) and len(set(b_indices)) == m)) for m, b_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))\",\n      \"description\": \"If a solution exists, the first line of the output contains m distinct indices b_1, ..., b_m in increasing order, where 1 ≤ b_i ≤ 2n.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((m == -1 or (len(p_indices) == int(n) and all(1 <= int(p) <= 2 * int(n) for p in p_indices) and len(set(p_indices)) == int(n)) for m, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))\",\n      \"description\": \"If a solution exists, the second line of the output contains n distinct indices p_1, ..., p_n in increasing order, where 1 ≤ p_i ≤ 2n.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((m == -1 or (len(set(b_indices).union(set(p_indices))) == 2 * int(n) and len(set(b_indices).intersection(set(p_indices))) == 0)) for m, b_indices, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))\",\n      \"description\": \"If a solution exists, the indices b_1, ..., b_m and p_1, ..., p_n are disjoint and cover all indices from 1 to 2n exactly once.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all((m == -1 or (s_rotated := list(s), [s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[i - 1]]) if i > 0 else s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[-1]]) for i in range(m)], s_p := ''.join([s_rotated[p - 1] for p in p_indices]), s_q := ''.join([s_rotated[q - 1] for q in range(1, 2 * int(n) + 1) if q not in p_indices]), s_p == s_q)) for m, b_indices, p_indices, s, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))\",\n      \"description\": \"If a solution exists, after rotating the subsequence b_1, ..., b_m right by one position, the subsequences s^p and s^q formed by indices p_1, ..., p_n and the remaining indices respectively are equal.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2075,
+  "generated_tokens": 1424,
+  "hit_output_limit": false,
+  "generation_seconds": 63.538,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:47:39.648606+00:00"
+}

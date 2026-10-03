@@ -1,0 +1,23 @@
+{
+  "task_id": "taco_train_17893",
+  "dataset": "taco",
+  "workflow": "contract_guided",
+  "provider": "local_transformers",
+  "model": "deepseek16-base-from-base-Aug28-clean",
+  "model_type": "deepseek_v2",
+  "attention_implementation": "eager",
+  "starter_code_included": false,
+  "reference_solution_included": false,
+  "contract_path": "outputs/taco/evaluation_25/contracts/deepseek16_base_Aug28_clean/taco_train_17893.json",
+  "contract_source": "parsed_contract",
+  "contract_schema_ok": false,
+  "raw_response": "To solve this problem, we need to count the number of paths of total weight \\( n \\) in a k-tree, where each vertex has \\( k \\) children and the edges have weights from 1 to \\( k \\). Additionally, the path must contain at least one edge with a weight of at least \\( d \\). We will use dynamic programming to achieve this.\n\nHere's the step-by-step approach:\n\n1. **Define the DP States**:\n   - Let `dp[i][j]` represent the number of ways to reach a sum of \\( i \\) using edges with weights from 1 to \\( j \\).\n   - We need to distinguish between paths that include an edge with weight at least \\( d \\) and those that do not.\n\n2. **Initialize the DP Table**:\n   - `dp[0][0] = 1`: There's one way to reach a sum of 0 (by not taking any edges).\n   - Initialize all other `dp[i][j]` to 0.\n\n3. **Fill the DP Table**:\n   - For each weight \\( j \\) from 1 to \\( k \\), update the DP table for all possible sums \\( i \\) from 0 to \\( n \\).\n   - For each \\( i \\) and \\( j \\), update `dp[i][j]` by considering all possible previous sums `dp[i-k][k]` where \\( k \\) ranges from 1 to \\( j \\).\n\n4. **Separate the Counts**:\n   - Let `less_than_d[i]` be the number of ways to reach a sum \\( i \\) without using any edge with weight at least \\( d \\).\n   - Let `at_least_d[i]` be the number of ways to reach a sum \\( i \\) using at least one edge with weight at least \\( d \\).\n   - `at_least_d[i] = dp[i][k] - less_than_d[i]`.\n\n5. **Modulo Operation**:\n   - Since the result can be large, we will take the result modulo \\( 10^9 + 7 \\).\n\nHere's the Python code implementing the above approach:\n\n```python\nMOD = 1000000007\n\ndef count_paths(n, k, d):\n    dp = [[0] * (k + 1) for _ in range(n + 1)]\n    dp[0][0] = 1\n    \n    for i in range(n + 1):\n        for j in range(1, k + 1):\n            for l in range(1, min(j, i) + 1):\n                dp[i][j] = (dp[i][j] + dp[i - l][j - 1]) % MOD\n    \n    less_than_d = [dp[i][k] for i in range(n + 1)]\n    at_least_d = [0] * (n + 1)\n    \n    for i in range(1, n + 1):\n        at_least_d[i] = (dp[i][k] - less_than_d[i] + MOD) % MOD\n    \n    return at_least_d[n]\n\n# Read input\nn, k, d = map(int, input().split())\n\n# Output the result\nprint(count_paths(n, k, d))\n```\n\nThis code reads the input values \\( n \\), \\( k \\), and \\( d \\), and then computes the number of paths of total weight \\( n \\) in a k-tree, starting from the root, containing at least one edge of weight at least \\( d \\), modulo \\( 10^9 + 7 \\).",
+  "code": "MOD = 1000000007\n\ndef count_paths(n, k, d):\n    dp = [[0] * (k + 1) for _ in range(n + 1)]\n    dp[0][0] = 1\n    \n    for i in range(n + 1):\n        for j in range(1, k + 1):\n            for l in range(1, min(j, i) + 1):\n                dp[i][j] = (dp[i][j] + dp[i - l][j - 1]) % MOD\n    \n    less_than_d = [dp[i][k] for i in range(n + 1)]\n    at_least_d = [0] * (n + 1)\n    \n    for i in range(1, n + 1):\n        at_least_d[i] = (dp[i][k] - less_than_d[i] + MOD) % MOD\n    \n    return at_least_d[n]\n\n# Read input\nn, k, d = map(int, input().split())\n\n# Output the result\nprint(count_paths(n, k, d))",
+  "prompt_tokens": 787,
+  "generated_tokens": 846,
+  "max_new_tokens_used": 4096,
+  "hit_output_limit": false,
+  "generation_seconds": 52.121,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T08:17:19.971400+00:00"
+}

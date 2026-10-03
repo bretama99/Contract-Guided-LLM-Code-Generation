@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_1148",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T14:41:10.026974+00:00",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    edges = []\n    index = 1\n    for _ in range(n - 1):\n        u = int(input[index]) - 1\n        v = int(input[index + 1]) - 1\n        x = input[index + 2]\n        edges.append((u, v, x))\n        index += 3\n\n    # Build the tree\n    tree = defaultdict(list)\n    for u, v, x in edges:\n        tree[u].append((v, x))\n\n    # Depth-first search to calculate depths and count occurrences of each letter at each depth\n    depth_counts = defaultdict(lambda: defaultdict(int))\n    max_depth = 0\n\n    def dfs(node, depth):\n        nonlocal max_depth\n        depth_counts[depth][tree[node][0][1] if tree[node] else ''] += 1\n        max_depth = max(max_depth, depth)\n        for child, _ in tree[node]:\n            dfs(child, depth + 1)\n\n    dfs(0, 0)\n\n    # Calculate the minimum broom size for each possible p\n    min_size = n\n    best_p = 1\n    total_nodes = n\n\n    for p in range(1, max_depth + 1):\n        current_size = total_nodes\n        for letter, count in depth_counts[p].items():\n            if count > 1:\n                current_size -= count - 1\n        if current_size < min_size:\n            min_size = current_size\n            best_p = p\n\n    print(min_size)\n    print(best_p)\n\nif __name__ == \"__main__\":\n    main()"
+}

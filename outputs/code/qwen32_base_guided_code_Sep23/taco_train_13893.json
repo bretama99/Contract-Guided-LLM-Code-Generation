@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13893",
+  "task_index": 726,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_13893.json",
+  "code": "import sys\nfrom math import gcd\nfrom collections import defaultdict\n\ndef euler_totient(n):\n    result = n\n    p = 2\n    while p * p <= n:\n        if n % p == 0:\n            while n % p == 0:\n                n //= p\n            result -= result // p\n        p += 1\n    if n > 1:\n        result -= result // n\n    return result\n\ndef mod_inverse(a, m):\n    m0, x0, x1 = m, 0, 1\n    if m == 1:\n        return 0\n    while a > 1:\n        q = a // m\n        m, a = a % m, m\n        x0, x1 = x1 - q * x0, x0\n    if x1 < 0:\n        x1 += m0\n    return x1\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n    edges = [(int(input[i]) - 1, int(input[i+1]) - 1) for i in range(n+1, 2*n)]\n    \n    adj = defaultdict(list)\n    for x, y in edges:\n        adj[x].append(y)\n        adj[y].append(x)\n    \n    depth = [0] * n\n    parent = [-1] * n\n    stack = [(0, 0)]\n    while stack:\n        node, d = stack.pop()\n        depth[node] = d\n        for neighbor in adj[node]:\n            if neighbor != parent[node]:\n                parent[neighbor] = node\n                stack.append((neighbor, d + 1))\n    \n    subtree_size = [1] * n\n    for node in range(n-1, -1, -1):\n        for neighbor in adj[node]:\n            if neighbor != parent[node]:\n                subtree_size[node] += subtree_size[neighbor]\n    \n    total_sum = 0\n    for u in range(n):\n        for v in adj[u]:\n            if parent[v] == u:\n                size_u = subtree_size[u]\n                size_v = subtree_size[v]\n                product = a[u] * a[v]\n                phi_product = euler_totient(product)\n                dist = depth[v] - depth[u]\n                total_sum += phi_product * dist * size_u * size_v\n    \n    P = total_sum\n    Q = n * (n - 1)\n    Q_inv = mod_inverse(Q, 1000000007)\n    result = (P * Q_inv - 1) % 1000000007\n    print(result)\n\nmain()",
+  "generation_seconds": 52.793,
+  "generated_at": "2026-09-23T21:17:37.207480+00:00"
+}

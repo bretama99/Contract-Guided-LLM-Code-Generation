@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_15873",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 500",
+        "description": "The first line of input is an integer n, where 1 ≤ n ≤ 500, representing the number of files."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()[1].split()) == int(stdin.splitlines()[0])",
+        "description": "The second line contains exactly n distinct file names, each a string of 1 to 8 lowercase letters."
+      },
+      {
+        "id": "P3",
+        "expression": "all('import' in line for line in stdin.splitlines()[2:])",
+        "description": "Each of the n sections starts with a file name followed by an integer k, then k lines starting with 'import'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(',' in line or 'import' == line.split()[0] for line in stdin.splitlines()[2:])",
+        "description": "Each 'import' line is either a single file name or comma-space separated list of file names, with no duplicates per line."
+      },
+      {
+        "id": "P5",
+        "expression": "all(file in stdin.splitlines()[1].split() for file in set().union(*[line.split()[1:].split(', ') for line in stdin.splitlines()[2:] if 'import' in line]))",
+        "description": "All imported files are listed in the second line of input."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'SHIP IT' if not any(cycle_exists(files, dependencies) for cycle in find_cycles(files, dependencies)) else any(all(files[dependencies[files.index(cycle[i])].index(cycle[(i+1) % len(cycle)])] == cycle[(i+1) % len(cycle)] for i in range(len(cycle))) for cycle in find_cycles(files, dependencies))",
+        "description": "If no dependency cycle exists, output 'SHIP IT'. Otherwise, output a shortest cycle as a space-separated list of file names in order, where each file imports the next, and the last imports the first."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(cycle) <= len(c) for c in find_cycles(files, dependencies) if stdout.strip() == ' '.join(cycle)",
+        "description": "If a cycle is output, it must be a shortest cycle (minimal length)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(stdin.splitlines()[0]) <= 500\",\n      \"description\": \"The first line of input is an integer n, where 1 ≤ n ≤ 500, representing the number of files.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()[1].split()) == int(stdin.splitlines()[0])\",\n      \"description\": \"The second line contains exactly n distinct file names, each a string of 1 to 8 lowercase letters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all('import' in line for line in stdin.splitlines()[2:])\",\n      \"description\": \"Each of the n sections starts with a file name followed by an integer k, then k lines starting with 'import'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(',' in line or 'import' == line.split()[0] for line in stdin.splitlines()[2:])\",\n      \"description\": \"Each 'import' line is either a single file name or comma-space separated list of file names, with no duplicates per line.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(file in stdin.splitlines()[1].split() for file in set().union(*[line.split()[1:].split(', ') for line in stdin.splitlines()[2:] if 'import' in line]))\",\n      \"description\": \"All imported files are listed in the second line of input.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'SHIP IT' if not any(cycle_exists(files, dependencies) for cycle in find_cycles(files, dependencies)) else any(all(files[dependencies[files.index(cycle[i])].index(cycle[(i+1) % len(cycle)])] == cycle[(i+1) % len(cycle)] for i in range(len(cycle))) for cycle in find_cycles(files, dependencies))\",\n      \"description\": \"If no dependency cycle exists, output 'SHIP IT'. Otherwise, output a shortest cycle as a space-separated list of file names in order, where each file imports the next, and the last imports the first.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(cycle) <= len(c) for c in find_cycles(files, dependencies) if stdout.strip() == ' '.join(cycle)\",\n      \"description\": \"If a cycle is output, it must be a shortest cycle (minimal length).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1618,
+  "generated_tokens": 649,
+  "hit_output_limit": false,
+  "generation_seconds": 28.046,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:06:20.969333+00:00"
+}

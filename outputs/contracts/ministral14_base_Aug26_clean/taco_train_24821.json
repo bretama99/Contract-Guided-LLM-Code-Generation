@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_24821",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1]) and all(0 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1])",
+        "description": "The first line contains two integers N (1 ≤ N ≤ 10^5) and M (0 ≤ M ≤ 10^5), where N is the number of tasks and M is the number of dependencies."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == M + 2 and all(len(line.split()) == N for line in stdin.splitlines()[1:2]) and all(len(line.split()) == 2 for line in stdin.splitlines()[2:])",
+        "description": "The input has exactly M + 2 lines: the first line with N and M, the second line with N integers (0 or 1) representing task execution constraints, and M lines with two integers each representing dependencies."
+      },
+      {
+        "id": "P3",
+        "expression": "all(e in {0, 1} for e in map(int, stdin.splitlines()[1].split()))",
+        "description": "Each of the N integers in the second line is either 0 (main processor) or 1 (coprocessor)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= int(t1) < int(t2) < N for line in stdin.splitlines()[2:] for t1, t2 in [line.split()] if int(t1) != int(t2))",
+        "description": "Each dependency (T1, T2) has distinct tasks T1 ≠ T2, and all tasks are indexed from 0 to N-1."
+      },
+      {
+        "id": "P5",
+        "expression": "not any((t1, t2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] for t1, t2 in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] if t1 == t2)",
+        "description": "No task depends on itself (T1 ≠ T2)."
+      },
+      {
+        "id": "P6",
+        "expression": "not any((t1, t2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] for t1, t2 in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] if t1 == t2 or (t2, t1) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]])",
+        "description": "The dependency graph is a directed acyclic graph (no circular dependencies)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= N",
+        "description": "The output is a single integer representing the minimal number of coprocessor calls required to execute all tasks."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(line.split()[0]) < N and 0 <= int(line.split()[1]) < N for line in stdin.splitlines()[2:])",
+        "description": "The output integer is derived from a valid dependency graph and coprocessor constraints."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(e) == 1 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 1) and all(int(e) == 0 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 0)",
+        "description": "The output integer is the minimal number of coprocessor calls needed to execute all coprocessor tasks (E_i = 1) such that for each call, all dependencies of tasks in the call are either already completed or included in the same call."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(e) == 0 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 0) or (all(int(e) == 1 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 1) and int(stdout.strip()) == 1)",
+        "description": "If there are no coprocessor tasks (all E_i = 0), the output is 0. If all tasks are coprocessor tasks (all E_i = 1), the output is 1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1]) and all(0 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines()[0:1])\",\n      \"description\": \"The first line contains two integers N (1 ≤ N ≤ 10^5) and M (0 ≤ M ≤ 10^5), where N is the number of tasks and M is the number of dependencies.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == M + 2 and all(len(line.split()) == N for line in stdin.splitlines()[1:2]) and all(len(line.split()) == 2 for line in stdin.splitlines()[2:])\",\n      \"description\": \"The input has exactly M + 2 lines: the first line with N and M, the second line with N integers (0 or 1) representing task execution constraints, and M lines with two integers each representing dependencies.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(e in {0, 1} for e in map(int, stdin.splitlines()[1].split()))\",\n      \"description\": \"Each of the N integers in the second line is either 0 (main processor) or 1 (coprocessor).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= int(t1) < int(t2) < N for line in stdin.splitlines()[2:] for t1, t2 in [line.split()] if int(t1) != int(t2))\",\n      \"description\": \"Each dependency (T1, T2) has distinct tasks T1 ≠ T2, and all tasks are indexed from 0 to N-1.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"not any((t1, t2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] for t1, t2 in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] if t1 == t2)\",\n      \"description\": \"No task depends on itself (T1 ≠ T2).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"not any((t1, t2) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] for t1, t2 in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]] if t1 == t2 or (t2, t1) in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[2:]])\",\n      \"description\": \"The dependency graph is a directed acyclic graph (no circular dependencies).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= N\",\n      \"description\": \"The output is a single integer representing the minimal number of coprocessor calls required to execute all tasks.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(line.split()[0]) < N and 0 <= int(line.split()[1]) < N for line in stdin.splitlines()[2:])\",\n      \"description\": \"The output integer is derived from a valid dependency graph and coprocessor constraints.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(e) == 1 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 1) and all(int(e) == 0 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 0)\",\n      \"description\": \"The output integer is the minimal number of coprocessor calls needed to execute all coprocessor tasks (E_i = 1) such that for each call, all dependencies of tasks in the call are either already completed or included in the same call.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(e) == 0 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 0) or (all(int(e) == 1 for e in map(int, stdin.splitlines()[1].split()) if int(e) == 1) and int(stdout.strip()) == 1)\",\n      \"description\": \"If there are no coprocessor tasks (all E_i = 0), the output is 0. If all tasks are coprocessor tasks (all E_i = 1), the output is 1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1718,
+  "generated_tokens": 1134,
+  "hit_output_limit": false,
+  "generation_seconds": 50.355,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:54:27.467994+00:00"
+}

@@ -1,0 +1,358 @@
+{
+  "task_id": "taco_train_16246",
+  "task_index": 950,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= n <= 2000",
+        "description": "The number of points n must be between 3 and 2000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(-10**9 <= x <= 10**9 and -10**9 <= y <= 10**9 for x, y in points)",
+        "description": "All point coordinates must be within the range [-10^9, 10^9]."
+      },
+      {
+        "id": "P3",
+        "expression": "len(points) == n and len(set(points)) == n",
+        "description": "There must be exactly n unique points."
+      },
+      {
+        "id": "P4",
+        "expression": "len(s) == n - 2 and all(c in 'LR' for c in s)",
+        "description": "The string s must have length n-2 and consist only of 'L' and 'R' characters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (len(stdout.split()) == n and all(1 <= int(p) <= n for p in stdout.split()) and len(set(stdout.split())) == n)",
+        "description": "The output must either be '-1' indicating no valid permutation, or a permutation of n unique integers from 1 to n."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((turns[i] == 'L' and s[i] == 'L') or (turns[i] == 'R' and s[i] == 'R') for i in range(n-2))",
+        "description": "The polygonal line must satisfy the winding condition specified by the string s."
+      },
+      {
+        "id": "Q3",
+        "expression": "not any(intersects(i, j) for i in range(n-1) for j in range(i+2, n))",
+        "description": "The polygonal line must be non-self-intersecting."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= n <= 2000",
+        "description": "The number of points n must be between 3 and 2000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(-10**9 <= x <= 10**9 and -10**9 <= y <= 10**9 for x, y in points)",
+        "description": "All point coordinates must be within the range [-10^9, 10^9]."
+      },
+      {
+        "id": "P3",
+        "expression": "len(points) == n and len(set(points)) == n",
+        "description": "There must be exactly n unique points."
+      },
+      {
+        "id": "P4",
+        "expression": "len(s) == n - 2 and all(c in 'LR' for c in s)",
+        "description": "The string s must have length n-2 and consist only of 'L' and 'R' characters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (len(stdout.split()) == n and all(1 <= int(p) <= n for p in stdout.split()) and len(set(stdout.split())) == n)",
+        "description": "The output must either be '-1' indicating no valid permutation, or a permutation of n unique integers from 1 to n."
+      },
+      {
+        "id": "Q2",
+        "expression": "any(turns[i] == s[i] for i in range(n-2))",
+        "description": "The polygonal line must satisfy the winding condition specified by the string s."
+      },
+      {
+        "id": "Q3",
+        "expression": "not any(intersects(i, j) for i in range(n-1) for j in range(i+2, n))",
+        "description": "The polygonal line must be non-self-intersecting."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "73fdb766c20b3f2c1f4755ea34a53b29943443579b43d8b16f144f56d913dec1",
+  "selected_contract_fingerprint": "44ed25043010e8d5a05b9aab8979d9e5cbd60a66e3e7be5fe69e957b82fb33f1",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/qwen14_sft_2165_Aug27_passopt/taco_train_16246.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Replace the expression to correctly check the winding condition for all turns.",
+      "task_evidence": "Let's define vectors \\overrightarrow{v_1} = \\overrightarrow{A_{p_i} A_{p_{i+1}}} and \\overrightarrow{v_2} = \\overrightarrow{A_{p_{i+1}} A_{p_{i+2}}}. Then if in order to rotate the vector \\overrightarrow{v_1} by the smallest possible angle, so that its direction coincides with the direction of the vector \\overrightarrow{v_2} we need to make a turn counterclockwise, then we say that i-th turn is to the left, and otherwise to the right.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Replace the expression to correctly check the winding condition for all turns.",
+      "task_evidence": "Let's define vectors \\overrightarrow{v_1} = \\overrightarrow{A_{p_i} A_{p_{i+1}}} and \\overrightarrow{v_2} = \\overrightarrow{A_{p_{i+1}} A_{p_{i+2}}}. Then if in order to rotate the vector \\overrightarrow{v_1} by the smallest possible angle, so that its direction coincides with the direction of the vector \\overrightarrow{v_2} we need to make a turn counterclockwise, then we say that i-th turn is to the left, and otherwise to the right.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly check the winding condition for all turns.",
+        "task_evidence": "Let's define vectors \\overrightarrow{v_1} = \\overrightarrow{A_{p_i} A_{p_{i+1}}} and \\overrightarrow{v_2} = \\overrightarrow{A_{p_{i+1}} A_{p_{i+2}}}. Then if in order to rotate the vector \\overrightarrow{v_1} by the smallest possible angle, so that its direction coincides with the direction of the vector \\overrightarrow{v_2} we need to make a turn counterclockwise, then we say that i-th turn is to the left, and otherwise to the right.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly check the winding condition for all turns.",
+        "task_evidence": "Let's define vectors \\overrightarrow{v_1} = \\overrightarrow{A_{p_i} A_{p_{i+1}}} and \\overrightarrow{v_2} = \\overrightarrow{A_{p_{i+1}} A_{p_{i+2}}}. Then if in order to rotate the vector \\overrightarrow{v_1} by the smallest possible angle, so that its direction coincides with the direction of the vector \\overrightarrow{v_2} we need to make a turn counterclockwise, then we say that i-th turn is to the left, and otherwise to the right.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly check the winding condition for all turns.",
+        "task_evidence": "Let's define vectors \\overrightarrow{v_1} = \\overrightarrow{A_{p_i} A_{p_{i+1}}} and \\overrightarrow{v_2} = \\overrightarrow{A_{p_{i+1}} A_{p_{i+2}}}. Then if in order to rotate the vector \\overrightarrow{v_1} by the smallest possible angle, so that its direction coincides with the direction of the vector \\overrightarrow{v_2} we need to make a turn counterclockwise, then we say that i-th turn is to the left, and otherwise to the right.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "3 <= n <= 2000",
+          "description": "The number of points n must be between 3 and 2000."
+        },
+        {
+          "id": "P2",
+          "expression": "all(-10**9 <= x <= 10**9 and -10**9 <= y <= 10**9 for x, y in points)",
+          "description": "All point coordinates must be within the range [-10^9, 10^9]."
+        },
+        {
+          "id": "P3",
+          "expression": "len(points) == n and len(set(points)) == n",
+          "description": "There must be exactly n unique points."
+        },
+        {
+          "id": "P4",
+          "expression": "len(s) == n - 2 and all(c in 'LR' for c in s)",
+          "description": "The string s must have length n-2 and consist only of 'L' and 'R' characters."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout == '-1' or (len(stdout.split()) == n and all(1 <= int(p) <= n for p in stdout.split()) and len(set(stdout.split())) == n)",
+          "description": "The output must either be '-1' indicating no valid permutation, or a permutation of n unique integers from 1 to n."
+        },
+        {
+          "id": "Q2",
+          "expression": "all((turns[i] == 'L' and s[i] == 'L') or (turns[i] == 'R' and s[i] == 'R') for i in range(n-2))",
+          "description": "The polygonal line must satisfy the winding condition specified by the string s."
+        },
+        {
+          "id": "Q3",
+          "expression": "not any(intersects(i, j) for i in range(n-1) for j in range(i+2, n))",
+          "description": "The polygonal line must be non-self-intersecting."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "Replace the expression to correctly check the winding condition for all turns.",
+          "task_evidence": "Let's define vectors \\overrightarrow{v_1} = \\overrightarrow{A_{p_i} A_{p_{i+1}}} and \\overrightarrow{v_2} = \\overrightarrow{A_{p_{i+1}} A_{p_{i+2}}}. Then if in order to rotate the vector \\overrightarrow{v_1} by the smallest possible angle, so that its direction coincides with the direction of the vector \\overrightarrow{v_2} we need to make a turn counterclockwise, then we say that i-th turn is to the left, and otherwise to the right.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q2",
+          "expression": "all((turns[i] == 'L' and s[i] == 'L') or (turns[i] == 'R' and s[i] == 'R') for i in range(n-2))",
+          "description": "The polygonal line must satisfy the winding condition specified by the string s."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "44ed25043010e8d5a05b9aab8979d9e5cbd60a66e3e7be5fe69e957b82fb33f1",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 1
+  },
+  "repair_attempts_used": 1,
+  "model": {
+    "model_name": "qwen14_sft_actionable_u1_200",
+    "model_path": "/local/data/huggingface/brhanet/models/Qwen2.5-Coder-14B-Instruct",
+    "adapter_path": "outputs/finetuning/qwen2_5_coder_14b_taco_first_sft_lora/final_adapter",
+    "model_type": "qwen2",
+    "attention_implementation": "sdpa",
+    "context_length": 32768,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 17.025,
+  "processing_error": null,
+  "finished_at": "2026-09-03T14:04:49.073467+00:00"
+}

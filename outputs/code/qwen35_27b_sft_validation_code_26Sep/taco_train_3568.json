@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_3568",
+  "task_index": 307,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_3568.json",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        V = int(next(iterator))\n    except StopIteration:\n        return\n    \n    adj = [[] for _ in range(V)]\n    \n    for i in range(V):\n        try:\n            line_part = next(iterator)\n            parts = line_part.split(',')\n            neighbors = []\n            for p in parts:\n                if p.strip():\n                    neighbors.append(int(p.strip()))\n            adj[i] = neighbors\n        except StopIteration:\n            break\n    \n    in_degree = [0] * V\n    rev_adj = [[] for _ in range(V)]\n    \n    for u in range(V):\n        for v in adj[u]:\n            rev_adj[v].append(u)\n            in_degree[u] += 1\n    \n    queue = deque()\n    for i in range(V):\n        if in_degree[i] == 0:\n            queue.append(i)\n    \n    safe = [False] * V\n    \n    while queue:\n        node = queue.popleft()\n        safe[node] = True\n        for neighbor in rev_adj[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    result = [i for i in range(V) if safe[i]]\n    result.sort()\n    \n    print(\" \".join(map(str, result)))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 33.966,
+  "generated_at": "2026-09-26T22:41:30.836902+00:00"
+}

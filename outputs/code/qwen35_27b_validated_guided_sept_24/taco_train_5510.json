@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_5510",
+  "task_index": 639,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_5510.json",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        V = int(next(iterator))\n    except StopIteration:\n        return\n    \n    adj = []\n    for _ in range(V):\n        line_parts = []\n        while True:\n            try:\n                val = next(iterator)\n                if val.isdigit() or (val.startswith('-') and val[1:].isdigit()):\n                    line_parts.append(int(val))\n                else:\n                    break\n            except StopIteration:\n                break\n        adj.append(line_parts)\n    \n    if V == 0:\n        print(0)\n        return\n    \n    degrees = [0] * V\n    for u in range(V):\n        for v in adj[u]:\n            degrees[u] += 1\n    \n    odd_degree_count = 0\n    for d in degrees:\n        if d % 2 != 0:\n            odd_degree_count += 1\n    \n    def is_connected(start, visited, adj_list):\n        queue = deque([start])\n        visited[start] = True\n        while queue:\n            u = queue.popleft()\n            for v in adj_list[u]:\n                if not visited[v]:\n                    visited[v] = True\n                    queue.append(v)\n    \n    non_isolated_vertices = [i for i in range(V) if degrees[i] > 0]\n    \n    if not non_isolated_vertices:\n        if odd_degree_count == 0:\n            print(2)\n        else:\n            print(0)\n        return\n    \n    start_node = non_isolated_vertices[0]\n    visited = [False] * V\n    is_connected(start_node, visited, adj)\n    \n    connected_component_size = sum(visited)\n    if connected_component_size != len(non_isolated_vertices):\n        print(0)\n        return\n    \n    if odd_degree_count == 0:\n        print(2)\n    elif odd_degree_count == 2:\n        print(1)\n    else:\n        print(0)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 43.582,
+  "generated_at": "2026-09-25T03:32:29.226963+00:00"
+}

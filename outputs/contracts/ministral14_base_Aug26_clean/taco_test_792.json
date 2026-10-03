@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_792",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= N and 1 <= int(line.split()[1]) <= N for line in stdin.splitlines()[1:E+1])",
+        "description": "Every road in the input connects two distinct cities within the valid range [1, N]."
+      },
+      {
+        "id": "P2",
+        "expression": "E == len([line for line in stdin.splitlines()[1:] if line.strip()])",
+        "description": "The number of roads E exactly matches the number of input lines after the first line."
+      },
+      {
+        "id": "P3",
+        "expression": "N == int(stdin.splitlines()[0].split()[0]) and E == int(stdin.splitlines()[0].split()[1])",
+        "description": "The first line contains exactly two integers N (number of cities) and E (number of roads)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(a != b for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:E+1]])",
+        "description": "No road connects a city to itself."
+      },
+      {
+        "id": "P5",
+        "expression": "len(set((int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:E+1])) == E",
+        "description": "There are no duplicate roads in the same direction."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and len(stdout.splitlines()) == E + 1)",
+        "description": "If no solution exists, output is exactly 'NO'. Otherwise, output starts with 'YES' followed by exactly E lines, each representing a road's final orientation."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'YES' and all(line in [f'{a} {b}' for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:E+1]]] for line in stdout.splitlines()[1:])",
+        "description": "If a solution exists, every output road (after 'YES') is a valid road from the original input, possibly with reversed direction."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'YES' and (lambda: all(any(all(visited[city] for city in range(1, N+1)) and len(visited) == E + 1 for visited in [set() for _ in range(N+1)]) for _ in range(N)))(stdout)",
+        "description": "If a solution exists, the output road network is Eulerian (i.e., for every city, there exists a cycle that traverses every road exactly once and visits every city). This is equivalent to the network being strongly connected and every city having equal in-degree and out-degree."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and all(in_degree[city] == out_degree[city] for city in range(1, N+1)) and is_strongly_connected(adjacency_list))",
+        "description": "If a solution exists, the output road network must satisfy: (1) every city has equal in-degree and out-degree, and (2) the network is strongly connected. Here, `in_degree` and `out_degree` are computed from the output roads, and `is_strongly_connected` checks if there is a path between every pair of cities."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= N and 1 <= int(line.split()[1]) <= N for line in stdin.splitlines()[1:E+1])\",\n      \"description\": \"Every road in the input connects two distinct cities within the valid range [1, N].\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"E == len([line for line in stdin.splitlines()[1:] if line.strip()])\",\n      \"description\": \"The number of roads E exactly matches the number of input lines after the first line.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"N == int(stdin.splitlines()[0].split()[0]) and E == int(stdin.splitlines()[0].split()[1])\",\n      \"description\": \"The first line contains exactly two integers N (number of cities) and E (number of roads).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(a != b for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:E+1]])\",\n      \"description\": \"No road connects a city to itself.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(set((int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:E+1])) == E\",\n      \"description\": \"There are no duplicate roads in the same direction.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'NO' or (stdout.strip() == 'YES' and len(stdout.splitlines()) == E + 1)\",\n      \"description\": \"If no solution exists, output is exactly 'NO'. Otherwise, output starts with 'YES' followed by exactly E lines, each representing a road's final orientation.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'YES' and all(line in [f'{a} {b}' for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:E+1]]] for line in stdout.splitlines()[1:])\",\n      \"description\": \"If a solution exists, every output road (after 'YES') is a valid road from the original input, possibly with reversed direction.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'YES' and (lambda: all(any(all(visited[city] for city in range(1, N+1)) and len(visited) == E + 1 for visited in [set() for _ in range(N+1)]) for _ in range(N)))(stdout)\",\n      \"description\": \"If a solution exists, the output road network is Eulerian (i.e., for every city, there exists a cycle that traverses every road exactly once and visits every city). This is equivalent to the network being strongly connected and every city having equal in-degree and out-degree.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"stdout.strip() == 'NO' or (stdout.strip() == 'YES' and all(in_degree[city] == out_degree[city] for city in range(1, N+1)) and is_strongly_connected(adjacency_list))\",\n      \"description\": \"If a solution exists, the output road network must satisfy: (1) every city has equal in-degree and out-degree, and (2) the network is strongly connected. Here, `in_degree` and `out_degree` are computed from the output roads, and `is_strongly_connected` checks if there is a path between every pair of cities.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1666,
+  "generated_tokens": 913,
+  "hit_output_limit": false,
+  "generation_seconds": 40.705,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:38:29.724480+00:00"
+}

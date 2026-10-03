@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4702",
+  "task_index": 269,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_4702.json",
+  "code": "import sys\nsys.setrecursionlimit(2000000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    \n    if n == 1:\n        print(\"0\")\n        return\n\n    adj = [[] for _ in range(n + 1)]\n    for _ in range(n - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n\n    parent = [0] * (n + 1)\n    order = []\n    stack = [1]\n    visited = [False] * (n + 1)\n    visited[1] = True\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n\n    sz = [1] * (n + 1)\n    depth_count = [[0] * 1 for _ in range(n + 1)]\n    \n    for u in reversed(order):\n        p = parent[u]\n        if p != 0:\n            sz[p] += sz[u]\n            if len(depth_count[p]) < len(depth_count[u]) + 1:\n                depth_count[p].extend([0] * (len(depth_count[u]) + 1 - len(depth_count[p])))\n            for i in range(len(depth_count[u])):\n                depth_count[p][i + 1] += depth_count[u][i]\n        depth_count[u][0] = 1\n\n    ans = [0] * (n + 1)\n    \n    for u in range(1, n + 1):\n        counts = depth_count[u]\n        max_val = -1\n        best_idx = 0\n        for i, val in enumerate(counts):\n            if val > max_val:\n                max_val = val\n                best_idx = i\n        ans[u] = best_idx\n\n    out_lines = []\n    for i in range(1, n + 1):\n        out_lines.append(str(ans[i]))\n    \n    sys.stdout.write('\\n'.join(out_lines) + '\\n')\n\nif __name__ == '__main__':\n    main()",
+  "generation_seconds": 51.85,
+  "generated_at": "2026-09-22T15:07:10.425709+00:00"
+}

@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_8709",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.split()[0]) and n >= 1 and n <= 10**5",
+        "description": "The first line of stdin is an integer n (1 ≤ n ≤ 10^5) representing the number of words in the scroll."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(word) >= 1 for word in stdin.split()[1:])",
+        "description": "Each of the next n lines contains a non-empty lowercase English letter string (word)."
+      },
+      {
+        "id": "P3",
+        "expression": "sum(len(word) for word in stdin.split()[1:]) <= 10**6",
+        "description": "The total length of all words does not exceed 10^6."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**9 + 6",
+        "description": "The output is a non-negative integer representing the number of valid ways to recover the original scroll modulo 10^9+7."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= i < n and 0 <= j < len(words[i]) for i, word in enumerate(words) for j in range(len(word)))",
+        "description": "For each word in the scroll, if a letter is deleted (i.e., a spell is undone), the deleted position is a valid index in the word."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(words[i] == words[i-1] or (words[i] != words[i-1] and (len(words[i]) == len(words[i-1]) and words[i] > words[i-1] or len(words[i]) == len(words[i-1]) - 1 and words[i][:k] + words[i][k+1:] <= words[i-1] for k in range(len(words[i])))))",
+        "description": "For every pair of consecutive words in the modified scroll (after deleting one letter from some words), the sequence must be lexicographically non-decreasing. This means either the words are equal, or the next word is lexicographically greater than the previous one after at most one deletion."
+      },
+      {
+        "id": "Q4",
+        "expression": "words == [stdin.split()[i+1] for i in range(n)]",
+        "description": "The words are parsed exactly as given in the input, with the first line being n and the rest being the words in order."
+      },
+      {
+        "id": "Q5",
+        "expression": "count == 0 if any(not (words[i] == words[i-1] or (words[i] != words[i-1] and (len(words[i]) == len(words[i-1]) and words[i] > words[i-1] or len(words[i]) == len(words[i-1]) - 1 and any(words[i][:k] + words[i][k+1:] <= words[i-1] for k in range(len(words[i])))))) for i in range(1, n)) else count",
+        "description": "If no valid way exists to recover the original scroll (i.e., no sequence of deletions makes the words lexicographically non-decreasing), the output is 0. Otherwise, the output is the count of all valid ways modulo 10^9+7."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.split()[0]) and n >= 1 and n <= 10**5\",\n      \"description\": \"The first line of stdin is an integer n (1 ≤ n ≤ 10^5) representing the number of words in the scroll.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(word) >= 1 for word in stdin.split()[1:])\",\n      \"description\": \"Each of the next n lines contains a non-empty lowercase English letter string (word).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"sum(len(word) for word in stdin.split()[1:]) <= 10**6\",\n      \"description\": \"The total length of all words does not exceed 10^6.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**9 + 6\",\n      \"description\": \"The output is a non-negative integer representing the number of valid ways to recover the original scroll modulo 10^9+7.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= i < n and 0 <= j < len(words[i]) for i, word in enumerate(words) for j in range(len(word)))\",\n      \"description\": \"For each word in the scroll, if a letter is deleted (i.e., a spell is undone), the deleted position is a valid index in the word.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(words[i] == words[i-1] or (words[i] != words[i-1] and (len(words[i]) == len(words[i-1]) and words[i] > words[i-1] or len(words[i]) == len(words[i-1]) - 1 and words[i][:k] + words[i][k+1:] <= words[i-1] for k in range(len(words[i])))))\",\n      \"description\": \"For every pair of consecutive words in the modified scroll (after deleting one letter from some words), the sequence must be lexicographically non-decreasing. This means either the words are equal, or the next word is lexicographically greater than the previous one after at most one deletion.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"words == [stdin.split()[i+1] for i in range(n)]\",\n      \"description\": \"The words are parsed exactly as given in the input, with the first line being n and the rest being the words in order.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"count == 0 if any(not (words[i] == words[i-1] or (words[i] != words[i-1] and (len(words[i]) == len(words[i-1]) and words[i] > words[i-1] or len(words[i]) == len(words[i-1]) - 1 and any(words[i][:k] + words[i][k+1:] <= words[i-1] for k in range(len(words[i])))))) for i in range(1, n)) else count\",\n      \"description\": \"If no valid way exists to recover the original scroll (i.e., no sequence of deletions makes the words lexicographically non-decreasing), the output is 0. Otherwise, the output is the count of all valid ways modulo 10^9+7.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1648,
+  "generated_tokens": 846,
+  "hit_output_limit": false,
+  "generation_seconds": 38.508,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:38:19.152066+00:00"
+}

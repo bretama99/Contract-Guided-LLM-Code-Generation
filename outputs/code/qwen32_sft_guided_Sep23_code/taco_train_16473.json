@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16473",
+  "task_index": 43,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_16473.json",
+  "code": "import sys\nimport itertools\n\ndef max_xor_and(T, test_cases):\n    results = []\n    for N, K, A, edges in test_cases:\n        if K == 1:\n            results.append(functools.reduce(lambda x, y: x ^ y, A))\n            continue\n        if K >= N:\n            results.append(min(A))\n            continue\n        xor_all = functools.reduce(lambda x, y: x ^ y, A)\n        if xor_all == 0:\n            results.append(0)\n            continue\n        best = 0\n        for bits in range(1, 20):\n            mask = (1 << bits) - 1\n            xor_masked = [a & mask for a in A]\n            xor_parts = [0] * K\n            used = [False] * N\n            def dfs(node, parent, part):\n                xor_parts[part] ^= xor_masked[node]\n                used[node] = True\n                for neighbor in adj[node]:\n                    if not used[neighbor] and neighbor != parent:\n                        dfs(neighbor, node, part)\n            for parts in itertools.combinations(range(N), K-1):\n                xor_parts = [0] * K\n                used = [False] * N\n                parts = list(parts) + [-1]\n                for i in range(K):\n                    if not used[parts[i]]:\n                        dfs(parts[i], -1, i)\n                current_and = functools.reduce(lambda x, y: x & y, xor_parts)\n                best = max(best, current_and)\n        results.append(best)\n    return results\n\ninput = sys.stdin.read().split()\nindex = 0\nT = int(input[index])\nindex += 1\ntest_cases = []\nfor _ in range(T):\n    N = int(input[index])\n    K = int(input[index + 1])\n    index += 2\n    A = list(map(int, input[index:index + N]))\n    index += N\n    edges = []\n    for _ in range(N - 1):\n        u = int(input[index]) - 1\n        v = int(input[index + 1]) - 1\n        edges.append((u, v))\n        index += 2\n    test_cases.append((N, K, A, edges))\n\nresults = max_xor_and(T, test_cases)\nfor result in results:\n    print(result)",
+  "generation_seconds": 44.815,
+  "generated_at": "2026-09-23T17:17:19.274905+00:00"
+}

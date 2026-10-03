@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_13327",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.split()[0]) and t >= 1 and t <= 20000",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 20000) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 4 for line in stdin.splitlines()[1:])",
+        "description": "Each test case starts with a line containing two integers n and S (2 ≤ n ≤ 10^5; 1 ≤ S ≤ 10^16), followed by exactly n-1 lines describing edges, each with four integers v_i, u_i, w_i, c_i (1 ≤ v_i, u_i ≤ n; 1 ≤ w_i ≤ 10^6; 1 ≤ c_i ≤ 2)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(v) <= n and 1 <= int(u) <= n for line in stdin.splitlines()[1:] for v, u, _, _ in [line.split()[:4]])",
+        "description": "For each edge, vertices v_i and u_i are within the valid range [1, n]."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(w) <= 10**6 and 1 <= int(c) <= 2 for line in stdin.splitlines()[1:] for _, _, w, c in [line.split()[:4]])",
+        "description": "For each edge, weight w_i is in [1, 10^6] and cost c_i is either 1 or 2."
+      },
+      {
+        "id": "P5",
+        "expression": "sum(int(n) for n, _ in [line.split()[:2]] for line in stdin.splitlines()[1::(n+1)]) <= 10**5",
+        "description": "The sum of n across all test cases does not exceed 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t and stdout.splitlines()[i].isdigit() for i in range(t))",
+        "description": "The output contains exactly t lines, one for each test case, and each line is a non-negative integer representing the minimum total cost."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.splitlines()[i]) >= 0 for i in range(t))",
+        "description": "The output cost for each test case is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(calculate_min_cost(stdin.splitlines()[1+i::(n+1)], n, S) == int(stdout.splitlines()[i]) for i in range(t))",
+        "description": "For each test case, the output is the minimum total cost to make the sum of weights of paths from the root (vertex 1) to each leaf at most S, where the cost is computed by dividing edge weights by 2 (rounding down) and summing the associated edge costs."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.split()[0]) and t >= 1 and t <= 20000\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 20000) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 4 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each test case starts with a line containing two integers n and S (2 ≤ n ≤ 10^5; 1 ≤ S ≤ 10^16), followed by exactly n-1 lines describing edges, each with four integers v_i, u_i, w_i, c_i (1 ≤ v_i, u_i ≤ n; 1 ≤ w_i ≤ 10^6; 1 ≤ c_i ≤ 2).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(v) <= n and 1 <= int(u) <= n for line in stdin.splitlines()[1:] for v, u, _, _ in [line.split()[:4]])\",\n      \"description\": \"For each edge, vertices v_i and u_i are within the valid range [1, n].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(w) <= 10**6 and 1 <= int(c) <= 2 for line in stdin.splitlines()[1:] for _, _, w, c in [line.split()[:4]])\",\n      \"description\": \"For each edge, weight w_i is in [1, 10^6] and cost c_i is either 1 or 2.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"sum(int(n) for n, _ in [line.split()[:2]] for line in stdin.splitlines()[1::(n+1)]) <= 10**5\",\n      \"description\": \"The sum of n across all test cases does not exceed 10^5.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.splitlines()) == t and stdout.splitlines()[i].isdigit() for i in range(t))\",\n      \"description\": \"The output contains exactly t lines, one for each test case, and each line is a non-negative integer representing the minimum total cost.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(int(stdout.splitlines()[i]) >= 0 for i in range(t))\",\n      \"description\": \"The output cost for each test case is a non-negative integer.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(calculate_min_cost(stdin.splitlines()[1+i::(n+1)], n, S) == int(stdout.splitlines()[i]) for i in range(t))\",\n      \"description\": \"For each test case, the output is the minimum total cost to make the sum of weights of paths from the root (vertex 1) to each leaf at most S, where the cost is computed by dividing edge weights by 2 (rounding down) and summing the associated edge costs.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1792,
+  "generated_tokens": 793,
+  "hit_output_limit": false,
+  "generation_seconds": 36.091,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:12:27.435774+00:00"
+}

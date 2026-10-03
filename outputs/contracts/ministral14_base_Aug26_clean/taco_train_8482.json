@@ -1,0 +1,72 @@
+{
+  "task_id": "taco_train_8482",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(line, str) for line in stdin.splitlines())",
+        "description": "Input consists of lines of text, where the first line is an integer T (1 ≤ T ≤ 100), followed by T test cases. Each test case starts with an integer N (1 ≤ N ≤ 10^5), followed by a line of N space-separated integers (1 ≤ A_i ≤ 10^9)."
+      },
+      {
+        "id": "P2",
+        "expression": "T == int(stdin.splitlines()[0]) and T >= 1 and T <= 100",
+        "description": "The first line of input is a valid integer T representing the number of test cases, where 1 ≤ T ≤ 100."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= N <= 10**5 for N in [int(stdin.splitlines()[i*2+1]) for i in range(T)])",
+        "description": "For each test case, the integer N (length of array) satisfies 1 ≤ N ≤ 10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == N for line, N in zip([stdin.splitlines()[i*2+2] for i in range(T)], [int(stdin.splitlines()[i*2+1]) for i in range(T)]))",
+        "description": "Each test case's second line contains exactly N space-separated integers."
+      },
+      {
+        "id": "P5",
+        "expression": "all(all(1 <= int(x) <= 10**9 for x in line.split()) for line in [stdin.splitlines()[i*2+2] for i in range(T)])",
+        "description": "Each element A_i in the array satisfies 1 ≤ A_i ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line == '-1' or (len(stdout_line.split()) == N and all(int(x) in A for x in stdout_line.split())) for stdout_line, N, A in zip(stdout.splitlines(), [int(stdin.splitlines()[i*2+1]) for i in range(T)], [[int(x) for x in stdin.splitlines()[i*2+2].split()] for i in range(T)]))",
+        "description": "For each test case, the output is either '-1' (indicating no valid arrangement exists) or a permutation of the input array of length N."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(stdout_line != '-1' or not any(is_non_monotonic_subarray_of_length_gt_2(stdout_line.split())), stdout_line in stdout.splitlines())",
+        "description": "If the output is not '-1', the array must be *interesting*, meaning no subarray of length > 2 is non-increasing or non-decreasing. If '-1' is output, the input array cannot be rearranged into an interesting array."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(stdout.splitlines()) == T, stdout.splitlines())",
+        "description": "The output contains exactly T lines, one for each test case."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(len(stdout_line.split()) == N or stdout_line == '-1' for stdout_line, N in zip(stdout.splitlines(), [int(stdin.splitlines()[i*2+1]) for i in range(T)]))",
+        "description": "For each test case, the output line either matches the length of the input array (N) or is '-1'."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(line, str) for line in stdin.splitlines())\",\n      \"description\": \"Input consists of lines of text, where the first line is an integer T (1 ≤ T ≤ 100), followed by T test cases. Each test case starts with an integer N (1 ≤ N ≤ 10^5), followed by a line of N space-separated integers (1 ≤ A_i ≤ 10^9).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"T == int(stdin.splitlines()[0]) and T >= 1 and T <= 100\",\n      \"description\": \"The first line of input is a valid integer T representing the number of test cases, where 1 ≤ T ≤ 100.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= N <= 10**5 for N in [int(stdin.splitlines()[i*2+1]) for i in range(T)])\",\n      \"description\": \"For each test case, the integer N (length of array) satisfies 1 ≤ N ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == N for line, N in zip([stdin.splitlines()[i*2+2] for i in range(T)], [int(stdin.splitlines()[i*2+1]) for i in range(T)]))\",\n      \"description\": \"Each test case's second line contains exactly N space-separated integers.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(all(1 <= int(x) <= 10**9 for x in line.split()) for line in [stdin.splitlines()[i*2+2] for i in range(T)])\",\n      \"description\": \"Each element A_i in the array satisfies 1 ≤ A_i ≤ 10^9.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line == '-1' or (len(stdout_line.split()) == N and all(int(x) in A for x in stdout_line.split())) for stdout_line, N, A in zip(stdout.splitlines(), [int(stdin.splitlines()[i*2+1]) for i in range(T)], [[int(x) for x in stdin.splitlines()[i*2+2].split()] for i in range(T)]))\",\n      \"description\": \"For each test case, the output is either '-1' (indicating no valid arrangement exists) or a permutation of the input array of length N.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(stdout_line != '-1' or not any(is_non_monotonic_subarray_of_length_gt_2(stdout_line.split())), stdout_line in stdout.splitlines())\",\n      \"description\": \"If the output is not '-1', the array must be *interesting*, meaning no subarray of length > 2 is non-increasing or non-decreasing. If '-1' is output, the input array cannot be rearranged into an interesting array.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(stdout.splitlines()) == T, stdout.splitlines())\",\n      \"description\": \"The output contains exactly T lines, one for each test case.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(len(stdout_line.split()) == N or stdout_line == '-1' for stdout_line, N in zip(stdout.splitlines(), [int(stdin.splitlines()[i*2+1]) for i in range(T)]))\",\n      \"description\": \"For each test case, the output line either matches the length of the input array (N) or is '-1'.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1650,
+  "generated_tokens": 913,
+  "hit_output_limit": false,
+  "generation_seconds": 41.494,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:10:11.244492+00:00"
+}

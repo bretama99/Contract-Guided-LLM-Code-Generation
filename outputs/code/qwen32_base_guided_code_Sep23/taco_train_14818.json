@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_14818",
+  "task_index": 579,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_14818.json",
+  "code": "import sys\nfrom itertools import product\n\ndef read_input():\n    import sys\n    input = sys.stdin.read().split()\n    n, m, k, w = map(int, input[:4])\n    levels = []\n    index = 4\n    for _ in range(k):\n        level = []\n        for _ in range(n):\n            level.append(input[index])\n            index += 1\n        levels.append(level)\n    return n, m, k, w, levels\n\ndef diff_count(level1, level2, n, m):\n    count = 0\n    for i, j in product(range(n), range(m)):\n        if level1[i][j] != level2[i][j]:\n            count += 1\n    return count\n\ndef solve(n, m, k, w, levels):\n    dp = [[float('inf')] * k for _ in range(k)]\n    path = [[None] * k for _ in range(k)]\n    \n    for i in range(k):\n        dp[i][i] = 0\n    \n    for length in range(2, k + 1):\n        for i in range(k - length + 1):\n            j = i + length - 1\n            for p in range(i, j):\n                cost = dp[i][p] + diff_count(levels[p], levels[j], n, m) * w\n                if cost < dp[i][j]:\n                    dp[i][j] = cost\n                    path[i][j] = p\n    \n    total_cost = float('inf')\n    best_start = None\n    for i in range(k):\n        if dp[i][k - 1] + n * m < total_cost:\n            total_cost = dp[i][k - 1] + n * m\n            best_start = i\n    \n    def reconstruct_path(start, end):\n        if start == end:\n            return [(start + 1, 0)]\n        else:\n            mid = path[start][end]\n            return reconstruct_path(start, mid) + [(end + 1, mid + 1)]\n    \n    transfer_plan = reconstruct_path(best_start, k - 1)\n    return total_cost, transfer_plan\n\ndef main():\n    n, m, k, w, levels = read_input()\n    total_cost, transfer_plan = solve(n, m, k, w, levels)\n    print(total_cost)\n    for x, y in transfer_plan:\n        print(x, y)\n\nmain()",
+  "generation_seconds": 45.841,
+  "generated_at": "2026-09-23T19:59:02.376663+00:00"
+}

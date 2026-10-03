@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_19595",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == 3) and all(1 <= int(x) <= 10**5 for x in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == 3])",
+        "description": "The first line contains integers n (number of cities), m (number of roads), and s (capital city), where 2 ≤ n ≤ 10^5, 1 ≤ s ≤ n, and m is implied by the number of road lines."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 and all(1 <= int(x) <= n for x in line.split()[:2]) and 1 <= int(line.split()[2]) <= 1000 for line in stdin.splitlines()[1:-1])",
+        "description": "Each of the m road lines contains three integers vi, ui, wi (1 ≤ vi, ui ≤ n, vi ≠ ui, 1 ≤ wi ≤ 1000), representing bidirectional roads between cities with their lengths."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(line) <= 10**9 for line in stdin.splitlines()[-1:])",
+        "description": "The last line contains integer l (0 ≤ l ≤ 10^9), the distance from the capital to the missile silos."
+      },
+      {
+        "id": "P4",
+        "expression": "len(stdin.splitlines()) == m + 2",
+        "description": "The input consists of exactly m + 2 lines: one for n, m, s; m lines for roads; and one for l."
+      },
+      {
+        "id": "P5",
+        "expression": "all(vi != ui for vi, ui, _ in (tuple(map(int, line.split())) for line in stdin.splitlines()[1:-1]))",
+        "description": "No road connects a city to itself."
+      },
+      {
+        "id": "P6",
+        "expression": "any(all(1 <= int(x) <= n for x in [int(line.split()[0]), int(line.split()[1])]) for line in stdin.splitlines()[1:-1])",
+        "description": "All cities referenced in roads exist (1 ≤ vi, ui ≤ n)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**9",
+        "description": "The output is a single non-negative integer representing the total number of missile silos located in Berland."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(stdout.strip()) <= n + sum(int(line.split()[2]) for line in stdin.splitlines()[1:-1]))",
+        "description": "The output count is bounded by the maximum possible silos: cities (n) plus all possible points on roads (sum of all road lengths)."
+      },
+      {
+        "id": "Q3",
+        "expression": "let cities = {int(line.split()[0]) for line in stdin.splitlines()[1:-1]} | {int(line.split()[1]) for line in stdin.splitlines()[1:-1]}; let roads = [(tuple(map(int, line.split()[:2])), int(line.split()[2])) for line in stdin.splitlines()[1:-1]]; let s = int(stdin.splitlines()[0].split()[2]); let l = int(stdin.splitlines()[-1]); let graph = {u: {v: w for v, w in [(vi, wi) if vi != s else (ui, wi) for vi, ui, wi in roads]} for u in cities}; let distances = {s: 0}; let queue = [s]; let visited = {s}; let parent = {s: None}; let edge_parent = {}; let edge_dist = {}; while queue: u = queue.pop(0); for v, w in graph[u].items(): if v not in visited: visited.add(v); distances[v] = distances[u] + w; parent[v] = u; queue.append(v); for (u1, u2), w in roads: if u1 in visited and u2 in visited: if distances[u1] + w < distances[u2]: distances[u2] = distances[u1] + w; parent[u2] = u1; elif distances[u2] + w < distances[u1]: distances[u1] = distances[u2] + w; parent[u1] = u2; let silos = 0; for city in cities: if distances[city] == l: silos += 1; for (u1, u2), w in roads: if distances[u1] == l or distances[u2] == l: continue; if distances[u1] < l < distances[u2] or distances[u2] < l < distances[u1]: silos += 1; if distances[u1] == l or distances[u2] == l: silos += 1; return int(stdout.strip()) == silos",
+        "description": "The output count equals the number of missile silos located either in cities or on roads at exactly distance l from the capital. A silo is counted in a city if its shortest distance from the capital is exactly l. A silo is counted on a road between cities u1 and u2 if the shortest distance from the capital to some point on the road is exactly l, which happens if l lies strictly between the distances of u1 and u2 or exactly matches one of them (in which case the silo is at the endpoint)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 10**5 for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == 3) and all(1 <= int(x) <= 10**5 for x in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == 3])\",\n      \"description\": \"The first line contains integers n (number of cities), m (number of roads), and s (capital city), where 2 ≤ n ≤ 10^5, 1 ≤ s ≤ n, and m is implied by the number of road lines.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 and all(1 <= int(x) <= n for x in line.split()[:2]) and 1 <= int(line.split()[2]) <= 1000 for line in stdin.splitlines()[1:-1])\",\n      \"description\": \"Each of the m road lines contains three integers vi, ui, wi (1 ≤ vi, ui ≤ n, vi ≠ ui, 1 ≤ wi ≤ 1000), representing bidirectional roads between cities with their lengths.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(line) <= 10**9 for line in stdin.splitlines()[-1:])\",\n      \"description\": \"The last line contains integer l (0 ≤ l ≤ 10^9), the distance from the capital to the missile silos.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(stdin.splitlines()) == m + 2\",\n      \"description\": \"The input consists of exactly m + 2 lines: one for n, m, s; m lines for roads; and one for l.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(vi != ui for vi, ui, _ in (tuple(map(int, line.split())) for line in stdin.splitlines()[1:-1]))\",\n      \"description\": \"No road connects a city to itself.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"any(all(1 <= int(x) <= n for x in [int(line.split()[0]), int(line.split()[1])]) for line in stdin.splitlines()[1:-1])\",\n      \"description\": \"All cities referenced in roads exist (1 ≤ vi, ui ≤ n).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= 10**9\",\n      \"description\": \"The output is a single non-negative integer representing the total number of missile silos located in Berland.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(stdout.strip()) <= n + sum(int(line.split()[2]) for line in stdin.splitlines()[1:-1]))\",\n      \"description\": \"The output count is bounded by the maximum possible silos: cities (n) plus all possible points on roads (sum of all road lengths).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"let cities = {int(line.split()[0]) for line in stdin.splitlines()[1:-1]} | {int(line.split()[1]) for line in stdin.splitlines()[1:-1]}; let roads = [(tuple(map(int, line.split()[:2])), int(line.split()[2])) for line in stdin.splitlines()[1:-1]]; let s = int(stdin.splitlines()[0].split()[2]); let l = int(stdin.splitlines()[-1]); let graph = {u: {v: w for v, w in [(vi, wi) if vi != s else (ui, wi) for vi, ui, wi in roads]} for u in cities}; let distances = {s: 0}; let queue = [s]; let visited = {s}; let parent = {s: None}; let edge_parent = {}; let edge_dist = {}; while queue: u = queue.pop(0); for v, w in graph[u].items(): if v not in visited: visited.add(v); distances[v] = distances[u] + w; parent[v] = u; queue.append(v); for (u1, u2), w in roads: if u1 in visited and u2 in visited: if distances[u1] + w < distances[u2]: distances[u2] = distances[u1] + w; parent[u2] = u1; elif distances[u2] + w < distances[u1]: distances[u1] = distances[u2] + w; parent[u1] = u2; let silos = 0; for city in cities: if distances[city] == l: silos += 1; for (u1, u2), w in roads: if distances[u1] == l or distances[u2] == l: continue; if distances[u1] < l < distances[u2] or distances[u2] < l < distances[u1]: silos += 1; if distances[u1] == l or distances[u2] == l: silos += 1; return int(stdout.strip()) == silos\",\n      \"description\": \"The output count equals the number of missile silos located either in cities or on roads at exactly distance l from the capital. A silo is counted in a city if its shortest distance from the capital is exactly l. A silo is counted on a road between cities u1 and u2 if the shortest distance from the capital to some point on the road is exactly l, which happens if l lies strictly between the distances of u1 and u2 or exactly matches one of them (in which case the silo is at the endpoint).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1731,
+  "generated_tokens": 1366,
+  "hit_output_limit": false,
+  "generation_seconds": 63.749,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:27:02.760049+00:00"
+}

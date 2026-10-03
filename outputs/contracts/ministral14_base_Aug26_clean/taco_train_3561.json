@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_3561",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 1000 and 1 <= m <= 1000 and 1 <= k <= min(40, n * m) for n, m, k in [line.split() for line in stdin.splitlines()[0:1]])",
+        "description": "Grid dimensions n (rows) and m (columns) are integers between 1 and 1000 inclusive, and k (colors) is between 1 and min(40, n*m) inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == m and all(1 <= int(num) <= k for num in line.split()) for line in stdin.splitlines()[1:n+1])",
+        "description": "Each of the n grid lines contains exactly m integers, each representing a city color between 1 and k inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= r1 <= n and 1 <= c1 <= m and 1 <= r2 <= n and 1 <= c2 <= m for line in stdin.splitlines()[n+2:]) and len(stdin.splitlines()[n+2:]) == int(stdin.splitlines()[n+1])",
+        "description": "Each mission consists of four integers r1, c1, r2, c2 where 1 ≤ r1, r2 ≤ n and 1 ≤ c1, c2 ≤ m, and there are exactly q missions (q ≤ 10^5)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any(1 <= a_ij <= k for a_ij in line.split()) for line in stdin.splitlines()[1:n+1]) and all(1 <= int(num) <= k for num in [int(num) for line in stdin.splitlines()[1:n+1] for num in line.split()])",
+        "description": "Every color from 1 to k appears at least once in the grid."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line) > 0 and output_line.strip().isdigit() for output_line in stdout.splitlines())",
+        "description": "For each mission, stdout contains exactly one line with a non-negative integer representing the minimum time to reach the destination city."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(output_line) <= (n * m) for output_line in stdout.splitlines())",
+        "description": "The minimum time for each mission is a non-negative integer bounded by the maximum possible moves (n*m) in the worst case."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(output_line) == 0 if (r1, c1) == (r2, c2) else int(output_line) >= 1 for (r1, c1, r2, c2), output_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+2:]], stdout.splitlines()))",
+        "description": "If the start and end cities are the same, the output time is 0. Otherwise, the output time is at least 1."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(output_line) == min_time(r1, c1, r2, c2, grid) for (r1, c1, r2, c2), output_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+2:]], stdout.splitlines()))",
+        "description": "For each mission, the output time is the minimum possible time to reach the destination city from the start city, where movement is allowed to adjacent cells (side) or any cell of the same color in one second."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 1000 and 1 <= m <= 1000 and 1 <= k <= min(40, n * m) for n, m, k in [line.split() for line in stdin.splitlines()[0:1]])\",\n      \"description\": \"Grid dimensions n (rows) and m (columns) are integers between 1 and 1000 inclusive, and k (colors) is between 1 and min(40, n*m) inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == m and all(1 <= int(num) <= k for num in line.split()) for line in stdin.splitlines()[1:n+1])\",\n      \"description\": \"Each of the n grid lines contains exactly m integers, each representing a city color between 1 and k inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= r1 <= n and 1 <= c1 <= m and 1 <= r2 <= n and 1 <= c2 <= m for line in stdin.splitlines()[n+2:]) and len(stdin.splitlines()[n+2:]) == int(stdin.splitlines()[n+1])\",\n      \"description\": \"Each mission consists of four integers r1, c1, r2, c2 where 1 ≤ r1, r2 ≤ n and 1 ≤ c1, c2 ≤ m, and there are exactly q missions (q ≤ 10^5).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(any(1 <= a_ij <= k for a_ij in line.split()) for line in stdin.splitlines()[1:n+1]) and all(1 <= int(num) <= k for num in [int(num) for line in stdin.splitlines()[1:n+1] for num in line.split()])\",\n      \"description\": \"Every color from 1 to k appears at least once in the grid.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line) > 0 and output_line.strip().isdigit() for output_line in stdout.splitlines())\",\n      \"description\": \"For each mission, stdout contains exactly one line with a non-negative integer representing the minimum time to reach the destination city.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(output_line) <= (n * m) for output_line in stdout.splitlines())\",\n      \"description\": \"The minimum time for each mission is a non-negative integer bounded by the maximum possible moves (n*m) in the worst case.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(output_line) == 0 if (r1, c1) == (r2, c2) else int(output_line) >= 1 for (r1, c1, r2, c2), output_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+2:]], stdout.splitlines()))\",\n      \"description\": \"If the start and end cities are the same, the output time is 0. Otherwise, the output time is at least 1.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(output_line) == min_time(r1, c1, r2, c2, grid) for (r1, c1, r2, c2), output_line in zip([tuple(map(int, line.split())) for line in stdin.splitlines()[n+2:]], stdout.splitlines()))\",\n      \"description\": \"For each mission, the output time is the minimum possible time to reach the destination city from the start city, where movement is allowed to adjacent cells (side) or any cell of the same color in one second.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1836,
+  "generated_tokens": 930,
+  "hit_output_limit": false,
+  "generation_seconds": 44.115,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:18:02.562344+00:00"
+}

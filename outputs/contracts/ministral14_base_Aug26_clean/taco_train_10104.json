@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_10104",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= N <= 500 and 1 <= M <= 500 and 0 <= k <= 10**9 and 1 <= x <= N for line in stdin.splitlines() if (N := int(line)) if line.strip() == '' else False)",
+        "description": "The first line is a single integer N (1 ≤ N ≤ 500) representing the number of gnomes. The next N lines represent the adjacency matrix g[N][N] where g[i][j] is 0 or 1. The following line is M (1 ≤ M ≤ 500) representing the number of queries. Each of the next M lines contains two integers k and x (0 ≤ k ≤ 10^9, 1 ≤ x ≤ N)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == N for line in stdin.splitlines()[1:N+1])",
+        "description": "Each of the N adjacency matrix lines contains exactly N space-separated integers (0 or 1)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(val) <= 1 for line in stdin.splitlines()[1:N+1] for val in line.split())",
+        "description": "Each entry in the adjacency matrix is either 0 or 1."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(k) <= 10**9 and 1 <= int(x) <= N for line in stdin.splitlines()[N+2:N+2+M] if (k, x) := tuple(map(int, line.split())))",
+        "description": "Each query consists of two integers k (0 ≤ k ≤ 10^9) and x (1 ≤ x ≤ N)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == 2 * M and all(line.strip() in ['-1'] or all(int(id) for id in line.split()) for line in stdout.splitlines()[1::2]) for query in range(M))",
+        "description": "For each query, the output consists of two lines: the first line is the count of gnomes who know the joke after k minutes, and the second line is the sorted list of gnome IDs (1-based) who know the joke. If no gnomes know the joke, the second line is '-1'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((count_line := stdout.splitlines()[2 * query], ids_line := stdout.splitlines()[2 * query + 1]) and (count := int(count_line)) == len(set(ids_line.split()) if ids_line != '-1' else []) for query in range(M))",
+        "description": "The count in the first line of each query's output matches the number of unique gnome IDs listed in the second line (or 0 if the second line is '-1')."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((k, x) := tuple(map(int, stdin.splitlines()[N+2+query].split())) and (gnomes_after_k := set()) and (gnomes_after_k.add(x)) and (current_gnomes := {x}) and all((current_gnomes := {gnome for gnome in current_gnomes for friend in range(1, N+1) if g[gnome-1][friend-1] == 1}) and (gnomes_after_k.update(current_gnomes)) for _ in range(k)) and (output_ids := sorted(gnomes_after_k) if gnomes_after_k else ['-1']) and (count_line := str(len(gnomes_after_k))) == stdout.splitlines()[2 * query] and (ids_line := ' '.join(output_ids)) == stdout.splitlines()[2 * query + 1] for query in range(M))",
+        "description": "For each query (k, x), the output is derived by simulating the joke propagation for exactly k minutes: starting with gnome x, at each minute, every gnome in the current set forwards the joke to all their friends (including themselves if g[i][i] == 1). The output is the sorted list of unique gnomes who have received the joke after k minutes, or '-1' if no gnomes have received it (only possible if k=0 and x is not a friend of itself)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= N <= 500 and 1 <= M <= 500 and 0 <= k <= 10**9 and 1 <= x <= N for line in stdin.splitlines() if (N := int(line)) if line.strip() == '' else False)\",\n      \"description\": \"The first line is a single integer N (1 ≤ N ≤ 500) representing the number of gnomes. The next N lines represent the adjacency matrix g[N][N] where g[i][j] is 0 or 1. The following line is M (1 ≤ M ≤ 500) representing the number of queries. Each of the next M lines contains two integers k and x (0 ≤ k ≤ 10^9, 1 ≤ x ≤ N).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == N for line in stdin.splitlines()[1:N+1])\",\n      \"description\": \"Each of the N adjacency matrix lines contains exactly N space-separated integers (0 or 1).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(val) <= 1 for line in stdin.splitlines()[1:N+1] for val in line.split())\",\n      \"description\": \"Each entry in the adjacency matrix is either 0 or 1.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(k) <= 10**9 and 1 <= int(x) <= N for line in stdin.splitlines()[N+2:N+2+M] if (k, x) := tuple(map(int, line.split())))\",\n      \"description\": \"Each query consists of two integers k (0 ≤ k ≤ 10^9) and x (1 ≤ x ≤ N).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.splitlines()) == 2 * M and all(line.strip() in ['-1'] or all(int(id) for id in line.split()) for line in stdout.splitlines()[1::2]) for query in range(M))\",\n      \"description\": \"For each query, the output consists of two lines: the first line is the count of gnomes who know the joke after k minutes, and the second line is the sorted list of gnome IDs (1-based) who know the joke. If no gnomes know the joke, the second line is '-1'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((count_line := stdout.splitlines()[2 * query], ids_line := stdout.splitlines()[2 * query + 1]) and (count := int(count_line)) == len(set(ids_line.split()) if ids_line != '-1' else []) for query in range(M))\",\n      \"description\": \"The count in the first line of each query's output matches the number of unique gnome IDs listed in the second line (or 0 if the second line is '-1').\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((k, x) := tuple(map(int, stdin.splitlines()[N+2+query].split())) and (gnomes_after_k := set()) and (gnomes_after_k.add(x)) and (current_gnomes := {x}) and all((current_gnomes := {gnome for gnome in current_gnomes for friend in range(1, N+1) if g[gnome-1][friend-1] == 1}) and (gnomes_after_k.update(current_gnomes)) for _ in range(k)) and (output_ids := sorted(gnomes_after_k) if gnomes_after_k else ['-1']) and (count_line := str(len(gnomes_after_k))) == stdout.splitlines()[2 * query] and (ids_line := ' '.join(output_ids)) == stdout.splitlines()[2 * query + 1] for query in range(M))\",\n      \"description\": \"For each query (k, x), the output is derived by simulating the joke propagation for exactly k minutes: starting with gnome x, at each minute, every gnome in the current set forwards the joke to all their friends (including themselves if g[i][i] == 1). The output is the sorted list of unique gnomes who have received the joke after k minutes, or '-1' if no gnomes have received it (only possible if k=0 and x is not a friend of itself).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1837,
+  "generated_tokens": 1074,
+  "hit_output_limit": false,
+  "generation_seconds": 48.016,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T22:06:06.351708+00:00"
+}

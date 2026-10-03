@@ -1,0 +1,512 @@
+{
+  "task_id": "taco_train_5475",
+  "task_index": 138,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 1000000 and 1 <= m <= 1000000",
+        "description": "The graph has between 1 and 1,000,000 vertices (n) and between 1 and 1,000,000 edges (m)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n and a_i != b_i for a_i, b_i in edges)",
+        "description": "Each edge (a_i, b_i) connects distinct vertices within the valid range [1, n]."
+      },
+      {
+        "id": "P3",
+        "expression": "not any(a_i == b_i for a_i, b_i in edges)",
+        "description": "The graph has no self-loops (a_i ≠ b_i for all edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(x not in Q or y not in Q or not any((x, y) in edges or (x, z) in edges and (z, y) in edges for z in vertices) for x in Q for y in Q)",
+        "description": "No two vertices in Q are directly or indirectly connected by a directed edge (no edges between any pair in Q)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(z not in Q implies any(x in Q and (x == z or any((x, z) in edges or any((x, w) in edges and (w, z) in edges for w in vertices)) for x in Q)) for z in vertices)",
+        "description": "Every vertex not in Q is reachable from at least one vertex in Q in at most two moves (direct edge or via one intermediate vertex)."
+      },
+      {
+        "id": "Q3",
+        "expression": "k == len(Q) and all(1 <= v <= n for v in Q)",
+        "description": "The output consists of k distinct vertices in Q, where k is the size of the set, and all vertices are within the valid range [1, n]."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 1000000 and 1 <= m <= 1000000",
+        "description": "The graph has between 1 and 1,000,000 vertices (n) and between 1 and 1,000,000 edges (m)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n and a_i != b_i for a_i, b_i in edges)",
+        "description": "Each edge (a_i, b_i) connects distinct vertices within the valid range [1, n]."
+      },
+      {
+        "id": "P3",
+        "expression": "not any(a_i == b_i for a_i, b_i in edges)",
+        "description": "The graph has no self-loops (a_i ≠ b_i for all edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(x not in Q or y not in Q or not any((x, y) in edges or (x, z) in edges and (z, y) in edges for z in vertices) for x in Q for y in Q)",
+        "description": "No two vertices in Q are directly or indirectly connected by a directed edge (no edges between any pair in Q)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(z not in Q implies any(x in Q and (x == z or any((x, z) in edges or any((x, w) in edges and (w, z) in edges for w in vertices)) for x in Q)) for z in vertices)",
+        "description": "Every vertex not in Q is reachable from at least one vertex in Q in at most two moves (direct edge or via one intermediate vertex)."
+      },
+      {
+        "id": "Q3",
+        "expression": "k == len(Q) and all(1 <= v <= n for v in Q)",
+        "description": "The output consists of k distinct vertices in Q, where k is the size of the set, and all vertices are within the valid range [1, n]."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "e614e265b55cd01acc85f47d85d410954e03ba431c5477155f1f1642cb334aec",
+  "selected_contract_fingerprint": "e614e265b55cd01acc85f47d85d410954e03ba431c5477155f1f1642cb334aec",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_5475.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+      "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+      "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+        "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+        "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+        "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly uses `x == z` (direct equality) and does not correctly capture the two-move reachability condition. The task requires that for every vertex z not in Q, there exists some vertex x in Q such that either (x → z) is a direct edge, or there exists some intermediate vertex w such that (x → w) and (w → z) are edges. The current expression also incorrectly uses `any((x, w) in edges and (w, z) in edges for w in vertices)` without restricting w to be distinct from x or z, and the outer `any` is misplaced.",
+        "task_evidence": "it is possible to reach any vertex z ∉ Q from some vertex of Q in no more than two moves",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly state that Q must be non-empty. While the task guarantees a solution exists, the contract should include this as a postcondition to ensure correctness.",
+        "task_evidence": "It is guaranteed, that there is always at least one valid set.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly state that Q must be a subset of the vertices in the graph (i.e., Q ⊆ {1, ..., n}). While this is implied by the output format, it should be explicitly captured in the postconditions.",
+        "task_evidence": "The output consists of k distinct integers — the indices of the selected vertices.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[1].expression",
+        "detail": "invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+      "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+      "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+        "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+        "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+        "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly uses `x == z` (direct equality) and does not correctly capture the two-move reachability condition. The task requires that for every vertex z not in Q, there exists some vertex x in Q such that either (x → z) is a direct edge, or there exists some intermediate vertex w such that (x → w) and (w → z) are edges. The current expression also incorrectly uses `any((x, w) in edges and (w, z) in edges for w in vertices)` without restricting w to be distinct from x or z, and the outer `any` is misplaced.",
+        "task_evidence": "it is possible to reach any vertex z ∉ Q from some vertex of Q in no more than two moves",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly state that Q must be non-empty. While the task guarantees a solution exists, the contract should include this as a postcondition to ensure correctness.",
+        "task_evidence": "It is guaranteed, that there is always at least one valid set.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly state that Q must be a subset of the vertices in the graph (i.e., Q ⊆ {1, ..., n}). While this is implied by the output format, it should be explicitly captured in the postconditions.",
+        "task_evidence": "The output consists of k distinct integers — the indices of the selected vertices.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[1].expression",
+        "detail": "invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+          "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)\",\"location\":\"postconditions[1].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)\",\"location\":\"postconditions[1].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+          "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)\",\"location\":\"postconditions[1].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)\",\"location\":\"postconditions[1].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+            "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+            "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly checks for indirect reachability (transitive closure) between any two vertices in Q. The task requires only that no two vertices in Q are *directly* connected by an edge (no edges between any pair in Q). The current expression also incorrectly includes a check for two-move reachability (x → z → y) between vertices in Q, which is not required.",
+            "task_evidence": "no two vertices x, y ∈ Q are connected by an edge",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 105.485,
+  "processing_error": null,
+  "finished_at": "2026-09-04T02:39:43.158255+00:00"
+}

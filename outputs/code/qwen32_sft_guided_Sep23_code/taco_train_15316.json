@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_15316",
+  "task_index": 281,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_15316.json",
+  "code": "import sys\nfrom collections import deque\n\ndef dfs(tree, b, w, start):\n    stack = [start]\n    visited = [False] * len(b)\n    visited[start] = True\n    bee_votes = 0\n    wasp_votes = 0\n    while stack:\n        node = stack.pop()\n        bee_votes += b[node]\n        wasp_votes += w[node]\n        for neighbor in tree[node]:\n            if not visited[neighbor]:\n                visited[neighbor] = True\n                stack.append(neighbor)\n    return bee_votes, wasp_votes\n\ndef max_wasp_wins(n, m, b, w, edges):\n    tree = [[] for _ in range(n)]\n    for x, y in edges:\n        tree[x-1].append(y-1)\n        tree[y-1].append(x-1)\n    \n    bee_votes = [0] * n\n    wasp_votes = [0] * n\n    visited = [False] * n\n    components = []\n    \n    for i in range(n):\n        if not visited[i]:\n            bv, wv = dfs(tree, b, w, i)\n            components.append((bv, wv))\n    \n    components.sort(key=lambda x: x[1] - x[0])\n    wasp_wins = 0\n    \n    for i in range(min(m, len(components))):\n        bv, wv = components[i]\n        if wv > bv:\n            wasp_wins += 1\n    \n    return wasp_wins\n\ninput = sys.stdin.read().split()\nindex = 0\nt = int(input[index])\nindex += 1\nresults = []\n\nfor _ in range(t):\n    n = int(input[index])\n    m = int(input[index + 1])\n    index += 2\n    b = list(map(int, input[index:index + n]))\n    index += n\n    w = list(map(int, input[index:index + n]))\n    index += n\n    \n    edges = []\n    for _ in range(n - 1):\n        x = int(input[index])\n        y = int(input[index + 1])\n        edges.append((x, y))\n        index += 2\n    \n    results.append(max_wasp_wins(n, m, b, w, edges))\n\nprint('\\n'.join(map(str, results)))",
+  "generation_seconds": 43.94,
+  "generated_at": "2026-09-23T19:04:33.173868+00:00"
+}

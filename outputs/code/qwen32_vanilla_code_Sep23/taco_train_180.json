@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_180",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:10:28.878534+00:00",
+  "code": "import sys\nfrom collections import defaultdict\nimport math\n\ndef main():\n    import sys\n    import math\n    from collections import defaultdict\n\n    def factorize(n):\n        factors = defaultdict(int)\n        for i in range(2, int(math.sqrt(n)) + 1):\n            while n % i == 0:\n                factors[i] += 1\n                n //= i\n        if n > 1:\n            factors[n] += 1\n        return factors\n\n    def normalize_factors(factors, k):\n        normalized = []\n        for prime, exp in factors.items():\n            normalized.append((prime, exp % k))\n        return tuple(normalized)\n\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    k = int(input[1])\n    a = list(map(int, input[2:]))\n\n    count = 0\n    target_counts = defaultdict(int)\n    for num in a:\n        factors = factorize(num)\n        normalized = normalize_factors(factors, k)\n        complement = []\n        for prime, exp in normalized:\n            needed = (k - exp) % k\n            complement.append((prime, needed))\n        complement = tuple(complement)\n        count += target_counts[complement]\n        \n        # Adjust the current number's factors to find future pairs\n        for i in range(len(normalized)):\n            prime, exp = normalized[i]\n            if exp != 0:\n                new_normalized = list(normalized)\n                new_normalized[i] = (prime, (exp * 2) % k)\n                target_counts[tuple(new_normalized)] += 1\n\n    print(count)\n\nif __name__ == \"__main__\":\n    main()"
+}

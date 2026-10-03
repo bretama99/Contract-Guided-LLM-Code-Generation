@@ -1,0 +1,72 @@
+{
+  "task_id": "taco_train_4945",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(line.strip() for line in stdin.splitlines()[1:]) and len(stdin.splitlines()) == n + 1 and all(len(line) == m for line in stdin.splitlines()[1:])",
+        "description": "Input consists of exactly n+1 lines: first line contains two integers n and m (1 ≤ n, m ≤ 50), followed by n lines of exactly m characters each, where each character is either '#' or '.'"
+      },
+      {
+        "id": "P2",
+        "expression": "n >= 1 and m >= 1 and n <= 50 and m <= 50",
+        "description": "Grid dimensions n and m are integers within the range [1, 50]"
+      },
+      {
+        "id": "P3",
+        "expression": "all(c in {'.', '#'} for line in stdin.splitlines()[1:] for c in line)",
+        "description": "Each character in the grid is either '#' (painted) or '.' (unpainted)"
+      },
+      {
+        "id": "P4",
+        "expression": "any(c == '#' for line in stdin.splitlines()[1:] for c in line)",
+        "description": "At least one square in the grid is painted (set A is non-empty)"
+      },
+      {
+        "id": "P5",
+        "expression": "is_connected(stdin.splitlines()[1:])",
+        "description": "The set of painted squares A (all '#') is connected (as defined in the task)"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= len([c for line in stdin.splitlines()[1:] for c in line if c == '#']))",
+        "description": "Output is either '-1' (impossible to disconnect) or a non-negative integer k representing the minimum number of squares to delete to disconnect A, where k is within the bounds of the total painted squares"
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == '-1' or (k := int(stdout.strip()) and exists_deletion_disconnects(stdin.splitlines()[1:], k))",
+        "description": "If output is k ≥ 0, there exists a set of exactly k painted squares whose removal disconnects A; otherwise, no such deletion exists (output is -1)"
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == '-1' or (k := int(stdout.strip()) and not exists_deletion_disconnects(stdin.splitlines()[1:], k - 1))",
+        "description": "If output is k ≥ 0, no set of fewer than k deletions can disconnect A (optimality)"
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "lambda grid: all(len(line) == m for line in grid) and all(c in {'.', '#'} for line in grid for c in line)",
+        "description": "Grid structure (n lines of m characters each) and character set {'.', '#'} are preserved across all operations"
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(line.strip() for line in stdin.splitlines()[1:]) and len(stdin.splitlines()) == n + 1 and all(len(line) == m for line in stdin.splitlines()[1:])\",\n      \"description\": \"Input consists of exactly n+1 lines: first line contains two integers n and m (1 ≤ n, m ≤ 50), followed by n lines of exactly m characters each, where each character is either '#' or '.'\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"n >= 1 and m >= 1 and n <= 50 and m <= 50\",\n      \"description\": \"Grid dimensions n and m are integers within the range [1, 50]\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(c in {'.', '#'} for line in stdin.splitlines()[1:] for c in line)\",\n      \"description\": \"Each character in the grid is either '#' (painted) or '.' (unpainted)\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"any(c == '#' for line in stdin.splitlines()[1:] for c in line)\",\n      \"description\": \"At least one square in the grid is painted (set A is non-empty)\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"is_connected(stdin.splitlines()[1:])\",\n      \"description\": \"The set of painted squares A (all '#') is connected (as defined in the task)\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == '-1' or (stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= len([c for line in stdin.splitlines()[1:] for c in line if c == '#']))\",\n      \"description\": \"Output is either '-1' (impossible to disconnect) or a non-negative integer k representing the minimum number of squares to delete to disconnect A, where k is within the bounds of the total painted squares\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == '-1' or (k := int(stdout.strip()) and exists_deletion_disconnects(stdin.splitlines()[1:], k))\",\n      \"description\": \"If output is k ≥ 0, there exists a set of exactly k painted squares whose removal disconnects A; otherwise, no such deletion exists (output is -1)\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == '-1' or (k := int(stdout.strip()) and not exists_deletion_disconnects(stdin.splitlines()[1:], k - 1))\",\n      \"description\": \"If output is k ≥ 0, no set of fewer than k deletions can disconnect A (optimality)\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"lambda grid: all(len(line) == m for line in grid) and all(c in {'.', '#'} for line in grid for c in line)\",\n      \"description\": \"Grid structure (n lines of m characters each) and character set {'.', '#'} are preserved across all operations\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1486,
+  "generated_tokens": 789,
+  "hit_output_limit": false,
+  "generation_seconds": 36.558,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:37:06.984093+00:00"
+}

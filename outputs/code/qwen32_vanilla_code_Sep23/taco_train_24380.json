@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_24380",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:31:56.826147+00:00",
+  "code": "import sys\n\ndef parse_price(price_str):\n    if '.' in price_str:\n        dollars, cents = price_str.split('.')\n        cents = cents.zfill(2)\n    else:\n        dollars, cents = price_str, '00'\n    \n    # Remove thousand separators\n    dollars = dollars.replace('.', '')\n    \n    return int(dollars), int(cents)\n\ndef format_price(total_cents):\n    total_dollars = total_cents // 100\n    cents = total_cents % 100\n    dollars_str = str(total_dollars)\n    \n    # Add thousand separators\n    parts = []\n    while len(dollars_str) > 3:\n        parts.append(dollars_str[-3:])\n        dollars_str = dollars_str[:-3]\n    parts.append(dollars_str)\n    formatted_dollars = '.'.join(reversed(parts))\n    \n    return f\"{formatted_dollars}.{cents:02}\"\n\ndef main():\n    bill = sys.stdin.read().strip()\n    total_cents = 0\n    i = 0\n    \n    while i < len(bill):\n        name = ''\n        while i < len(bill) and bill[i].isalpha():\n            name += bill[i]\n            i += 1\n        \n        price_str = ''\n        while i < len(bill) and (bill[i].isdigit() or bill[i] == '.'):\n            price_str += bill[i]\n            i += 1\n        \n        dollars, cents = parse_price(price_str)\n        total_cents += dollars * 100 + cents\n    \n    print(format_price(total_cents))\n\nmain()"
+}

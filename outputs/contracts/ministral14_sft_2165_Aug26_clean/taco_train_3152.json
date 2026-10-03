@@ -1,0 +1,86 @@
+{
+  "task_id": "taco_train_3152",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t >= 1 and t <= 10**5",
+        "description": "The number of test cases t is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 2 * 10**5 for n in [int(line) for line in stdin.splitlines() if line.strip().isdigit() and 1 <= int(line) <= 2 * 10**5])",
+        "description": "Each test case has n cities where n is between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(c) == n and all(1 <= ci <= 10**6 for ci in c) for c in [list(map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == n])",
+        "description": "Each test case has n initial flag colors c_i, where each c_i is between 1 and 1,000,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(d) == n and all(1 <= di <= 10**6 for di in d) for d in [list(map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == n])",
+        "description": "Each test case has n desired flag colors d_i, where each d_i is between 1 and 1,000,000 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(roads) == n - 1 for roads in [list(map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == 2])",
+        "description": "Each test case has exactly n-1 roads, forming a tree (connected and acyclic)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x <= n and 1 <= y <= n and x != y for x, y in roads)",
+        "description": "Each road connects two distinct cities within the range 1 to n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'Yes' or stdout.strip() == 'No'",
+        "description": "The first line of output for each test case is either 'Yes' or 'No', indicating whether a valid route exists."
+      },
+      {
+        "id": "Q2",
+        "expression": "(stdout.strip() == 'Yes') == (all(c_i != d_i for c_i, d_i in zip(c, d)) or any(k > 0 and all(c_i ^ d_i == 1 for c_i, d_i in zip(c, d)) for k, route in valid_routes))",
+        "description": "If 'Yes', there exists a route such that after traversing it, the flag colors match the desired colors d_i. If 'No', no such route exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(route) == k for k, route in valid_routes if k > 0)",
+        "description": "If 'Yes', the route length k is exactly the number of cities in the route."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(all(1 <= u <= n for u in route) for k, route in valid_routes if k > 0)",
+        "description": "Each city in the route is within the valid range 1 to n."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all(route[i] != route[i+1] or i == len(route) - 1 for i in range(len(route) - 1)) for k, route in valid_routes if k > 0)",
+        "description": "The route is a valid path in the tree, meaning consecutive cities are connected by a road."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(k == 0 or (k == min(len(route) for k, route in valid_routes)) for k, route in valid_routes if k > 0)",
+        "description": "If 'Yes', the route length k is the shortest possible among all valid routes."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t >= 1 and t <= 10**5\",\n      \"description\": \"The number of test cases t is between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= n <= 2 * 10**5 for n in [int(line) for line in stdin.splitlines() if line.strip().isdigit() and 1 <= int(line) <= 2 * 10**5])\",\n      \"description\": \"Each test case has n cities where n is between 2 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(c) == n and all(1 <= ci <= 10**6 for ci in c) for c in [list(map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == n])\",\n      \"description\": \"Each test case has n initial flag colors c_i, where each c_i is between 1 and 1,000,000 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(d) == n and all(1 <= di <= 10**6 for di in d) for d in [list(map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == n])\",\n      \"description\": \"Each test case has n desired flag colors d_i, where each d_i is between 1 and 1,000,000 inclusive.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(roads) == n - 1 for roads in [list(map(int, line.split())) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit() and len(line.split()) == 2])\",\n      \"description\": \"Each test case has exactly n-1 roads, forming a tree (connected and acyclic).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= x <= n and 1 <= y <= n and x != y for x, y in roads)\",\n      \"description\": \"Each road connects two distinct cities within the range 1 to n.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'Yes' or stdout.strip() == 'No'\",\n      \"description\": \"The first line of output for each test case is either 'Yes' or 'No', indicating whether a valid route exists.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"(stdout.strip() == 'Yes') == (all(c_i != d_i for c_i, d_i in zip(c, d)) or any(k > 0 and all(c_i ^ d_i == 1 for c_i, d_i in zip(c, d)) for k, route in valid_routes))\",\n      \"description\": \"If 'Yes', there exists a route such that after traversing it, the flag colors match the desired colors d_i. If 'No', no such route exists.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(route) == k for k, route in valid_routes if k > 0)\",\n      \"description\": \"If 'Yes', the route length k is exactly the number of cities in the route.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(all(1 <= u <= n for u in route) for k, route in valid_routes if k > 0)\",\n      \"description\": \"Each city in the route is within the valid range 1 to n.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(all(route[i] != route[i+1] or i == len(route) - 1 for i in range(len(route) - 1)) for k, route in valid_routes if k > 0)\",\n      \"description\": \"The route is a valid path in the tree, meaning consecutive cities are connected by a road.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(k == 0 or (k == min(len(route) for k, route in valid_routes)) for k, route in valid_routes if k > 0)\",\n      \"description\": \"If 'Yes', the route length k is the shortest possible among all valid routes.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2285,
+  "generated_tokens": 1085,
+  "hit_output_limit": false,
+  "generation_seconds": 49.297,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:41:07.155688+00:00"
+}

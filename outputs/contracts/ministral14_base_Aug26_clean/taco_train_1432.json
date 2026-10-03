@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_1432",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 10**5 for line in stdin.splitlines() for x in line.split() if x.isdigit())",
+        "description": "All integers in input are within bounds 1 ≤ n, m ≤ 10^5 and 1 ≤ ui, vi, ai, bi ≤ n."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 2 + n - 1 + m",
+        "description": "Input consists of exactly n + m lines: first line with n and m, followed by n-1 edges, then m operations."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:1+n-1]) and all(len(line.split()) == 2 for line in stdin.splitlines()[1+n-1:])",
+        "description": "Each edge and operation line contains exactly two integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(int(ui) != int(vi) for line in stdin.splitlines()[1:1+n-1] for ui, vi in [line.split()])",
+        "description": "Each edge connects distinct nodes (ui ≠ vi)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(int(ai) != int(bi) for line in stdin.splitlines()[1+n-1:] for ai, bi in [line.split()])",
+        "description": "Each operation involves distinct nodes (ai ≠ bi)."
+      },
+      {
+        "id": "P6",
+        "expression": "is_tree(stdin.splitlines()[1:1+n-1])",
+        "description": "The given edges form an undirected tree with root at node 1 (connected, acyclic, and root is node 1)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout.split()) == n and all(stdout.split()[i].isdigit() for i in range(n))",
+        "description": "Output contains exactly n space-separated integers, one for each node."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(c) <= n-1 for c in stdout.split())",
+        "description": "Each ci is a non-negative integer ≤ n-1 (since j ≠ i)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(ci == sum(1 for j in range(1, n+1) if j != i and has_common_element(get_node_list(i), get_node_list(j))) for i, ci in enumerate(map(int, stdout.split()), 1))",
+        "description": "For each node i, ci equals the count of nodes j ≠ i such that the lists of node i and node j share at least one common number. Here, get_node_list(i) returns the list of numbers in node i after all operations, and has_common_element(a, b) checks if sets(a) and sets(b) have non-empty intersection."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 10**5 for line in stdin.splitlines() for x in line.split() if x.isdigit())\",\n      \"description\": \"All integers in input are within bounds 1 ≤ n, m ≤ 10^5 and 1 ≤ ui, vi, ai, bi ≤ n.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 2 + n - 1 + m\",\n      \"description\": \"Input consists of exactly n + m lines: first line with n and m, followed by n-1 edges, then m operations.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:1+n-1]) and all(len(line.split()) == 2 for line in stdin.splitlines()[1+n-1:])\",\n      \"description\": \"Each edge and operation line contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(int(ui) != int(vi) for line in stdin.splitlines()[1:1+n-1] for ui, vi in [line.split()])\",\n      \"description\": \"Each edge connects distinct nodes (ui ≠ vi).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(int(ai) != int(bi) for line in stdin.splitlines()[1+n-1:] for ai, bi in [line.split()])\",\n      \"description\": \"Each operation involves distinct nodes (ai ≠ bi).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"is_tree(stdin.splitlines()[1:1+n-1])\",\n      \"description\": \"The given edges form an undirected tree with root at node 1 (connected, acyclic, and root is node 1).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(stdout.split()) == n and all(stdout.split()[i].isdigit() for i in range(n))\",\n      \"description\": \"Output contains exactly n space-separated integers, one for each node.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(c) <= n-1 for c in stdout.split())\",\n      \"description\": \"Each ci is a non-negative integer ≤ n-1 (since j ≠ i).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(ci == sum(1 for j in range(1, n+1) if j != i and has_common_element(get_node_list(i), get_node_list(j))) for i, ci in enumerate(map(int, stdout.split()), 1))\",\n      \"description\": \"For each node i, ci equals the count of nodes j ≠ i such that the lists of node i and node j share at least one common number. Here, get_node_list(i) returns the list of numbers in node i after all operations, and has_common_element(a, b) checks if sets(a) and sets(b) have non-empty intersection.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1549,
+  "generated_tokens": 770,
+  "hit_output_limit": false,
+  "generation_seconds": 37.412,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:16:37.316131+00:00"
+}

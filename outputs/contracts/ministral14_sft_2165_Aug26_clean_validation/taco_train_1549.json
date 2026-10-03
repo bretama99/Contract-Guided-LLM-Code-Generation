@@ -1,0 +1,584 @@
+{
+  "task_id": "taco_train_1549",
+  "task_index": 229,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10**5 and 1 <= l <= n and 0 <= w <= 10**9",
+        "description": "Input constraints: n is the number of vertices, l is the maximum path length, and w is the maximum path weight."
+      },
+      {
+        "id": "P2",
+        "expression": "len(edges) == n - 1",
+        "description": "The tree has exactly n-1 edges, where edges are parsed from input."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= p < (i + 1) <= n and 0 <= weight <= 10**4 for i, (p, weight) in enumerate(edges))",
+        "description": "Each edge connects vertex (i+1) to p with weight in [0, 10^4]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == str(sum(1 for v in range(1, n) for u in range(v + 1, n + 1) if (path_length(v, u, edges) <= l and path_weight(v, u, edges) <= w)))",
+        "description": "The output is the count of unordered vertex pairs (v, u) where v < u and they are close, defined as having a path of length ≤ l and a path of weight ≤ w between them."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10**5 and 1 <= l <= n and 0 <= w <= 10**9",
+        "description": "Input constraints: n is the number of vertices, l is the maximum path length, and w is the maximum path weight."
+      },
+      {
+        "id": "P2",
+        "expression": "len(edges) == n - 1",
+        "description": "The tree has exactly n-1 edges, where edges are parsed from input."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= p < (i + 1) <= n and 0 <= weight <= 10**4 for i, (p, weight) in enumerate(edges))",
+        "description": "Each edge connects vertex (i+1) to p with weight in [0, 10^4]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(count_close_pairs(n, l, w, edges))",
+        "description": "The output is the count of unordered vertex pairs (v, u) where v < u and they are close, defined as having a path of length ≤ l and a path of weight ≤ w between them."
+      },
+      {
+        "id": "Q2",
+        "expression": "count_close_pairs(n, l, w, edges) == sum(1 for v in range(1, n) for u in range(v + 1, n + 1) if are_close(v, u, n, l, w, edges))",
+        "description": "The count is the sum of 1 for every valid pair (v, u) where v < u and they are close."
+      },
+      {
+        "id": "Q3",
+        "expression": "are_close(v, u, n, l, w, edges) == (path_length(v, u, edges) <= l and path_weight(v, u, edges) <= w)",
+        "description": "Two vertices v and u are close if there exists a path between them with length ≤ l and weight ≤ w."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "1a2c4f90360b2d15b2338bc2be2346ae8317c37044e44622cd6046a11ead9273",
+  "selected_contract_fingerprint": "12db418c184f03a50da74ae460454cb177e847c99d3313858f1b2113ebcc5c0f",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_1549.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+      "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+      "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+        "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+        "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+        "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly enforce the ordering constraint (v < u) in the count. The current expression does not guarantee this in a way that is directly verifiable from the expression alone.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to ensure it directly reflects the task's requirement of counting only pairs where v < u. The current expression is redundant and does not enforce the ordering constraint in a way that is directly verifiable from the expression alone.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to ensure it directly reflects the task's requirement of counting only pairs where v < u. The current expression does not enforce the ordering constraint in a way that is directly verifiable from the expression alone.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[1].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "1 <= n <= 10**5 and 1 <= l <= n and 0 <= w <= 10**9",
+          "description": "Input constraints: n is the number of vertices, l is the maximum path length, and w is the maximum path weight."
+        },
+        {
+          "id": "P2",
+          "expression": "len(edges) == n - 1",
+          "description": "The tree has exactly n-1 edges, where edges are parsed from input."
+        },
+        {
+          "id": "P3",
+          "expression": "all(1 <= p < (i + 1) <= n and 0 <= weight <= 10**4 for i, (p, weight) in enumerate(edges))",
+          "description": "Each edge connects vertex (i+1) to p with weight in [0, 10^4]."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout.strip() == str(sum(1 for v in range(1, n) for u in range(v + 1, n + 1) if (path_length(v, u, edges) <= l and path_weight(v, u, edges) <= w)))",
+          "description": "The output is the count of unordered vertex pairs (v, u) where v < u and they are close, defined as having a path of length ≤ l and a path of weight ≤ w between them."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+          "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "count_close_pairs(n, l, w, edges) == sum(1 for v in range(1, n) for u in range(v + 1, n + 1) if are_close(v, u, n, l, w, edges))",
+          "description": "The count is the sum of 1 for every valid unordered pair (v, u) where v < u and they are close."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "01c2659b618f8dd0bca40708b493ecd19ec2906fac7a915c8ef1629c8413258f",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression must directly reflect the task's requirement to count unordered pairs (v, u) where v < u and they are close. The current expression assumes a helper function `count_close_pairs` that is not defined in the contract. Replace with a direct expression that computes the count using the tree structure and constraints.",
+            "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "The expression is redundant and does not directly reflect the task's requirement. Replace with a direct expression that computes the count of valid pairs (v, u) where v < u and they are close, using the tree structure and constraints.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression assumes a helper function `are_close` that is not defined in the contract. Replace with a direct expression that checks the path length and weight constraints for vertices v and u using the tree structure.",
+            "task_evidence": "Two vertices are close if there exists a path of length at most l between them and a path of weight at most w between them.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "This clause is redundant and does not add any new information beyond what is already covered in postconditions[1].",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a direct expression that computes the count of valid pairs (v, u) where v < u and they are close, using the tree structure and constraints. This should be a single, complete expression that captures the task's requirement without relying on undefined helpers.",
+            "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 5
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+          "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "stdout == str(sum(1 for v in range(1, n) for u in range(v + 1, n + 1) if (path_length(v, u, edges) <= l and path_weight(v, u, edges) <= w)))",
+          "description": "The output is the count of unordered vertex pairs (v, u) where v < u and they are close, defined as having a path of length ≤ l and a path of weight ≤ w between them."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "12c7683fa5b4f7ece403d1de3547244c09888a2c69d3231291ab4d81d0113adb",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Remove this clause as it is a duplicate of postconditions[1].expression and does not add new semantic value.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly states the output must be an integer (no leading/trailing whitespace or non-digit characters).",
+            "task_evidence": "Output: \"Print a single integer — the number of close pairs.\"",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output is computed correctly for all valid inputs, including edge cases (e.g., n=1, l=1, w=0).",
+            "task_evidence": "Input constraints: 1 ≤ n ≤ 10^5, 1 ≤ l ≤ n, 0 ≤ w ≤ 10^9.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output is computed efficiently (e.g., no O(n^3) brute-force path checks).",
+            "task_evidence": "Input size: n ≤ 10^5 (requires O(n^2) or better).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output is computed for all pairs (v, u) where v < u, without double-counting or missing any pair.",
+            "task_evidence": "Output: \"Count the number of pairs of vertices v, u (v < u)\"",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the requirement to count **only** unordered pairs (v, u) where v < u, as the task explicitly states 'v < u' and the current contract does not enforce this in the expression-level semantics of the whole contract.",
+            "task_evidence": "Count the number of pairs of vertices v, u (v < u), such that vertices v and u are close.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == str(sum(1 for v in range(1, n) for u in range(v + 1, n + 1) if (path_length(v, u, edges) <= l and path_weight(v, u, edges) <= w)))",
+            "description": "The output is the count of unordered vertex pairs (v, u) where v < u and they are close, defined as having a path of length ≤ l and a path of weight ≤ w between them."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "12db418c184f03a50da74ae460454cb177e847c99d3313858f1b2113ebcc5c0f",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 118.133,
+  "processing_error": null,
+  "finished_at": "2026-09-04T05:54:31.012888+00:00"
+}

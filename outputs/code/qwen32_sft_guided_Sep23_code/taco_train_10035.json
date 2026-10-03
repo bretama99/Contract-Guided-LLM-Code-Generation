@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_10035",
+  "task_index": 457,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_10035.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef bfs(start, graph):\n    visited = [False] * (n + 1)\n    queue = deque([(start, 0)])\n    visited[start] = True\n    distances = [-1] * (n + 1)\n    distances[start] = 0\n    while queue:\n        node, dist = queue.popleft()\n        for neighbor in graph[node]:\n            if not visited[neighbor]:\n                visited[neighbor] = True\n                distances[neighbor] = dist + 1\n                queue.append((neighbor, dist + 1))\n    return distances\n\ndef find_bus_routes(routes):\n    bus_graph = defaultdict(set)\n    for a, b in routes:\n        bus_graph[a].add(b)\n        bus_graph[b].add(a)\n    return bus_graph\n\ndef min_buses_to_reach(v, u, bus_distances, tree_distances):\n    if bus_distances[v][u] == -1:\n        return -1\n    if tree_distances[v][u] == 1:\n        return 0\n    min_buses = float('inf')\n    for i in range(1, n + 1):\n        if bus_distances[v][i] != -1 and bus_distances[i][u] != -1:\n            min_buses = min(min_buses, bus_distances[v][i] + bus_distances[i][u])\n    return min_buses if min_buses != float('inf') else -1\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nroads = list(map(int, input[1:n]))\nm = int(input[n])\nbus_routes = [(int(input[n + 1 + 2 * i]), int(input[n + 2 + 2 * i])) for i in range(m)]\nq = int(input[n + 1 + 2 * m])\nquestions = [(int(input[n + 2 + 2 * m + 2 * i]), int(input[n + 3 + 2 * m + 2 * i])) for i in range(q)]\n\ntree = defaultdict(list)\nfor i in range(1, n):\n    tree[roads[i]].append(i + 1)\n    tree[i + 1].append(roads[i])\n\ntree_distances = [bfs(i, tree) for i in range(1, n + 1)]\n\nbus_graph = find_bus_routes(bus_routes)\nbus_distances = [bfs(i, bus_graph) for i in range(1, n + 1)]\n\nresults = []\nfor v, u in questions:\n    results.append(min_buses_to_reach(v, u, bus_distances, tree_distances))\n\nprint('\\n'.join(map(str, results)))",
+  "generation_seconds": 50.202,
+  "generated_at": "2026-09-23T20:21:39.963862+00:00"
+}

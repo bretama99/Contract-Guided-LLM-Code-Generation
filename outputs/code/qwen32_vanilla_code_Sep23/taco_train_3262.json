@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_3262",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:21:08.016507+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    m = int(input[index + 1])\n    index += 2\n    points = list(map(int, input[index:index + n]))\n    index += n\n    segments = []\n    for _ in range(m):\n        l = int(input[index])\n        r = int(input[index + 1])\n        segments.append((l, r))\n        index += 2\n\n    # Create a graph where each node represents a point\n    # An edge between two nodes means they cannot have the same color\n    graph = defaultdict(list)\n    for l, r in segments:\n        for i in range(n):\n            if l <= points[i] <= r:\n                for j in range(i + 1, n):\n                    if l <= points[j] <= r:\n                        graph[points[i]].append(points[j])\n                        graph[points[j]].append(points[i])\n\n    # Try to color the graph using two colors (0 and 1)\n    color = {}\n\n    def dfs(node, c):\n        color[node] = c\n        for neighbor in graph[node]:\n            if neighbor not in color:\n                if not dfs(neighbor, 1 - c):\n                    return False\n            elif color[neighbor] == c:\n                return False\n        return True\n\n    # Check if we can color the graph\n    for point in points:\n        if point not in color:\n            if not dfs(point, 0):\n                print(-1)\n                return\n\n    # Output the coloring\n    point_to_color = {point: color[point] for point in points}\n    result = [point_to_color[point] for point in points]\n    print(' '.join(map(str, result)))\n\nif __name__ == \"__main__\":\n    main()"
+}

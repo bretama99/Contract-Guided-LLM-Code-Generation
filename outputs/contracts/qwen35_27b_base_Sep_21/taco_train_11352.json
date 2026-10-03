@@ -1,0 +1,75 @@
+{
+  "task_id": "taco_train_11352",
+  "task_index": 821,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 100",
+        "description": "The number of operators n is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.strip()) > 0 for line in stdin_lines[1:])",
+        "description": "Each of the n operator lines is non-empty."
+      },
+      {
+        "id": "P3",
+        "expression": "all(op.startswith('typedef ') or op.startswith('typeof ') for op in stdin_lines[1:])",
+        "description": "Each operator line starts with either 'typedef ' or 'typeof '."
+      },
+      {
+        "id": "P4",
+        "expression": "all(not ('*' in B or '&' in B) for op in stdin_lines[1:] if op.startswith('typedef ') for B in [op.split()[2]])",
+        "description": "In typedef A B, the type name B contains no asterisks or ampersands."
+      },
+      {
+        "id": "P5",
+        "expression": "all(B not in ['void', 'errtype'] for op in stdin_lines[1:] if op.startswith('typedef ') for B in [op.split()[2]])",
+        "description": "In typedef A B, the type name B is neither 'void' nor 'errtype'."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(name) <= 20 and name.islower() and name.isalpha() for op in stdin_lines[1:] for name in [op.split()[1]] if op.startswith('typeof '))",
+        "description": "Type names in typeof operators are non-empty, at most 20 lowercase Latin letters."
+      },
+      {
+        "id": "P7",
+        "expression": "all(count_stars <= 10 and count_amps <= 10 for op in stdin_lines[1:] for A in [op.split()[1]] if op.startswith('typedef ') or op.startswith('typeof ') for count_stars, count_amps in [(A.count('*'), A.count('&'))])",
+        "description": "In any operator, the number of asterisks and ampersands in the type expression A separately does not exceed 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == sum(1 for op in stdin_lines[1:] if op.startswith('typeof '))",
+        "description": "The number of output lines equals the number of typeof operators in the input."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.startswith('void') and line.count('*') >= 0 and line.count('&') == 0 and (line == 'void' or line.startswith('void*')) for line in stdout_lines)",
+        "description": "Each output line is a valid canonical type representation: 'void' followed by zero or more asterisks, with no ampersands."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(line == 'errtype' or (line.startswith('void') and line.count('*') >= 0) for line in stdout_lines)",
+        "description": "Each output line is either 'errtype' or a valid void-based pointer type."
+      },
+      {
+        "id": "Q4",
+        "expression": "True",
+        "description": "For each typeof A operator, the output line corresponds to the canonical form of A resolved according to the &K* rules: typedefs are processed sequentially, dereferencing void yields errtype, errtype absorbs all pointer/dereference operations, undefined types yield errtype, and &T* simplifies to T."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 85.592,
+  "seed": 863,
+  "generated_at": "2026-09-21T10:24:04.860869+00:00"
+}

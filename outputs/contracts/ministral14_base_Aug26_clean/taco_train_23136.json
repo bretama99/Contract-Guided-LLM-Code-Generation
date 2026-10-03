@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_23136",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and m >= n - 1 and m <= 10**6 and 2 <= n <= 10**5",
+        "description": "Input must have n destinations (2 ≤ n ≤ 10^5) and m corridors (n-1 ≤ m ≤ 10^6), where n is the number of nodes and m is the number of edges in the graph."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b and 0 <= e <= 10**9 for a, b, e in corridors)",
+        "description": "Each corridor is defined by two distinct destinations (1 ≤ a, b ≤ n, a ≠ b) and an energy requirement (0 ≤ e ≤ 10^9)."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set((min(a, b), max(a, b)) for a, b, e in corridors)) == m",
+        "description": "No pair of destinations {a, b} repeats in the input (undirected edges are unique)."
+      },
+      {
+        "id": "P4",
+        "expression": "is_connected(n, corridors)",
+        "description": "The graph formed by the corridors is connected (there exists a path between any two destinations)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == m and all(0 <= e_max <= 10**9 for e_max in output_lines)",
+        "description": "Output contains exactly m integers, each representing E_max(c_i) for the i-th corridor, where 0 ≤ E_max(c_i) ≤ 10^9."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output_lines[i] == max_e(c_i, corridors) for i, c_i in enumerate(corridors))",
+        "description": "For each corridor c_i = (a_i, b_i, e_i), E_max(c_i) is the largest e ≤ 10^9 such that if the energy requirement of c_i were changed to e, then c_i would be part of some minimum spanning tree (MST) of the graph."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= e_max <= e_i or (e_max > e_i and is_in_mst(c_i, corridors, e_max)) for i, (a_i, b_i, e_i) in enumerate(corridors) for e_max in [output_lines[i]])",
+        "description": "If E_max(c_i) > e_i, then the corridor c_i must be part of at least one MST when its energy is set to E_max(c_i). If E_max(c_i) ≤ e_i, then c_i is not part of any MST when its energy is set to E_max(c_i) + 1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and m >= n - 1 and m <= 10**6 and 2 <= n <= 10**5\",\n      \"description\": \"Input must have n destinations (2 ≤ n ≤ 10^5) and m corridors (n-1 ≤ m ≤ 10^6), where n is the number of nodes and m is the number of edges in the graph.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and a != b and 0 <= e <= 10**9 for a, b, e in corridors)\",\n      \"description\": \"Each corridor is defined by two distinct destinations (1 ≤ a, b ≤ n, a ≠ b) and an energy requirement (0 ≤ e ≤ 10^9).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(set((min(a, b), max(a, b)) for a, b, e in corridors)) == m\",\n      \"description\": \"No pair of destinations {a, b} repeats in the input (undirected edges are unique).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"is_connected(n, corridors)\",\n      \"description\": \"The graph formed by the corridors is connected (there exists a path between any two destinations).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output_lines) == m and all(0 <= e_max <= 10**9 for e_max in output_lines)\",\n      \"description\": \"Output contains exactly m integers, each representing E_max(c_i) for the i-th corridor, where 0 ≤ E_max(c_i) ≤ 10^9.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output_lines[i] == max_e(c_i, corridors) for i, c_i in enumerate(corridors))\",\n      \"description\": \"For each corridor c_i = (a_i, b_i, e_i), E_max(c_i) is the largest e ≤ 10^9 such that if the energy requirement of c_i were changed to e, then c_i would be part of some minimum spanning tree (MST) of the graph.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= e_max <= e_i or (e_max > e_i and is_in_mst(c_i, corridors, e_max)) for i, (a_i, b_i, e_i) in enumerate(corridors) for e_max in [output_lines[i]])\",\n      \"description\": \"If E_max(c_i) > e_i, then the corridor c_i must be part of at least one MST when its energy is set to E_max(c_i). If E_max(c_i) ≤ e_i, then c_i is not part of any MST when its energy is set to E_max(c_i) + 1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1386,
+  "generated_tokens": 739,
+  "hit_output_limit": false,
+  "generation_seconds": 33.099,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:09:11.485245+00:00"
+}

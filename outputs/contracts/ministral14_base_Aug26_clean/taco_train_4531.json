@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_4531",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and n <= 2 * 10**5",
+        "description": "The number of towns n is an integer between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(a) == n and all(1 <= a_i <= n for a_i in a) and all(a_i != i for i in range(1, n + 1))",
+        "description": "The input list a has exactly n elements, each a_i is an integer between 1 and n inclusive, and no road points to itself (a_i ≠ i)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(count_valid_flips(n, a))",
+        "description": "The output is a string representing the number of valid subsets of roads to flip (modulo 10^9 + 7) such that the resulting directed graph has no directed cycles. The count is computed as follows: For each possible subset of roads to flip, the resulting graph must be a directed acyclic graph (DAG)."
+      },
+      {
+        "id": "Q2",
+        "expression": "count_valid_flips(n, a) == sum(1 for mask in range(0, 2**n) if is_dag(n, a, mask))",
+        "description": "The function count_valid_flips(n, a) counts all subsets of roads (represented by a bitmask) where flipping the roads in the subset results in a DAG. A DAG is defined as a directed graph with no directed cycles of length ≥ 1. The bitmask is an integer where the i-th bit (0-based) indicates whether the i-th road (1-based) is flipped."
+      },
+      {
+        "id": "Q3",
+        "expression": "is_dag(n, a, mask) == not any(has_directed_cycle(n, a, mask))",
+        "description": "The helper predicate is_dag(n, a, mask) checks if the resulting graph after flipping roads according to mask has no directed cycles. A directed cycle exists if there is a sequence of distinct towns A_1, A_2, ..., A_k (k ≥ 1) such that for every 1 ≤ i < k there is a directed road from A_i to A_{i+1} and a directed road from A_k to A_1."
+      },
+      {
+        "id": "Q4",
+        "expression": "has_directed_cycle(n, a, mask) == any(all(1 <= A_i <= n for A_i in cycle) and len(set(cycle)) == len(cycle) and all((A_i, A_{i+1}) in get_edges(n, a, mask) for i in range(len(cycle) - 1)) and (cycle[-1], cycle[0]) in get_edges(n, a, mask) for cycle in all_possible_cycles(n))",
+        "description": "The helper predicate has_directed_cycle(n, a, mask) checks if there exists any directed cycle in the graph after flipping roads according to mask. The edges are determined by the original roads and the flips specified by mask. A cycle is a sequence of distinct towns where each consecutive pair (and the last to first) forms a directed edge in the graph."
+      },
+      {
+        "id": "Q5",
+        "expression": "get_edges(n, a, mask) == {(i, a_i if not (mask & (1 << (i - 1))) else a_i) for i in range(1, n + 1)} | {(a_i, i) for i in range(1, n + 1) if (mask & (1 << (i - 1)))}",
+        "description": "The helper function get_edges(n, a, mask) returns the set of directed edges in the graph after flipping roads according to mask. For each road i (1-based), if the i-th bit in mask is set, the edge is reversed from (i, a_i) to (a_i, i); otherwise, it remains (i, a_i)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 2 and n <= 2 * 10**5\",\n      \"description\": \"The number of towns n is an integer between 2 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(a) == n and all(1 <= a_i <= n for a_i in a) and all(a_i != i for i in range(1, n + 1))\",\n      \"description\": \"The input list a has exactly n elements, each a_i is an integer between 1 and n inclusive, and no road points to itself (a_i ≠ i).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == str(count_valid_flips(n, a))\",\n      \"description\": \"The output is a string representing the number of valid subsets of roads to flip (modulo 10^9 + 7) such that the resulting directed graph has no directed cycles. The count is computed as follows: For each possible subset of roads to flip, the resulting graph must be a directed acyclic graph (DAG).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"count_valid_flips(n, a) == sum(1 for mask in range(0, 2**n) if is_dag(n, a, mask))\",\n      \"description\": \"The function count_valid_flips(n, a) counts all subsets of roads (represented by a bitmask) where flipping the roads in the subset results in a DAG. A DAG is defined as a directed graph with no directed cycles of length ≥ 1. The bitmask is an integer where the i-th bit (0-based) indicates whether the i-th road (1-based) is flipped.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"is_dag(n, a, mask) == not any(has_directed_cycle(n, a, mask))\",\n      \"description\": \"The helper predicate is_dag(n, a, mask) checks if the resulting graph after flipping roads according to mask has no directed cycles. A directed cycle exists if there is a sequence of distinct towns A_1, A_2, ..., A_k (k ≥ 1) such that for every 1 ≤ i < k there is a directed road from A_i to A_{i+1} and a directed road from A_k to A_1.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"has_directed_cycle(n, a, mask) == any(all(1 <= A_i <= n for A_i in cycle) and len(set(cycle)) == len(cycle) and all((A_i, A_{i+1}) in get_edges(n, a, mask) for i in range(len(cycle) - 1)) and (cycle[-1], cycle[0]) in get_edges(n, a, mask) for cycle in all_possible_cycles(n))\",\n      \"description\": \"The helper predicate has_directed_cycle(n, a, mask) checks if there exists any directed cycle in the graph after flipping roads according to mask. The edges are determined by the original roads and the flips specified by mask. A cycle is a sequence of distinct towns where each consecutive pair (and the last to first) forms a directed edge in the graph.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"get_edges(n, a, mask) == {(i, a_i if not (mask & (1 << (i - 1))) else a_i) for i in range(1, n + 1)} | {(a_i, i) for i in range(1, n + 1) if (mask & (1 << (i - 1)))}\",\n      \"description\": \"The helper function get_edges(n, a, mask) returns the set of directed edges in the graph after flipping roads according to mask. For each road i (1-based), if the i-th bit in mask is set, the edge is reversed from (i, a_i) to (a_i, i); otherwise, it remains (i, a_i).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1788,
+  "generated_tokens": 995,
+  "hit_output_limit": false,
+  "generation_seconds": 61.731,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:32:26.155289+00:00"
+}

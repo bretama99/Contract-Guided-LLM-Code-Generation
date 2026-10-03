@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_22147",
+  "task_index": 813,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_22147.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef find(x):\n    if parent[x] != x:\n        parent[x] = find(parent[x])\n    return parent[x]\n\ndef union(x, y):\n    rootX = find(x)\n    rootY = find(y)\n    if rootX != rootY:\n        if rank[rootX] > rank[rootY]:\n            parent[rootY] = rootX\n        elif rank[rootX] < rank[rootY]:\n            parent[rootX] = rootY\n        else:\n            parent[rootY] = rootX\n            rank[rootX] += 1\n\ndef calculate_beauty(u, v):\n    if u == v:\n        return 20\n    xor_result = u ^ v\n    k = 0\n    while xor_result % 2 == 0:\n        xor_result //= 2\n        k += 1\n    return k\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nnecklace_parts = [(int(input[2*i+1]), int(input[2*i+2])) for i in range(n)]\n\nparent = list(range(2*n))\nrank = [0] * (2*n)\n\nedges = []\nfor i, (a, b) in enumerate(necklace_parts):\n    beauty = calculate_beauty(a, b)\n    edges.append((beauty, 2*i, 2*i+1))\n\nedges.sort(reverse=True)\n\nmax_beauty = 0\nused = [False] * (2*n)\nresult = []\n\nfor beauty, u, v in edges:\n    if not used[u] and not used[v]:\n        max_beauty = beauty\n        union(u, v)\n        used[u] = True\n        used[v] = True\n        result.append(u+1)\n        result.append(v+1)\n\ncycle = []\nvisited = [False] * (2*n)\nstack = [result[0]]\nwhile stack:\n    current = stack.pop()\n    if not visited[current]:\n        visited[current] = True\n        cycle.append(current)\n        for i in range(0, 2*n, 2):\n            if find(i) == find(current) and not visited[i+1]:\n                stack.append(i+1)\n            elif find(i+1) == find(current) and not visited[i]:\n                stack.append(i)\n\nprint(max_beauty)\nprint(' '.join(map(str, cycle)))",
+  "generation_seconds": 44.826,
+  "generated_at": "2026-09-23T19:18:37.658772+00:00"
+}

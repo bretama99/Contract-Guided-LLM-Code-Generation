@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_259",
+  "task_index": 631,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_259.json",
+  "code": "import sys\nfrom math import gcd\n\nsys.setrecursionlimit(200000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    \n    x = [0] * (n + 1)\n    for i in range(1, n + 1):\n        x[i] = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    for _ in range(n - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    MOD = 10**9 + 7\n    \n    parent = [0] * (n + 1)\n    order = []\n    stack = [1]\n    visited = [False] * (n + 1)\n    visited[1] = True\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n    \n    dp = [{} for _ in range(n + 1)]\n    total_sum = 0\n    \n    for u in reversed(order):\n        current_gcds = {}\n        val = x[u]\n        \n        if val == 0:\n            current_gcds[0] = 1\n        else:\n            current_gcds[val] = 1\n        \n        if parent[u] != 0:\n            p = parent[u]\n            for g, count in dp[p].items():\n                new_g = gcd(g, val)\n                if new_g in current_gcds:\n                    current_gcds[new_g] += count\n                else:\n                    current_gcds[new_g] = count\n        \n        dp[u] = current_gcds\n        \n        for g, count in current_gcds.items():\n            term = (g % MOD) * (count % MOD)\n            total_sum = (total_sum + term) % MOD\n    \n    print(total_sum)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 45.838,
+  "generated_at": "2026-09-25T03:28:10.425946+00:00"
+}

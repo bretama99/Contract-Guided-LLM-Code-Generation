@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_10104",
+  "task_index": 977,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_10104.json",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    idx = 0\n    \n    if idx >= len(input_data):\n        return\n        \n    N = int(input_data[idx])\n    idx += 1\n    \n    adj = []\n    for i in range(N):\n        row = []\n        for j in range(N):\n            val = int(input_data[idx])\n            idx += 1\n            row.append(val)\n        adj.append(row)\n    \n    M = int(input_data[idx])\n    idx += 1\n    \n    queries = []\n    for _ in range(M):\n        k = int(input_data[idx])\n        idx += 1\n        x = int(input_data[idx])\n        idx += 1\n        queries.append((k, x))\n    \n    def mat_mul(A, B, size):\n        C = [[0] * size for _ in range(size)]\n        for i in range(size):\n            for k_idx in range(size):\n                if A[i][k_idx]:\n                    for j in range(size):\n                        if B[k_idx][j]:\n                            C[i][j] = 1\n        return C\n    \n    def mat_pow(A, p, size):\n        result = [[0] * size for _ in range(size)]\n        for r in range(size):\n            result[r][r] = 1\n        \n        base = [row[:] for row in A]\n        \n        while p > 0:\n            if p % 2 == 1:\n                result = mat_mul(result, base, size)\n            base = mat_mul(base, base, size)\n            p //= 2\n        \n        return result\n    \n    for k, x in queries:\n        if k == 0:\n            print(0)\n            print(-1)\n            continue\n        \n        power_matrix = mat_pow(adj, k, N)\n        \n        start_idx = x - 1\n        reachable = []\n        \n        for target_idx in range(N):\n            if power_matrix[start_idx][target_idx]:\n                reachable.append(target_idx + 1)\n        \n        reachable.sort()\n        \n        if not reachable:\n            print(0)\n            print(-1)\n        else:\n            print(len(reachable))\n            print(*(reachable))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 43.521,
+  "generated_at": "2026-09-22T21:25:28.583427+00:00"
+}

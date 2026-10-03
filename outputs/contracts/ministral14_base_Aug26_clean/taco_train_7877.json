@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_7877",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n > 0 and m > 0 and isinstance(n, int) and isinstance(m, int) and n * m <= 200000",
+        "description": "The board dimensions n (rows) and m (columns) are positive integers with total cells ≤ 200,000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(row) == m for row in stdin_lines[1:])",
+        "description": "Each of the n rows in the input has exactly m characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c in {'U', 'D', 'L', 'R'} for row in stdin_lines[1:] for c in row)",
+        "description": "Each cell is marked with one of 'U', 'D', 'L', or 'R', representing a half-domino orientation."
+      },
+      {
+        "id": "P4",
+        "expression": "all(any((i, j) == (i + di, j + dj) and stdin_lines[i + di][j + dj] == {'U': 'D', 'D': 'U', 'L': 'R', 'R': 'L'}[c] for di, dj in [(0, 1), (1, 0)] if 0 <= i + di < n and 0 <= j + dj < m) for i in range(n) for j in range(m) for c in [stdin_lines[i][j]])",
+        "description": "The tiling is valid: every half-domino has a matching counterpart in an adjacent cell (horizontally or vertically)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(len(distinct_free_pairs))",
+        "description": "The output is the count of distinct pairs of free cells (photos) Bill can produce by removing one domino and moving others under the given constraints."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(isinstance(pair, tuple) and len(pair) == 2 and 0 <= pair[0] < n and 0 <= pair[1] < m for pair in distinct_free_pairs)",
+        "description": "Each distinct free cell pair in the result is a valid coordinate pair (i, j) on the board."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(pair1 != pair2 for pair1 in distinct_free_pairs for pair2 in distinct_free_pairs if pair1 != pair2)",
+        "description": "All pairs in the result are unique (no duplicates)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any((i1, j1) == (i2, j2) or (i1, j1) == (i2 + di, j2 + dj) or (i2, j2) == (i1 + di, j1 + dj) for di, dj in [(0, 1), (1, 0)]) for (i1, j1) in distinct_free_pairs for (i2, j2) in distinct_free_pairs)",
+        "description": "Every pair of free cells in the result is either the same cell (invalid, but excluded by Q2) or adjacent horizontally or vertically (since dominoes cover adjacent cells)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any((i, j) == (i + di, j + dj) and (stdin_lines[i][j] == 'U' and stdin_lines[i + di][j + dj] == 'D') or (stdin_lines[i][j] == 'D' and stdin_lines[i + di][j + dj] == 'U') or (stdin_lines[i][j] == 'L' and stdin_lines[i + di][j + dj] == 'R') or (stdin_lines[i][j] == 'R' and stdin_lines[i + di][j + dj] == 'L') for di, dj in [(0, 1), (1, 0)]) for i in range(n) for j in range(m))",
+        "description": "The free cell pairs in the result are derived from valid domino removals and subsequent moves, where each domino's movement preserves adjacency to its original position."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n > 0 and m > 0 and isinstance(n, int) and isinstance(m, int) and n * m <= 200000\",\n      \"description\": \"The board dimensions n (rows) and m (columns) are positive integers with total cells ≤ 200,000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(row) == m for row in stdin_lines[1:])\",\n      \"description\": \"Each of the n rows in the input has exactly m characters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(c in {'U', 'D', 'L', 'R'} for row in stdin_lines[1:] for c in row)\",\n      \"description\": \"Each cell is marked with one of 'U', 'D', 'L', or 'R', representing a half-domino orientation.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(any((i, j) == (i + di, j + dj) and stdin_lines[i + di][j + dj] == {'U': 'D', 'D': 'U', 'L': 'R', 'R': 'L'}[c] for di, dj in [(0, 1), (1, 0)] if 0 <= i + di < n and 0 <= j + dj < m) for i in range(n) for j in range(m) for c in [stdin_lines[i][j]])\",\n      \"description\": \"The tiling is valid: every half-domino has a matching counterpart in an adjacent cell (horizontally or vertically).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == str(len(distinct_free_pairs))\",\n      \"description\": \"The output is the count of distinct pairs of free cells (photos) Bill can produce by removing one domino and moving others under the given constraints.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(isinstance(pair, tuple) and len(pair) == 2 and 0 <= pair[0] < n and 0 <= pair[1] < m for pair in distinct_free_pairs)\",\n      \"description\": \"Each distinct free cell pair in the result is a valid coordinate pair (i, j) on the board.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(pair1 != pair2 for pair1 in distinct_free_pairs for pair2 in distinct_free_pairs if pair1 != pair2)\",\n      \"description\": \"All pairs in the result are unique (no duplicates).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any((i1, j1) == (i2, j2) or (i1, j1) == (i2 + di, j2 + dj) or (i2, j2) == (i1 + di, j1 + dj) for di, dj in [(0, 1), (1, 0)]) for (i1, j1) in distinct_free_pairs for (i2, j2) in distinct_free_pairs)\",\n      \"description\": \"Every pair of free cells in the result is either the same cell (invalid, but excluded by Q2) or adjacent horizontally or vertically (since dominoes cover adjacent cells).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any((i, j) == (i + di, j + dj) and (stdin_lines[i][j] == 'U' and stdin_lines[i + di][j + dj] == 'D') or (stdin_lines[i][j] == 'D' and stdin_lines[i + di][j + dj] == 'U') or (stdin_lines[i][j] == 'L' and stdin_lines[i + di][j + dj] == 'R') or (stdin_lines[i][j] == 'R' and stdin_lines[i + di][j + dj] == 'L') for di, dj in [(0, 1), (1, 0)]) for i in range(n) for j in range(m))\",\n      \"description\": \"The free cell pairs in the result are derived from valid domino removals and subsequent moves, where each domino's movement preserves adjacency to its original position.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1707,
+  "generated_tokens": 1044,
+  "hit_output_limit": false,
+  "generation_seconds": 47.053,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:44:20.343941+00:00"
+}

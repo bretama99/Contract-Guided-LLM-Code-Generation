@@ -1,0 +1,512 @@
+{
+  "task_id": "taco_train_5187",
+  "task_index": 361,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "description": "The input size n is a positive integer between 1 and 100000 inclusive.",
+        "expression": "1 <= n <= 10**5",
+        "id": "P1"
+      },
+      {
+        "description": "Each integer b_i in the input list satisfies 1 ≤ b_i < 2^60.",
+        "expression": "all(1 <= b_i < 2**60 for b_i in b_list)",
+        "id": "P2"
+      },
+      {
+        "description": "The input list b_list contains exactly n integers.",
+        "expression": "len(b_list) == n",
+        "id": "P3"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and len(stdout.split()) == 2)",
+        "description": "Output is either 'No' (no valid permutation) or 'Yes' followed by a permutation of b_list."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and sorted(b_list) == sorted(stdout.split()[1:]))",
+        "description": "If 'Yes', the output permutation is a valid rearrangement of the input b_list."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and all((lambda b_prime: [b_prime[0]] + [b_prime[i] ^ b_prime[i-1] for i in range(1, len(b_prime))])(list(map(int, stdout.split()[1:])))[i] < (lambda b_prime: [b_prime[0]] + [b_prime[i] ^ b_prime[i-1] for i in range(1, len(b_prime))])(list(map(int, stdout.split()[1:])))[i+1] for i in range(len(list(map(int, stdout.split()[1:])))-1)))",
+        "description": "If 'Yes', the sequence a_i = b'_1 ⊕ ... ⊕ b'_i is strictly increasing, where b'_i is the output permutation and a_i is computed as the cumulative XOR of the permutation elements."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10**5",
+        "description": "The input size n is a positive integer between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= b_i < 2**60 for b_i in b_list)",
+        "description": "Each integer b_i in the input list satisfies 1 ≤ b_i < 2^60."
+      },
+      {
+        "id": "P3",
+        "expression": "len(b_list) == n",
+        "description": "The input list b_list contains exactly n integers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and len(stdout.split()) == 2)",
+        "description": "Output is either 'No' (no valid permutation) or 'Yes' followed by a permutation of b_list."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and sorted(b_list) == sorted(stdout.split()[1:]))",
+        "description": "If 'Yes', the output permutation is a valid rearrangement of the input b_list."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and all(a_i < a_{i+1} for i in range(n-1)))",
+        "description": "If 'Yes', the sequence a_i = b'_1 ⊕ ... ⊕ b'_i is strictly increasing, where b'_i is the output permutation."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "0968e4ab519b8a21518412e64cb0d0b7b1a20bc4f279ea53c116fe143a9f6ade",
+  "selected_contract_fingerprint": "2d815e244ea4165a8471c66dc55240724af035783cc1c8891f2fe69e3d214b8d",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_5187.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+      "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+      "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+        "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+        "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+        "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence `a_i` is computed as the cumulative XOR of the permutation `b'_i`.",
+        "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "description": "The input size n is a positive integer between 1 and 100000 inclusive.",
+          "expression": "1 <= n <= 10**5",
+          "id": "P1"
+        },
+        {
+          "description": "Each integer b_i in the input list satisfies 1 ≤ b_i < 2^60.",
+          "expression": "all(1 <= b_i < 2**60 for b_i in b_list)",
+          "id": "P2"
+        },
+        {
+          "description": "The input list b_list contains exactly n integers.",
+          "expression": "len(b_list) == n",
+          "id": "P3"
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and len(stdout.split()) == 2)",
+          "description": "Output is either 'No' (no valid permutation) or 'Yes' followed by a permutation of b_list."
+        },
+        {
+          "id": "Q2",
+          "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and sorted(b_list) == sorted(stdout.split()[1:]))",
+          "description": "If 'Yes', the output permutation is a valid rearrangement of the input b_list."
+        },
+        {
+          "id": "Q3",
+          "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and all((lambda b_prime: [b_prime[0]] + [b_prime[i] ^ b_prime[i-1] for i in range(1, len(b_prime))])(list(map(int, stdout.split()[1:])))[i] < (lambda b_prime: [b_prime[0]] + [b_prime[i] ^ b_prime[i-1] for i in range(1, len(b_prime))])(list(map(int, stdout.split()[1:])))[i+1] for i in range(len(list(map(int, stdout.split()[1:])))-1)))",
+          "description": "If 'Yes', the sequence a_i = b'_1 ⊕ ... ⊕ b'_i is strictly increasing, where b'_i is the output permutation and a_i is computed as the cumulative XOR of the permutation elements."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+          "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "The expression for Q3 is incorrect because it does not compute the sequence `a_i` as the cumulative XOR of the permutation `b'_i`. The current expression only checks if `a_i` is strictly increasing, but does not define `a_i` as `b'_1 ⊕ ... ⊕ b'_i`.",
+          "task_evidence": "a_i = b_1 ⊕ … ⊕ b_i",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "stdout == 'No' or (stdout.split()[0] == 'Yes' and all((lambda b_prime: [b_prime[0]] + [b_prime[i] ^ b_prime[i-1] for i in range(1, len(b_prime))])(list(map(int, stdout.split()[1:])))[i] < (lambda b_prime: [b_prime[0]] + [b_prime[i] ^ b_prime[i-1] for i in range(1, len(b_prime))])(list(map(int, stdout.split()[1:])))[i+1] for i in range(len(list(map(int, stdout.split()[1:])))-1)))",
+          "description": "If 'Yes', the sequence a_i = b'_1 ⊕ ... ⊕ b'_i is strictly increasing, where b'_i is the output permutation and a_i is computed as the cumulative XOR of the permutation elements."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "c8c4cd9b145cf87d8dc3d96aae14eea466f836369c5ebe82142a2e943bdd4e54",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "ISSUE",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[0].expression",
+            "action": "replace",
+            "instruction": "Update the upper bound of `n` from `100` to `10**5` to match the task specification.",
+            "task_evidence": "1 ≤ n ≤ 10^5",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "preconditions[0].expression",
+            "action": "replace",
+            "instruction": "Update the upper bound of `n` from `100` to `10**5` to match the task specification.",
+            "task_evidence": "1 ≤ n ≤ 10^5",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete preconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "1 ≤ n ≤ 10^5",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "preconditions[0].expression",
+            "action": "replace",
+            "instruction": "Update the upper bound of `n` from `100` to `10**5` to match the task specification.",
+            "task_evidence": "1 ≤ n ≤ 10^5",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "P1",
+            "expression": "1 <= n <= 10**5",
+            "description": "The input size n is a positive integer between 1 and 100,000 inclusive."
+          },
+          {
+            "id": "P2",
+            "expression": "all(1 <= b_i < 2**60 for b_i in b_list)",
+            "description": "Each integer b_i in the input list satisfies 1 ≤ b_i < 2^60."
+          },
+          {
+            "id": "P3",
+            "expression": "len(b_list) == n",
+            "description": "The input list b_list contains exactly n integers."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "c8c4cd9b145cf87d8dc3d96aae14eea466f836369c5ebe82142a2e943bdd4e54",
+        "verification_status": null,
+        "decision_reason": "duplicate_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete preconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "1 ≤ n ≤ 10^5",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "preconditions[0].expression",
+            "action": "replace",
+            "instruction": "Update the upper bound of `n` from `100` to `10**5` to match the task specification.",
+            "task_evidence": "1 ≤ n ≤ 10^5",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The input size n is a positive integer between 1 and 100000 inclusive.",
+            "expression": "1 <= n <= 10**5",
+            "id": "P1"
+          },
+          {
+            "description": "Each integer b_i in the input list satisfies 1 ≤ b_i < 2^60.",
+            "expression": "all(1 <= b_i < 2**60 for b_i in b_list)",
+            "id": "P2"
+          },
+          {
+            "description": "The input list b_list contains exactly n integers.",
+            "expression": "len(b_list) == n",
+            "id": "P3"
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target exactly repeats a previously rejected candidate; derive a materially different task-grounded correction"
+        ],
+        "candidate_fingerprint": "2d815e244ea4165a8471c66dc55240724af035783cc1c8891f2fe69e3d214b8d",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 4
+  },
+  "repair_attempts_used": 4,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 66.812,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:40:10.159193+00:00"
+}

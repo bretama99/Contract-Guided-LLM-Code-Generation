@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_17885",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line) <= 50000 for line in stdin.splitlines() if line.strip().isdigit() and int(line) <= 50000)",
+        "description": "The first line of input is T (1 ≤ T ≤ 50000), the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(n_line) <= 500000 for n_line in [line.strip() for line in stdin.splitlines() if line.strip().isdigit() and 'n' in line.lower()])",
+        "description": "For each test case, the first line is n (1 ≤ n ≤ 500000), the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == n - 1 for n, edges in [(int(stdin.splitlines()[i]), [line.strip() for line in stdin.splitlines()[i+1:i+1+n-1]]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "Each test case has exactly n-1 edges, forming a tree."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(1 <= int(v) <= n and 1 <= int(u) <= n for v, u in [line.split() for line in edges]) for n, edges in [(int(stdin.splitlines()[i]), [line.strip() for line in stdin.splitlines()[i+1:i+1+n-1]]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "Each edge connects vertices v and u where 1 ≤ v, u ≤ n."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(colors) == n for n, colors in [(int(stdin.splitlines()[i]), stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "The last line of each test case is a string of length n, where each character is 'W' or 'N'."
+      },
+      {
+        "id": "P6",
+        "expression": "all(any(c == 'N' for c in colors) for n, colors in [(int(stdin.splitlines()[i]), stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "There is at least one uncolored vertex ('N') in each test case."
+      },
+      {
+        "id": "P7",
+        "expression": "all(not any(all(c == 'W' for c in path) for path in get_all_paths(tree, n) if len(path) == 3) for n, colors in [(int(stdin.splitlines()[i]), stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "No path of three white vertices ('W') exists initially in any test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['White', 'Draw', 'Black'] for stdout_line in stdout.splitlines())",
+        "description": "For each test case, the output is either 'White', 'Draw', or 'Black', indicating the game result with optimal play."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_line == 'White') == (white_wins(tree, colors, n)) for tree, colors, n, stdout_line in zip(get_trees(stdin), get_colors(stdin), get_n_values(stdin), stdout.splitlines()))",
+        "description": "The output is 'White' if and only if the white player can force a win with optimal play, given the initial tree and coloring."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout_line == 'Black') == (not white_wins(tree, colors, n) and black_wins(tree, colors, n)) for tree, colors, n, stdout_line in zip(get_trees(stdin), get_colors(stdin), get_n_values(stdin), stdout.splitlines()))",
+        "description": "The output is 'Black' if and only if the black player can force a win with optimal play, given that white cannot force a win."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((stdout_line == 'Draw') == (not white_wins(tree, colors, n) and not black_wins(tree, colors, n)) for tree, colors, n, stdout_line in zip(get_trees(stdin), get_colors(stdin), get_n_values(stdin), stdout.splitlines()))",
+        "description": "The output is 'Draw' if neither player can force a win with optimal play."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line) <= 50000 for line in stdin.splitlines() if line.strip().isdigit() and int(line) <= 50000)\",\n      \"description\": \"The first line of input is T (1 ≤ T ≤ 50000), the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(n_line) <= 500000 for n_line in [line.strip() for line in stdin.splitlines() if line.strip().isdigit() and 'n' in line.lower()])\",\n      \"description\": \"For each test case, the first line is n (1 ≤ n ≤ 500000), the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(edges) == n - 1 for n, edges in [(int(stdin.splitlines()[i]), [line.strip() for line in stdin.splitlines()[i+1:i+1+n-1]]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"Each test case has exactly n-1 edges, forming a tree.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(1 <= int(v) <= n and 1 <= int(u) <= n for v, u in [line.split() for line in edges]) for n, edges in [(int(stdin.splitlines()[i]), [line.strip() for line in stdin.splitlines()[i+1:i+1+n-1]]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"Each edge connects vertices v and u where 1 ≤ v, u ≤ n.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(colors) == n for n, colors in [(int(stdin.splitlines()[i]), stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"The last line of each test case is a string of length n, where each character is 'W' or 'N'.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(any(c == 'N' for c in colors) for n, colors in [(int(stdin.splitlines()[i]), stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"There is at least one uncolored vertex ('N') in each test case.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(not any(all(c == 'W' for c in path) for path in get_all_paths(tree, n) if len(path) == 3) for n, colors in [(int(stdin.splitlines()[i]), stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"No path of three white vertices ('W') exists initially in any test case.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line in ['White', 'Draw', 'Black'] for stdout_line in stdout.splitlines())\",\n      \"description\": \"For each test case, the output is either 'White', 'Draw', or 'Black', indicating the game result with optimal play.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout_line == 'White') == (white_wins(tree, colors, n)) for tree, colors, n, stdout_line in zip(get_trees(stdin), get_colors(stdin), get_n_values(stdin), stdout.splitlines()))\",\n      \"description\": \"The output is 'White' if and only if the white player can force a win with optimal play, given the initial tree and coloring.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout_line == 'Black') == (not white_wins(tree, colors, n) and black_wins(tree, colors, n)) for tree, colors, n, stdout_line in zip(get_trees(stdin), get_colors(stdin), get_n_values(stdin), stdout.splitlines()))\",\n      \"description\": \"The output is 'Black' if and only if the black player can force a win with optimal play, given that white cannot force a win.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((stdout_line == 'Draw') == (not white_wins(tree, colors, n) and not black_wins(tree, colors, n)) for tree, colors, n, stdout_line in zip(get_trees(stdin), get_colors(stdin), get_n_values(stdin), stdout.splitlines()))\",\n      \"description\": \"The output is 'Draw' if neither player can force a win with optimal play.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1560,
+  "generated_tokens": 1180,
+  "hit_output_limit": false,
+  "generation_seconds": 51.29,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:42:54.696240+00:00"
+}

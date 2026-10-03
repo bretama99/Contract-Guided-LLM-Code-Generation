@@ -1,0 +1,267 @@
+{
+  "task_id": "taco_test_82",
+  "task_index": 806,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000",
+        "description": "The number of intersections n is a positive integer between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(a) == n and all(1 <= i <= n for i in range(1, n + 1)) and all(i <= a[i - 1] <= n for i in range(1, n + 1)) and all(a[i - 1] <= a[i] for i in range(1, n))",
+        "description": "The input array a has length n, where each a[i] (1-based) satisfies i ≤ a[i] ≤ n, and the sequence a is non-decreasing."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == ['0'] + [str(min_energy) for min_energy in min_energies]",
+        "description": "The output is a space-separated string of n integers, where the i-th integer (1-based) is the minimum energy required to reach intersection i from intersection 1, computed as the minimum total energy over all possible paths from 1 to i."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= min_energies[i - 1] <= n for i in range(1, n + 1))",
+        "description": "Each minimum energy value is a non-negative integer bounded by n."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000",
+        "description": "The number of intersections n is a positive integer between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(a) == n and all(1 <= i <= n for i in range(1, n + 1)) and all(i <= a[i - 1] <= n for i in range(1, n + 1)) and all(a[i - 1] <= a[i] for i in range(1, n))",
+        "description": "The input array a has length n, where each a[i] (1-based) satisfies i ≤ a[i] ≤ n, and the sequence a is non-decreasing."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == ['0'] + [str(min_energy) for min_energy in min_energies]",
+        "description": "The output is a space-separated string of n integers, where the i-th integer (1-based) is the minimum energy required to reach intersection i from intersection 1, computed as the minimum total energy over all possible paths from 1 to i."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= min_energies[i - 1] <= n for i in range(1, n + 1))",
+        "description": "Each minimum energy value is a non-negative integer bounded by n."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "0fe092bfe351142c3befb9e605b41e9cfea56b8d42c139000f02693864ade3b3",
+  "selected_contract_fingerprint": "0fe092bfe351142c3befb9e605b41e9cfea56b8d42c139000f02693864ade3b3",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_test_82.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the correct computation of minimum energy for each intersection, including the use of shortcuts (1 unit of energy) when applicable (i.e., when moving from intersection i to a_i). The current expression does not capture the logic of shortcuts or the dynamic programming nature of the problem (e.g., min_energies[i] should be computed as the minimum of: 1) direct walk from 1 to i, 2) walk via shortcuts, 3) intermediate steps).",
+        "task_evidence": "Formally, for each 1 ≤ i ≤ n Mike is interested in finding minimum possible total energy of some sequence p_1 = 1, p_2, ..., p_k = i. ... if Mike chooses a sequence p_1 = 1, p_2, ..., p_k then for each 1 ≤ i < k satisfying p_i + 1 = a_{p_i} and a_{p_i} ≠ p_i Mike will spend only 1 unit of energy instead of |p_i - p_{i+1}|.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the correct handling of shortcuts in the computation. Specifically, the minimum energy to reach intersection i must account for paths that use shortcuts (e.g., 1 -> a_1 -> ... -> i) where each shortcut contributes exactly 1 unit of energy.",
+        "task_evidence": "if Mike chooses a sequence p_1 = 1, p_2 = a_{p_1}, p_3 = a_{p_2}, ..., p_k = a_{p_{k-1}} - 1, he spends exactly k - 1 units of total energy walking around them.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly define `min_energies` as the result of a dynamic programming computation where `min_energies[i]` is the minimum energy to reach intersection i, considering both direct walks and shortcuts. The expression should reflect the task's requirement to compute the minimum energy for each intersection, including the use of shortcuts.",
+        "task_evidence": "Formally, for each 1 ≤ i ≤ n Mike is interested in finding minimum possible total energy of some sequence p_1 = 1, p_2, ..., p_k = i.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the correct computation of minimum energy for each intersection, including the use of shortcuts (1 unit of energy) when applicable (i.e., when moving from intersection i to a_i). The current expression does not capture the logic of shortcuts or the dynamic programming nature of the problem (e.g., min_energies[i] should be computed as the minimum of: 1) direct walk from 1 to i, 2) walk via shortcuts, 3) intermediate steps).",
+        "task_evidence": "Formally, for each 1 ≤ i ≤ n Mike is interested in finding minimum possible total energy of some sequence p_1 = 1, p_2, ..., p_k = i. ... if Mike chooses a sequence p_1 = 1, p_2, ..., p_k then for each 1 ≤ i < k satisfying p_i + 1 = a_{p_i} and a_{p_i} ≠ p_i Mike will spend only 1 unit of energy instead of |p_i - p_{i+1}|.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that enforces the correct handling of shortcuts in the computation. Specifically, the minimum energy to reach intersection i must account for paths that use shortcuts (e.g., 1 -> a_1 -> ... -> i) where each shortcut contributes exactly 1 unit of energy.",
+        "task_evidence": "if Mike chooses a sequence p_1 = 1, p_2 = a_{p_1}, p_3 = a_{p_2}, ..., p_k = a_{p_{k-1}} - 1, he spends exactly k - 1 units of total energy walking around them.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly define `min_energies` as the result of a dynamic programming computation where `min_energies[i]` is the minimum energy to reach intersection i, considering both direct walks and shortcuts. The expression should reflect the task's requirement to compute the minimum energy for each intersection, including the use of shortcuts.",
+        "task_evidence": "Formally, for each 1 ≤ i ≤ n Mike is interested in finding minimum possible total energy of some sequence p_1 = 1, p_2, ..., p_k = i.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 28.047,
+  "processing_error": null,
+  "finished_at": "2026-09-04T08:54:21.795547+00:00"
+}

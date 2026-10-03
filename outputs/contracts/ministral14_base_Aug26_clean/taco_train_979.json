@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_979",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.strip()) <= 10**5 for line in stdin.splitlines() if line.strip().isdigit())",
+        "description": "Every integer in the input (T, Q, and each X) is a positive integer within the bounds 1 ≤ X, Q ≤ 10^5 and 1 ≤ T ≤ 5."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 1 + sum(int(stdin.splitlines()[i+1]) for i in range(1, len(stdin.splitlines()), 2)) + sum(1 for i in range(2, len(stdin.splitlines()), 2) if stdin.splitlines()[i].strip().isdigit())",
+        "description": "The input format is valid: T lines for test cases, each followed by Q lines of X values, with no malformed lines."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdout.splitlines() if line.strip())",
+        "description": "For each query, the output is a single line with two space-separated integers E and O, representing the counts of elements in S with even and odd numbers of 1s in their binary representation, respectively."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= int(E) + int(O) <= 10**5 for line in stdout.splitlines() if line.strip() for E, O in [line.split()])",
+        "description": "The sum of E and O for each query equals the size of S after processing the query, and both are non-negative integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda S: sum(1 for x in S if bin(x).count('1') % 2 == 0), sum(1 for x in S if bin(x).count('1') % 2 == 1)) == (int(E), int(O)) for S, line in zip([set()], [set()]) for line in stdout.splitlines() if line.strip() for E, O in [line.split()])",
+        "description": "For each query, the output (E, O) correctly counts the elements in S with even and odd numbers of 1s in their binary representation, where S is the set after processing all queries up to and including the current one."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((lambda S, X: S.union({X}).union({y ^ X for y in S if y != X})) == S_next for S, S_next in zip([set()], [set()]) for line in stdin.splitlines() if line.strip().isdigit() for X in [int(line)] for S_next in [set()])",
+        "description": "The set S evolves correctly: for each query X, S is updated by adding X and all y ^ X for y in S before the query (excluding X itself)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.strip()) <= 10**5 for line in stdin.splitlines() if line.strip().isdigit())\",\n      \"description\": \"Every integer in the input (T, Q, and each X) is a positive integer within the bounds 1 ≤ X, Q ≤ 10^5 and 1 ≤ T ≤ 5.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 1 + sum(int(stdin.splitlines()[i+1]) for i in range(1, len(stdin.splitlines()), 2)) + sum(1 for i in range(2, len(stdin.splitlines()), 2) if stdin.splitlines()[i].strip().isdigit())\",\n      \"description\": \"The input format is valid: T lines for test cases, each followed by Q lines of X values, with no malformed lines.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"For each query, the output is a single line with two space-separated integers E and O, representing the counts of elements in S with even and odd numbers of 1s in their binary representation, respectively.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= int(E) + int(O) <= 10**5 for line in stdout.splitlines() if line.strip() for E, O in [line.split()])\",\n      \"description\": \"The sum of E and O for each query equals the size of S after processing the query, and both are non-negative integers.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((lambda S: sum(1 for x in S if bin(x).count('1') % 2 == 0), sum(1 for x in S if bin(x).count('1') % 2 == 1)) == (int(E), int(O)) for S, line in zip([set()], [set()]) for line in stdout.splitlines() if line.strip() for E, O in [line.split()])\",\n      \"description\": \"For each query, the output (E, O) correctly counts the elements in S with even and odd numbers of 1s in their binary representation, where S is the set after processing all queries up to and including the current one.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((lambda S, X: S.union({X}).union({y ^ X for y in S if y != X})) == S_next for S, S_next in zip([set()], [set()]) for line in stdin.splitlines() if line.strip().isdigit() for X in [int(line)] for S_next in [set()])\",\n      \"description\": \"The set S evolves correctly: for each query X, S is updated by adding X and all y ^ X for y in S before the query (excluding X itself).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1594,
+  "generated_tokens": 773,
+  "hit_output_limit": false,
+  "generation_seconds": 34.672,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:04:05.172372+00:00"
+}

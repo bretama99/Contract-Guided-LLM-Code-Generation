@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_180",
+  "task_index": 544,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_180.json",
+  "code": "import sys\nfrom collections import Counter\nimport math\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n        k = int(next(iterator))\n        a = []\n        for _ in range(n):\n            a.append(int(next(iterator)))\n    except StopIteration:\n        return\n\n    def get_core(x, k):\n        core = 1\n        temp = x\n        p = 2\n        while p * p <= temp:\n            if temp % p == 0:\n                count = 0\n                while temp % p == 0:\n                    count += 1\n                    temp //= p\n                rem = count % k\n                if rem > 0:\n                    core *= (p ** rem)\n            p += 1\n        if temp > 1:\n            core *= temp\n        return core\n\n    def get_needed(core, k):\n        needed = 1\n        p = 2\n        temp = core\n        while p * p <= temp:\n            if temp % p != 0:\n                continue\n            count = 0\n            while temp % p == 0:\n                count += 1\n                temp //= p\n            rem = count % k\n            if rem > 0:\n                needed *= (p ** (k - rem))\n            else:\n                needed *= (p ** k)\n            p += 1\n        if temp > 1: \n            needed *= (temp ** k)\n        return needed\n\n    freq = Counter()\n    count = 0\n    max_val = 100000\n    limit = max_val * max_val\n    \n    for x in a:\n        core_x = get_core(x, k)\n        needed = get_needed(core_x, k)\n        \n        if needed <= limit:\n            if needed in freq:\n                count += freq[needed]\n        \n        freq[core_x] += 1\n\n    print(count)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 42.159,
+  "generated_at": "2026-09-25T03:55:49.154909+00:00"
+}

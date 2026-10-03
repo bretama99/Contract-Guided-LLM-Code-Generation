@@ -1,0 +1,951 @@
+{
+  "task_id": "taco_train_14284",
+  "task_index": 495,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t.is_integer() and 1 <= t <= 10**4",
+        "description": "The number of test cases t is an integer between 1 and 10^4 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(n, int) and isinstance(k, int) and 1 <= n <= 2*10**5 and 1 <= k <= 10**9 for n, k in test_cases)",
+        "description": "For each test case, n is the length of the string (1 ≤ n ≤ 2*10^5) and k is the maximum number of operations (1 ≤ k ≤ 10^9)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(isinstance(s, str) and len(s) == n and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in s) for s, n, k in test_cases)",
+        "description": "Each string s consists of lowercase Latin letters and has length n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output) == n for output, n, k in zip(outputs, [n for n, k in test_cases]))",
+        "description": "The output string for each test case has the same length as the input string."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in output) for output in outputs)",
+        "description": "The output string consists only of lowercase Latin letters."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(output == s for output, s, n, k in zip(outputs, [s for s, n, k in test_cases]) if k == 0)",
+        "description": "If k is 0, the output string is identical to the input string."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(output <= s for output, s in zip(outputs, [s for s, n, k in test_cases]))",
+        "description": "The output string is lexicographically smaller than or equal to the input string."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(operations <= k for operations, k in zip([min_operations(output, s) for output, s in zip(outputs, [s for s, n, k in test_cases])], [k for n, k in test_cases]))",
+        "description": "The number of operations required to obtain the output string from the input string does not exceed k."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(not exists_lex_smaller(output, s, k) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+        "description": "The output string is the lexicographically smallest string obtainable from the input string using at most k operations."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t.is_integer() and 1 <= t <= 10**4",
+        "description": "The number of test cases t is an integer between 1 and 10^4 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(n, int) and isinstance(k, int) and 1 <= n <= 2*10**5 and 1 <= k <= 10**9 for n, k in test_cases)",
+        "description": "For each test case, n is the length of the string (1 ≤ n ≤ 2*10^5) and k is the maximum number of operations (1 ≤ k ≤ 10^9)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(isinstance(s, str) and len(s) == n and all(c in 'abcdefghijklmnopqrstuvwxyz' for c in s) for s, n, k in test_cases)",
+        "description": "Each string s consists of lowercase Latin letters and has length n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output) == n for output, n, k in zip(outputs, [n for n, k in test_cases]))",
+        "description": "The output string for each test case has the same length as the input string."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in output) for output in outputs)",
+        "description": "The output string consists only of lowercase Latin letters."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(output == s for output, s, n, k in zip(outputs, [s for s, n, k in test_cases]) if k == 0)",
+        "description": "If k is 0, the output string is identical to the input string."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(output <= s for output, s in zip(outputs, [s for s, n, k in test_cases]))",
+        "description": "The output string is lexicographically smaller than or equal to the input string."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(operations <= k for operations, k in zip([min_operations(output, s) for output, s in zip(outputs, [s for s, n, k in test_cases])], [k for n, k in test_cases]))",
+        "description": "The number of operations required to obtain the output string from the input string does not exceed k."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(not exists_lex_smaller(output, s, k) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+        "description": "The output string is the lexicographically smallest string obtainable from the input string using at most k operations."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "3cf89f413912905b7f41be274194d6c15b2f36045a9a9cb4acd8ebfb5ab436ed",
+  "selected_contract_fingerprint": "3cf89f413912905b7f41be274194d6c15b2f36045a9a9cb4acd8ebfb5ab436ed",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_14284.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+      "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+      "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+        "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+        "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+        "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with a **direct, task-aligned** constraint. The current expression is underspecified and relies on undefined helpers. Instead, use a **constructive** or **optimality-based** expression (e.g., 'output == lex_minimal(s, k)') where `lex_minimal(s, k)` is the lexicographically smallest string obtainable from `s` in ≤k operations. Since this is a contract, the expression must be self-contained or reference a **clearly defined helper** in the description.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **each operation is valid** (i.e., the chosen character exists in the string at the time of replacement). The task requires selecting a character that occurs at least once in the string before replacement.",
+        "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **the sequence of operations is feasible** (i.e., the output string can be derived from the input string via a sequence of ≤k valid operations). The current Q5 is insufficient because it does not guarantee that the operations are **constructively valid** (e.g., no operation can be performed on a character that no longer exists in the string).",
+        "task_evidence": "The following operation can be used: select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[5].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+      "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+      "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+        "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+        "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+        "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with a **direct, task-aligned** constraint. The current expression is underspecified and relies on undefined helpers. Instead, use a **constructive** or **optimality-based** expression (e.g., 'output == lex_minimal(s, k)') where `lex_minimal(s, k)` is the lexicographically smallest string obtainable from `s` in ≤k operations. Since this is a contract, the expression must be self-contained or reference a **clearly defined helper** in the description.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **each operation is valid** (i.e., the chosen character exists in the string at the time of replacement). The task requires selecting a character that occurs at least once in the string before replacement.",
+        "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **the sequence of operations is feasible** (i.e., the output string can be derived from the input string via a sequence of ≤k valid operations). The current Q5 is insufficient because it does not guarantee that the operations are **constructively valid** (e.g., no operation can be performed on a character that no longer exists in the string).",
+        "task_evidence": "The following operation can be used: select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[5].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+          "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(output == min_lex_string(s, k) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+          "description": "The output string is the lexicographically smallest string obtainable from the input string by performing at most k operations, where each operation replaces all occurrences of a chosen character with its previous character in the alphabet (with 'a' wrapping to 'z')."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "49e98addb4c28628977506d4027f6faa411daf8b93da1aff76317acdd26e4a58",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **lexicographical minimality** of the output string under the constraint of **at most k operations**, ensuring the output is the **smallest possible** string achievable by any sequence of operations ≤ k. The current Q6/Q7 are redundant or underspecified in expression form.",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression for Q6 (exists_lex_smaller) with a **direct, constructive definition** of lexicographical minimality under k operations. The current expression is vague and relies on undefined helpers (exists_lex_smaller).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Replace the expression for Q7 (min_lex_string) with a **verifiable, expression-based constraint** that ensures the output is the lexicographically smallest string achievable in ≤ k operations. The current expression is circular (depends on min_lex_string, an undefined helper).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that **explicitly enforces the operation semantics**: for every character in the output string, it must be reachable from the input string via a sequence of ≤ k operations where each operation replaces all occurrences of a chosen character with its predecessor (modulo 'a' → 'z').",
+            "task_evidence": "replace all such characters in the string with the previous one in alphabetical order on the loop",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[6].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+          "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(not exists_lex_smaller_candidate(output, s, k) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+          "description": "The output string is the lexicographically smallest string obtainable from the input string by performing no more than k operations, where each operation replaces all occurrences of a chosen character with its previous character in the alphabet (with 'a' wrapping to 'z')."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "494b1530ad42a7f320347057b99c9e03a38becf8a3249c145407dc0f34ecf9e8",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the **lexicographically minimal** string requirement for each test case, ensuring the output is the smallest possible under the given constraints. The current Q6/Q7 are redundant and do not fully capture the task's core requirement of **minimality** in a single, precise expression.",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the vague `exists_lex_smaller` and `exists_lex_smaller_candidate` predicates with a **direct expression** that enforces the output is the lexicographically smallest string obtainable from the input string using at most k operations. The current expressions are underspecified and rely on undefined helpers.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Same as above; this clause is redundant and does not add clarity or correctness. Remove or merge with Q6.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the **operation sequence** (if tracked) is valid: each operation must replace all occurrences of a chosen character with its previous one in the alphabet (with 'a' wrapping to 'z'). The current contract does not explicitly enforce this rule in the output string's derivation.",
+            "task_evidence": "replace all such characters in the string with the previous one in alphabetical order on the loop. For example, replace all 'c' with 'b' or replace all 'a' with 'z'.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[6].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output) == n for output, n, k in zip(outputs, [n for n, k in test_cases]))",
+            "description": "The output string for each test case has the same length as the input string."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in output) for output in outputs)",
+            "description": "The output string consists only of lowercase Latin letters."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(output == s for output, s, n, k in zip(outputs, [s for s, n, k in test_cases]) if k == 0)",
+            "description": "If k is 0, the output string is identical to the input string."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(output <= s for output, s in zip(outputs, [s for s, n, k in test_cases]))",
+            "description": "The output string is lexicographically smaller than or equal to the input string."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(operations <= k for operations, k in zip([min_operations(output, s) for output, s in zip(outputs, [s for s, n, k in test_cases])], [k for n, k in test_cases]))",
+            "description": "The number of operations required to obtain the output string from the input string does not exceed k."
+          },
+          {
+            "id": "Q6",
+            "expression": "all((not any((output > candidate and operations_candidate <= k) for candidate in possible_strings(s, k) for operations_candidate in possible_operations(s, candidate))) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+            "description": "The output string is the lexicographically smallest string obtainable from the input string by performing no more than k operations, where each operation replaces all occurrences of a chosen character with its previous character in the alphabet (with 'a' wrapping to 'z')."
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[6].expression\"}]"
+        ],
+        "candidate_fingerprint": "8b6b75afded9e45b3aa304672b97feed8a7c27a52faa890fc0178dde1d130d9d",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output string is the lexicographically minimal string obtainable by performing **at most** k operations, where each operation replaces all occurrences of a chosen character with its previous character in the alphabet (with 'a' wrapping to 'z'). The current Q6 is overly complex and does not directly capture the task's core requirement of lexicographical minimality under the constraint of k operations.",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a direct, task-aligned constraint: the output string must be the lexicographically smallest string achievable by performing ≤ k operations. The current expression is convoluted and relies on undefined helpers (`possible_strings`, `possible_operations`).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly states the output string must be achievable by performing **exactly** the minimal number of operations required to reach it, given the constraint of ≤ k operations. This ensures optimality in operation count.",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the **lexicographically minimal** string requirement under the constraint of **at most k operations**, ensuring the output is the smallest possible string achievable by performing **no more than k operations** (as per the task's core requirement). The current Q6 is vague and relies on undefined helpers (`exists_lex_smaller`, `min_operations`).",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output) == n for output, n, k in zip(outputs, [n for n, k in test_cases]))",
+            "description": "The output string for each test case has the same length as the input string."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in output) for output in outputs)",
+            "description": "The output string consists only of lowercase Latin letters."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(output == s for output, s, n, k in zip(outputs, [s for s, n, k in test_cases]) if k == 0)",
+            "description": "If k is 0, the output string is identical to the input string."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(output <= s for output, s in zip(outputs, [s for s, n, k in test_cases]))",
+            "description": "The output string is lexicographically smaller than or equal to the input string."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(operations <= k for operations, k in zip([min_operations(output, s) for output, s in zip(outputs, [s for s, n, k in test_cases])], [k for n, k in test_cases]))",
+            "description": "The number of operations required to obtain the output string from the input string does not exceed k."
+          },
+          {
+            "id": "Q6",
+            "expression": "all((not any((candidate < output) for candidate in possible_strings(s, k))) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+            "description": "The output string is the lexicographically smallest string obtainable from the input string by performing no more than k operations, where each operation replaces all occurrences of a chosen character with its previous character in the alphabet (with 'a' wrapping to 'z')."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "9ea1f6dd4093fa6ecf203db319899dfb3dbbc576e8a589c7b9b469b2745c6569",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output string is obtained by performing a sequence of valid operations (replacing all occurrences of a chosen character with its previous in alphabetical order, with 'a' wrapping to 'z'). The current contract does not explicitly enforce this operation semantics in the postconditions.",
+            "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output string is obtained by performing a sequence of valid operations (replacing all occurrences of a chosen character with its previous in alphabetical order, with 'a' wrapping to 'z'). The current contract does not explicitly enforce this operation semantics in the postconditions.",
+            "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output string is the lexicographically minimal string obtainable by performing **at most** k operations (not just <= k). The current Q6 expression is underspecified because it does not explicitly enforce that the output is derived from a sequence of valid operations (only that it is lexicographically minimal among possible strings).",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression in Q6 to explicitly enforce that the output is derived from a sequence of valid operations (replacing all occurrences of a chosen character with its previous in alphabetical order, with 'a' wrapping to 'z') and is lexicographically minimal among all such possible strings. The current expression is too vague and does not capture the operation semantics.",
+            "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output string is derived from a sequence of operations where each operation is applied to a character that exists in the string at the time of the operation (not just the original string). This is critical for correctness, as the set of available characters changes with each operation.",
+            "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output string is obtained by performing a sequence of valid operations (replacing all occurrences of a chosen character with its previous in alphabetical order, with 'a' wrapping to 'z'). The current contract does not explicitly enforce this operation semantics in the postconditions.",
+            "task_evidence": "select one character (from 'a' to 'z') that occurs at least once in the string. And replace all such characters in the string with the previous one in alphabetical order on the loop.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output) == n for output, n, k in zip(outputs, [n for n, k in test_cases]))",
+            "description": "The output string for each test case has the same length as the input string."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in output) for output in outputs)",
+            "description": "The output string consists only of lowercase Latin letters."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(output == s for output, s, n, k in zip(outputs, [s for s, n, k in test_cases]) if k == 0)",
+            "description": "If k is 0, the output string is identical to the input string."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(output <= s for output, s in zip(outputs, [s for s, n, k in test_cases]))",
+            "description": "The output string is lexicographically smaller than or equal to the input string."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(operations <= k for operations, k in zip([min_operations(output, s) for output, s in zip(outputs, [s for s, n, k in test_cases])], [k for n, k in test_cases]))",
+            "description": "The number of operations required to obtain the output string from the input string does not exceed k."
+          },
+          {
+            "id": "Q6",
+            "expression": "all((not any((candidate < output) for candidate in possible_strings(s, k))) for output, s, k in zip(outputs, [s for s, n, k in test_cases], [k for n, k in test_cases]))",
+            "description": "The output string is the lexicographically smallest string obtainable from the input string by performing no more than k operations."
+          },
+          {
+            "id": "Q7",
+            "expression": "all(all((output[i] == chr((ord(s[i]) - ord('a') - ops[i]) % 26 + ord('a'))) for i in range(len(output))) for output, s, ops in zip(outputs, [s for s, n, k in test_cases], [operation_sequence(output, s) for output, s in zip(outputs, [s for s, n, k in test_cases])]))",
+            "description": "The output string is derived from the input string by performing a sequence of valid operations, where each operation replaces all occurrences of a chosen character with its previous character in the alphabet (with 'a' wrapping to 'z')."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "555104e94ab96967a26d3d5a9a294d2ad1a3301fb119bc720690e033fee4427b",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the lexicographical minimality requirement under the constraint of at most k operations, ensuring the output is the smallest possible string derivable from the input string via valid operations.",
+            "task_evidence": "Find the minimum lexicographically possible string that can be obtained by performing no more than k operations.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a correct implementation of the lexicographical minimality check, ensuring it does not rely on undefined `possible_strings` or `operation_sequence` helpers.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[6].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a correct implementation of the operation sequence validation, ensuring it accurately reflects the task's operation rules (e.g., wrapping 'a' to 'z').",
+            "task_evidence": "replace all such characters in the string with the previous one in alphabetical order on the loop. For example, replace all 'c' with 'b' or replace all 'a' with 'z'.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 247.091,
+  "processing_error": null,
+  "finished_at": "2026-09-04T14:37:41.362270+00:00"
+}

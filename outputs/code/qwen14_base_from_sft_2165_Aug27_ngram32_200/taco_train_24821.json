@@ -1,0 +1,23 @@
+{
+  "task_id": "taco_train_24821",
+  "dataset": "taco",
+  "workflow": "contract_guided",
+  "provider": "local_transformers",
+  "model": "qwen14-base-from-sft-2165-Aug27-ngram32-200",
+  "model_type": "qwen2",
+  "attention_implementation": "sdpa",
+  "starter_code_included": false,
+  "reference_solution_included": false,
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen14_sft_2165_Aug27_passopt/taco_train_24821.json",
+  "contract_source": "parsed_contract",
+  "contract_schema_ok": true,
+  "raw_response": "```python\nimport sys\nfrom collections import defaultdict, deque\n\ndef min_coprocessor_calls(N, M, E, dependencies):\n    # Build the graph\n    graph = defaultdict(list)\n    in_degree = [0] * N\n    for T1, T2 in dependencies:\n        graph[T2].append(T1)\n        in_degree[T1] += 1\n    \n    # Initialize the queue for tasks that can be executed immediately\n    queue = deque()\n    for i in range(N):\n        if in_degree[i] == 0:\n            queue.append(i)\n    \n    # Count the number of coprocessor calls\n    coprocessor_calls = 0\n    while queue:\n        size = len(queue)\n        current_level = []\n        \n        for _ in range(size):\n            task = queue.popleft()\n            if E[task] == 1:\n                current_level.append(task)\n            else:\n                # Execute main processor task immediately\n                for neighbor in graph[task]:\n                    in_degree[neighbor] -= 1\n                    if in_degree[neighbor] == 0:\n                        queue.append(neighbor)\n        \n        # If there are any coprocessor tasks in the current level, make a coprocessor call\n        if current_level:\n            coprocessor_calls += 1\n            for task in current_level:\n                for neighbor in graph[task]:\n                    in_degree[neighbor] -= 1\n                    if in_degree[neighbor] == 0:\n                        queue.extend([neighbor])\n    \n    return coprocessor_calls\n\n# Read input\nN, M = map(int, sys.stdin.readline().split())\nE = list(map(int, sys.stdin.readline().split()))\ndependencies = [tuple(map(int, sys.stdin.readline().split())) for _ in range(M)]\n\n# Output the result\nprint(min_coprocessor_calls(N, M, E, dependencies))\n```",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef min_coprocessor_calls(N, M, E, dependencies):\n    # Build the graph\n    graph = defaultdict(list)\n    in_degree = [0] * N\n    for T1, T2 in dependencies:\n        graph[T2].append(T1)\n        in_degree[T1] += 1\n    \n    # Initialize the queue for tasks that can be executed immediately\n    queue = deque()\n    for i in range(N):\n        if in_degree[i] == 0:\n            queue.append(i)\n    \n    # Count the number of coprocessor calls\n    coprocessor_calls = 0\n    while queue:\n        size = len(queue)\n        current_level = []\n        \n        for _ in range(size):\n            task = queue.popleft()\n            if E[task] == 1:\n                current_level.append(task)\n            else:\n                # Execute main processor task immediately\n                for neighbor in graph[task]:\n                    in_degree[neighbor] -= 1\n                    if in_degree[neighbor] == 0:\n                        queue.append(neighbor)\n        \n        # If there are any coprocessor tasks in the current level, make a coprocessor call\n        if current_level:\n            coprocessor_calls += 1\n            for task in current_level:\n                for neighbor in graph[task]:\n                    in_degree[neighbor] -= 1\n                    if in_degree[neighbor] == 0:\n                        queue.extend([neighbor])\n    \n    return coprocessor_calls\n\n# Read input\nN, M = map(int, sys.stdin.readline().split())\nE = list(map(int, sys.stdin.readline().split()))\ndependencies = [tuple(map(int, sys.stdin.readline().split())) for _ in range(M)]\n\n# Output the result\nprint(min_coprocessor_calls(N, M, E, dependencies))",
+  "prompt_tokens": 1159,
+  "generated_tokens": 389,
+  "max_new_tokens_used": 4096,
+  "hit_output_limit": false,
+  "generation_seconds": 20.839,
+  "generation_issue": null,
+  "generated_at": "2026-08-27T23:01:38.831902+00:00"
+}

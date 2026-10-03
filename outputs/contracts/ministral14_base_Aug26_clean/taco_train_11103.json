@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_11103",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 100",
+        "description": "The first line of input is an integer n (1 ≤ n ≤ 100) representing the number of operators."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 or len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each subsequent line is either a 'typedef A B' operator (3 tokens) or a 'typeof A' operator (2 tokens)."
+      },
+      {
+        "id": "P3",
+        "expression": "all('typedef' in line.split() or 'typeof' in line.split() for line in stdin.splitlines()[1:])",
+        "description": "Every operator line starts with either 'typedef' or 'typeof'."
+      },
+      {
+        "id": "P4",
+        "expression": "all('*' not in token and '&' not in token for token in [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == 'typedef'])",
+        "description": "In 'typedef A B', the type name B does not contain '*' or '&'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(token) <= 20 and token.islower() and token.isalpha() for token in [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == 'typedef'] + [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == 'typeof'])",
+        "description": "All type names (A in 'typeof A' or B in 'typedef A B') are non-empty strings of lowercase Latin letters with length ≤ 20."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.splitlines()[i] == resolve_typeof(stdin.splitlines()[j]) for i, j in enumerate([k for k, line in enumerate(stdin.splitlines()[1:]) if line.split()[0] == 'typeof']))",
+        "description": "For each 'typeof A' operator at line j, the corresponding line i in stdout must be the resolved type of A, where resolve_typeof(A) is defined as follows: (1) If A is undefined, return 'errtype'. (2) If A is 'void', return 'void'. (3) If A is 'errtype', return 'errtype'. (4) If A is a user-defined type, recursively resolve its definition to a canonical form (void followed by asterisks or errtype). (5) For any type expression, apply the following rules: (a) If the type is '&void', return 'errtype'. (b) If the type is '&errtype', return 'errtype'. (c) If the type is '&T*', return 'T'. (d) If the type is 'T*', return 'T*' where T is resolved recursively. (e) If the type is '&T', return '&' + resolve_typeof(T). (6) After resolving, if the type is 'void' followed by any number of asterisks, return 'void' followed by those asterisks. Otherwise, return 'errtype'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(stdin.splitlines()[0]) <= 100\",\n      \"description\": \"The first line of input is an integer n (1 ≤ n ≤ 100) representing the number of operators.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 or len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each subsequent line is either a 'typedef A B' operator (3 tokens) or a 'typeof A' operator (2 tokens).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all('typedef' in line.split() or 'typeof' in line.split() for line in stdin.splitlines()[1:])\",\n      \"description\": \"Every operator line starts with either 'typedef' or 'typeof'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all('*' not in token and '&' not in token for token in [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == 'typedef'])\",\n      \"description\": \"In 'typedef A B', the type name B does not contain '*' or '&'.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(token) <= 20 and token.islower() and token.isalpha() for token in [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == 'typedef'] + [line.split()[1] for line in stdin.splitlines()[1:] if line.split()[0] == 'typeof'])\",\n      \"description\": \"All type names (A in 'typeof A' or B in 'typedef A B') are non-empty strings of lowercase Latin letters with length ≤ 20.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout.splitlines()[i] == resolve_typeof(stdin.splitlines()[j]) for i, j in enumerate([k for k, line in enumerate(stdin.splitlines()[1:]) if line.split()[0] == 'typeof']))\",\n      \"description\": \"For each 'typeof A' operator at line j, the corresponding line i in stdout must be the resolved type of A, where resolve_typeof(A) is defined as follows: (1) If A is undefined, return 'errtype'. (2) If A is 'void', return 'void'. (3) If A is 'errtype', return 'errtype'. (4) If A is a user-defined type, recursively resolve its definition to a canonical form (void followed by asterisks or errtype). (5) For any type expression, apply the following rules: (a) If the type is '&void', return 'errtype'. (b) If the type is '&errtype', return 'errtype'. (c) If the type is '&T*', return 'T'. (d) If the type is 'T*', return 'T*' where T is resolved recursively. (e) If the type is '&T', return '&' + resolve_typeof(T). (6) After resolving, if the type is 'void' followed by any number of asterisks, return 'void' followed by those asterisks. Otherwise, return 'errtype'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2138,
+  "generated_tokens": 808,
+  "hit_output_limit": false,
+  "generation_seconds": 38.052,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:05:00.055665+00:00"
+}

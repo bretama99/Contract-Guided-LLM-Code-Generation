@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19525",
+  "task_index": 67,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_19525.json",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    idx = 0\n    n = int(input_data[idx]); idx += 1\n    m = int(input_data[idx]); idx += 1\n    \n    A = []\n    for _ in range(n):\n        row = [int(input_data[idx + j]) for j in range(m)]\n        A.append(row)\n        idx += m\n        \n    B = []\n    for _ in range(n):\n        row = [input_data[idx + j] for j in range(m)]\n        B.append(row)\n        idx += m\n    \n    for r in range(n):\n        for c in range(m):\n            if str(A[r][c]) != B[r][c]:\n                print(\"-1\")\n                return\n    \n    ops = []\n    current_rows = list(range(n))\n    \n    for col in range(m):\n        values = [(A[current_rows[r]][col], r) for r in range(n)]\n        \n        target_rows = list(range(n))\n        target_values = [(B[r][col], r) for r in range(n)]\n        \n        if values == target_values:\n            continue\n        \n        def stable_sort_indices(arr):\n            indices = list(range(len(arr)))\n            def key_func(i):\n                return arr[i][0]\n            indices.sort(key=key_func)\n            new_arr = [arr[i] for i in indices]\n            return new_arr\n        \n        sorted_vals = stable_sort_indices(values)\n        \n        if sorted_vals != target_values:\n            print(\"-1\")\n            return\n        \n        ops.append(col + 1)\n        current_rows = [values[i][1] for i in range(n)]\n        for r in range(n):\n            A[current_rows[r]] = [B[r][c] for c in range(m)]\n    \n    print(len(ops))\n    print(\" \".join(map(str, ops)))\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 38.442,
+  "generated_at": "2026-09-22T12:49:01.673091+00:00"
+}

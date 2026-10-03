@@ -1,0 +1,91 @@
+{
+  "task_id": "taco_train_21047",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 2**16",
+        "description": "The number of vertices n is a positive integer within the range [1, 2^16]."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= degree_v <= n - 1 for degree_v, _ in degrees_and_s)",
+        "description": "For each vertex v, degree_v is a non-negative integer representing the number of adjacent vertices, bounded by n-1."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= s_v < 2**16 for _, s_v in degrees_and_s)",
+        "description": "For each vertex v, s_v is a non-negative integer representing the XOR sum of adjacent vertices' degrees, bounded by 2^16."
+      },
+      {
+        "id": "P4",
+        "expression": "len(degrees_and_s) == n",
+        "description": "The input contains exactly n pairs of (degree_v, s_v) values, one for each vertex."
+      },
+      {
+        "id": "P5",
+        "expression": "sum(degree_v for degree_v, _ in degrees_and_s) % 2 == 0",
+        "description": "The sum of all degrees is even (since the graph is a forest, which is a collection of trees, and the sum of degrees in any graph is twice the number of edges)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == ['m'] + [''.join(sorted(edge)) for edge in edges] and len(edges) == int(m)",
+        "description": "The first line of stdout is the integer m, the number of edges in the forest. The subsequent m lines each contain two distinct integers a and b (0 ≤ a, b ≤ n-1) representing an undirected edge (a, b)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= a < n and 0 <= b < n and a != b for edge in edges for a, b in [edge.split()])",
+        "description": "Each edge consists of two distinct vertices within the valid range [0, n-1]."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(degree_v == len([b for a, b in edges if a == v or b == v]) for v in range(n) for degree_v, _ in degrees_and_s)",
+        "description": "For each vertex v, the degree in the output graph matches the given degree_v."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(s_v == (sum(degree_u for u in neighbors if u != v) ^ sum(degree_u for u in neighbors if u != v)) for v in range(n) for degree_v, s_v in degrees_and_s for neighbors in [[u for a, b in edges if a == v or b == v for u in [a, b] if u != v]])",
+        "description": "For each vertex v, the XOR sum of the degrees of its adjacent vertices matches the given s_v. Here, neighbors are the adjacent vertices of v in the output graph."
+      },
+      {
+        "id": "Q5",
+        "expression": "len(edges) == m and m == sum(degree_v for degree_v, _ in degrees_and_s) // 2",
+        "description": "The number of edges m is exactly half the sum of all degrees (since each edge contributes to the degree of two vertices)."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any(a == b for a, b in edges)",
+        "description": "No edge connects a vertex to itself (no loops)."
+      },
+      {
+        "id": "Q7",
+        "expression": "not any((a == c and b == d) or (a == d and b == c) for edge1 in edges for a, b in [edge1.split()] for edge2 in edges for c, d in [edge2.split()])",
+        "description": "No parallel edges exist between the same pair of vertices."
+      },
+      {
+        "id": "Q8",
+        "expression": "is_acyclic(edges, n)",
+        "description": "The output graph is acyclic (no cycles). The helper is_acyclic(edges, n) checks for cycles using a union-find or DFS/BFS approach."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 1 and n <= 2**16\",\n      \"description\": \"The number of vertices n is a positive integer within the range [1, 2^16].\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= degree_v <= n - 1 for degree_v, _ in degrees_and_s)\",\n      \"description\": \"For each vertex v, degree_v is a non-negative integer representing the number of adjacent vertices, bounded by n-1.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= s_v < 2**16 for _, s_v in degrees_and_s)\",\n      \"description\": \"For each vertex v, s_v is a non-negative integer representing the XOR sum of adjacent vertices' degrees, bounded by 2^16.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(degrees_and_s) == n\",\n      \"description\": \"The input contains exactly n pairs of (degree_v, s_v) values, one for each vertex.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"sum(degree_v for degree_v, _ in degrees_and_s) % 2 == 0\",\n      \"description\": \"The sum of all degrees is even (since the graph is a forest, which is a collection of trees, and the sum of degrees in any graph is twice the number of edges).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().split() == ['m'] + [''.join(sorted(edge)) for edge in edges] and len(edges) == int(m)\",\n      \"description\": \"The first line of stdout is the integer m, the number of edges in the forest. The subsequent m lines each contain two distinct integers a and b (0 ≤ a, b ≤ n-1) representing an undirected edge (a, b).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= a < n and 0 <= b < n and a != b for edge in edges for a, b in [edge.split()])\",\n      \"description\": \"Each edge consists of two distinct vertices within the valid range [0, n-1].\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(degree_v == len([b for a, b in edges if a == v or b == v]) for v in range(n) for degree_v, _ in degrees_and_s)\",\n      \"description\": \"For each vertex v, the degree in the output graph matches the given degree_v.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(s_v == (sum(degree_u for u in neighbors if u != v) ^ sum(degree_u for u in neighbors if u != v)) for v in range(n) for degree_v, s_v in degrees_and_s for neighbors in [[u for a, b in edges if a == v or b == v for u in [a, b] if u != v]])\",\n      \"description\": \"For each vertex v, the XOR sum of the degrees of its adjacent vertices matches the given s_v. Here, neighbors are the adjacent vertices of v in the output graph.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"len(edges) == m and m == sum(degree_v for degree_v, _ in degrees_and_s) // 2\",\n      \"description\": \"The number of edges m is exactly half the sum of all degrees (since each edge contributes to the degree of two vertices).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"not any(a == b for a, b in edges)\",\n      \"description\": \"No edge connects a vertex to itself (no loops).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"not any((a == c and b == d) or (a == d and b == c) for edge1 in edges for a, b in [edge1.split()] for edge2 in edges for c, d in [edge2.split()])\",\n      \"description\": \"No parallel edges exist between the same pair of vertices.\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"is_acyclic(edges, n)\",\n      \"description\": \"The output graph is acyclic (no cycles). The helper is_acyclic(edges, n) checks for cycles using a union-find or DFS/BFS approach.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1504,
+  "generated_tokens": 1082,
+  "hit_output_limit": false,
+  "generation_seconds": 49.699,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:24:58.669670+00:00"
+}

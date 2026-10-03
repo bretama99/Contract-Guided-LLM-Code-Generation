@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_23995",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "G > 2 and N >= G - 2 and M >= 0",
+        "description": "G is the number of genes (G > 2), N is the number of mutation table rows (N ≥ G - 2), and M is the number of antibodies (M ≥ 0)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= a < G and k >= 1 for a, k, *rest in mutation_table)",
+        "description": "Each mutation table row starts with a gene a (2 ≤ a < G) and a positive integer k (k ≥ 1), followed by k genes (0 ≤ b_i < G)."
+      },
+      {
+        "id": "P3",
+        "expression": "sum(k for a, k, *rest in mutation_table) <= 100",
+        "description": "The sum of all k values in the mutation table does not exceed 100."
+      },
+      {
+        "id": "P4",
+        "expression": "all(2 <= a < G for a, *rest in mutation_table) and len(set(a for a, *rest in mutation_table)) == G - 2",
+        "description": "Every integer from 2 to G - 1 appears exactly once as a gene a in the mutation table."
+      },
+      {
+        "id": "P5",
+        "expression": "all(l >= 1 and all(0 <= c_i <= 1 for c_i in antibody) for l, *antibody in antibodies)",
+        "description": "Each antibody starts with a positive integer ℓ (ℓ ≥ 1), followed by ℓ genes (0 ≤ c_i ≤ 1)."
+      },
+      {
+        "id": "P6",
+        "expression": "sum(l for l, *rest in antibodies) <= 50",
+        "description": "The sum of all ℓ values in the antibodies does not exceed 50."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == G - 2",
+        "description": "The output contains exactly G - 2 lines, one for each gene from 2 to G - 1."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output_line in ['YES', 'NO ' + str(length)] for output_line in output_lines)",
+        "description": "Each output line is either 'YES' (all viruses detectable) or 'NO ' followed by an integer length (shortest undetectable virus length)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output_lines[i] == 'YES') == (all_viruses_detectable_for_gene(i + 2, mutation_table, antibodies))) for i in range(G - 2))",
+        "description": "For each gene g (2 ≤ g < G), if all possible viruses derived from g are detectable by the antibodies, output 'YES'; otherwise, output 'NO ' followed by the minimal length of an undetectable virus."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output_lines[i].startswith('NO')) == (not all_viruses_detectable_for_gene(i + 2, mutation_table, antibodies))) for i in range(G - 2))",
+        "description": "If no viruses can be derived from gene g (2 ≤ g < G), output 'YES'."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((output_lines[i].split()[1] if output_lines[i].startswith('NO') else None) == min_undetectable_length_for_gene(i + 2, mutation_table, antibodies) if not all_viruses_detectable_for_gene(i + 2, mutation_table, antibodies) else None for i in range(G - 2))",
+        "description": "If viruses exist but are not all detectable, the length after 'NO ' is the minimal length of an undetectable virus derived from gene g (2 ≤ g < G)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"G > 2 and N >= G - 2 and M >= 0\",\n      \"description\": \"G is the number of genes (G > 2), N is the number of mutation table rows (N ≥ G - 2), and M is the number of antibodies (M ≥ 0).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= a < G and k >= 1 for a, k, *rest in mutation_table)\",\n      \"description\": \"Each mutation table row starts with a gene a (2 ≤ a < G) and a positive integer k (k ≥ 1), followed by k genes (0 ≤ b_i < G).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"sum(k for a, k, *rest in mutation_table) <= 100\",\n      \"description\": \"The sum of all k values in the mutation table does not exceed 100.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(2 <= a < G for a, *rest in mutation_table) and len(set(a for a, *rest in mutation_table)) == G - 2\",\n      \"description\": \"Every integer from 2 to G - 1 appears exactly once as a gene a in the mutation table.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(l >= 1 and all(0 <= c_i <= 1 for c_i in antibody) for l, *antibody in antibodies)\",\n      \"description\": \"Each antibody starts with a positive integer ℓ (ℓ ≥ 1), followed by ℓ genes (0 ≤ c_i ≤ 1).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"sum(l for l, *rest in antibodies) <= 50\",\n      \"description\": \"The sum of all ℓ values in the antibodies does not exceed 50.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output_lines) == G - 2\",\n      \"description\": \"The output contains exactly G - 2 lines, one for each gene from 2 to G - 1.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output_line in ['YES', 'NO ' + str(length)] for output_line in output_lines)\",\n      \"description\": \"Each output line is either 'YES' (all viruses detectable) or 'NO ' followed by an integer length (shortest undetectable virus length).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((output_lines[i] == 'YES') == (all_viruses_detectable_for_gene(i + 2, mutation_table, antibodies))) for i in range(G - 2))\",\n      \"description\": \"For each gene g (2 ≤ g < G), if all possible viruses derived from g are detectable by the antibodies, output 'YES'; otherwise, output 'NO ' followed by the minimal length of an undetectable virus.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((output_lines[i].startswith('NO')) == (not all_viruses_detectable_for_gene(i + 2, mutation_table, antibodies))) for i in range(G - 2))\",\n      \"description\": \"If no viruses can be derived from gene g (2 ≤ g < G), output 'YES'.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((output_lines[i].split()[1] if output_lines[i].startswith('NO') else None) == min_undetectable_length_for_gene(i + 2, mutation_table, antibodies) if not all_viruses_detectable_for_gene(i + 2, mutation_table, antibodies) else None for i in range(G - 2))\",\n      \"description\": \"If viruses exist but are not all detectable, the length after 'NO ' is the minimal length of an undetectable virus derived from gene g (2 ≤ g < G).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2327,
+  "generated_tokens": 979,
+  "hit_output_limit": false,
+  "generation_seconds": 43.704,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:29:11.885904+00:00"
+}

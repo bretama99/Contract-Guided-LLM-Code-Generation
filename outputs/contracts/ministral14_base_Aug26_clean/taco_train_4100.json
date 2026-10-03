@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_4100",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "N > 1 and N <= 10**5",
+        "description": "The number of houses N is an integer strictly greater than 1 and at most 100,000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:N])",
+        "description": "The input contains exactly N-1 lines, each describing a road as two distinct integers a and b (1 ≤ a, b ≤ N)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(a) <= N and 1 <= int(b) <= N and int(a) != int(b) for line in stdin.splitlines()[1:N] for a, b in [line.split()])",
+        "description": "Each road connects two distinct houses within the valid range [1, N]."
+      },
+      {
+        "id": "P4",
+        "expression": "len(set().union(*[set(line.split()) for line in stdin.splitlines()[1:N]])) == N",
+        "description": "The roads form a connected undirected graph with exactly N-1 edges (a tree)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].isdigit() and int(stdout.splitlines()[0]) >= 0",
+        "description": "The first line of stdout is a non-negative integer representing the smallest possible total length of shortest paths."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()[1].split()) == N and all(1 <= int(v) <= N for v in stdout.splitlines()[1].split())",
+        "description": "The second line of stdout contains exactly N space-separated integers, each representing a valid house number in [1, N]."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(v) != i for i, v in enumerate(stdout.splitlines()[1].split(), 1))",
+        "description": "No villager is assigned to their original house (derangement condition)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(v) != int(u) for i, v in enumerate(stdout.splitlines()[1].split(), 1) for j, u in enumerate(stdout.splitlines()[1].split(), 1) if i != j)",
+        "description": "Each house in the output assignment is assigned to exactly one villager (permutation)."
+      },
+      {
+        "id": "Q5",
+        "expression": "int(stdout.splitlines()[0]) == sum(min_distance(i, int(v)) for i, v in enumerate(stdout.splitlines()[1].split(), 1))",
+        "description": "The total length is the sum of shortest path distances from each house i to its assigned house v in the output permutation, where min_distance(i, j) is the shortest path length between houses i and j in the tree."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any(int(stdout.splitlines()[0]) > sum(min_distance(i, int(v)) for i, v in enumerate(assignment.split(), 1)) for assignment in possible_derangements(N))",
+        "description": "The total length is the smallest possible among all valid derangements of the houses (minimality condition)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"N > 1 and N <= 10**5\",\n      \"description\": \"The number of houses N is an integer strictly greater than 1 and at most 100,000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:N])\",\n      \"description\": \"The input contains exactly N-1 lines, each describing a road as two distinct integers a and b (1 ≤ a, b ≤ N).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(a) <= N and 1 <= int(b) <= N and int(a) != int(b) for line in stdin.splitlines()[1:N] for a, b in [line.split()])\",\n      \"description\": \"Each road connects two distinct houses within the valid range [1, N].\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(set().union(*[set(line.split()) for line in stdin.splitlines()[1:N]])) == N\",\n      \"description\": \"The roads form a connected undirected graph with exactly N-1 edges (a tree).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].isdigit() and int(stdout.splitlines()[0]) >= 0\",\n      \"description\": \"The first line of stdout is a non-negative integer representing the smallest possible total length of shortest paths.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.splitlines()[1].split()) == N and all(1 <= int(v) <= N for v in stdout.splitlines()[1].split())\",\n      \"description\": \"The second line of stdout contains exactly N space-separated integers, each representing a valid house number in [1, N].\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(v) != i for i, v in enumerate(stdout.splitlines()[1].split(), 1))\",\n      \"description\": \"No villager is assigned to their original house (derangement condition).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(v) != int(u) for i, v in enumerate(stdout.splitlines()[1].split(), 1) for j, u in enumerate(stdout.splitlines()[1].split(), 1) if i != j)\",\n      \"description\": \"Each house in the output assignment is assigned to exactly one villager (permutation).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"int(stdout.splitlines()[0]) == sum(min_distance(i, int(v)) for i, v in enumerate(stdout.splitlines()[1].split(), 1))\",\n      \"description\": \"The total length is the sum of shortest path distances from each house i to its assigned house v in the output permutation, where min_distance(i, j) is the shortest path length between houses i and j in the tree.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"not any(int(stdout.splitlines()[0]) > sum(min_distance(i, int(v)) for i, v in enumerate(assignment.split(), 1)) for assignment in possible_derangements(N))\",\n      \"description\": \"The total length is the smallest possible among all valid derangements of the houses (minimality condition).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1670,
+  "generated_tokens": 836,
+  "hit_output_limit": false,
+  "generation_seconds": 35.976,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:02:49.579866+00:00"
+}

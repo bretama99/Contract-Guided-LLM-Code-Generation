@@ -1,0 +1,696 @@
+{
+  "task_id": "taco_train_15316",
+  "task_index": 281,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100",
+        "description": "The number of test cases t is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])",
+        "description": "For each test case, the lists b_i and w_i have exactly n elements each."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])",
+        "description": "Each b_i (bees) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])",
+        "description": "Each w_i (wasps) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)",
+        "description": "Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])",
+        "description": "The input describes a tree with exactly n - 1 edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+        "description": "The output contains exactly one line per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.strip()) >= 0 for stdout in stdout.splitlines())",
+        "description": "The output for each test case is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= int(stdout.strip()) <= m for stdout in stdout.splitlines())",
+        "description": "The output for each test case is a non-negative integer not exceeding the number of villages m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(sum(1 for village in optimal_partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for optimal_partition, stdout in zip([get_optimal_partition_from_input(stdin)], stdout.splitlines()))",
+        "description": "The output for each test case is the maximum number of villages where the sum of wasps strictly exceeds the sum of bees in the optimal partition of the tree into exactly m villages."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100",
+        "description": "The number of test cases t is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])",
+        "description": "For each test case, the lists b_i and w_i have exactly n elements each."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])",
+        "description": "Each b_i (bees) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])",
+        "description": "Each w_i (wasps) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)",
+        "description": "Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])",
+        "description": "The input describes a tree with exactly n - 1 edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+        "description": "The output contains exactly one line per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.strip()) >= 0 for stdout in [stdout.strip() for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= max_wins <= m for max_wins in [int(stdout.strip()) for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is the maximum number of villages where Ugly Wasp wins, which cannot exceed m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(all(w_i > b_i for i in village) or all(w_i <= b_i for i in village) for village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "For each village in the optimal partition, Ugly Wasp either wins strictly (w_i > b_i for all i in village) or loses (w_i ≤ b_i for all i in village)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(sum(1 for village in partition if all(w_i > b_i for i in village)) == int(stdout.strip()) for partition, stdout in [([get_partition_from_input(stdin)], stdout) for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is the count of villages where Ugly Wasp wins strictly (w_i > b_i for all i in village) in the optimal partition."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "e16f7069e5ab4e253acbb0764a0edc54a6a2215d94c9ec29ee6b1c88332b949b",
+  "selected_contract_fingerprint": "61f9ed3477572e39d963c1794da4175a48abb441b0b607ff7abe168d942275fb",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_15316.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that ensures the output is computed based on the optimal partition of the tree into exactly m villages, where the partition maximizes the number of villages where the sum of wasps strictly exceeds the sum of bees.",
+      "task_evidence": "Mayor Waspacito, and his assistant Alexwasp, wants Ugly Wasp to win. He has the power to choose how to partition The Oak into exactly m villages. If he chooses the partition optimally, determine the maximum number of villages in which Ugly Wasp wins.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that ensures the output is computed based on the optimal partition of the tree into exactly m villages, where the partition maximizes the number of villages where the sum of wasps strictly exceeds the sum of bees.",
+      "task_evidence": "Mayor Waspacito, and his assistant Alexwasp, wants Ugly Wasp to win. He has the power to choose how to partition The Oak into exactly m villages. If he chooses the partition optimally, determine the maximum number of villages in which Ugly Wasp wins.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output is computed based on the optimal partition of the tree into exactly m villages, where the partition maximizes the number of villages where the sum of wasps strictly exceeds the sum of bees.",
+        "task_evidence": "Mayor Waspacito, and his assistant Alexwasp, wants Ugly Wasp to win. He has the power to choose how to partition The Oak into exactly m villages. If he chooses the partition optimally, determine the maximum number of villages in which Ugly Wasp wins.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output is computed based on the optimal partition of the tree into exactly m villages, where the partition maximizes the number of villages where the sum of wasps strictly exceeds the sum of bees.",
+        "task_evidence": "Mayor Waspacito, and his assistant Alexwasp, wants Ugly Wasp to win. He has the power to choose how to partition The Oak into exactly m villages. If he chooses the partition optimally, determine the maximum number of villages in which Ugly Wasp wins.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output is computed based on the optimal partition of the tree into exactly m villages, where the partition maximizes the number of villages where the sum of wasps strictly exceeds the sum of bees.",
+        "task_evidence": "Mayor Waspacito, and his assistant Alexwasp, wants Ugly Wasp to win. He has the power to choose how to partition The Oak into exactly m villages. If he chooses the partition optimally, determine the maximum number of villages in which Ugly Wasp wins.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly capture the village-level win condition: Ugly Wasp wins in a village if the sum of wasps in that village is strictly greater than the sum of bees in that village.",
+        "task_evidence": "If there are strictly more votes for Ugly Wasp than Pretty Bee, then Ugly Wasp is said to win in that village.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly capture the count of villages where Ugly Wasp wins strictly (sum of wasps > sum of bees) in the optimal partition.",
+        "task_evidence": "Whoever wins in the most number of villages wins.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the partition is valid (i.e., a partition of the tree into exactly m connected subtrees/villages).",
+        "task_evidence": "A set of villages P is called a partition if each of the n nesting places is contained in exactly one of the villages in P. In other words, no two villages in P share any common nesting place, and altogether, they contain all n nesting places.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: issue[0] schema invalid: invalid action 'replace' for 'missing_clause'"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "1 <= t <= 100",
+          "description": "The number of test cases t is between 1 and 100 inclusive."
+        },
+        {
+          "id": "P2",
+          "expression": "all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+          "description": "For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000."
+        },
+        {
+          "id": "P3",
+          "expression": "all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])",
+          "description": "For each test case, the lists b_i and w_i have exactly n elements each."
+        },
+        {
+          "id": "P4",
+          "expression": "all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])",
+          "description": "Each b_i (bees) is a non-negative integer up to 10^9."
+        },
+        {
+          "id": "P5",
+          "expression": "all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])",
+          "description": "Each w_i (wasps) is a non-negative integer up to 10^9."
+        },
+        {
+          "id": "P6",
+          "expression": "all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)",
+          "description": "Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i."
+        },
+        {
+          "id": "P7",
+          "expression": "all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])",
+          "description": "The input describes a tree with exactly n - 1 edges."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+          "description": "The output contains exactly one line per test case."
+        },
+        {
+          "id": "Q2",
+          "expression": "all(int(stdout.strip()) >= 0 for stdout in stdout.splitlines())",
+          "description": "The output for each test case is a non-negative integer."
+        },
+        {
+          "id": "Q3",
+          "expression": "all(0 <= int(stdout.strip()) <= m for stdout in stdout.splitlines())",
+          "description": "The output for each test case is a non-negative integer not exceeding the number of villages m."
+        },
+        {
+          "id": "Q4",
+          "expression": "all(sum(1 for village in optimal_partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for optimal_partition, stdout in zip([get_optimal_partition_from_input(stdin)], stdout.splitlines()))",
+          "description": "The output for each test case is the maximum number of villages where the sum of wasps strictly exceeds the sum of bees in the optimal partition of the tree into exactly m villages."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: issue[0] schema invalid: invalid action 'replace' for 'missing_clause'"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that ensures the output is computed based on the optimal partition of the tree into exactly m villages, where the partition maximizes the number of villages where the sum of wasps strictly exceeds the sum of bees.",
+          "task_evidence": "Mayor Waspacito, and his assistant Alexwasp, wants Ugly Wasp to win. He has the power to choose how to partition The Oak into exactly m villages. If he chooses the partition optimally, determine the maximum number of villages in which Ugly Wasp wins.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(sum(1 for village in optimal_partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for optimal_partition, stdout in [([get_optimal_partition(stdin)], stdout) for stdout in stdout.splitlines()])",
+          "description": "The output for each test case is the maximum number of villages where the sum of wasps strictly exceeds the sum of bees in the optimal partition of the tree into exactly m villages."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "e193207413b79647fb8b92a826b61811358215d405eb3b74a76ac582142fa784",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Remove the clause entirely. The expression is incorrect because it assumes a function `get_partition_from_input` that does not exist in the contract and is not part of the task semantics. The task does not require verifying arbitrary partitions; it only requires the output to match the optimal partition's result.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Remove the clause entirely. The expression is incorrect because it assumes a function `get_partition_from_input` that does not exist in the contract and is not part of the task semantics. The task does not require verifying arbitrary partitions; it only requires the output to match the optimal partition's result.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all(sum(1 for village in optimal_partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for optimal_partition, stdout in [([get_optimal_partition(stdin)], stdout) for stdout in stdout.splitlines()])`. The current expression incorrectly references `get_partition_from_input` and does not align with the task's requirement of verifying the optimal partition's output.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all(sum(1 for village in optimal_partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for optimal_partition, stdout in [([get_optimal_partition(stdin)], stdout) for stdout in stdout.splitlines()])`. The current expression is redundant and does not add new semantic value beyond Q6. The task requires only the output to match the optimal partition's result, not the verification of arbitrary partitions.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the output is derived from a valid partition of the tree into exactly m villages. The expression should capture that the optimal partition is a valid tree partition into m connected subtrees (villages).",
+            "task_evidence": "A partition of the nesting places into exactly m villages, where each village is a connected subtree (village definition: 'nonempty set V of nesting places such that for any two x and y in V, there exists a simple path from x to y whose intermediate nesting places all lie in V').",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Remove the clause entirely. The expression is incorrect because it assumes a function `get_partition_from_input` that does not exist in the contract and is not part of the task semantics. The task does not require verifying arbitrary partitions; it only requires the output to match the optimal partition's result.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "all(0 <= int(stdout.strip()) <= m for stdout in stdout.splitlines())",
+          "description": "The output for each test case is a non-negative integer not exceeding the number of villages m."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "210c056c0747ce196cfd5617ded4e17a6c7e9b5e7053adb2bc3813133952e8f4",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove the clause entirely. It is redundant and incorrect as it references undefined `get_partition_from_input` and does not align with the task's requirement for optimality.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove the clause entirely. It is redundant and incorrect as it references undefined `get_partition_from_input` and does not align with the task's requirement for optimality.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all(0 <= int(stdout.strip()) <= m and sum(sum(w_i for i in village) > sum(b_i for i in village) for village in optimal_partition) == int(stdout.strip()) for optimal_partition, stdout in [([get_optimal_partition(stdin)], stdout) for stdout in stdout.splitlines()])` where `get_optimal_partition` is a placeholder for the actual logic of finding the optimal partition. The current expression is semantically incorrect because it does not enforce that the partition is optimal (i.e., maximizes the number of villages where wasps strictly exceed bees).",
+            "task_evidence": "The Oak holds its annual Miss Punyverse beauty pageant... determine the maximum number of villages in which Ugly Wasp wins.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output is derived from a valid partition of the tree into exactly m villages. The expression should capture that the partition is a valid tree partition (connected subtrees) and that the output is the maximum number of villages where the sum of wasps strictly exceeds the sum of bees.",
+            "task_evidence": "A village is a nonempty set V of nesting places such that for any two x and y in V, there exists a simple path from x to y whose intermediate nesting places all lie in V. A set of villages P is called a partition if each of the n nesting places is contained in exactly one of the villages in P. ... determine the maximum number of villages in which Ugly Wasp wins.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "remove",
+            "instruction": "Remove this clause entirely. It is redundant with postcondition[2].",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[5].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove the clause entirely. It is redundant and incorrect as it references undefined `get_partition_from_input` and does not align with the task's requirement for optimality.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+            "description": "The output contains exactly one line per test case."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(int(stdout.strip()) >= 0 for stdout in stdout.splitlines())",
+            "description": "The output for each test case is a non-negative integer."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(0 <= int(stdout.strip()) <= m for stdout in stdout.splitlines())",
+            "description": "The output for each test case is a non-negative integer not exceeding the number of villages m."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(sum(1 for village in optimal_partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for optimal_partition, stdout in zip([get_optimal_partition_from_input(stdin)], stdout.splitlines()))",
+            "description": "The output for each test case is the maximum number of villages where the sum of wasps strictly exceeds the sum of bees in the optimal partition of the tree into exactly m villages."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "61f9ed3477572e39d963c1794da4175a48abb441b0b607ff7abe168d942275fb",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 133.015,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:46:20.164879+00:00"
+}

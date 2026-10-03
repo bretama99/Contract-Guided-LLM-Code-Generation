@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_3972",
+  "task_index": 889,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_3972.json",
+  "code": "import sys\nfrom collections import deque\n\nMOD = 10**9 + 7\n\ndef bfs_shortest_paths(graph, start, n):\n    dist = [float('inf')] * (n + 1)\n    dist[start] = 0\n    queue = deque([start])\n    while queue:\n        u = queue.popleft()\n        for v in graph[u]:\n            if dist[v] > dist[u] + 1:\n                dist[v] = dist[u] + 1\n                queue.append(v)\n    return dist\n\ndef count_paths(graph, dist, start, target, max_dist):\n    dp = [0] * (max_dist + 1)\n    dp[0] = 1\n    queue = deque([(start, 0)])\n    visited = set()\n    visited.add((start, 0))\n    while queue:\n        u, d = queue.popleft()\n        if d > max_dist:\n            continue\n        for v in graph[u]:\n            new_dist = dist[v]\n            if new_dist <= max_dist:\n                if (v, new_dist) not in visited:\n                    visited.add((v, new_dist))\n                    queue.append((v, new_dist))\n                if new_dist == d + 1:\n                    dp[new_dist] = (dp[new_dist] + dp[d]) % MOD\n    return dp[dist[target]] + dp[dist[target] - 1] if dist[target] > 0 else dp[0]\n\ndef main():\n    import sys\n    input = sys.stdin.read().splitlines()\n    idx = 0\n    t = int(input[idx])\n    idx += 1\n    results = []\n    while t > 0:\n        n, m = map(int, input[idx].split())\n        idx += 1\n        s, t = map(int, input[idx].split())\n        idx += 1\n graph = [[] for _ in range(n + 1)]\n        for _ in range(m):\n            u, v = map(int, input[idx].split())\n            idx += 1\n            graph[u].append(v)\n            graph[v].append(u)\n        dist = bfs_shortest_paths(graph, s, n)\n        result = count_paths(graph, dist, s, t, dist[t] + 1)\n        results.append(result)\n        t -= 1\n    for result in results:\n        print(result)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 45.878,
+  "generated_at": "2026-09-23T19:50:43.553959+00:00"
+}

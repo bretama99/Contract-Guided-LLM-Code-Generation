@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_21987",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.splitlines()) >= 3 and stdin.splitlines()[0].strip() and stdin.splitlines()[1].strip().isdigit()",
+        "description": "The first line is a non-empty string (your name), the second line is a positive integer n (1 ≤ n ≤ 100), and there are exactly n action lines following."
+      },
+      {
+        "id": "P2",
+        "expression": "all(' ' in line for line in stdin.splitlines()[2:]) and all(line.count(' ') == 2 for line in stdin.splitlines()[2:])",
+        "description": "Each action line contains exactly two spaces, splitting into three parts: [actor], [action], [target's post/wall]."
+      },
+      {
+        "id": "P3",
+        "expression": "all('s' in part for part in [line.split()[1] for line in stdin.splitlines()[2:]])",
+        "description": "The second word in each action line ends with 's' (e.g., 'posted', 'commented', 'likes')."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(name) >= 1 and len(name) <= 10 and name.islower() for name in [line.split()[0] for line in stdin.splitlines()[2:]] + [line.split()[2].split(''')[0] for line in stdin.splitlines()[2:]])",
+        "description": "All names in actions (actor and target) are lowercase, 1-10 letters long, and consist of Latin letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '\\n'.join(sorted({name for line in stdin.splitlines()[2:] for name in line.split()[0:2] if name != stdin.splitlines()[0].strip()}, key=lambda name: (-priority[name], name)))",
+        "description": "The output lists all distinct names (excluding your name) from the actions, sorted by descending priority factor with you. If priorities are equal, names are sorted lexicographically ascending."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(name in {line.split()[0] for line in stdin.splitlines()[2:]} or name in {line.split()[2].split(''')[0] for line in stdin.splitlines()[2:]} for name in stdout.strip().splitlines())",
+        "description": "Every name in the output appears as either an actor or target in at least one action."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(name != stdin.splitlines()[0].strip() for name in stdout.strip().splitlines())",
+        "description": "Your name is excluded from the output."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(stdin.splitlines()) >= 3 and stdin.splitlines()[0].strip() and stdin.splitlines()[1].strip().isdigit()\",\n      \"description\": \"The first line is a non-empty string (your name), the second line is a positive integer n (1 ≤ n ≤ 100), and there are exactly n action lines following.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(' ' in line for line in stdin.splitlines()[2:]) and all(line.count(' ') == 2 for line in stdin.splitlines()[2:])\",\n      \"description\": \"Each action line contains exactly two spaces, splitting into three parts: [actor], [action], [target's post/wall].\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all('s' in part for part in [line.split()[1] for line in stdin.splitlines()[2:]])\",\n      \"description\": \"The second word in each action line ends with 's' (e.g., 'posted', 'commented', 'likes').\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(name) >= 1 and len(name) <= 10 and name.islower() for name in [line.split()[0] for line in stdin.splitlines()[2:]] + [line.split()[2].split(''')[0] for line in stdin.splitlines()[2:]])\",\n      \"description\": \"All names in actions (actor and target) are lowercase, 1-10 letters long, and consist of Latin letters.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == '\\\\n'.join(sorted({name for line in stdin.splitlines()[2:] for name in line.split()[0:2] if name != stdin.splitlines()[0].strip()}, key=lambda name: (-priority[name], name)))\",\n      \"description\": \"The output lists all distinct names (excluding your name) from the actions, sorted by descending priority factor with you. If priorities are equal, names are sorted lexicographically ascending.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(name in {line.split()[0] for line in stdin.splitlines()[2:]} or name in {line.split()[2].split(''')[0] for line in stdin.splitlines()[2:]} for name in stdout.strip().splitlines())\",\n      \"description\": \"Every name in the output appears as either an actor or target in at least one action.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(name != stdin.splitlines()[0].strip() for name in stdout.strip().splitlines())\",\n      \"description\": \"Your name is excluded from the output.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1655,
+  "generated_tokens": 699,
+  "hit_output_limit": false,
+  "generation_seconds": 31.551,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:14:57.220964+00:00"
+}

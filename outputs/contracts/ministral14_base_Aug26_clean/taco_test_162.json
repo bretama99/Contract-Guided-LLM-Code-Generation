@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_test_162",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 200 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[0]) <= 200 and 1 <= int(line.split()[1]) <= 200 and int(line.split()[0]) != int(line.split()[1]) and 0 <= int(line.split()[2]) <= 1 for line in stdin.splitlines()[1:])",
+        "description": "The first line contains two integers n (1 ≤ n ≤ 200) and m (n-1 ≤ m ≤ 2000). Each of the next m lines contains three integers i, j, b (1 ≤ i, j ≤ n, i ≠ j, 0 ≤ b ≤ 1), representing a friendship between i and j with envy direction b (1 means i is envious of j, 0 means undirected)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m + 1 lines (first line for n and m, followed by m friendship lines)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each friendship line contains exactly three integers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "(stdout.strip() == 'YES') == (exists_assignment_possible(stdin))",
+        "description": "If there exists a valid income assignment satisfying all envy constraints, output 'YES' followed by the maximum possible income inequality and the corresponding incomes. Otherwise, output 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "(stdout.strip() == 'NO') or (all(0 <= int(a) <= 10**6 for a in stdout.splitlines()[2].split()) and len(stdout.splitlines()[2].split()) == n)",
+        "description": "If 'YES', the second line is the maximum possible income inequality (max(a_i) - min(a_i)), and the third line contains n integers representing valid incomes a_1, ..., a_n (0 ≤ a_i ≤ 10^6)."
+      },
+      {
+        "id": "Q3",
+        "expression": "(stdout.strip() == 'YES') == (all(1 <= i <= n and 1 <= j <= n and i != j for i, j, b in parse_friendships(stdin)) and all(0 <= b <= 1 for i, j, b in parse_friendships(stdin)))",
+        "description": "The output 'YES' or 'NO' is determined solely by the feasibility of assigning incomes such that for every friendship (i,j) with b=1, a_j = a_i + 1, and for every friendship (i,j) with b=0, either a_i = a_j + 1 or a_j = a_i + 1."
+      },
+      {
+        "id": "Q4",
+        "expression": "(stdout.strip() == 'YES') and (stdout.splitlines()[1].strip() == str(max_income_inequality(stdin)))",
+        "description": "If 'YES', the maximum income inequality (max(a_i) - min(a_i)) is correctly computed and printed as the second line."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 200 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[0]) <= 200 and 1 <= int(line.split()[1]) <= 200 and int(line.split()[0]) != int(line.split()[1]) and 0 <= int(line.split()[2]) <= 1 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The first line contains two integers n (1 ≤ n ≤ 200) and m (n-1 ≤ m ≤ 2000). Each of the next m lines contains three integers i, j, b (1 ≤ i, j ≤ n, i ≠ j, 0 ≤ b ≤ 1), representing a friendship between i and j with envy direction b (1 means i is envious of j, 0 means undirected).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m + 1 lines (first line for n and m, followed by m friendship lines).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each friendship line contains exactly three integers.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"(stdout.strip() == 'YES') == (exists_assignment_possible(stdin))\",\n      \"description\": \"If there exists a valid income assignment satisfying all envy constraints, output 'YES' followed by the maximum possible income inequality and the corresponding incomes. Otherwise, output 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"(stdout.strip() == 'NO') or (all(0 <= int(a) <= 10**6 for a in stdout.splitlines()[2].split()) and len(stdout.splitlines()[2].split()) == n)\",\n      \"description\": \"If 'YES', the second line is the maximum possible income inequality (max(a_i) - min(a_i)), and the third line contains n integers representing valid incomes a_1, ..., a_n (0 ≤ a_i ≤ 10^6).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"(stdout.strip() == 'YES') == (all(1 <= i <= n and 1 <= j <= n and i != j for i, j, b in parse_friendships(stdin)) and all(0 <= b <= 1 for i, j, b in parse_friendships(stdin)))\",\n      \"description\": \"The output 'YES' or 'NO' is determined solely by the feasibility of assigning incomes such that for every friendship (i,j) with b=1, a_j = a_i + 1, and for every friendship (i,j) with b=0, either a_i = a_j + 1 or a_j = a_i + 1.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"(stdout.strip() == 'YES') and (stdout.splitlines()[1].strip() == str(max_income_inequality(stdin)))\",\n      \"description\": \"If 'YES', the maximum income inequality (max(a_i) - min(a_i)) is correctly computed and printed as the second line.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1861,
+  "generated_tokens": 836,
+  "hit_output_limit": false,
+  "generation_seconds": 40.409,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:56:33.892131+00:00"
+}

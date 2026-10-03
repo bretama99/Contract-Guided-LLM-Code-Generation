@@ -1,0 +1,50 @@
+{
+  "task_id": "taco_train_13957",
+  "task_index": 84,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= n <= 400",
+        "description": "The number of nodes n is between 2 and 400 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(abs(x) <= 1000 and abs(y) <= 1000 for x, y in points)",
+        "description": "All node coordinates (x, y) have absolute values at most 1000."
+      },
+      {
+        "id": "P3",
+        "expression": "len(points) == n and len(set(points)) == n",
+        "description": "There are exactly n distinct points provided."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' if not exists_valid_tree else stdout.strip() != '-1' and abs(float(stdout.strip()) - min_total_length) <= 1e-6 * max(1.0, abs(min_total_length))",
+        "description": "If no valid binary root tree exists where every arc goes from a higher y-coordinate to a lower y-coordinate, output -1. Otherwise, output the minimum total arc length with required precision."
+      },
+      {
+        "id": "Q2",
+        "expression": "exists_valid_tree == (any(all(y_parent > y_child for y_parent, y_child in zip(parents, children)) and all(out_degree <= 2 for out_degree in out_degrees) and is_connected_tree(parents, children, n) for parents, children, out_degrees in all_possible_binary_trees(points)))",
+        "description": "A valid tree exists if and only if there is a configuration of arcs forming a binary tree (max 2 outgoing arcs per node) rooted at some node, where every arc connects a node with a strictly greater y-coordinate to one with a strictly smaller y-coordinate, and the graph is connected with exactly one path from the root to every other node."
+      },
+      {
+        "id": "Q3",
+        "expression": "min_total_length == min(sum((x1-x2)**2 + (y1-y2)**2 for (x1, y1), (x2, y2) in arcs) ** 0.5 for arcs in all_valid_binary_trees_arcs(points)) if exists_valid_tree else 0.0",
+        "description": "The minimum total length is the sum of Euclidean distances of all arcs in the valid binary tree configuration that minimizes this sum."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 58.883,
+  "seed": 126,
+  "generated_at": "2026-09-21T06:44:26.567846+00:00"
+}

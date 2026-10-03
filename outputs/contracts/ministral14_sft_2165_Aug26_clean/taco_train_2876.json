@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_2876",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 1000",
+        "description": "The first line of input is an integer T (1 ≤ T ≤ 1000) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 8 for line in stdin.splitlines()[1:T+1])",
+        "description": "Each test case line contains exactly eight space-separated integers: N, A, B, C, D, E, F, G."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= 50 for x in ' '.join(stdin.splitlines()[1:T+1]).split() if x.isdigit())",
+        "description": "Each of A, B, C, D, E, F, G is an integer between 1 and 50 (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(N) < 10**100 for N in [line.split()[0] for line in stdin.splitlines()[1:T+1]])",
+        "description": "N is a positive integer less than 10^100."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.split()) == T for stdout in [stdout.strip() for stdout in stdout.splitlines()])",
+        "description": "The output contains exactly T integers, one per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(stdout.isdigit() for stdout in stdout.splitlines())",
+        "description": "Each output line is a non-negative integer representing the minimum coins required."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(stdout) >= 0 for stdout in stdout.splitlines())",
+        "description": "The output integer is non-negative."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(int(stdout) == cost for cost in [get_cost(digit, A, B, C, D, E, F, G) for digit in str(factor)]) for factor, stdout in zip(get_factors(N), stdout.splitlines()))",
+        "description": "For each test case, the output is the minimum cost to display any factor of N, where the cost of a digit is computed as the sum of the coins for its segments (1: B+C, 2: A+B+G+E+D, 3: A+B+G+C+D, 4: F+G+B+C, 5: A+F+G+C+D, 6: A+F+G+C+D+E, 7: A+B+C, 8: A+B+C+D+E+F+G, 9: A+B+C+D+F+G, 0: A+B+C+D+E+F)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(int(stdout) == min(get_cost(digit, A, B, C, D, E, F, G) for factor in get_factors(N) for digit in str(factor)) for N, A, B, C, D, E, F, G, stdout in zip([line.split()[0] for line in stdin.splitlines()[1:T+1]], *[map(int, line.split()[1:]) for line in stdin.splitlines()[1:T+1]]), stdout in zip(stdout.splitlines())))",
+        "description": "The output for each test case is the minimum cost to display any factor of N, where the cost is computed as the sum of the segment costs for each digit in the factor."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 1000\",\n      \"description\": \"The first line of input is an integer T (1 ≤ T ≤ 1000) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 8 for line in stdin.splitlines()[1:T+1])\",\n      \"description\": \"Each test case line contains exactly eight space-separated integers: N, A, B, C, D, E, F, G.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= 50 for x in ' '.join(stdin.splitlines()[1:T+1]).split() if x.isdigit())\",\n      \"description\": \"Each of A, B, C, D, E, F, G is an integer between 1 and 50 (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(N) < 10**100 for N in [line.split()[0] for line in stdin.splitlines()[1:T+1]])\",\n      \"description\": \"N is a positive integer less than 10^100.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.split()) == T for stdout in [stdout.strip() for stdout in stdout.splitlines()])\",\n      \"description\": \"The output contains exactly T integers, one per test case.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(stdout.isdigit() for stdout in stdout.splitlines())\",\n      \"description\": \"Each output line is a non-negative integer representing the minimum coins required.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(stdout) >= 0 for stdout in stdout.splitlines())\",\n      \"description\": \"The output integer is non-negative.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(int(stdout) == cost for cost in [get_cost(digit, A, B, C, D, E, F, G) for digit in str(factor)]) for factor, stdout in zip(get_factors(N), stdout.splitlines()))\",\n      \"description\": \"For each test case, the output is the minimum cost to display any factor of N, where the cost of a digit is computed as the sum of the coins for its segments (1: B+C, 2: A+B+G+E+D, 3: A+B+G+C+D, 4: F+G+B+C, 5: A+F+G+C+D, 6: A+F+G+C+D+E, 7: A+B+C, 8: A+B+C+D+E+F+G, 9: A+B+C+D+F+G, 0: A+B+C+D+E+F).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(int(stdout) == min(get_cost(digit, A, B, C, D, E, F, G) for factor in get_factors(N) for digit in str(factor)) for N, A, B, C, D, E, F, G, stdout in zip([line.split()[0] for line in stdin.splitlines()[1:T+1]], *[map(int, line.split()[1:]) for line in stdin.splitlines()[1:T+1]]), stdout in zip(stdout.splitlines())))\",\n      \"description\": \"The output for each test case is the minimum cost to display any factor of N, where the cost is computed as the sum of the segment costs for each digit in the factor.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1666,
+  "generated_tokens": 928,
+  "hit_output_limit": false,
+  "generation_seconds": 40.643,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:44:14.490716+00:00"
+}

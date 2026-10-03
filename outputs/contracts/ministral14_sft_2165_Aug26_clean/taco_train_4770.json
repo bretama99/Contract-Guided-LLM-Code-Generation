@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_4770",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 100",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 100) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N == int(line) and N >= 2 and N <= 10000 and N % 2 == 0 for line in stdin.splitlines()[1::] if line.strip() and int(line.split()[0]) <= N)",
+        "description": "For each test case, the first line is an integer N (2 ≤ N ≤ 10000, even) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == N - 1 for edges in [stdin.splitlines()[i:i+N-1] for i in range(1, len(stdin.splitlines()), N)] if edges)",
+        "description": "Each test case has exactly N-1 edges, each edge is a pair of integers (u, v) where 1 ≤ u, v ≤ N."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(u) <= N and 1 <= int(v) <= N for line in stdin.splitlines()[1:] if line.strip() and (u, v) := tuple(map(int, line.split())))",
+        "description": "Each edge (u, v) has vertices u and v within the range [1, N]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 3 * T for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "For each test case, the output consists of exactly three lines: the minimum k, the set U, and the set V."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(k == int(output_lines[0]) and k >= 0 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "The first line of each test case's output is an integer k, representing the minimum value of k such that H_k is good."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(set(output_lines[1].split())) == N // 2 and len(set(output_lines[2].split())) == N // 2 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)",
+        "description": "The second and third lines of each test case's output contain exactly N/2 distinct integers each, representing the sets U and V."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(set(output_lines[1].split()) | set(output_lines[2].split()) == set(str(i) for i in range(1, N + 1)) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (N := int(stdin.splitlines()[i].strip())))",
+        "description": "The union of sets U and V contains all vertices from 1 to N exactly once."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any(all(int(v) in set(output_lines[1].split()) and int(u) in set(output_lines[2].split()) for u, v in edges) for edges in [get_edges_for_k(G, k) for k in range(int(output_lines[0]))] if edges) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (G := get_tree_from_input(stdin.splitlines()[i+1:i+N])) and (k := int(output_lines[0])))",
+        "description": "For the computed k, the graph H_k is good, meaning there exists a partition (U, V) such that every edge in H_k connects U and V, and the bipartite graph is connected."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 100\",\n      \"description\": \"The first line of input is a single integer T (1 ≤ T ≤ 100) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(N == int(line) and N >= 2 and N <= 10000 and N % 2 == 0 for line in stdin.splitlines()[1::] if line.strip() and int(line.split()[0]) <= N)\",\n      \"description\": \"For each test case, the first line is an integer N (2 ≤ N ≤ 10000, even) representing the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(edges) == N - 1 for edges in [stdin.splitlines()[i:i+N-1] for i in range(1, len(stdin.splitlines()), N)] if edges)\",\n      \"description\": \"Each test case has exactly N-1 edges, each edge is a pair of integers (u, v) where 1 ≤ u, v ≤ N.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(u) <= N and 1 <= int(v) <= N for line in stdin.splitlines()[1:] if line.strip() and (u, v) := tuple(map(int, line.split())))\",\n      \"description\": \"Each edge (u, v) has vertices u and v within the range [1, N].\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_lines) == 3 * T for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)\",\n      \"description\": \"For each test case, the output consists of exactly three lines: the minimum k, the set U, and the set V.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(k == int(output_lines[0]) and k >= 0 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)\",\n      \"description\": \"The first line of each test case's output is an integer k, representing the minimum value of k such that H_k is good.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(set(output_lines[1].split())) == N // 2 and len(set(output_lines[2].split())) == N // 2 for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines)\",\n      \"description\": \"The second and third lines of each test case's output contain exactly N/2 distinct integers each, representing the sets U and V.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(set(output_lines[1].split()) | set(output_lines[2].split()) == set(str(i) for i in range(1, N + 1)) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (N := int(stdin.splitlines()[i].strip())))\",\n      \"description\": \"The union of sets U and V contains all vertices from 1 to N exactly once.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any(all(int(v) in set(output_lines[1].split()) and int(u) in set(output_lines[2].split()) for u, v in edges) for edges in [get_edges_for_k(G, k) for k in range(int(output_lines[0]))] if edges) for output_lines in [stdin.splitlines()[i:i+3] for i in range(0, len(stdin.splitlines()), 3)] if output_lines and (G := get_tree_from_input(stdin.splitlines()[i+1:i+N])) and (k := int(output_lines[0])))\",\n      \"description\": \"For the computed k, the graph H_k is good, meaning there exists a partition (U, V) such that every edge in H_k connects U and V, and the bipartite graph is connected.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1717,
+  "generated_tokens": 1059,
+  "hit_output_limit": false,
+  "generation_seconds": 47.372,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:03:10.267867+00:00"
+}

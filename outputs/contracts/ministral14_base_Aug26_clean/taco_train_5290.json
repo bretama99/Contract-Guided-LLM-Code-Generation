@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_5290",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 100000 for line in stdin.splitlines() for x in line.split() if x.isdigit())",
+        "description": "All integers in input are within bounds 1 ≤ N ≤ 100000, 1 ≤ M ≤ 500000, 1 ≤ Q ≤ 200000, and 1 ≤ u_i < v_i ≤ N for highways, 1 ≤ a_j < b_j ≤ N for queries."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == 1 + M + Q",
+        "description": "Input consists of exactly 1 + M + Q lines: first line with N, M, Q; next M lines with highways; last Q lines with queries."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1:1+M])",
+        "description": "Each of the M highway lines contains exactly two integers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 2 for line in stdin.splitlines()[1+M:])",
+        "description": "Each of the Q query lines contains exactly two integers."
+      },
+      {
+        "id": "P5",
+        "expression": "all(int(u) < int(v) for line in stdin.splitlines()[1:1+M] for u, v in [line.split()])",
+        "description": "For each highway, u_i < v_i."
+      },
+      {
+        "id": "P6",
+        "expression": "all(int(a) < int(b) for line in stdin.splitlines()[1+M:] for a, b in [line.split()])",
+        "description": "For each query, a_j < b_j."
+      },
+      {
+        "id": "P7",
+        "expression": "len(set().union(*[set(line.split()) for line in stdin.splitlines()[1:1+M]])) == M",
+        "description": "No duplicate highways exist in the input."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.count('\\n') == Q and all(line.strip().isdigit() for line in stdout.splitlines() if line.strip())",
+        "description": "Output contains exactly Q lines, each containing a non-negative integer representing the minimal number of highways between the query planets."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(output_line) <= N-1 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "Each output line is a valid distance (1 ≤ distance ≤ N-1) for the corresponding query, as the graph is connected."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(output_line) == min(int(d) for d in distances) if (a, b) in queries else False for (a, b), output_line, distances in zip(queries, stdout.splitlines(), all_shortest_paths))",
+        "description": "For each query (a_j, b_j), the output line is the minimal number of highways in any path from a_j to b_j in the given graph, where the graph satisfies the condition that every simple cycle induces a complete subgraph (i.e., it is a chordal graph)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 100000 for line in stdin.splitlines() for x in line.split() if x.isdigit())\",\n      \"description\": \"All integers in input are within bounds 1 ≤ N ≤ 100000, 1 ≤ M ≤ 500000, 1 ≤ Q ≤ 200000, and 1 ≤ u_i < v_i ≤ N for highways, 1 ≤ a_j < b_j ≤ N for queries.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == 1 + M + Q\",\n      \"description\": \"Input consists of exactly 1 + M + Q lines: first line with N, M, Q; next M lines with highways; last Q lines with queries.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1:1+M])\",\n      \"description\": \"Each of the M highway lines contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdin.splitlines()[1+M:])\",\n      \"description\": \"Each of the Q query lines contains exactly two integers.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(int(u) < int(v) for line in stdin.splitlines()[1:1+M] for u, v in [line.split()])\",\n      \"description\": \"For each highway, u_i < v_i.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(int(a) < int(b) for line in stdin.splitlines()[1+M:] for a, b in [line.split()])\",\n      \"description\": \"For each query, a_j < b_j.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"len(set().union(*[set(line.split()) for line in stdin.splitlines()[1:1+M]])) == M\",\n      \"description\": \"No duplicate highways exist in the input.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.count('\\\\n') == Q and all(line.strip().isdigit() for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"Output contains exactly Q lines, each containing a non-negative integer representing the minimal number of highways between the query planets.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(output_line) <= N-1 for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"Each output line is a valid distance (1 ≤ distance ≤ N-1) for the corresponding query, as the graph is connected.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(output_line) == min(int(d) for d in distances) if (a, b) in queries else False for (a, b), output_line, distances in zip(queries, stdout.splitlines(), all_shortest_paths))\",\n      \"description\": \"For each query (a_j, b_j), the output line is the minimal number of highways in any path from a_j to b_j in the given graph, where the graph satisfies the condition that every simple cycle induces a complete subgraph (i.e., it is a chordal graph).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1733,
+  "generated_tokens": 846,
+  "hit_output_limit": false,
+  "generation_seconds": 41.535,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:59:53.459959+00:00"
+}

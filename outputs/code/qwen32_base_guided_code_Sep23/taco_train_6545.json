@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_6545",
+  "task_index": 551,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_6545.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef find_cycle(graph, start, visited, path, is_floor):\n    if len(path) > 2 and start in graph[path[-1]] and path[0] == start:\n        return True\n    for neighbor in graph[start]:\n        if (not is_floor or neighbor not in path) and not visited[neighbor]:\n            visited[neighbor] = True\n            if find_cycle(graph, neighbor, visited, path + [neighbor], is_floor):\n                return True\n            visited[neighbor] = False\n    return False\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    K = int(input[0])\n    needles = []\n    for i in range(K):\n        x1, y1, z1, x2, y2, z2 = map(int, input[1 + 6 * i:7 + 6 * i])\n        needles.append(((x1, y1, z1), (x2, y2, z2)))\n\n    true_graph = defaultdict(list)\n    floor_graph = defaultdict(list)\n    true_visited = defaultdict(bool)\n    floor_visited = defaultdict(bool)\n\n    for (x1, y1, z1), (x2, y2,z2) in needles:\n        true_graph[(x1, y1, z1)].append((x2, y2, z2))\n        true_graph[(x2, y2, z2)].append((x1, y1, z1))\n        floor_graph[(x1, y1)].append((x2, y2))\n        floor_graph[(x2, y2)].append((x1, y1))\n\n    true_cycle = False\n    floor_cycle = False\n\n    for node in true_graph:\n        if not true_visited[node]:\n            true_visited[node] = True\n            if find_cycle(true_graph, node, true_visited, [node], False):\n                true_cycle = True\n                break\n\n    for node in floor_graph:\n        if not floor_visited[node]:\n            floor_visited[node] = True\n            if find_cycle(floor_graph, node, floor_visited, [node], True):\n                floor_cycle = True\n                break\n\n    print(\"True closed chains\" if true_cycle else \"No true closed chains\")\n    print(\"Floor closed chains\" if floor_cycle else \"No floor closed chains\")\n\nmain()",
+  "generation_seconds": 45.808,
+  "generated_at": "2026-09-23T19:46:07.553653+00:00"
+}

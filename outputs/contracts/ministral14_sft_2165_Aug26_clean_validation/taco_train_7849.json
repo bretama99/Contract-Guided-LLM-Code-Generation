@@ -1,0 +1,870 @@
+{
+  "task_id": "taco_train_7849",
+  "task_index": 355,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and 1 <= T <= 50",
+        "description": "T is an integer between 1 and 50 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 5 for line in stdin.splitlines() if line.strip())",
+        "description": "Each match line has exactly 5 space-separated tokens: HomeTeamName, HomeTeamGoals, 'vs.', AwayTeamGoals, AwayTeamName."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(goals) <= 100 for line in stdin.splitlines() if line.strip() for goals in [line.split()[1], line.split()[3]])",
+        "description": "HomeTeamGoals and AwayTeamGoals are integers between 0 and 100 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(team_name) <= 10 and team_name.islower() and team_name.isalpha() for line in stdin.splitlines() if line.strip() for team_name in [line.split()[0], line.split()[4]])",
+        "description": "Team names are lowercase alphabetic strings of length 1 to 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "Each output line contains exactly two space-separated team names."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(team1 != team2 for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()])",
+        "description": "The two team names in each output line are distinct."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(team1 in teams and team2 in teams for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])",
+        "description": "The two team names in each output line are valid teams from the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(team1_points > team2_points or (team1_points == team2_points and team1_goal_diff > team2_goal_diff) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for team1_points, team1_goal_diff in [get_team_stats(team1)] for team2_points, team2_goal_diff in [get_team_stats(team2)])",
+        "description": "The first team in the output line has strictly more points than the second team, or if points are equal, a strictly higher goal difference."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(team1_points >= team2_points >= team3_points >= team4_points for teams in [get_teams_in_test_case()] for team1, team2, team3, team4 in [sorted(teams, key=lambda t: (-get_team_stats(t)[0], -get_team_stats(t)[1]))] for team1_points, _ in [get_team_stats(team1)] for team2_points, _ in [get_team_stats(team2)])",
+        "description": "The first team in the output line is the top-ranked team, and the second team is the second top-ranked team, based on points and goal difference."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and 1 <= T <= 50",
+        "description": "T is an integer between 1 and 50 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 5 for line in stdin.splitlines() if line.strip())",
+        "description": "Each match line has exactly 5 space-separated tokens: HomeTeamName, HomeTeamGoals, 'vs.', AwayTeamGoals, AwayTeamName."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(goals) <= 100 for line in stdin.splitlines() if line.strip() for goals in [line.split()[1], line.split()[3]])",
+        "description": "HomeTeamGoals and AwayTeamGoals are integers between 0 and 100 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(team_name) <= 10 and team_name.islower() and team_name.isalpha() for line in stdin.splitlines() if line.strip() for team_name in [line.split()[0], line.split()[4]])",
+        "description": "Team names are lowercase alphabetic strings of length 1 to 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "Each output line contains exactly two space-separated team names."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(team1 != team2 for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()])",
+        "description": "The two team names in each output line are distinct."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(team1 in teams and team2 in teams for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])",
+        "description": "The two team names in each output line are valid teams from the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(team1_points > team2_points or (team1_points == team2_points and team1_goal_diff > team2_goal_diff) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for team1_points, team1_goal_diff in [get_team_stats(team1)] for team2_points, team2_goal_diff in [get_team_stats(team2)])",
+        "description": "The first team in the output line has strictly more points than the second team, or if points are equal, a strictly higher goal difference."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(team1_points >= team2_points >= team3_points >= team4_points for teams in [get_teams_in_test_case()] for team1, team2, team3, team4 in [sorted(teams, key=lambda t: (-get_team_stats(t)[0], -get_team_stats(t)[1]))] for team1_points, _ in [get_team_stats(team1)] for team2_points, _ in [get_team_stats(team2)])",
+        "description": "The first team in the output line is the top-ranked team, and the second team is the second top-ranked team, based on points and goal difference."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "55f6388203b75042c368f9e397247e3b8b64607b40c883682c796f83c093b6d4",
+  "selected_contract_fingerprint": "55f6388203b75042c368f9e397247e3b8b64607b40c883682c796f83c093b6d4",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_7849.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+      "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+      "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+        "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+        "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+        "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output contains exactly two teams per test case (one line per test case) and that these teams are the top two ranked teams based on points and goal difference.",
+        "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output lines correspond to the test cases in the same order as they appear in the input.",
+        "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+      "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+      "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+        "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+        "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+        "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output contains exactly two teams per test case (one line per test case) and that these teams are the top two ranked teams based on points and goal difference.",
+        "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the output lines correspond to the test cases in the same order as they appear in the input.",
+        "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "Remove this clause entirely as it is incorrect and redundant. The task guarantees no ties for top two positions, so the sorting logic is unnecessary and does not match the requirement to output only the top two teams.",
+          "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "expression": "all(team1 in top_two and team2 in top_two and (team1 == top_two[0] and team2 == top_two[1]) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for top_two in [sorted(teams, key=lambda t: (-get_team_stats(t)[0], -get_team_stats(t)[1]))[:2]] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])",
+          "description": "The output line contains exactly the top two ranked teams in order, where the first team has strictly more points than the second team, or if points are equal, a strictly higher goal difference."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "585965a5181c6d77511a6e6c43cfe34e89ecb428e9ccb85d4090f257af9622ea",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is redundant and incorrect. The task guarantees no ties for top two, so the ordering is already enforced by Q4. This clause incorrectly assumes the output must match a sorted list of all teams, which is not required by the task.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is redundant and incorrect. The task guarantees no ties for top two, so the ordering is already enforced by Q4. This clause incorrectly assumes the output must match a sorted list of all teams, which is not required by the task.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output line corresponds to the top two teams in the group based on the given ranking rules (points, then goal difference). The expression must explicitly capture the ranking logic for the top two teams, not just validate the output format.",
+            "task_evidence": "Between any two teams, the team with more points is ranked higher. If they have the same number of points (in case of a tie), the team with higher goal difference is ranked higher. It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output line is derived from the correct group's matches (i.e., the 12 matches for the 4 teams in the group). The current contract does not enforce that the output is computed from the correct subset of matches (e.g., for a single test case, only 12 matches should be considered).",
+            "task_evidence": "For each test case, 12 lines follow. Each of these lines describes the result of one match in the format...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "Remove this clause entirely as it is redundant and incorrect. The task guarantees no ties for top two, so the ordering is already enforced by Q4. This clause incorrectly assumes the output must match a sorted list of all teams, which is not required by the task.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "expression": "all((team1_points > team2_points) or (team1_points == team2_points and team1_goal_diff > team2_goal_diff) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for team1_points, team1_goal_diff in [get_team_stats(team1)] for team2_points, team2_goal_diff in [get_team_stats(team2)])",
+          "description": "The first team in the output line has strictly more points than the second team, or if points are equal, a strictly higher goal difference."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "222e95931c15a1a1dd8860f4498e54c894438ebb5307190a476df295fe15c083",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "remove",
+            "instruction": "Q5 is a duplicate of Q4 and does not add any new semantic value.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "remove",
+            "instruction": "Q5 is a duplicate of Q4 and does not add any new semantic value.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the first team in the output line is the top-ranked team and the second team is the second top-ranked team, with no ties for these positions (as guaranteed by the task).",
+            "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output lines correspond to the top two teams in each test case, ranked according to the rules: points first, then goal difference.",
+            "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output lines are produced in the correct order for each test case (i.e., the first line of output corresponds to the first test case, the second line to the second test case, etc.).",
+            "task_evidence": "For each scenario, print a single line containing two space-separated strings ― the name of the top-ranked team and the name of the second top-ranked team.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "remove",
+          "instruction": "Q5 is a duplicate of Q4 and does not add any new semantic value.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": null,
+        "repair_model_calls": 0,
+        "generation_errors": [],
+        "candidate_fingerprint": "ed13dc9f0cca70dd7b81563ae195c8e5d4ba0b688b1056071a96abec67819283",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to ensure it correctly captures the ranking logic: the first team must be strictly higher in points or goal difference than the second team, and the second team must be strictly higher than all other teams in the group (not just the first).",
+            "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output line corresponds to the top two teams in the group based on points and goal difference, with no ties for first or second place (as guaranteed by the task).",
+            "task_evidence": "It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output line is produced for each test case in the order they appear in the input.",
+            "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output line for each test case is derived from the 12 match lines that follow the T line (i.e., each test case's 12 matches are processed independently).",
+            "task_evidence": "For each test case, 12 lines follow.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to ensure it correctly captures the ranking logic: the first team must be strictly higher in points or goal difference than the second team, and the second team must be strictly higher than all other teams in the group (not just the first).",
+            "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[3].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to ensure it correctly captures the ranking logic: the first team must be strictly higher in points or goal difference than the second team, and the second team must be strictly higher than all other teams in the group (not just the first).",
+            "task_evidence": "Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())",
+            "description": "Each output line contains exactly two space-separated team names."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(team1 != team2 for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()])",
+            "description": "The two team names in each output line are distinct."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(team1 in teams and team2 in teams for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])",
+            "description": "The two team names in each output line are valid teams from the input."
+          },
+          {
+            "id": "Q4",
+            "expression": "all((team1_points > team2_points) or (team1_points == team2_points and team1_goal_diff > team2_goal_diff) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for team1_points, team1_goal_diff in [get_team_stats(team1, test_case_matches)] for team2_points, team2_goal_diff in [get_team_stats(team2, test_case_matches)] for test_case_matches in [get_test_case_matches(stdin)])",
+            "description": "For each test case, the first team in the output line is the top-ranked team and the second team is the second top-ranked team, where the first team has strictly more points than the second team, or if points are equal, a strictly higher goal difference, and there are no ties for these positions."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "3eb385bb6f4a8a8a9edd122f0f8b0f7163ad7454d650ed59c9fad0202d45dc2a",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output corresponds to the correct test case in the input order. The current contract does not enforce that the output lines match the input test cases in sequence.",
+            "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows... For each scenario, print a single line containing two space-separated strings...",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output corresponds to the correct test case in the input order. The current contract does not enforce that the output lines match the input test cases in sequence.",
+            "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows... For each scenario, print a single line containing two space-separated strings...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly handle the case where the first team has strictly more points than the second team, or if points are equal, a strictly higher goal difference, and ensure the output is derived from the correct test case matches. The current expression assumes a helper function `get_team_stats` and `get_test_case_matches` which are not part of the contract and may not correctly partition matches by test case.",
+            "task_evidence": "Each team plays two matches against every other team in its group... Determine the leaders of this group ― the first and second top-ranked team. It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output strictly follows the ranking rules: points first, then goal difference, and no ties for first or second place.",
+            "task_evidence": "Between any two teams, the team with more points is ranked higher. If they have the same number of points (in case of a tie), the team with higher goal difference is ranked higher... It is guaranteed that there are no ties for either of these places (for the given results of the matches).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows... For each scenario, print a single line containing two space-separated strings...",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output corresponds to the correct test case in the input order. The current contract does not enforce that the output lines match the input test cases in sequence.",
+            "task_evidence": "The first line of the input contains a single integer T denoting the number of test cases. The description of T test cases follows... For each scenario, print a single line containing two space-separated strings...",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())",
+            "description": "Each output line contains exactly two space-separated team names."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(team1 != team2 for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()])",
+            "description": "The two team names in each output line are distinct."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(team1 in teams and team2 in teams for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])",
+            "description": "The two team names in each output line are valid teams from the input."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(len(stdout.splitlines()) == T and (team1_points > team2_points or (team1_points == team2_points and team1_goal_diff > team2_goal_diff)) for T in [int(stdin.splitlines()[0])] for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for test_case_matches in [stdin.splitlines()[1:13]] for team1_points, team1_goal_diff in [sum(3 if (line.split()[1] > line.split()[3] and team1 == line.split()[0]) or (line.split()[3] > line.split()[1] and team1 == line.split()[4]) else 1 if line.split()[1] == line.split()[3] else 0 for line in test_case_matches) for team1 in [team1, team2]] for team2_points, team2_goal_diff in [sum(3 if (line.split()[1] > line.split()[3] and team2 == line.split()[0]) or (line.split()[3] > line.split()[1] and team2 == line.split()[4]) else 1 if line.split()[1] == line.split()[3] else 0 for line in test_case_matches) for team2 in [team1, team2]] for team1_goal_diff in [sum(int(line.split()[1]) if team1 == line.split()[0] else -int(line.split()[3]) if team1 == line.split()[4] else 0 for line in test_case_matches)] for team2_goal_diff in [sum(int(line.split()[1]) if team2 == line.split()[0] else -int(line.split()[3]) if team2 == line.split()[4] else 0 for line in test_case_matches)])",
+            "description": "For each test case, the first team in the output line is the top-ranked team and the second team is the second top-ranked team, where the first team has strictly more points than the second team, or if points are equal, a strictly higher goal difference, and there are no ties for these positions. The output lines correspond to the test cases in the input order."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "69da883aa62f8fa9e37ef1518c4e74deb1c5cd49dfe52b5757194f9965936d5b",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for calculating points and goal difference to correctly handle all matches in a test case (12 matches) and ensure the ranking logic is applied across all teams in the group, not just the two output teams.",
+            "task_evidence": "Each team plays two matches against every other team in its group ― one match as the home team and one match as the away team. You are given the number of goals scored by each team for all twelve matches in one group. Determine the leaders of this group ― the first and second top-ranked team.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for calculating points and goal difference to correctly handle all matches in a test case (12 matches) and ensure the ranking logic is applied across all teams in the group, not just the two output teams.",
+            "task_evidence": "Each team plays two matches against every other team in its group ― one match as the home team and one match as the away team. You are given the number of goals scored by each team for all twelve matches in one group. Determine the leaders of this group ― the first and second top-ranked team.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output corresponds to the correct test case in the input order (i.e., the first output line corresponds to the first test case, etc.).",
+            "task_evidence": "For each scenario, print a single line containing two space-separated strings ― the name of the top-ranked team and the name of the second top-ranked team.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the expression to correctly compute points and goal difference for all teams in the group (4 teams) and rank them properly. The current expression incorrectly scopes the team calculations and does not account for all matches in the test case.",
+            "task_evidence": "The teams in each group are ranked based on the matches they play against each other, according to the following rules: ... Each team plays two matches against every other team in its group ― one match as the home team and one match as the away team.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the expression to ensure that the ranking logic (points first, then goal difference) is applied to all teams in the group, not just the two output teams. The current expression does not correctly implement the tie-breaking rule for the top two teams.",
+            "task_evidence": "Between any two teams, the team with more points is ranked higher. If they have the same number of points (in case of a tie), the team with higher goal difference is ranked higher.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[3].expression"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 201.349,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:27:59.266049+00:00"
+}

@@ -1,0 +1,806 @@
+{
+  "task_id": "taco_train_22294",
+  "task_index": 533,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= q <= 500000",
+        "description": "The number of queries q is between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= type_i <= 2 for type_i in [int(line.split()[0]) for line in stdin.splitlines()[1:]])",
+        "description": "Each query type is either 1 (add vertex) or 2 (query expected penalty)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= v_i <= current_vertex_count for v_i in [int(line.split()[1]) for line in stdin.splitlines()[1:]])",
+        "description": "For each query, the vertex v_i exists just before the query is processed."
+      },
+      {
+        "id": "P4",
+        "expression": "any(type_i == 2 for type_i in [int(line.split()[0]) for line in stdin.splitlines()[1:]])",
+        "description": "There is at least one query of type 2 (output is non-empty)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0.0 <= float(line.strip()) <= max_possible_height for line in stdout.splitlines() if line.strip())",
+        "description": "Each output line for a type-2 query is a non-negative real number representing the expected penalty."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(abs(float(output_line) - jury_answer) <= max(1e-6, 1e-6 * abs(jury_answer)) for output_line, jury_answer in zip(stdout.splitlines(), jury_answers))",
+        "description": "Each output line for a type-2 query matches the jury's answer within absolute or relative error 1e-6."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(stdout.splitlines()) == number_of_type_2_queries",
+        "description": "The number of output lines equals the number of type-2 queries."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= q <= 500000",
+        "description": "The number of queries q is between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= type_i <= 2 for type_i in [int(line.split()[0]) for line in stdin.splitlines()[1:]])",
+        "description": "Each query type is either 1 (add vertex) or 2 (query expected penalty)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= v_i <= current_vertex_count for v_i in [int(line.split()[1]) for line in stdin.splitlines()[1:]])",
+        "description": "For each query, the vertex v_i exists just before the query is processed."
+      },
+      {
+        "id": "P4",
+        "expression": "any(type_i == 2 for type_i in [int(line.split()[0]) for line in stdin.splitlines()[1:]])",
+        "description": "There is at least one query of type 2 (output is non-empty)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0.0 <= float(line.strip()) <= max_possible_height for line in stdout.splitlines() if line.strip())",
+        "description": "Each output line for a type-2 query is a non-negative real number representing the expected penalty."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(abs(float(output_line) - jury_answer) <= max(1e-6, 1e-6 * abs(jury_answer)) for output_line, jury_answer in zip(stdout.splitlines(), jury_answers))",
+        "description": "Each output line for a type-2 query matches the jury's answer within absolute or relative error 1e-6."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(stdout.splitlines()) == number_of_type_2_queries",
+        "description": "The number of output lines equals the number of type-2 queries."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "41441e86dc1ba3815198dec6605b23e63623932154b4af59b24ad88e3fb2fdb3",
+  "selected_contract_fingerprint": "41441e86dc1ba3815198dec6605b23e63623932154b4af59b24ad88e3fb2fdb3",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_22294.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+      "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+      "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+        "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+        "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+        "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the **probability `p`** (edge survival probability) is implicitly or explicitly accounted for in the expected penalty calculation. The contract must reflect that the expected penalty depends on `p` (even if it is a fixed constant in the task).",
+        "task_evidence": "When a subtree is attacked, each of its edges is destroyed with probability `<image>` (independently).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **recursive/structural dependency** of the expected penalty on the subtree's structure (e.g., children, parent-child relationships, and height computation). The expression must explicitly or implicitly model the tree's dynamic height after edge deletions.",
+        "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. The expected penalty is the expected height after edge deletions.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+      "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+      "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+        "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+        "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+        "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the **probability `p`** (edge survival probability) is implicitly or explicitly accounted for in the expected penalty calculation. The contract must reflect that the expected penalty depends on `p` (even if it is a fixed constant in the task).",
+        "task_evidence": "When a subtree is attacked, each of its edges is destroyed with probability `<image>` (independently).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that captures the **recursive/structural dependency** of the expected penalty on the subtree's structure (e.g., children, parent-child relationships, and height computation). The expression must explicitly or implicitly model the tree's dynamic height after edge deletions.",
+        "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. The expected penalty is the expected height after edge deletions.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition that captures the **substantive input-output relation** for type-2 queries: the expected penalty must equal the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context, though not explicitly stated in the contract). The expression must model the recursive expectation of the height, accounting for edge survival probabilities and the resulting tree structure.",
+          "task_evidence": "For a query of the second type, the expected penalty is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `<image>` (independently). The height is the maximum number of edges on the path from the root of the subtree to any vertex in the subtree.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "all(0.0 <= float(line.strip()) <= expected_height(v, p) for line, v in zip(stdout.splitlines(), [int(line.split()[1]) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2]))",
+          "description": "For each type-2 query, the output line is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p` (where `p` is implied by the task context). The expected height is computed recursively as the maximum expected path length from `v` to any descendant, accounting for edge survival probabilities."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "8fb85fa339fb4f239e5972ac92cb43f4db60a309fa7fa832daba93ce575e1e25",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression in Q4 is incorrect because it does not capture the recursive expected height calculation with edge survival probabilities. The task requires computing the expected height of the subtree rooted at `v` after each edge is destroyed with probability `p` (implied by the task context), but the expression only checks bounds against `expected_height(v, p)` without defining how `p` is derived or how the expected height is computed. The expression should instead verify that the output matches the recursive expectation calculation described in the task.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. When a subtree is attacked, each of its edges is destroyed with probability <image>, independently of other edges. Then, Limak gets the penalty — an integer equal to the height of the subtree after the attack. The expected value of the penalty is the expected height of the subtree after the attack.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression in Q4 is incorrect because it does not capture the recursive expected height calculation with edge survival probabilities. The task requires computing the expected height of the subtree rooted at `v` after each edge is destroyed with probability `p` (implied by the task context), but the expression only checks bounds against `expected_height(v, p)` without defining how `p` is derived or how the expected height is computed. The expression should instead verify that the output matches the recursive expectation calculation described in the task.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. When a subtree is attacked, each of its edges is destroyed with probability <image>, independently of other edges. Then, Limak gets the penalty — an integer equal to the height of the subtree after the attack. The expected value of the penalty is the expected height of the subtree after the attack.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly verifies the recursive expected height calculation for type-2 queries. The expression must capture the expected height of the subtree rooted at `v` after each edge is destroyed with probability `p`, where `p` is implied by the task context (e.g., `p = 0.5` as in the first sample). The expected height is computed recursively as the maximum expected path length from `v` to any descendant, accounting for edge survival probabilities.",
+            "task_evidence": "For a query of the second type, the expected value of the penalty is the expected height of the subtree rooted in `v` after each edge in the subtree is destroyed with probability <image>, independently of other edges.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "The expression in Q4 is incorrect because it does not capture the recursive expected height calculation with edge survival probabilities. The task requires computing the expected height of the subtree rooted at `v` after each edge is destroyed with probability `p` (implied by the task context), but the expression only checks bounds against `expected_height(v, p)` without defining how `p` is derived or how the expected height is computed. The expression should instead verify that the output matches the recursive expectation calculation described in the task.",
+          "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. When a subtree is attacked, each of its edges is destroyed with probability <image>, independently of other edges. Then, Limak gets the penalty — an integer equal to the height of the subtree after the attack. The expected value of the penalty is the expected height of the subtree after the attack.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "all(abs(float(line.strip()) - compute_expected_height(v, p)) <= 1e-9 for line, v in zip(stdout.splitlines(), [int(line.split()[1]) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2]))",
+          "description": "For each type-2 query, the output line is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability `p = 0.5` (implied by the task context). The expected height is computed recursively as the maximum expected path length from `v` to any descendant, where each edge survives with probability `p` and contributes 1 to the path length if it survives, and the expected height of a child subtree is multiplied by `p` to account for the edge survival probability."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "830b813e532fd33142d5fc62f2455af69835ca9d91236f5453f4b4e43b09acb3",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly captures the recursive expected height calculation for the subtree rooted at `v` with edge survival probability `p = 0.5`. The expression must reflect the task's definition of expected height as the maximum expected path length from `v` to any descendant, where each edge survives with probability `p` and contributes 1 to the path length if it survives, and the expected height of a child subtree is multiplied by `p` to account for the edge survival probability.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... the expected value of the penalty Limak gets after the attack? ... each of its edges is destroyed with probability <image>, independently of other edges. ... the expected height of the subtree after the attack.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly model the recursive expected height calculation for the subtree rooted at `v` with edge survival probability `p = 0.5`. The expression must explicitly handle the recursive nature of the expected height computation, including the edge survival probability and the maximum path length semantics.",
+            "task_evidence": "the expected value of the penalty Limak gets after the attack? ... each of its edges is destroyed with probability <image>, independently of other edges. ... the height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the expected height calculation is computed for the subtree rooted at `v` with the correct recursive logic, including the edge survival probability `p = 0.5` and the maximum path length semantics.",
+            "task_evidence": "the expected value of the penalty Limak gets after the attack? ... the height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. When a subtree is attacked, each of its edges is destroyed with probability <image>, independently of other edges. Then, Limak gets the penalty — an integer equal to the height of the subtree after the attack. The expected value of the penalty is the expected height of the subtree after the attack.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression in Q4 is incorrect because it does not capture the recursive expected height calculation with edge survival probabilities. The task requires computing the expected height of the subtree rooted at `v` after each edge is destroyed with probability `p` (implied by the task context), but the expression only checks bounds against `expected_height(v, p)` without defining how `p` is derived or how the expected height is computed. The expression should instead verify that the output matches the recursive expectation calculation described in the task.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. When a subtree is attacked, each of its edges is destroyed with probability <image>, independently of other edges. Then, Limak gets the penalty — an integer equal to the height of the subtree after the attack. The expected value of the penalty is the expected height of the subtree after the attack.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(0.0 <= float(line.strip()) for line in stdout.splitlines() if line.strip())",
+            "description": "Each output line for a type-2 query is a non-negative real number representing the expected penalty."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(abs(float(output_line) - jury_answer) <= max(1e-6, 1e-6 * abs(jury_answer)) for output_line, jury_answer in zip(stdout.splitlines(), jury_answers))",
+            "description": "Each output line for a type-2 query matches the jury's answer within absolute or relative error 1e-6."
+          },
+          {
+            "id": "Q3",
+            "expression": "len(stdout.splitlines()) == number_of_type_2_queries",
+            "description": "The number of output lines equals the number of type-2 queries."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(abs(float(line.strip()) - expected_penalty(v)) <= 1e-9 for line, v in zip(stdout.splitlines(), [int(line.split()[1]) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2]))",
+            "description": "For each type-2 query, the output line is the expected penalty (height) of the subtree rooted at `v` after each edge in the subtree is destroyed with probability 0.5, computed recursively as the maximum expected path length from `v` to any descendant, where each edge survives with probability 0.5 and contributes 1 to the path length if it survives."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "e7d726de5f6a4dc9d1821743f893b5c86254e5ccd329068ad1551285f56e6396",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the recursive expected penalty calculation. The task requires computing the expected height of the subtree after each edge is destroyed with probability 0.5, where the height is the maximum expected path length from `v` to any descendant. The current expression is underspecified and does not reflect the recursive nature of the problem (e.g., how edge survival probabilities propagate through the tree).",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... For a query of the second type, the expected value of the penalty is the expected height of the subtree after each edge is destroyed with probability 0.5.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the recursive expected penalty calculation. The task requires computing the expected height of the subtree after each edge is destroyed with probability 0.5, where the height is the maximum expected path length from `v` to any descendant. The current expression is underspecified and does not reflect the recursive nature of the problem (e.g., how edge survival probabilities propagate through the tree).",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... For a query of the second type, the expected value of the penalty is the expected height of the subtree after each edge is destroyed with probability 0.5.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that explicitly defines the recursive computation of the expected penalty for a subtree rooted at `v`. This must include the base case (leaf node) and recursive case (non-leaf node), where the expected height is computed as the maximum over all children of (1 + 0.5 * expected height of the child's subtree).",
+            "task_evidence": "For a query of the second type, the expected value of the penalty is the expected height of the subtree after each edge is destroyed with probability 0.5, computed recursively as the maximum expected path length from `v` to any descendant, where each edge survives with probability 0.5 and contributes 1 to the path length if it survives.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... For a query of the second type, the expected value of the penalty is the expected height of the subtree after each edge is destroyed with probability 0.5.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the recursive expected penalty calculation. The task requires computing the expected height of the subtree after each edge is destroyed with probability 0.5, where the height is the maximum expected path length from `v` to any descendant. The current expression is underspecified and does not reflect the recursive nature of the problem (e.g., how edge survival probabilities propagate through the tree).",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... For a query of the second type, the expected value of the penalty is the expected height of the subtree after each edge is destroyed with probability 0.5.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "For each type-2 query, the output line is the expected height of the subtree rooted at `v` after each edge in the subtree is destroyed with probability 0.5. The expected height is computed recursively as follows: for a leaf node, the expected height is 0; for a non-leaf node, the expected height is 1 plus 0.5 times the maximum expected height among its children's subtrees.",
+            "expression": "all(abs(float(line.strip()) - (0.0 if not children else 1.0 + 0.5 * max(expected_penalty(child) for child in children))) <= 1e-9 for line, v in zip(stdout.splitlines(), [int(line.split()[1]) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2]))",
+            "id": "Q1"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "0d53e29625935124aef539ebcde10ca705cf7eb0fac47299620e8b92daeb24ea",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the expected height calculation for non-leaf nodes. The task requires the expected height to account for the probability of edges being destroyed (0.5) and the recursive nature of the subtree height calculation, including the possibility of the subtree being disconnected due to edge destruction. The current expression oversimplifies this by not considering the probabilistic destruction of edges and the resulting disconnected subtrees.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... each of its edges is destroyed with probability 0.5. ... the expected value of the penalty Limak gets after the attack.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the expected height calculation for non-leaf nodes. The task requires the expected height to account for the probability of edges being destroyed (0.5) and the recursive nature of the subtree height calculation, including the possibility of the subtree being disconnected due to edge destruction. The current expression oversimplifies this by not considering the probabilistic destruction of edges and the resulting disconnected subtrees.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... each of its edges is destroyed with probability 0.5. ... the expected value of the penalty Limak gets after the attack.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract lacks a clause to ensure the expected height calculation accounts for the probabilistic destruction of edges (0.5) and the recursive nature of the subtree height calculation, including the possibility of the subtree being disconnected due to edge destruction. The expected height must be computed as the sum over all possible edge destruction outcomes of the probability of that outcome times the height of the resulting forest.",
+            "task_evidence": "When a subtree is attacked then each of its edges is destroyed with probability 0.5, independently of other edges. Then, Limak gets the penalty — an integer equal to the height of the subtree after the attack.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... each of its edges is destroyed with probability 0.5. ... the expected value of the penalty Limak gets after the attack.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the expected height calculation for non-leaf nodes. The task requires the expected height to account for the probability of edges being destroyed (0.5) and the recursive nature of the subtree height calculation, including the possibility of the subtree being disconnected due to edge destruction. The current expression oversimplifies this by not considering the probabilistic destruction of edges and the resulting disconnected subtrees.",
+            "task_evidence": "The height is defined as the maximum number of edges on the path between the root of the subtree and any vertex in the subtree. ... each of its edges is destroyed with probability 0.5. ... the expected value of the penalty Limak gets after the attack.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(abs(float(line.strip()) - expected_penalty(v)) <= 1e-9 for line, v in zip(stdout.splitlines(), [int(line.split()[1]) for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2]))",
+            "description": "For each type-2 query, the output line is the expected penalty (height) of the subtree rooted at `v` after each edge in the subtree is destroyed with probability 0.5. The expected penalty is computed recursively as follows: for a leaf node, the expected penalty is 0; for a non-leaf node, the expected penalty is 1 plus 0.5 times the maximum expected penalty among its children's subtrees, where each child's subtree is considered independently with its edges surviving with probability 0.5."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "1e46ca7075b7634beefc151058fcc5920a11861f80b1aa6011452364ae0efa64",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the expected penalty calculation for non-leaf nodes. The task requires the expected penalty to account for the probability of edges surviving (0.5) and the recursive maximum height calculation, but the current expression does not reflect the probabilistic destruction of edges or the recursive nature of the height calculation.",
+            "task_evidence": "for a non-leaf node, the expected penalty is 1 plus 0.5 times the maximum expected penalty among its children's subtrees, where each child's subtree is considered independently with its edges surviving with probability 0.5.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the expected penalty calculation for non-leaf nodes. The task requires the expected penalty to account for the probability of edges surviving (0.5) and the recursive maximum height calculation, but the current expression does not reflect the probabilistic destruction of edges or the recursive nature of the height calculation.",
+            "task_evidence": "for a non-leaf node, the expected penalty is 1 plus 0.5 times the maximum expected penalty among its children's subtrees, where each child's subtree is considered independently with its edges surviving with probability 0.5.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract lacks a clause to ensure the expected penalty is computed for all type-2 queries, including the recursive handling of edge destruction probabilities and subtree heights.",
+            "task_evidence": "For a query of the second type, the expected value of the penalty is the expected height of the subtree after each edge is destroyed with probability 0.5.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 174.477,
+  "processing_error": null,
+  "finished_at": "2026-09-03T23:31:28.637810+00:00"
+}

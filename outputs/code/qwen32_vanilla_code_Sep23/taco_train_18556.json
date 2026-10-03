@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_18556",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:52:28.796120+00:00",
+  "code": "import sys\nfrom collections import defaultdict\nfrom functools import lru_cache\n\nMOD = 10**9 + 7\n\ndef dfs(node, parent, graph, memo):\n    if (node, parent) in memo:\n        return memo[(node, parent)]\n    \n    counts = [0] * 5\n    counts[2] = 1\n    \n    for neighbor, weight, color in graph[node]:\n        if neighbor == parent:\n            continue\n        sub_counts = dfs(neighbor, node, graph, memo)\n        new_counts = [0] * 5\n        \n        for i in range(5):\n            for j in range(5):\n                diff = abs(i - j)\n                if diff <= 2:\n                    new_index = i + j - 2\n                    new_counts[new_index] += counts[i] * sub_counts[j]\n                    new_counts[new_index] %= MOD\n        \n        counts = new_counts[:]\n    \n    memo[(node, parent)] = counts\n    return counts\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    index += 1\n    graph = defaultdict(list)\n    \n    for _ in range(n - 1):\n        u = int(input[index]) - 1\n        v = int(input[index + 1]) - 1\n        x = int(input[index + 2])\n        c = int(input[index + 3])\n        index += 4\n        graph[u].append((v, x, c))\n        graph[v].append((u, x, c))\n    \n    memo = {}\n    root_counts = dfs(0, -1, graph, memo)\n    \n    result = 1\n    for i in range(5):\n        result = (result * root_counts[i]) % MOD\n    \n    print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

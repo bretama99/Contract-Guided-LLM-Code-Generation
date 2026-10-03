@@ -1,0 +1,91 @@
+{
+  "task_id": "taco_test_144",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 10",
+        "description": "The first line of input is an integer T (1 ≤ T ≤ 10) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(N == int(line.split()[0]) and N >= 1 and N <= 5000 for line in stdin.splitlines()[1:T+1] if line.strip())",
+        "description": "For each test case, the first line after T is an integer N (1 ≤ N ≤ 5000) representing the number of cities to visit."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(cities) == N - 1 for cities in [stdin.splitlines()[i+1:i+N] for i in range(1, T+1, N)])",
+        "description": "Each test case contains exactly N-1 lines of city connections (cards)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each card line is of the form 'A B C' where A and B are city names and C is the cost."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(line.split()[2]) <= 1000 for line in stdin.splitlines()[1:])",
+        "description": "The cost C for each card is an integer between 1 and 1000."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(A) >= 1 and len(B) >= 1 for line in stdin.splitlines()[1:] for A, B, C in [line.split()[:3]])",
+        "description": "City names A and B in each card have lengths between 1 and 50."
+      },
+      {
+        "id": "P7",
+        "expression": "all(A != B for line in stdin.splitlines()[1:] for A, B, C in [line.split()[:3]])",
+        "description": "No card connects a city to itself (A ≠ B)."
+      },
+      {
+        "id": "P8",
+        "expression": "all(A.isalpha() and B.isalpha() for line in stdin.splitlines()[1:] for A, B, C in [line.split()[:3]])",
+        "description": "City names A and B contain only alphabetic characters (case-sensitive)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == N + 1 for N in [int(stdin.splitlines()[i+1][0]) for i in range(0, T)] for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])",
+        "description": "For each test case, the output contains exactly N+1 lines: N-1 lines for the ordered cards and 1 line for the total cost."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(all(line in stdin.splitlines()[i+1:i+N] for line in output_lines[:N-1]) for i in range(1, T+1, N) for N in [int(stdin.splitlines()[i][0])] for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])",
+        "description": "The first N-1 lines of each test case's output are the same cards as the input, but in the correct order."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(output_lines[k].split()[0] == output_lines[k+1].split()[1] for k in range(N-2)) for N in [int(stdin.splitlines()[i][0])] for i in range(1, T+1, N) for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])",
+        "description": "The output cards form a valid path where the destination city of one card is the origin city of the next card (A_i.B_i = A_{i+1})."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(output_lines[N-1] == str(sum(int(line.split()[2]) for line in output_lines[:N-1])) for N in [int(stdin.splitlines()[i][0])] for i in range(1, T+1, N) for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])",
+        "description": "The last line of each test case's output is the total cost of the journey, which is the sum of the costs of the ordered cards."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(city for line in output_lines[:N-1] for city in line.split()[:2])) == N for N in [int(stdin.splitlines()[i][0])] for i in range(1, T+1, N) for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])",
+        "description": "The output path visits exactly N distinct cities (no city is visited more than once)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 10\",\n      \"description\": \"The first line of input is an integer T (1 ≤ T ≤ 10) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(N == int(line.split()[0]) and N >= 1 and N <= 5000 for line in stdin.splitlines()[1:T+1] if line.strip())\",\n      \"description\": \"For each test case, the first line after T is an integer N (1 ≤ N ≤ 5000) representing the number of cities to visit.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(cities) == N - 1 for cities in [stdin.splitlines()[i+1:i+N] for i in range(1, T+1, N)])\",\n      \"description\": \"Each test case contains exactly N-1 lines of city connections (cards).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each card line is of the form 'A B C' where A and B are city names and C is the cost.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(line.split()[2]) <= 1000 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The cost C for each card is an integer between 1 and 1000.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(len(A) >= 1 and len(B) >= 1 for line in stdin.splitlines()[1:] for A, B, C in [line.split()[:3]])\",\n      \"description\": \"City names A and B in each card have lengths between 1 and 50.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(A != B for line in stdin.splitlines()[1:] for A, B, C in [line.split()[:3]])\",\n      \"description\": \"No card connects a city to itself (A ≠ B).\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"all(A.isalpha() and B.isalpha() for line in stdin.splitlines()[1:] for A, B, C in [line.split()[:3]])\",\n      \"description\": \"City names A and B contain only alphabetic characters (case-sensitive).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_lines) == N + 1 for N in [int(stdin.splitlines()[i+1][0]) for i in range(0, T)] for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])\",\n      \"description\": \"For each test case, the output contains exactly N+1 lines: N-1 lines for the ordered cards and 1 line for the total cost.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(all(line in stdin.splitlines()[i+1:i+N] for line in output_lines[:N-1]) for i in range(1, T+1, N) for N in [int(stdin.splitlines()[i][0])] for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])\",\n      \"description\": \"The first N-1 lines of each test case's output are the same cards as the input, but in the correct order.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(all(output_lines[k].split()[0] == output_lines[k+1].split()[1] for k in range(N-2)) for N in [int(stdin.splitlines()[i][0])] for i in range(1, T+1, N) for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])\",\n      \"description\": \"The output cards form a valid path where the destination city of one card is the origin city of the next card (A_i.B_i = A_{i+1}).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(output_lines[N-1] == str(sum(int(line.split()[2]) for line in output_lines[:N-1])) for N in [int(stdin.splitlines()[i][0])] for i in range(1, T+1, N) for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])\",\n      \"description\": \"The last line of each test case's output is the total cost of the journey, which is the sum of the costs of the ordered cards.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(len(set(city for line in output_lines[:N-1] for city in line.split()[:2])) == N for N in [int(stdin.splitlines()[i][0])] for i in range(1, T+1, N) for output_lines in [stdout.splitlines()[j:j+N+1] for j in range(0, len(stdout.splitlines()), N+1)])\",\n      \"description\": \"The output path visits exactly N distinct cities (no city is visited more than once).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1594,
+  "generated_tokens": 1342,
+  "hit_output_limit": false,
+  "generation_seconds": 60.443,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:53:06.489316+00:00"
+}

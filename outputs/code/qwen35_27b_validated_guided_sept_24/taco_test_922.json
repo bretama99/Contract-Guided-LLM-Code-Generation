@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_922",
+  "task_index": 472,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_test_922.json",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    P = input_data[0]\n    n = len(P)\n    idx_map = {'c': 0, 'h': 1, 'e': 2, 'f': 3}\n    \n    pref = [[0] * (n + 1) for _ in range(4)]\n    \n    for i, char in enumerate(P):\n        code = idx_map[char]\n        for k in range(4):\n            pref[k][i+1] = pref[k][i]\n        pref[code][i+1] += 1\n    \n    Q = int(input_data[1])\n    results = []\n    \n    ptr = 2\n    for _ in range(Q):\n        a = input_data[ptr]\n        b = input_data[ptr+1]\n        L = int(input_data[ptr+2])\n        R = int(input_data[ptr+3])\n        ptr += 4\n        \n        u = idx_map[a]\n        v = idx_map[b]\n        \n        count_a = pref[u][R] - pref[u][L-1]\n        count_b = pref[v][R] - pref[v][L-1]\n        \n        total_pairs = count_a * count_b\n        \n        overlap = 0\n        for i in range(L, R + 1):\n            if P[i-1] == a and P[i-1] == b:\n                overlap += 1\n        \n        ans = total_pairs - overlap\n        results.append(str(ans))\n    \n    sys.stdout.write('\\n'.join(results) + '\\n')\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 35.824,
+  "generated_at": "2026-09-25T03:04:44.213109+00:00"
+}

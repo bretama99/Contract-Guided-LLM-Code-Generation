@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_5825",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.split()[0]) and t >= 1 and t <= 100",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 100) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(lines) == 2 * t for lines in [stdin.splitlines()[i:i+2*t] for i in range(0, len(stdin.splitlines()), 2*t)])",
+        "description": "Input consists of exactly 2t lines after the first line: t pairs of lines per test case, where each pair is (n, s)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(n == int(lines[2*i]) and n >= 1 and n <= 10**5 for i in range(t))",
+        "description": "For each test case, the first line of the pair is an integer n (1 ≤ n ≤ 10^5) representing the length of the string s."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(lines[2*i+1]) == n for i in range(t))",
+        "description": "For each test case, the second line of the pair is a string s of length n consisting of lowercase English letters."
+      },
+      {
+        "id": "P5",
+        "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in lines[2*i+1]) for i in range(t))",
+        "description": "Each character in s is a lowercase English letter."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.split()) == t for _ in range(t))",
+        "description": "The output contains exactly t space-separated integers, one per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output == '-1' or (output >= 0 and output <= n) for output, n in zip(stdout.split(), [int(stdin.splitlines()[2*i]) for i in range(t)]))",
+        "description": "For each test case, the output is either -1 (impossible) or a non-negative integer ≤ n (minimum deletions required)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output == '-1' and not any(is_palindrome(s, c) for c in set(s))) or (output >= 0 and any(is_palindrome(s, c) and count_deletions(s, c) == output for c in set(s))) for output, s in zip(stdout.split(), [stdin.splitlines()[2*i+1] for i in range(t)]))",
+        "description": "For each test case, if output is -1, no single letter deletion can make s a palindrome. Otherwise, output is the minimum deletions required across all possible letters c ∈ s, where is_palindrome(s, c) checks if s becomes a palindrome after deleting some occurrences of c, and count_deletions(s, c) returns the minimum deletions needed for that c."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output == '-1' or (output == 0 and is_palindrome(s, c) for some c in set(s))) for output, s in zip(stdout.split(), [stdin.splitlines()[2*i+1] for i in range(t)]))",
+        "description": "If the string is already a palindrome (output = 0), it must be possible to choose some letter c ∈ s and delete zero occurrences of c to leave the string unchanged as a palindrome."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.split()[0]) and t >= 1 and t <= 100\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 100) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(lines) == 2 * t for lines in [stdin.splitlines()[i:i+2*t] for i in range(0, len(stdin.splitlines()), 2*t)])\",\n      \"description\": \"Input consists of exactly 2t lines after the first line: t pairs of lines per test case, where each pair is (n, s).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(n == int(lines[2*i]) and n >= 1 and n <= 10**5 for i in range(t))\",\n      \"description\": \"For each test case, the first line of the pair is an integer n (1 ≤ n ≤ 10^5) representing the length of the string s.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(lines[2*i+1]) == n for i in range(t))\",\n      \"description\": \"For each test case, the second line of the pair is a string s of length n consisting of lowercase English letters.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(all(c in 'abcdefghijklmnopqrstuvwxyz' for c in lines[2*i+1]) for i in range(t))\",\n      \"description\": \"Each character in s is a lowercase English letter.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.split()) == t for _ in range(t))\",\n      \"description\": \"The output contains exactly t space-separated integers, one per test case.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output == '-1' or (output >= 0 and output <= n) for output, n in zip(stdout.split(), [int(stdin.splitlines()[2*i]) for i in range(t)]))\",\n      \"description\": \"For each test case, the output is either -1 (impossible) or a non-negative integer ≤ n (minimum deletions required).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((output == '-1' and not any(is_palindrome(s, c) for c in set(s))) or (output >= 0 and any(is_palindrome(s, c) and count_deletions(s, c) == output for c in set(s))) for output, s in zip(stdout.split(), [stdin.splitlines()[2*i+1] for i in range(t)]))\",\n      \"description\": \"For each test case, if output is -1, no single letter deletion can make s a palindrome. Otherwise, output is the minimum deletions required across all possible letters c ∈ s, where is_palindrome(s, c) checks if s becomes a palindrome after deleting some occurrences of c, and count_deletions(s, c) returns the minimum deletions needed for that c.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((output == '-1' or (output == 0 and is_palindrome(s, c) for some c in set(s))) for output, s in zip(stdout.split(), [stdin.splitlines()[2*i+1] for i in range(t)]))\",\n      \"description\": \"If the string is already a palindrome (output = 0), it must be possible to choose some letter c ∈ s and delete zero occurrences of c to leave the string unchanged as a palindrome.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1687,
+  "generated_tokens": 908,
+  "hit_output_limit": false,
+  "generation_seconds": 43.602,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:48:54.588481+00:00"
+}

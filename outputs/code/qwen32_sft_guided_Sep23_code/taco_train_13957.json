@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13957",
+  "task_index": 84,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_13957.json",
+  "code": "import sys\nimport math\nfrom heapq import heappop, heappush\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    nodes = [(int(input[2*i+1]), int(input[2*i+2])) for i in range(n)]\n    \n    def distance(p1, p2):\n        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)\n    \n    def find_mst_with_constraints():\n        edges = []\n        for i in range(n):\n            for j in range(i + 1, n):\n                if nodes[i][1] > nodes[j][1]:\n                    heappush(edges, (distance(nodes[i], nodes[j]), i, j))\n                elif nodes[j][1] > nodes[i][1]:\n                    heappush(edges, (distance(nodes[j], nodes[i]), j, i))\n        \n        parent = list(range(n))\n        rank = [0] * n\n        \n        def find(x):\n            if parent[x] != x:\n                parent[x] = find(parent[x])\n            return parent[x]\n        \n        def union(x, y):\n            rootX = find(x)\n            rootY = find(y)\n            if rootX != rootY:\n                if rank[rootX] > rank[rootY]:\n                    parent[rootY] = rootX\n                elif rank[rootX] < rank[rootY]:\n                    parent[rootX] = rootY\n                else:\n                    parent[rootY] = rootX\n                    rank[rootX] += 1\n                return True\n            return False\n        \n        mst_weight = 0\n        edge_count = 0\n        while edges:\n            weight, u, v = heappop(edges)\n            if union(u, v):\n                mst_weight += weight\n                edge_count += 1\n                if edge_count == n - 1:\n                    return mst_weight\n        return -1\n    \n    result = find_mst_with_constraints()\n    if result == -1:\n        print(\"-1\")\n    else:\n        print(f\"{result:.10f}\")\n\nmain()",
+  "generation_seconds": 40.813,
+  "generated_at": "2026-09-23T17:34:03.816058+00:00"
+}

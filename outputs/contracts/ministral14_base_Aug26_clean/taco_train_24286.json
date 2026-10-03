@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_24286",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "overlappedInterval",
+      "signature": "list[tuple[int, int]] -> list[tuple[int, int]]"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(interval, tuple) and len(interval) == 2 and isinstance(interval[0], int) and isinstance(interval[1], int) and interval[0] <= interval[1] for interval in intervals)",
+        "description": "Every element in the input list is a tuple of two integers where the first element is less than or equal to the second (valid interval)."
+      },
+      {
+        "id": "P2",
+        "expression": "1 <= len(intervals) <= 100",
+        "description": "The input list contains between 1 and 100 intervals."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= interval[0] <= interval[1] <= 1000 for interval in intervals)",
+        "description": "All interval start and end values are integers between 0 and 1000, inclusive, with start <= end."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(isinstance(interval, tuple) and len(interval) == 2 and isinstance(interval[0], int) and isinstance(interval[1], int) and interval[0] <= interval[1] for interval in return_value)",
+        "description": "Every element in the output list is a valid interval (tuple of two integers with start <= end)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= interval[0] <= interval[1] <= 1000 for interval in return_value)",
+        "description": "All output interval values are integers between 0 and 1000, inclusive."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(return_value) <= len(intervals)",
+        "description": "The output list contains no more intervals than the input list (merging reduces or preserves count)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(intervals[i][0] <= return_value[j][0] <= return_value[j][1] <= intervals[i][1] for i in range(len(intervals)) for j in range(len(return_value)) if any(intervals[i][0] <= x <= intervals[i][1] for x in range(return_value[j][0], return_value[j][1] + 1)))",
+        "description": "Every output interval is a merged result of one or more overlapping or adjacent input intervals (coverage)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(return_value[i][1] < return_value[i+1][0] for i in range(len(return_value) - 1))",
+        "description": "Output intervals are non-overlapping and sorted in ascending order by start time."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any(intervals[i][0] <= x <= intervals[i][1] for i in range(len(intervals)) for x in range(return_value[j][0], return_value[j][1] + 1) for j in range(len(return_value)) if return_value[j][0] > intervals[i][1] or return_value[j][1] < intervals[i][0])",
+        "description": "No output interval contains any point from an input interval that is not part of its merged group (no false merges)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"overlappedInterval\",\n    \"signature\": \"list[tuple[int, int]] -> list[tuple[int, int]]\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(interval, tuple) and len(interval) == 2 and isinstance(interval[0], int) and isinstance(interval[1], int) and interval[0] <= interval[1] for interval in intervals)\",\n      \"description\": \"Every element in the input list is a tuple of two integers where the first element is less than or equal to the second (valid interval).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"1 <= len(intervals) <= 100\",\n      \"description\": \"The input list contains between 1 and 100 intervals.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= interval[0] <= interval[1] <= 1000 for interval in intervals)\",\n      \"description\": \"All interval start and end values are integers between 0 and 1000, inclusive, with start <= end.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(isinstance(interval, tuple) and len(interval) == 2 and isinstance(interval[0], int) and isinstance(interval[1], int) and interval[0] <= interval[1] for interval in return_value)\",\n      \"description\": \"Every element in the output list is a valid interval (tuple of two integers with start <= end).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= interval[0] <= interval[1] <= 1000 for interval in return_value)\",\n      \"description\": \"All output interval values are integers between 0 and 1000, inclusive.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(return_value) <= len(intervals)\",\n      \"description\": \"The output list contains no more intervals than the input list (merging reduces or preserves count).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(intervals[i][0] <= return_value[j][0] <= return_value[j][1] <= intervals[i][1] for i in range(len(intervals)) for j in range(len(return_value)) if any(intervals[i][0] <= x <= intervals[i][1] for x in range(return_value[j][0], return_value[j][1] + 1)))\",\n      \"description\": \"Every output interval is a merged result of one or more overlapping or adjacent input intervals (coverage).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(return_value[i][1] < return_value[i+1][0] for i in range(len(return_value) - 1))\",\n      \"description\": \"Output intervals are non-overlapping and sorted in ascending order by start time.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"not any(intervals[i][0] <= x <= intervals[i][1] for i in range(len(intervals)) for x in range(return_value[j][0], return_value[j][1] + 1) for j in range(len(return_value)) if return_value[j][0] > intervals[i][1] or return_value[j][1] < intervals[i][0])\",\n      \"description\": \"No output interval contains any point from an input interval that is not part of its merged group (no false merges).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1312,
+  "generated_tokens": 834,
+  "hit_output_limit": false,
+  "generation_seconds": 40.308,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:00:26.907085+00:00"
+}

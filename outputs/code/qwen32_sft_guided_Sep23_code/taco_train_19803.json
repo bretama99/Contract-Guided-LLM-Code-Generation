@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19803",
+  "task_index": 930,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_19803.json",
+  "code": "import sys\n\ndef lcs(X, Y):\n    m = len(X)\n    n = len(Y)\n    L = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(m + 1):\n        for j in range(n + 1):\n            if i == 0 or j == 0:\n                L[i][j] = 0\n            elif X[i - 1] == Y[j - 1]:\n                L[i][j] = L[i - 1][j - 1] + 1\n            else:\n                L[i][j] = max(L[i - 1][j], L[i][j - 1])\n    return L[m][n]\n\ndef reconstruct_lcs(X, Y, L):\n    index = L[len(X)][len(Y)]\n    lcs = [\"\"] * (index + 1)\n    lcs[index] = \"\"\n    i = len(X)\n    j = len(Y)\n    while i > 0 and j > 0:\n        if X[i - 1] == Y[j - 1]:\n            lcs[index - 1] = X[i - 1]\n            i -= 1\n            j -= 1\n            index -= 1\n        elif L[i - 1][j] > L[i][j - 1]:\n            i -= 1\n        else:\n            j -= 1\n    return \"\".join(lcs)\n\ndef shortest_supersequence(s, t):\n    common = reconstruct_lcs(s, t, lcs(s, t))\n    result = []\n    i, j, k = 0, 0, 0\n    while k < len(common):\n        while i < len(s) and s[i] != common[k]:\n            result.append(s[i])\n            i += 1\n        while j < len(t) and t[j] != common[k]:\n            result.append(t[j])\n            j += 1\n        result.append(common[k])\n        i += 1\n        j += 1\n        k += 1\n    result.append(s[i:])\n    result.append(t[j:])\n    open_count = 0\n    final_result = []\n    for char in result:\n        if char == '(':\n            open_count += 1\n            final_result.append(char)\n        elif char == ')':\n            if open_count > 0:\n                open_count -= 1\n                final_result.append(char)\n            else:\n                final_result.append('(')\n                final_result.append(')')\n    while open_count > 0:\n        final_result.append(')')\n        open_count -= 1\n    return \"\".join(final_result)\n\ns = sys.stdin.readline().strip()\nt = sys.stdin.readline().strip()\nprint(shortest_supersequence(s, t))",
+  "generation_seconds": 51.8,
+  "generated_at": "2026-09-23T20:10:19.277885+00:00"
+}

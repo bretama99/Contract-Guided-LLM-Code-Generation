@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_25156",
+  "task_index": 283,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_25156.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef dfs(node, parent, graph, b, w, wasp_votes, bee_votes):\n    wasp_votes[0] += w[node]\n    bee_votes[0] += b[node]\n    for neighbor in graph[node]:\n        if neighbor != parent:\n            dfs(neighbor, node, graph, b, w, wasp_votes, bee_votes)\n\ndef solve(n, m, b, w, edges):\n    graph = defaultdict(list)\n    for x, y in edges:\n        graph[x - 1].append(y - 1)\n        graph[y - 1].append(x - 1)\n    \n    wasp_wins = []\n    visited = [False] * n\n    \n    for i in range(n):\n        if not visited[i]:\n            wasp_votes, bee_votes = [0], [0]\n            dfs(i, -1, graph, b, w, wasp_votes, bee_votes)\n            if wasp_votes[0] > bee_votes[0]:\n                wasp_wins.append((wasp_votes[0], bee_votes[0]))\n            visited[i] = True\n    \n    wasp_wins.sort(reverse=True)\n    \n    max_villages = 0\n    for i in range(min(m, len(wasp_wins))):\n        if wasp_wins[i][0] > wasp_wins[i][1]:\n            max_villages += 1\n    \n    return max_villages\n\ninput = sys.stdin.read().split()\nt = int(input[0])\nindex = 1\nresults = []\n\nfor _ in range(t):\n    n = int(input[index])\n    m = int(input[index + 1])\n    b = list(map(int, input[index + 2:index + 2 + n]))\n    w = list(map(int, input[index + 2 + n:index + 2 + 2 * n]))\n    edges = [(int(input[index + 2 + 2 * n + 2 * i]), int(input[index + 2 + 2 * n + 2 * i + 1])) for i in range(n - 1)]\n    index += 2 + 2 * n + n - 1\n    results.append(solve(n, m, b, w, edges))\n\nprint('\\n'.join(map(str, results)))",
+  "generation_seconds": 44.479,
+  "generated_at": "2026-09-23T19:06:09.228838+00:00"
+}

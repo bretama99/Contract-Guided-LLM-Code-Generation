@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4945",
+  "task_index": 706,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_4945.json",
+  "code": "import sys\nfrom collections import deque\n\ndef is_connected(grid):\n    n, m = len(grid), len(grid[0])\n    visited = [[False] * m for _ in range(n)]\n    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]\n    \n    def bfs(start):\n        queue = deque([start])\n        visited[start[0]][start[1]] = True\n        count = 0\n        while queue:\n            x, y = queue.popleft()\n            count += 1\n            for dx, dy in directions:\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < n and 0 <= ny < m and grid[nx][ny] == '#' and not visited[nx][ny]:\n                    visited[nx][ny] = True\n                    queue.append((nx, ny))\n        return count\n    \n    start = None\n    for i in range(n):\n        for j in range(m):\n            if grid[i][j] == '#':\n                start = (i, j)\n                break\n        if start:\n            break\n    \n    component_size = bfs(start)\n    total_painted = sum(row.count('#') for row in grid)\n    return component_size == total_painted\n\ndef remove_squares(grid, k):\n    n, m = len(grid), len(grid[0])\n    painted = [(i, j) for i in range(n) for j in range(m) if grid[i][j] == '#']\n    \n    for combination in combinations(painted, k):\n        new_grid = [row[:] for row in grid]\n        for x, y in combination:\n            new_grid[x][y] = '.'\n        if not is_connected(new_grid):\n            return True\n    return False\n\ndef main():\n    import sys\n    import itertools\n    input = sys.stdin.read().split()\n    n, m = map(int, input[:2])\n    grid = input[2:]\n    \n    if not is_connected(grid):\n        print(0)\n        return\n    \n    for k in range(1, n * m + 1):\n        if remove_squares(grid, k):\n            print(k)\n            return\n    \n    print(-1)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 43.219,
+  "generated_at": "2026-09-23T21:07:30.225740+00:00"
+}

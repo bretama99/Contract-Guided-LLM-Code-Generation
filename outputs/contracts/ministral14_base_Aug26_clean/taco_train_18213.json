@@ -1,0 +1,87 @@
+{
+  "task_id": "taco_train_18213",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 2 * 10**5 and 1 <= q <= 2 * 10**5",
+        "description": "The number of nodes (n) and queries (q) are within the specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "len(a) == n and all(1 <= x <= n for x in a) and len(set(a)) == n",
+        "description": "The sequence 'a' is a permutation of integers from 1 to n."
+      },
+      {
+        "id": "P3",
+        "expression": "len(edges) == n - 1 and all(1 <= u != v <= n and 1 <= w <= 10**6 for u, v, w in edges)",
+        "description": "The input defines a tree with n-1 edges, each with valid node pairs and positive weights."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= t <= 2 for t in query_types) and len(query_types) == q",
+        "description": "Each query type is either 1 or 2, and there are exactly q queries."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= a < 2**30 for a in query_params) and len(query_params) == q",
+        "description": "Each query parameter 'a' is a non-negative integer less than 2^30."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= l <= r <= n and 1 <= v <= n for l, r, v in generated_type1_queries) and all(1 <= x <= n - 1 for x in generated_type2_queries)",
+        "description": "Generated queries of type 1 satisfy 1 ≤ l ≤ r ≤ n and 1 ≤ v ≤ n, and type 2 satisfy 1 ≤ x ≤ n - 1."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() == str(sum(dist(a[l_idx], a[r_idx]) for l_idx in range(l, r + 1))) for (l, r, v), stdout_line in zip(generated_type1_queries, output_lines) if v == 0)",
+        "description": "For each type 1 query with v=0, the output is the sum of distances between all pairs (a[l], a[l+1]), ..., (a[r-1], a[r]) in the current permutation 'a'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(stdout_line.strip() == str(sum(dist(a[l_idx], v) for l_idx in range(l, r + 1))) for (l, r, v), stdout_line in zip(generated_type1_queries, output_lines) if v != 0)",
+        "description": "For each type 1 query with v≠0, the output is the sum of distances from each node a[l], ..., a[r] to node v in the current permutation 'a'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(a[x] == a[x + 1] ^ a[x] and a[x + 1] == a[x] ^ a[x + 1] for x in generated_type2_queries)",
+        "description": "For each type 2 query, the sequence 'a' is updated by swapping a[x] and a[x + 1] in the current permutation."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= int(stdout_line.strip()) <= 10**18 for stdout_line in output_lines)",
+        "description": "Each output line for a type 1 query is a non-negative integer within reasonable bounds."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= x <= n for x in a)",
+        "description": "The sequence 'a' always remains a permutation of integers from 1 to n."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= u != v <= n and 1 <= w <= 10**6 for u, v, w in edges)",
+        "description": "The tree structure and edge weights remain unchanged throughout the queries."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 2 * 10**5 and 1 <= q <= 2 * 10**5\",\n      \"description\": \"The number of nodes (n) and queries (q) are within the specified bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(a) == n and all(1 <= x <= n for x in a) and len(set(a)) == n\",\n      \"description\": \"The sequence 'a' is a permutation of integers from 1 to n.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(edges) == n - 1 and all(1 <= u != v <= n and 1 <= w <= 10**6 for u, v, w in edges)\",\n      \"description\": \"The input defines a tree with n-1 edges, each with valid node pairs and positive weights.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= t <= 2 for t in query_types) and len(query_types) == q\",\n      \"description\": \"Each query type is either 1 or 2, and there are exactly q queries.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= a < 2**30 for a in query_params) and len(query_params) == q\",\n      \"description\": \"Each query parameter 'a' is a non-negative integer less than 2^30.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= l <= r <= n and 1 <= v <= n for l, r, v in generated_type1_queries) and all(1 <= x <= n - 1 for x in generated_type2_queries)\",\n      \"description\": \"Generated queries of type 1 satisfy 1 ≤ l ≤ r ≤ n and 1 ≤ v ≤ n, and type 2 satisfy 1 ≤ x ≤ n - 1.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() == str(sum(dist(a[l_idx], a[r_idx]) for l_idx in range(l, r + 1))) for (l, r, v), stdout_line in zip(generated_type1_queries, output_lines) if v == 0)\",\n      \"description\": \"For each type 1 query with v=0, the output is the sum of distances between all pairs (a[l], a[l+1]), ..., (a[r-1], a[r]) in the current permutation 'a'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(stdout_line.strip() == str(sum(dist(a[l_idx], v) for l_idx in range(l, r + 1))) for (l, r, v), stdout_line in zip(generated_type1_queries, output_lines) if v != 0)\",\n      \"description\": \"For each type 1 query with v≠0, the output is the sum of distances from each node a[l], ..., a[r] to node v in the current permutation 'a'.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(a[x] == a[x + 1] ^ a[x] and a[x + 1] == a[x] ^ a[x + 1] for x in generated_type2_queries)\",\n      \"description\": \"For each type 2 query, the sequence 'a' is updated by swapping a[x] and a[x + 1] in the current permutation.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= int(stdout_line.strip()) <= 10**18 for stdout_line in output_lines)\",\n      \"description\": \"Each output line for a type 1 query is a non-negative integer within reasonable bounds.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(1 <= x <= n for x in a)\",\n      \"description\": \"The sequence 'a' always remains a permutation of integers from 1 to n.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(1 <= u != v <= n and 1 <= w <= 10**6 for u, v, w in edges)\",\n      \"description\": \"The tree structure and edge weights remain unchanged throughout the queries.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1861,
+  "generated_tokens": 1043,
+  "hit_output_limit": false,
+  "generation_seconds": 49.801,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:20:01.924883+00:00"
+}

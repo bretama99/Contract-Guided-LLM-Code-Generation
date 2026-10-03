@@ -1,0 +1,815 @@
+{
+  "task_id": "taco_train_16190",
+  "task_index": 434,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 1000",
+        "description": "The first line of each test case is an integer n (1 ≤ n ≤ 1000) representing the number of packages."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) >= 1 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n package lines contains at least one token (the package name)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(deps) <= 20 for line in stdin.splitlines()[1:] for deps in [line.split()[1:]])",
+        "description": "Each package has at most 20 dependencies."
+      },
+      {
+        "id": "P4",
+        "expression": "all(' ' in line or len(line.split()) == 1 for line in stdin.splitlines()[1:])",
+        "description": "A package line either has a package name followed by space-separated dependencies or just the package name (no dependencies)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(name) <= 40 for line in stdin.splitlines()[1:] for name in [line.split()[0]])",
+        "description": "Each package name is a string of up to 40 non-whitespace characters."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_+-.' for c in name) for line in stdin.splitlines()[1:] for name in [line.split()[0]])",
+        "description": "Each package name consists only of allowed characters (a-z, A-Z, 0-9, _, -, ., +)."
+      },
+      {
+        "id": "P7",
+        "expression": "all(dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdin.splitlines()[1:] for dep in line.split()[1:])",
+        "description": "Each dependency of a package is one of the other n-1 packages in the test case."
+      },
+      {
+        "id": "P8",
+        "expression": "stdin.splitlines()[0] == '0' or int(stdin.splitlines()[0]) > 0",
+        "description": "Input ends when n is zero, and each test case starts with n > 0."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(package not in [dep for pkg in stdin.splitlines()[1:] for dep in pkg.split()[1:]] for package in stdout.splitlines())",
+        "description": "If the output is not 'cannot be ordered', then no package appears before its dependencies in the output list."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for i, package in enumerate(stdout.splitlines()) for dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:] if pkg.split()[0] == package][0].split()[1:]))",
+        "description": "For each package in the output list, all its dependencies appear before it in the output list."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([pkg.split()[0] for pkg in stdin.splitlines()[1:]])",
+        "description": "The output list contains exactly the same set of package names as the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or stdout.splitlines()[-1] != '')",
+        "description": "If the output is not 'cannot be ordered', it is either empty or ends with a newline-separated package name."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))",
+        "description": "If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() == '' or line.strip() in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdout.splitlines()))",
+        "description": "Each line in the output is either empty or a valid package name from the input."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 1000",
+        "description": "The first line of each test case is an integer n (1 ≤ n ≤ 1000) representing the number of packages."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) >= 1 for line in stdin.splitlines()[1:])",
+        "description": "Each of the n package lines contains at least one token (the package name)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(deps) <= 20 for line in stdin.splitlines()[1:] for deps in [line.split()[1:]])",
+        "description": "Each package has at most 20 dependencies."
+      },
+      {
+        "id": "P4",
+        "expression": "all(' ' in line or len(line.split()) == 1 for line in stdin.splitlines()[1:])",
+        "description": "A package line either has a package name followed by space-separated dependencies or just the package name (no dependencies)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(name) <= 40 for line in stdin.splitlines()[1:] for name in [line.split()[0]])",
+        "description": "Each package name is a string of up to 40 non-whitespace characters."
+      },
+      {
+        "id": "P6",
+        "expression": "all(all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_+-.' for c in name) for line in stdin.splitlines()[1:] for name in [line.split()[0]])",
+        "description": "Each package name consists only of allowed characters (a-z, A-Z, 0-9, _, -, ., +)."
+      },
+      {
+        "id": "P7",
+        "expression": "all(dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdin.splitlines()[1:] for dep in line.split()[1:])",
+        "description": "Each dependency of a package is one of the other n-1 packages in the test case."
+      },
+      {
+        "id": "P8",
+        "expression": "stdin.splitlines()[0] == '0' or int(stdin.splitlines()[0]) > 0",
+        "description": "Input ends when n is zero, and each test case starts with n > 0."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(package not in [dep for pkg in stdin.splitlines()[1:] for dep in pkg.split()[1:]] for package in stdout.splitlines())",
+        "description": "If the output is not 'cannot be ordered', then no package appears before its dependencies in the output list."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for i, package in enumerate(stdout.splitlines()) for dep in [pkg.split()[0] for pkg in stdin.splitlines()[1:] if pkg.split()[0] == package][0].split()[1:]))",
+        "description": "For each package in the output list, all its dependencies appear before it in the output list."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([pkg.split()[0] for pkg in stdin.splitlines()[1:]])",
+        "description": "The output list contains exactly the same set of package names as the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or stdout.splitlines()[-1] != '')",
+        "description": "If the output is not 'cannot be ordered', it is either empty or ends with a newline-separated package name."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))",
+        "description": "If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() == '' or line.strip() in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdout.splitlines()))",
+        "description": "Each line in the output is either empty or a valid package name from the input."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "dbeb7ac0c7446bbc9044c081910ccd5b47589798966d5866757af1f56a4d346f",
+  "selected_contract_fingerprint": "dbeb7ac0c7446bbc9044c081910ccd5b47589798966d5866757af1f56a4d346f",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_16190.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+      "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+      "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+        "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+        "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+        "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if the output is not 'cannot be ordered', the output must be a valid topological sort of the dependency graph (i.e., no cycles exist in the dependency graph).",
+        "task_evidence": "If there is some group of packages that are not able to be ordered within the list, output ‘cannot be ordered’ instead of ordering the packages.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the lexicographical check to ensure it correctly verifies that the output is the lexicographically smallest valid topological ordering. The current expression only checks if the output is sorted, which is insufficient for lexicographical minimality.",
+        "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "postconditions[1].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[1].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+      "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+      "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+        "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+        "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+        "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that if the output is not 'cannot be ordered', the output must be a valid topological sort of the dependency graph (i.e., no cycles exist in the dependency graph).",
+        "task_evidence": "If there is some group of packages that are not able to be ordered within the list, output ‘cannot be ordered’ instead of ordering the packages.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Replace the lexicographical check to ensure it correctly verifies that the output is the lexicographically smallest valid topological ordering. The current expression only checks if the output is sorted, which is insufficient for lexicographical minimality.",
+        "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "all_any_requires_iterable_expression",
+        "location": "postconditions[1].expression",
+        "detail": "all"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[1].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+          "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[1].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[1].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+          "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[1].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"all_any_requires_iterable_expression\",\"detail\":\"all\",\"location\":\"postconditions[1].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Fix the dependency check logic to correctly verify that all dependencies of a package appear before it in the output list. The current expression incorrectly references package names in a convoluted way and does not properly map dependencies to their positions.",
+            "task_evidence": "For each package in the output list, all its dependencies appear before it in the output list.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == 'cannot be ordered' or all(package not in [dep for pkg in stdin.splitlines()[1:] for dep in pkg.split()[1:]] for package in stdout.splitlines())",
+            "description": "If the output is not 'cannot be ordered', then no package appears before its dependencies in the output list."
+          },
+          {
+            "id": "Q2",
+            "expression": "stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for dep in [pkg.split()[1:] for pkg in stdin.splitlines()[1:] if pkg.split()[0] == package][0]) for i, package in enumerate(stdout.splitlines()))",
+            "description": "For each package in the output list, all its dependencies appear before it in the output list."
+          },
+          {
+            "id": "Q3",
+            "expression": "stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([pkg.split()[0] for pkg in stdin.splitlines()[1:]])",
+            "description": "The output list contains exactly the same set of package names as the input."
+          },
+          {
+            "id": "Q4",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or stdout.splitlines()[-1] != '')",
+            "description": "If the output is not 'cannot be ordered', it is either empty or ends with a newline-separated package name."
+          },
+          {
+            "id": "Q5",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))",
+            "description": "If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings."
+          },
+          {
+            "id": "Q6",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() == '' or line.strip() in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdout.splitlines()))",
+            "description": "Each line in the output is either empty or a valid package name from the input."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "412ea9df19a13a79b42508ed9ddb6b28ecb3a6b64ce333a33cb5ed52767c93b9",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the dependency ordering requirement. It checks for the absence of a package before its dependencies in the output, but the task requires that **all dependencies** of a package must appear **before** it in the output. The current expression is logically inverted and does not enforce the full dependency constraint.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the dependency ordering requirement. It checks for the absence of a package before its dependencies in the output, but the task requires that **all dependencies** of a package must appear **before** it in the output. The current expression is logically inverted and does not enforce the full dependency constraint.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "The expression is overly complex and does not correctly enforce the dependency ordering. It attempts to check for dependencies appearing before a package, but the logic is convoluted and does not align with the task's requirement of a valid topological order. The expression should directly verify that for every package in the output, all its dependencies appear before it.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract lacks a postcondition to ensure that the output is a valid topological sort of the dependency graph. The task requires that if a valid ordering exists, the output must be the lexicographically smallest one. The current postconditions do not explicitly enforce this as a single, clear constraint.",
+            "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The expression checks for lexicographical order among the output lines, but it does not ensure that the output is the lexicographically smallest valid topological sort. The task requires that the output must be the lexicographically smallest valid ordering, not just any lexicographically ordered list.",
+            "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly verify that the output is a valid topological sort of the dependency graph. The task requires that the output must be a valid ordering where no package appears before its dependencies, and if no such ordering exists, the output must be 'cannot be ordered'.",
+            "task_evidence": "If there is some group of packages that are not able to be ordered within the list, output ‘cannot be ordered’ instead of ordering the packages.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the dependency ordering requirement. It checks for the absence of a package before its dependencies in the output, but the task requires that **all dependencies** of a package must appear **before** it in the output. The current expression is logically inverted and does not enforce the full dependency constraint.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for dep in [pkg.split()[1:] for pkg in stdin.splitlines()[1:] if pkg.split()[0] == package][0]) for i, package in enumerate(stdout.splitlines()))",
+            "description": "If the output is not 'cannot be ordered', then for every package in the output list, all its dependencies appear before it in the output list."
+          },
+          {
+            "id": "Q2",
+            "expression": "stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([pkg.split()[0] for pkg in stdin.splitlines()[1:]])",
+            "description": "The output list contains exactly the same set of package names as the input."
+          },
+          {
+            "id": "Q3",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))",
+            "description": "If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings."
+          },
+          {
+            "id": "Q4",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() == '' or line.strip() in [pkg.split()[0] for pkg in stdin.splitlines()[1:]] for line in stdout.splitlines()))",
+            "description": "Each line in the output is either empty or a valid package name from the input."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "1887b96aeeac6bc0faf7d5af67dd201a2b701faa39b20d270c6cb7bd829fac00",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the dependency-checking logic to correctly verify that all dependencies of a package appear before it in the output. The current expression incorrectly assumes a single dependency list per package and fails to handle the case where a package has no dependencies.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the dependency-checking logic to correctly verify that all dependencies of a package appear before it in the output. The current expression incorrectly assumes a single dependency list per package and fails to handle the case where a package has no dependencies.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the lexicographical check with a correct implementation that ensures the output is the lexicographically smallest valid topological ordering. The current expression only checks if the output is sorted, which is insufficient for verifying lexicographical minimality.",
+            "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that if the output is not 'cannot be ordered', the output must represent a valid topological sort of the dependency graph (i.e., no cycles exist in the dependency graph).",
+            "task_evidence": "If there is some group of packages that are not able to be ordered within the list, output ‘cannot be ordered’ instead of ordering the packages.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the dependency-checking logic to correctly verify that all dependencies of a package appear before it in the output. The current expression incorrectly assumes a single dependency list per package and fails to handle the case where a package has no dependencies.",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == 'cannot be ordered' or all(all(dep in stdout.splitlines()[:i] for dep in [line.split()[1:] for line in stdin.splitlines()[1:] if line.split()[0] == package][0]) for i, package in enumerate(stdout.splitlines()))",
+            "description": "If the output is not 'cannot be ordered', then for every package in the output list, all its dependencies appear before it in the output list."
+          },
+          {
+            "id": "Q2",
+            "expression": "stdout.strip() == 'cannot be ordered' or set(stdout.splitlines()) == set([line.split()[0] for line in stdin.splitlines()[1:]])",
+            "description": "The output list contains exactly the same set of package names as the input."
+          },
+          {
+            "id": "Q3",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(stdout.splitlines()[i] <= stdout.splitlines()[i+1] for i in range(len(stdout.splitlines())-1)))",
+            "description": "If the output is not 'cannot be ordered', it is lexicographically smallest among all valid topological orderings."
+          },
+          {
+            "id": "Q4",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or all(line.strip() in [line.split()[0] for line in stdin.splitlines()[1:]] for line in stdout.splitlines()))",
+            "description": "Each line in the output is a valid package name from the input."
+          },
+          {
+            "id": "Q5",
+            "expression": "stdout.strip() == 'cannot be ordered' or (stdout.strip() == '' or len(stdout.splitlines()) == len([line.split()[0] for line in stdin.splitlines()[1:]]))",
+            "description": "If the output is not 'cannot be ordered', it contains exactly one line per package in the input."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "68361e0a1820061090a0fd7e6c8b824d6c7450cc9b11c0ed32f5ec592a2ed315",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that if the output is not 'cannot be ordered', the topological ordering is valid (i.e., no package appears before its dependencies). The current Q1 expression is logically correct but does not fully capture the topological ordering requirement in a way that aligns with the task's explicit requirement for lexicographically smallest ordering.",
+            "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the lexicographical ordering check to explicitly verify that the output is the lexicographically smallest valid topological ordering, not just a non-decreasing sequence. The current expression only checks if the output is sorted, which is insufficient for ensuring lexicographical minimality among all valid orderings.",
+            "task_evidence": "If there are multiple possible orderings, then give the ordering that is lexicographically first (using ASCII values for string ordering).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that if the output is not 'cannot be ordered', the output is a valid topological sort of the dependency graph. The current Q1 expression is incomplete because it does not verify that the output is a valid topological sort for the entire graph (e.g., it does not check that all dependencies of all packages are satisfied in the output).",
+            "task_evidence": "No package should be installed before all the packages it depends on are installed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that if the output is 'cannot be ordered', the dependency graph contains a cycle (i.e., the input is not a DAG). This is necessary to fully cover the task's requirement for detecting unsolvable cases.",
+            "task_evidence": "If there is some group of packages that are not able to be ordered within the list, output ‘cannot be ordered’ instead of ordering the packages.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 173.139,
+  "processing_error": null,
+  "finished_at": "2026-09-04T12:53:56.032961+00:00"
+}

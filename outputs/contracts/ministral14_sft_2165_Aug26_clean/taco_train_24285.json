@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_24285",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000 and 1 <= m <= 200000",
+        "description": "The number of junctions (n) and roads (m) must be within the given bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v in roads)",
+        "description": "Each road connects two distinct junctions within the valid range."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set(roads)) == m",
+        "description": "No duplicate roads exist between the same pair of junctions."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (stdout.strip() == 'YES' and len(routes) == 3)",
+        "description": "Output is either 'NO' or 'YES' followed by exactly three routes."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(route) >= 3 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "Each route must have at least 3 junctions (start, at least one intermediate, and finish)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(routes[0][0] == routes[1][0] == routes[2][0] and routes[0][-1] == routes[1][-1] == routes[2][-1] for routes in [[routes[0], routes[1], routes[2]]]) if stdout.strip() == 'YES' else True",
+        "description": "All routes must start and end at the same junction, and the start and finish junctions must differ."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(routes[0][0] != routes[0][-1] and routes[1][0] != routes[1][-1] and routes[2][0] != routes[2][-1]) if stdout.strip() == 'YES' else True",
+        "description": "The start and finish junctions of each route must be distinct."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(set(route) - {route[0], route[-1]}) == len(route) - 2 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "No intermediate junction is visited more than once in any route."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(len(set((route[i], route[i+1]) for i in range(len(route)-1))) == len(route) - 1 for route in routes) if stdout.strip() == 'YES' else True",
+        "description": "No road is traversed more than once in any route (regardless of direction)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(len(set(route) & set(other_route) - {route[0], route[-1]}) == 0 for i in range(3) for other_route in [routes[(i+1)%3], routes[(i+2)%3]]) if stdout.strip() == 'YES' else True",
+        "description": "No two routes share any intermediate junction."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(len(set((routes[i][j], routes[i][j+1]) for j in range(len(routes[i])-1)) & set((routes[k][l], routes[k][l+1]) for l in range(len(routes[k])-1))) == 0 for i in range(3) for k in range(i+1, 3)) if stdout.strip() == 'YES' else True",
+        "description": "No two routes traverse the same road in the same or opposite direction."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 200000 and 1 <= m <= 200000\",\n      \"description\": \"The number of junctions (n) and roads (m) must be within the given bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= u <= n and 1 <= v <= n and u != v for u, v in roads)\",\n      \"description\": \"Each road connects two distinct junctions within the valid range.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(set(roads)) == m\",\n      \"description\": \"No duplicate roads exist between the same pair of junctions.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'NO' or (stdout.strip() == 'YES' and len(routes) == 3)\",\n      \"description\": \"Output is either 'NO' or 'YES' followed by exactly three routes.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(route) >= 3 for route in routes) if stdout.strip() == 'YES' else True\",\n      \"description\": \"Each route must have at least 3 junctions (start, at least one intermediate, and finish).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(routes[0][0] == routes[1][0] == routes[2][0] and routes[0][-1] == routes[1][-1] == routes[2][-1] for routes in [[routes[0], routes[1], routes[2]]]) if stdout.strip() == 'YES' else True\",\n      \"description\": \"All routes must start and end at the same junction, and the start and finish junctions must differ.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(routes[0][0] != routes[0][-1] and routes[1][0] != routes[1][-1] and routes[2][0] != routes[2][-1]) if stdout.strip() == 'YES' else True\",\n      \"description\": \"The start and finish junctions of each route must be distinct.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(len(set(route) - {route[0], route[-1]}) == len(route) - 2 for route in routes) if stdout.strip() == 'YES' else True\",\n      \"description\": \"No intermediate junction is visited more than once in any route.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(len(set((route[i], route[i+1]) for i in range(len(route)-1))) == len(route) - 1 for route in routes) if stdout.strip() == 'YES' else True\",\n      \"description\": \"No road is traversed more than once in any route (regardless of direction).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(len(set(route) & set(other_route) - {route[0], route[-1]}) == 0 for i in range(3) for other_route in [routes[(i+1)%3], routes[(i+2)%3]]) if stdout.strip() == 'YES' else True\",\n      \"description\": \"No two routes share any intermediate junction.\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"all(len(set((routes[i][j], routes[i][j+1]) for j in range(len(routes[i])-1)) & set((routes[k][l], routes[k][l+1]) for l in range(len(routes[k])-1))) == 0 for i in range(3) for k in range(i+1, 3)) if stdout.strip() == 'YES' else True\",\n      \"description\": \"No two routes traverse the same road in the same or opposite direction.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1649,
+  "generated_tokens": 952,
+  "hit_output_limit": false,
+  "generation_seconds": 41.267,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:43:12.889132+00:00"
+}

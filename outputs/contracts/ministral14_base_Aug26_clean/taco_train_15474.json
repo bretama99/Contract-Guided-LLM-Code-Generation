@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_15474",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 100000 and 1 <= int(line.split()[1]) <= 200000 for line in stdin.splitlines()[1:])",
+        "description": "The first line contains integers n (1 ≤ n ≤ 100 000) and m (1 ≤ m ≤ 200 000), where n is the number of computers and m is the number of existing cables. Each subsequent line contains two integers ai and bi (1 ≤ ai, bi ≤ n) representing a cable between computers ai and bi."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m + 1 lines: the first line with n and m, followed by m lines of cable connections."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].strip() == str(p) and p >= m and p <= 500000",
+        "description": "The first line of the output is an integer p (p ≥ m), representing the minimum number of cables in the final scheme, which does not exceed 500 000."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(line.split()) == 2 and 1 <= int(line.split()[0]) <= n and 1 <= int(line.split()[1]) <= n for line in stdout.splitlines()[1:p+1])",
+        "description": "Each of the next p lines contains two integers ci and di (1 ≤ ci, di ≤ n), representing a directed cable from ci to di."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((ai, bi) in [(c, d) for c, d in stdout.splitlines()[1:p+1]] or (bi, ai) in [(c, d) for c, d in stdout.splitlines()[1:p+1]] for ai, bi in [tuple(map(int, line.split())) for line in stdin.splitlines()[1:]])",
+        "description": "All original cables (ai, bi) must appear in the output as either (ai, bi) or (bi, ai), meaning their direction is chosen."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len([d for c, d in stdout.splitlines()[1:p+1] if c == i]) % 2 == 0 for i in range(1, n + 1))",
+        "description": "For every computer i, the number of cables directed out of it (out-degree) must be even, ensuring all cables can be grouped into pairs."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len([d for c, d in stdout.splitlines()[1:p+1] if d == i]) % 2 == 0 for i in range(1, n + 1))",
+        "description": "For every computer i, the number of cables directed into it (in-degree) must be even, ensuring all cables can be grouped into pairs."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(len([d for c, d in stdout.splitlines()[1:p+1] if c == i and d == j]) <= 1 for i in range(1, n + 1) for j in range(1, n + 1))",
+        "description": "No duplicate directed cables exist between the same pair of computers (i, j)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 100000 and 1 <= int(line.split()[1]) <= 200000 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The first line contains integers n (1 ≤ n ≤ 100 000) and m (1 ≤ m ≤ 200 000), where n is the number of computers and m is the number of existing cables. Each subsequent line contains two integers ai and bi (1 ≤ ai, bi ≤ n) representing a cable between computers ai and bi.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m + 1 lines: the first line with n and m, followed by m lines of cable connections.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].strip() == str(p) and p >= m and p <= 500000\",\n      \"description\": \"The first line of the output is an integer p (p ≥ m), representing the minimum number of cables in the final scheme, which does not exceed 500 000.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(line.split()) == 2 and 1 <= int(line.split()[0]) <= n and 1 <= int(line.split()[1]) <= n for line in stdout.splitlines()[1:p+1])\",\n      \"description\": \"Each of the next p lines contains two integers ci and di (1 ≤ ci, di ≤ n), representing a directed cable from ci to di.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((ai, bi) in [(c, d) for c, d in stdout.splitlines()[1:p+1]] or (bi, ai) in [(c, d) for c, d in stdout.splitlines()[1:p+1]] for ai, bi in [tuple(map(int, line.split())) for line in stdin.splitlines()[1:]])\",\n      \"description\": \"All original cables (ai, bi) must appear in the output as either (ai, bi) or (bi, ai), meaning their direction is chosen.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(len([d for c, d in stdout.splitlines()[1:p+1] if c == i]) % 2 == 0 for i in range(1, n + 1))\",\n      \"description\": \"For every computer i, the number of cables directed out of it (out-degree) must be even, ensuring all cables can be grouped into pairs.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(len([d for c, d in stdout.splitlines()[1:p+1] if d == i]) % 2 == 0 for i in range(1, n + 1))\",\n      \"description\": \"For every computer i, the number of cables directed into it (in-degree) must be even, ensuring all cables can be grouped into pairs.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(len([d for c, d in stdout.splitlines()[1:p+1] if c == i and d == j]) <= 1 for i in range(1, n + 1) for j in range(1, n + 1))\",\n      \"description\": \"No duplicate directed cables exist between the same pair of computers (i, j).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1803,
+  "generated_tokens": 881,
+  "hit_output_limit": false,
+  "generation_seconds": 38.218,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:50:43.286705+00:00"
+}

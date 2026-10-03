@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_993",
+  "task_index": 956,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_993.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\nfrom heapq import heappop, heappush\n\ndef dijkstra(n, adj, start):\n    dist = [float('inf')] * n\n    dist[start] = 0\n    pq = [(0, start)]\n    parent = [[] for _ in range(n)]\n    while pq:\n        d, u = heappop(pq)\n        if d > dist[u]: continue\n        for v, w in adj[u]:\n            if dist[v] > dist[u] + w:\n                dist[v] = dist[u] + w\n                parent[v] = [u]\n                heappush(pq, (dist[v], v))\n            elif dist[v] == dist[u] + w:\n                parent[v].append(u)\n    return dist, parent\n\ndef dfs(parent, u, v, used_edges):\n    if u == v:\n        return True\n    for p in parent[u]:\n        edge = tuple(sorted((u, p)))\n        if edge not in used_edges:\n            used_edges.add(edge)\n            if dfs(parent, p, v, used_edges):\n                return True\n    return False\n\ndef count_shortest_path_edges(n, adj):\n    counts = [0] * (n * (n - 1) // 2)\n    for s in range(n):\n        dist, parent = dijkstra(n, adj, s)\n        for t in range(s + 1, n):\n            if dist[t] == float('inf'):\n                continue\n            used_edges = set()\n            dfs(parent, t, s, used_edges)\n            for u, v in used_edges:\n                idx = u * (n - 1) - u * (u + 1) // 2 + v - 1\n                counts[idx] += 1\n    return counts\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    idx = 0\n    n = int(input[idx])\n    m = int(input[idx + 1])\n    idx += 2\n    adj = defaultdict(list)\n    for _ in range(m):\n        x = int(input[idx]) - 1\n        y = int(input[idx + 1]) - 1\n        l = int(input[idx + 2])\n        adj[x].append((y, l))\n        adj[y].append((x, l))\n        idx += 3\n    counts = count_shortest_path_edges(n, adj)\n    print(' '.join(map(str, counts)))\n\nmain()",
+  "generation_seconds": 47.187,
+  "generated_at": "2026-09-23T20:22:53.684006+00:00"
+}

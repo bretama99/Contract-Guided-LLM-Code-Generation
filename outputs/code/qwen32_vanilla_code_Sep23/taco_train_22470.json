@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_22470",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T18:09:05.524751+00:00",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    \n    n = int(input[0])\n    m = int(input[1])\n    d = int(input[2])\n    affected = list(map(int, input[3:3+m]))\n    edges = input[3+m:]\n    graph = [[] for _ in range(n)]\n    index = 0\n    for i in range(n-1):\n        a = int(edges[index]) - 1\n        b = int(edges[index + 1]) - 1\n        graph[a].append(b)\n        graph[b].append(a)\n        index += 2\n    \n    def bfs(start, max_depth):\n        visited = [False] * n\n        queue = deque([(start, 0)])\n        visited[start] = True\n        while queue:\n            node, depth = queue.popleft()\n            if depth > max_depth:\n                break\n            for neighbor in graph[node]:\n                if not visited[neighbor]:\n                    visited[neighbor] = True\n                    queue.append((neighbor, depth + 1))\n        return set([i+1 for i in range(n) if visited[i]])\n    \n    reachable_from_affected = set()\n    for p in affected:\n        reachable_from_affected.update(bfs(p-1, d))\n    \n    possible_locations = set(range(1, n+1))\n    for i in range(n):\n        if i+1 not in reachable_from_affected:\n            possible_locations.difference_update(bfs(i, d))\n    \n    print(len(possible_locations))\n\nif __name__ == \"__main__\":\n    main()"
+}

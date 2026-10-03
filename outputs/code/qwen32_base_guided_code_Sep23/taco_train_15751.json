@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_15751",
+  "task_index": 322,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_15751.json",
+  "code": "import sys\nfrom collections import defaultdict\nimport heapq\n\ndef dfs(u, p, dist, g):\n    for v, w in g[u]:\n        if v != p:\n            dist[v] = dist[u] + w\n            dfs(v, u, dist, g)\n\ndef dijkstra(start, n, g):\n    dist = [float('inf')] * (n + 1)\n    dist[start] = 0\n    pq = [(0, start)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist[u]:\n            continue\n        for v, w in g[u]:\n            if dist[v] > dist[u] + w:\n                dist[v] = dist[u] + w\n                heapq.heappush(pq, (dist[v], v))\n    return dist\n\ndef solve(n, edges, q, ls):\n    g = defaultdict(list)\n    for x, y, v in edges:\n        g[x].append((y, v))\n        g[y].append((x, v))\n    \n    leafs = [u for u in range(1, n + 1) if len(g[u]) == 1]\n    max_dist_from_leaf = [0] * (n + 1)\n    \n    for leaf in leafs:\n        dist = [0] * (n + 1)\n        dfs(leaf, -1, dist, g)\n        for i in range(1, n + 1):\n            max_dist_from_leaf[i] = max(max_dist_from_leaf[i], dist[i])\n    \n    answers = []\n    for l in ls:\n        count = 0\n        visited = [False] * (n + 1)\n        for u in range(1, n + 1):\n            if not visited[u]:\n                dist = dijkstra(u, n, g)\n                valid = True\n                for v in range(1, n + 1):\n                    if dist[v] <= l:\n                        visited[v] = True\n                    elif max_dist_from_leaf[v] - dist[v] > l:\n                        valid = False\n                        break\n                if valid:\n                    count += sum(not visited[v] for v in range(1, n + 1) if dist[v] <= l)\n        answers.append(count)\n    \n    return answers\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nedges = [(int(input[i]), int(input[i + 1]), int(input[i + 2])) for i in range(1, 3 * n - 2, 3)]\nq = int(input[3 * n - 2])\nls = list(map(int, input[3 * n - 1:]))\nanswers = solve(n, edges, q, ls)\nfor answer in answers:\n    print(answer)",
+  "generation_seconds": 34.485,
+  "generated_at": "2026-09-23T21:59:22.213907+00:00"
+}

@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_16698",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T18:51:47.487797+00:00",
+  "code": "import sys\nfrom collections import deque\n\ndef read_input():\n    import sys\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    m = int(data[1])\n    edges = [(int(data[2 + 2 * i]) - 1, int(data[3 + 2 * i]) - 1) for i in range(m)]\n    return n, m, edges\n\ndef merge_operations_to_caterpillar(n, m, edges):\n    if n == 1:\n        return 0\n    \n    adj = [[] for _ in range(n)]\n    degree = [0] * n\n    \n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n        degree[u] += 1\n        degree[v] += 1\n    \n    leaves = deque([i for i in range(n) if degree[i] == 1])\n    removed = set()\n    \n    while leaves:\n        leaf = leaves.popleft()\n        if leaf in removed:\n            continue\n        removed.add(leaf)\n        for neighbor in adj[leaf]:\n            if neighbor in removed:\n                continue\n            degree[neighbor] -= 1\n            if degree[neighbor] == 1:\n                leaves.append(neighbor)\n    \n    components = 0\n    visited = set()\n    \n    def bfs(start):\n        q = deque([start])\n        while q:\n            node = q.popleft()\n            if node in visited:\n                continue\n            visited.add(node)\n            for neighbor in adj[node]:\n                if neighbor not in visited and degree[neighbor] > 1:\n                    q.append(neighbor)\n    \n    for i in range(n):\n        if degree[i] > 1 and i not in visited:\n            bfs(i)\n            components += 1\n    \n    return max(0, n - components - 1)\n\ndef main():\n    n, m, edges = read_input()\n    result = merge_operations_to_caterpillar(n, m, edges)\n    print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

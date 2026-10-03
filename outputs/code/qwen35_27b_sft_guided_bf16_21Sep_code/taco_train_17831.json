@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_17831",
+  "task_index": 698,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_17831.json",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    idx = 0\n    t = int(input_data[idx])\n    idx += 1\n    \n    results = []\n    \n    for _ in range(t):\n        n = int(input_data[idx])\n        m = int(input_data[idx + 1])\n        idx += 2\n        \n        a = []\n        for _ in range(n):\n            a.append(int(input_data[idx]))\n            idx += 1\n            \n        k = int(input_data[idx])\n        idx += 1\n        \n        b = []\n        for _ in range(k):\n            b.append(int(input_data[idx]))\n            idx += 1\n            \n        def decompose(val, base_m):\n            cnt = 1\n            while val % base_m == 0:\n                val //= base_m\n                cnt *= base_m\n            return val, cnt\n        \n        i = 0\n        j = 0\n        possible = True\n        \n        while i < n and j < k:\n            core_a, count_a = decompose(a[i], m)\n            core_b, count_b = decompose(b[j], m)\n            \n            if core_a != core_b:\n                possible = False\n                break\n            \n            if count_a >= count_b:\n                count_a -= count_b\n                i += 1\n                j += 1\n                \n                if count_a > 0:\n                    a[i - 1] = core_a * count_a\n                    i -= 1\n            else:\n                count_b -= count_a\n                j += 1\n                if count_b > 0:\n                    b[j - 1] = core_b * count_b\n                    j -= 1\n        \n        if possible:\n            if i < n:\n                remaining_core, remaining_count = decompose(a[i], m)\n                if remaining_count > 0:\n                    possible = False\n            elif j < k:\n                possible = False\n        \n        results.append(\"Yes\" if possible else \"No\")\n    \n    print('\\n'.join(results))\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 42.646,
+  "generated_at": "2026-09-22T18:40:46.726491+00:00"
+}

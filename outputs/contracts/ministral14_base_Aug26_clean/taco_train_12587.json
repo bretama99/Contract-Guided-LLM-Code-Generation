@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_12587",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(n) <= 100000 for n in stdin.splitlines()[0].split()) and all(1 <= int(m) <= 100000 for m in stdin.splitlines()[0].split()) and all(2 <= int(h) <= 100000 for h in stdin.splitlines()[0].split())",
+        "description": "Input must contain exactly three integers n, m, h where 2 ≤ n ≤ 100000, 1 ≤ m ≤ 100000, and 2 ≤ h ≤ 100000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 2 and all(0 <= int(u) < int(h) for u in stdin.splitlines()[1].split())",
+        "description": "The second line must contain exactly n integers u_j where 0 ≤ u_j < h, representing maintenance hours for each data center."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 and all(1 <= int(c) <= int(n) for c in line.split()) for line in stdin.splitlines()[2:])",
+        "description": "Each of the next m lines must contain exactly two integers c_{i,1} and c_{i,2} where 1 ≤ c_{i,1}, c_{i,2} ≤ n and c_{i,1} ≠ c_{i,2}, representing client data center pairs."
+      },
+      {
+        "id": "P4",
+        "expression": "all(c1 != c2 for c1, c2 in (line.split() for line in stdin.splitlines()[2:]))",
+        "description": "For each client, the two data centers must be distinct."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].isdigit() and 1 <= int(stdout.splitlines()[0]) <= int(n)",
+        "description": "The first line of output must be a single integer k (1 ≤ k ≤ n), representing the minimum number of data centers to shift."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()[1].split()) == int(stdout.splitlines()[0]) and all(1 <= int(x) <= int(n) for x in stdout.splitlines()[1].split())",
+        "description": "The second line must contain exactly k distinct integers x_1, ..., x_k (1 ≤ x_i ≤ n), representing the indices of data centers to shift."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(c1) != int(c2)) or ((int(u_c1) + 1) % int(h) != (int(u_c2) + 1) % int(h)) for line in stdin.splitlines()[2:] for c1, c2 in [(line.split()[0], line.split()[1])] if int(c1) != int(c2))",
+        "description": "For every client pair (c_{i,1}, c_{i,2}), after shifting the maintenance times of the selected data centers by one hour, the maintenance hours of the two data centers must not coincide (i.e., (u_{c_{i,1}} + 1) % h ≠ (u_{c_{i,2}} + 1) % h). Here, u_{c_{i,j}} is the original maintenance hour of data center c_{i,j}, and shifting is applied only to selected data centers."
+      },
+      {
+        "id": "Q4",
+        "expression": "not any((int(c1) == int(c2)) or ((int(u_c1) + 1) % int(h) == (int(u_c2) + 1) % int(h)) for line in stdin.splitlines()[2:] for c1, c2 in [(line.split()[0], line.split()[1])] if int(c1) != int(c2))",
+        "description": "The selected subset of data centers to shift must ensure that no client's data is unavailable at any hour of the day after the shift. This means for every client pair (c_{i,1}, c_{i,2}), the maintenance hours after shifting must not coincide."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(n) <= 100000 for n in stdin.splitlines()[0].split()) and all(1 <= int(m) <= 100000 for m in stdin.splitlines()[0].split()) and all(2 <= int(h) <= 100000 for h in stdin.splitlines()[0].split())\",\n      \"description\": \"Input must contain exactly three integers n, m, h where 2 ≤ n ≤ 100000, 1 ≤ m ≤ 100000, and 2 ≤ h ≤ 100000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 2 and all(0 <= int(u) < int(h) for u in stdin.splitlines()[1].split())\",\n      \"description\": \"The second line must contain exactly n integers u_j where 0 ≤ u_j < h, representing maintenance hours for each data center.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 and all(1 <= int(c) <= int(n) for c in line.split()) for line in stdin.splitlines()[2:])\",\n      \"description\": \"Each of the next m lines must contain exactly two integers c_{i,1} and c_{i,2} where 1 ≤ c_{i,1}, c_{i,2} ≤ n and c_{i,1} ≠ c_{i,2}, representing client data center pairs.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(c1 != c2 for c1, c2 in (line.split() for line in stdin.splitlines()[2:]))\",\n      \"description\": \"For each client, the two data centers must be distinct.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].isdigit() and 1 <= int(stdout.splitlines()[0]) <= int(n)\",\n      \"description\": \"The first line of output must be a single integer k (1 ≤ k ≤ n), representing the minimum number of data centers to shift.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.splitlines()[1].split()) == int(stdout.splitlines()[0]) and all(1 <= int(x) <= int(n) for x in stdout.splitlines()[1].split())\",\n      \"description\": \"The second line must contain exactly k distinct integers x_1, ..., x_k (1 ≤ x_i ≤ n), representing the indices of data centers to shift.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((int(c1) != int(c2)) or ((int(u_c1) + 1) % int(h) != (int(u_c2) + 1) % int(h)) for line in stdin.splitlines()[2:] for c1, c2 in [(line.split()[0], line.split()[1])] if int(c1) != int(c2))\",\n      \"description\": \"For every client pair (c_{i,1}, c_{i,2}), after shifting the maintenance times of the selected data centers by one hour, the maintenance hours of the two data centers must not coincide (i.e., (u_{c_{i,1}} + 1) % h ≠ (u_{c_{i,2}} + 1) % h). Here, u_{c_{i,j}} is the original maintenance hour of data center c_{i,j}, and shifting is applied only to selected data centers.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"not any((int(c1) == int(c2)) or ((int(u_c1) + 1) % int(h) == (int(u_c2) + 1) % int(h)) for line in stdin.splitlines()[2:] for c1, c2 in [(line.split()[0], line.split()[1])] if int(c1) != int(c2))\",\n      \"description\": \"The selected subset of data centers to shift must ensure that no client's data is unavailable at any hour of the day after the shift. This means for every client pair (c_{i,1}, c_{i,2}), the maintenance hours after shifting must not coincide.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2168,
+  "generated_tokens": 1040,
+  "hit_output_limit": false,
+  "generation_seconds": 45.935,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:26:59.406733+00:00"
+}

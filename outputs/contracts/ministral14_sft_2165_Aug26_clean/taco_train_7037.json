@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_7037",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 100 and 1 <= m <= 100 and n * m >= 2",
+        "description": "Grid dimensions n and m are integers between 1 and 100 inclusive, with total squares at least 2."
+      },
+      {
+        "id": "P2",
+        "expression": "isinstance(n, int) and isinstance(m, int)",
+        "description": "n and m are integers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "k == int(stdout.splitlines()[0]) and k >= 0",
+        "description": "The first line of output is a non-negative integer k, representing the minimum number of teleporters."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()) == k + 1 + n * m and all(line.strip() for line in stdout.splitlines() if line.strip())",
+        "description": "Output consists of k teleporter lines followed by n*m+1 path lines, with no empty lines."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(line.split()) == 4 for line in stdout.splitlines()[1:k+1]) and all(1 <= int(x) <= n and 1 <= int(y) <= m for line in stdout.splitlines()[1:k+1] for x, y in [(line.split()[0], line.split()[1]), (line.split()[2], line.split()[3])])",
+        "description": "Each teleporter line contains four integers (x1, y1, x2, y2) where coordinates are within grid bounds."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(line.split()) == 2 for line in stdout.splitlines()[k+1:]) and all(1 <= int(x) <= n and 1 <= int(y) <= m for line in stdout.splitlines()[k+1:] for x, y in [line.split()])",
+        "description": "Each path line contains two integers (x, y) representing valid grid coordinates."
+      },
+      {
+        "id": "Q5",
+        "expression": "path := [tuple(map(int, line.split())) for line in stdout.splitlines()[k+1:]] and path[0] == (1, 1) and path[-1] == (1, 1)",
+        "description": "The path starts and ends at the capital (1, 1)."
+      },
+      {
+        "id": "Q6",
+        "expression": "len(set(path[:-1])) == n * m - 1 and path.count((1, 1)) == 2",
+        "description": "The path visits every square except the capital exactly once, and the capital exactly twice (start and end)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(abs(path[i][0] - path[i+1][0]) + abs(path[i][1] - path[i+1][1]) <= 1 or any((path[i][0], path[i][1]) == (x1, y1) and (path[i+1][0], path[i+1][1]) == (x2, y2) for x1, y1, x2, y2 in [tuple(map(int, line.split())) for line in stdout.splitlines()[1:k+1]]) for i in range(len(path)-1))",
+        "description": "The king moves only to side-neighboring squares or uses teleporters as defined."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 100 and 1 <= m <= 100 and n * m >= 2\",\n      \"description\": \"Grid dimensions n and m are integers between 1 and 100 inclusive, with total squares at least 2.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"isinstance(n, int) and isinstance(m, int)\",\n      \"description\": \"n and m are integers.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"k == int(stdout.splitlines()[0]) and k >= 0\",\n      \"description\": \"The first line of output is a non-negative integer k, representing the minimum number of teleporters.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.splitlines()) == k + 1 + n * m and all(line.strip() for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"Output consists of k teleporter lines followed by n*m+1 path lines, with no empty lines.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(line.split()) == 4 for line in stdout.splitlines()[1:k+1]) and all(1 <= int(x) <= n and 1 <= int(y) <= m for line in stdout.splitlines()[1:k+1] for x, y in [(line.split()[0], line.split()[1]), (line.split()[2], line.split()[3])])\",\n      \"description\": \"Each teleporter line contains four integers (x1, y1, x2, y2) where coordinates are within grid bounds.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(len(line.split()) == 2 for line in stdout.splitlines()[k+1:]) and all(1 <= int(x) <= n and 1 <= int(y) <= m for line in stdout.splitlines()[k+1:] for x, y in [line.split()])\",\n      \"description\": \"Each path line contains two integers (x, y) representing valid grid coordinates.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"path := [tuple(map(int, line.split())) for line in stdout.splitlines()[k+1:]] and path[0] == (1, 1) and path[-1] == (1, 1)\",\n      \"description\": \"The path starts and ends at the capital (1, 1).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"len(set(path[:-1])) == n * m - 1 and path.count((1, 1)) == 2\",\n      \"description\": \"The path visits every square except the capital exactly once, and the capital exactly twice (start and end).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(abs(path[i][0] - path[i+1][0]) + abs(path[i][1] - path[i+1][1]) <= 1 or any((path[i][0], path[i][1]) == (x1, y1) and (path[i+1][0], path[i+1][1]) == (x2, y2) for x1, y1, x2, y2 in [tuple(map(int, line.split())) for line in stdout.splitlines()[1:k+1]]) for i in range(len(path)-1))\",\n      \"description\": \"The king moves only to side-neighboring squares or uses teleporters as defined.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1661,
+  "generated_tokens": 864,
+  "hit_output_limit": false,
+  "generation_seconds": 38.76,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:19:15.773417+00:00"
+}

@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_20888",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 5000",
+        "description": "The number of test cases t is an integer between 1 and 5000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 100 and 2 <= m <= 100 for n, m in (map(int, line.split()) for line in stdin.splitlines()[1::2] if line.strip()))",
+        "description": "For each test case, n and m are integers between 2 and 100 inclusive, representing the dimensions of the binary table."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line) == m for line in stdin.splitlines()[2::2] if line.strip())",
+        "description": "Each row of the binary table has exactly m characters, all of which are either '0' or '1'."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(n * m for n, m in (map(int, line.split()) for line in stdin.splitlines()[1::2] if line.strip())) <= 20000",
+        "description": "The sum of n*m for all test cases does not exceed 20000."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == 1 + k for k in (int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), 2)))",
+        "description": "For each test case, the output starts with an integer k (0 ≤ k ≤ 3nm) representing the number of operations, followed by exactly k lines of operation descriptions."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= k <= 3 * n * m for n, m, k in [(int(n), int(m), int(stdout.splitlines()[i])) for i in range(0, len(stdout.splitlines()), 2)])",
+        "description": "The number of operations k for each test case is between 0 and 3nm inclusive."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(line.split()) == 6 for line in stdout.splitlines()[1:])",
+        "description": "Each operation line contains exactly 6 integers representing the coordinates of the three cells to flip."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= m for x, y in [(line.split()[i], line.split()[i+1]) for line in stdout.splitlines()[1:] for i in range(0, 6, 2)])",
+        "description": "All coordinates in the operation lines are within the bounds of the table (1 ≤ x ≤ n, 1 ≤ y ≤ m)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(set((int(x1), int(y1)), (int(x2), int(y2)), (int(x3), int(y3))) == 3 for line in stdout.splitlines()[1:] for x1, y1, x2, y2, x3, y3 in [line.split()])",
+        "description": "The three cells in each operation are distinct."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(any((abs(int(x1) - int(x2)) <= 1 and abs(int(y1) - int(y2)) <= 1) for x1, y1, x2, y2 in [(line.split()[i], line.split()[i+1], line.split()[j], line.split()[j+1]) for i in range(0, 6, 2) for j in range(i+2, 6, 2)]) for line in stdout.splitlines()[1:])",
+        "description": "The three cells in each operation belong to some 2×2 square in the table."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(all(cell == '0' for cell in table) for table in [apply_operations(initial_table, operations)]) for initial_table, operations in [(stdin.splitlines()[2::2][i:i+1], stdout.splitlines()[1:][k:k+int(stdout.splitlines()[k])]) for i, k in enumerate(range(1, len(stdout.splitlines()), 2))])",
+        "description": "After applying all operations to the initial table, all cells in the table are '0'. The function apply_operations simulates the operations on the table."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and 1 <= t <= 5000\",\n      \"description\": \"The number of test cases t is an integer between 1 and 5000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= n <= 100 and 2 <= m <= 100 for n, m in (map(int, line.split()) for line in stdin.splitlines()[1::2] if line.strip()))\",\n      \"description\": \"For each test case, n and m are integers between 2 and 100 inclusive, representing the dimensions of the binary table.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line) == m for line in stdin.splitlines()[2::2] if line.strip())\",\n      \"description\": \"Each row of the binary table has exactly m characters, all of which are either '0' or '1'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"sum(n * m for n, m in (map(int, line.split()) for line in stdin.splitlines()[1::2] if line.strip())) <= 20000\",\n      \"description\": \"The sum of n*m for all test cases does not exceed 20000.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.splitlines()) == 1 + k for k in (int(stdout.splitlines()[i]) for i in range(0, len(stdout.splitlines()), 2)))\",\n      \"description\": \"For each test case, the output starts with an integer k (0 ≤ k ≤ 3nm) representing the number of operations, followed by exactly k lines of operation descriptions.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= k <= 3 * n * m for n, m, k in [(int(n), int(m), int(stdout.splitlines()[i])) for i in range(0, len(stdout.splitlines()), 2)])\",\n      \"description\": \"The number of operations k for each test case is between 0 and 3nm inclusive.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(line.split()) == 6 for line in stdout.splitlines()[1:])\",\n      \"description\": \"Each operation line contains exactly 6 integers representing the coordinates of the three cells to flip.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= int(x) <= n and 1 <= int(y) <= m for x, y in [(line.split()[i], line.split()[i+1]) for line in stdout.splitlines()[1:] for i in range(0, 6, 2)])\",\n      \"description\": \"All coordinates in the operation lines are within the bounds of the table (1 ≤ x ≤ n, 1 ≤ y ≤ m).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(set((int(x1), int(y1)), (int(x2), int(y2)), (int(x3), int(y3))) == 3 for line in stdout.splitlines()[1:] for x1, y1, x2, y2, x3, y3 in [line.split()])\",\n      \"description\": \"The three cells in each operation are distinct.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(any((abs(int(x1) - int(x2)) <= 1 and abs(int(y1) - int(y2)) <= 1) for x1, y1, x2, y2 in [(line.split()[i], line.split()[i+1], line.split()[j], line.split()[j+1]) for i in range(0, 6, 2) for j in range(i+2, 6, 2)]) for line in stdout.splitlines()[1:])\",\n      \"description\": \"The three cells in each operation belong to some 2×2 square in the table.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(all(all(cell == '0' for cell in table) for table in [apply_operations(initial_table, operations)]) for initial_table, operations in [(stdin.splitlines()[2::2][i:i+1], stdout.splitlines()[1:][k:k+int(stdout.splitlines()[k])]) for i, k in enumerate(range(1, len(stdout.splitlines()), 2))])\",\n      \"description\": \"After applying all operations to the initial table, all cells in the table are '0'. The function apply_operations simulates the operations on the table.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2042,
+  "generated_tokens": 1120,
+  "hit_output_limit": false,
+  "generation_seconds": 48.749,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:29:20.367479+00:00"
+}

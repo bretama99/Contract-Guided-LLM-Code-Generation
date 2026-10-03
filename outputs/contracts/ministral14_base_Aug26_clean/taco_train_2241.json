@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_2241",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= t <= 100 for t in [int(input().strip())])",
+        "description": "The number of test cases t is an integer between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(s) >= 2 and all(c in '()[]' for c in s) for s in [input().strip() for _ in range(t)])",
+        "description": "Each test case string s is non-empty, contains only '(', ')', '[', or ']', and has length at least 2."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= q <= 200000 for q in [int(input().strip()) for _ in range(t)])",
+        "description": "Each test case has a query count q between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= l < r <= len(s) and (r - l + 1) % 2 == 0 for s in [input().strip() for _ in range(t)] for _ in range(q) for l, r in [tuple(map(int, input().strip().split()))])",
+        "description": "Each query (l, r) satisfies 1 ≤ l < r ≤ n (length of s), and the substring s[l..r] has even length."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.strip().split()) == sum(q for q in [int(input().strip()) for _ in range(t)]) for _ in range(t))",
+        "description": "The output contains exactly one integer per query, in the same order as the queries."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.strip().split()[i]) >= 0 for i in range(sum(q for q in [int(input().strip()) for _ in range(t)])))",
+        "description": "Each output integer is a non-negative cost."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= cost <= len(substring) for substring in [s[l-1:r] for s in [input().strip() for _ in range(t)] for l, r in [tuple(map(int, input().strip().split()))]] for cost in [int(stdout.strip().split()[i])])",
+        "description": "The cost for each query is at most the length of the queried substring."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(cost == min_cost(substring) for substring in [s[l-1:r] for s in [input().strip() for _ in range(t)] for l, r in [tuple(map(int, input().strip().split()))]] for cost in [int(stdout.strip().split()[i])])",
+        "description": "The cost for each query is the minimum cost to make the substring a correct bracket sequence, where min_cost(substring) is defined as follows:\n\n    - Let substring be the queried substring.\n    - Let n = len(substring).\n    - Let open_brackets = ['(', '['] and close_brackets = [')', ']'].\n    - Let cost = 0.\n    - For each character in substring:\n        - If it is '(', ')', '[', or ']', it can be flipped to its opposite direction (e.g., '(' to ')') at cost 0.\n        - If it is a square bracket ('[' or ']'), it can be changed to a round bracket of the same direction (e.g., '[' to '(') at cost 1.\n    - The goal is to find the minimal cost to make the substring a correct bracket sequence, where a correct bracket sequence is defined recursively as:\n        - Empty string is correct.\n        - If s is correct, then '(s)' and '[s]' are correct.\n        - If s and t are correct, then 'st' (concatenation) is correct.\n    - The cost is computed by considering all possible valid transformations of the substring into a correct bracket sequence, choosing the one with minimal cost."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= t <= 100 for t in [int(input().strip())])\",\n      \"description\": \"The number of test cases t is an integer between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(s) >= 2 and all(c in '()[]' for c in s) for s in [input().strip() for _ in range(t)])\",\n      \"description\": \"Each test case string s is non-empty, contains only '(', ')', '[', or ']', and has length at least 2.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= q <= 200000 for q in [int(input().strip()) for _ in range(t)])\",\n      \"description\": \"Each test case has a query count q between 1 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= l < r <= len(s) and (r - l + 1) % 2 == 0 for s in [input().strip() for _ in range(t)] for _ in range(q) for l, r in [tuple(map(int, input().strip().split()))])\",\n      \"description\": \"Each query (l, r) satisfies 1 ≤ l < r ≤ n (length of s), and the substring s[l..r] has even length.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.strip().split()) == sum(q for q in [int(input().strip()) for _ in range(t)]) for _ in range(t))\",\n      \"description\": \"The output contains exactly one integer per query, in the same order as the queries.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(int(stdout.strip().split()[i]) >= 0 for i in range(sum(q for q in [int(input().strip()) for _ in range(t)])))\",\n      \"description\": \"Each output integer is a non-negative cost.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= cost <= len(substring) for substring in [s[l-1:r] for s in [input().strip() for _ in range(t)] for l, r in [tuple(map(int, input().strip().split()))]] for cost in [int(stdout.strip().split()[i])])\",\n      \"description\": \"The cost for each query is at most the length of the queried substring.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(cost == min_cost(substring) for substring in [s[l-1:r] for s in [input().strip() for _ in range(t)] for l, r in [tuple(map(int, input().strip().split()))]] for cost in [int(stdout.strip().split()[i])])\",\n      \"description\": \"The cost for each query is the minimum cost to make the substring a correct bracket sequence, where min_cost(substring) is defined as follows:\\n\\n    - Let substring be the queried substring.\\n    - Let n = len(substring).\\n    - Let open_brackets = ['(', '['] and close_brackets = [')', ']'].\\n    - Let cost = 0.\\n    - For each character in substring:\\n        - If it is '(', ')', '[', or ']', it can be flipped to its opposite direction (e.g., '(' to ')') at cost 0.\\n        - If it is a square bracket ('[' or ']'), it can be changed to a round bracket of the same direction (e.g., '[' to '(') at cost 1.\\n    - The goal is to find the minimal cost to make the substring a correct bracket sequence, where a correct bracket sequence is defined recursively as:\\n        - Empty string is correct.\\n        - If s is correct, then '(s)' and '[s]' are correct.\\n        - If s and t are correct, then 'st' (concatenation) is correct.\\n    - The cost is computed by considering all possible valid transformations of the substring into a correct bracket sequence, choosing the one with minimal cost.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2013,
+  "generated_tokens": 1028,
+  "hit_output_limit": false,
+  "generation_seconds": 45.586,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:05:01.816116+00:00"
+}

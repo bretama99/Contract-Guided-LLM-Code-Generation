@@ -1,0 +1,245 @@
+{
+  "task_id": "taco_train_21137",
+  "task_index": 100,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10**5 and 1 <= m <= 10**5",
+        "description": "The number of employees (n) and events (m) are within the specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t <= 3 for line in stdin.splitlines()[1:] for t in [int(line.split()[0])])",
+        "description": "Each event type (t) is either 1 (boss assignment), 2 (document packet), or 3 (query)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x <= n and 1 <= y <= n for line in stdin.splitlines()[1:] if int(line.split()[0]) == 1 for x, y in [(int(line.split()[1]), int(line.split()[2]))])",
+        "description": "For type 1 events, x and y are valid employee numbers, and x has no boss before assignment."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= x <= n for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2 for x in [int(line.split()[1])])",
+        "description": "For type 2 events, x is a valid employee number."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= x <= n and 1 <= i <= packet_count for line in stdin.splitlines()[1:] if int(line.split()[0]) == 3 for x, i in [(int(line.split()[1]), int(line.split()[2]))])",
+        "description": "For type 3 events, x is a valid employee number and i is a valid packet number (1 ≤ i ≤ total packets given so far)."
+      },
+      {
+        "id": "P6",
+        "expression": "any(int(line.split()[0]) == 3 for line in stdin.splitlines()[1:])",
+        "description": "There is at least one query of type 3 in the input."
+      },
+      {
+        "id": "P7",
+        "expression": "not any(cycle_in_boss_graph() for _ in range(m))",
+        "description": "The boss hierarchy never contains cycles at any point in time."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['YES', 'NO'] for stdout_line in stdout.splitlines() if int(stdin.splitlines()[stdin.splitlines().index(line) + 1].split()[0]) == 3 for line in stdin.splitlines() if int(line.split()[0]) == 3)",
+        "description": "For each query of type 3, the output is either 'YES' (employee x signed packet i) or 'NO' (employee x did not sign packet i)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((x in packet_path(i) if int(line.split()[0]) == 2 else True) for line in stdin.splitlines()[1:] for x, i in [(int(line.split()[1]), int(line.split()[2]))] if int(line.split()[0]) == 3)",
+        "description": "For a query (x, i), the output is 'YES' if and only if employee x is in the path of packet i (i.e., x signed packet i)."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= employee <= n for employee in range(1, n + 1))",
+        "description": "Employee numbers are always in the range 1 to n."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= packet <= packet_count for packet in range(1, packet_count + 1))",
+        "description": "Packet numbers are always in the range 1 to the total packets given so far."
+      }
+    ]
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10**5 and 1 <= m <= 10**5",
+        "description": "The number of employees (n) and events (m) are within the specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t <= 3 for line in stdin.splitlines()[1:] for t in [int(line.split()[0])])",
+        "description": "Each event type (t) is either 1 (boss assignment), 2 (document packet), or 3 (query)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x <= n and 1 <= y <= n for line in stdin.splitlines()[1:] if int(line.split()[0]) == 1 for x, y in [(int(line.split()[1]), int(line.split()[2]))])",
+        "description": "For type 1 events, x and y are valid employee numbers, and x has no boss before assignment."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= x <= n for line in stdin.splitlines()[1:] if int(line.split()[0]) == 2 for x in [int(line.split()[1])])",
+        "description": "For type 2 events, x is a valid employee number."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= x <= n and 1 <= i <= packet_count for line in stdin.splitlines()[1:] if int(line.split()[0]) == 3 for x, i in [(int(line.split()[1]), int(line.split()[2]))])",
+        "description": "For type 3 events, x is a valid employee number and i is a valid packet number (1 ≤ i ≤ total packets given so far)."
+      },
+      {
+        "id": "P6",
+        "expression": "any(int(line.split()[0]) == 3 for line in stdin.splitlines()[1:])",
+        "description": "There is at least one query of type 3 in the input."
+      },
+      {
+        "id": "P7",
+        "expression": "not any(cycle_in_boss_graph() for _ in range(m))",
+        "description": "The boss hierarchy never contains cycles at any point in time."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['YES', 'NO'] for stdout_line in stdout.splitlines() if int(stdin.splitlines()[stdin.splitlines().index(line) + 1].split()[0]) == 3 for line in stdin.splitlines() if int(line.split()[0]) == 3)",
+        "description": "For each query of type 3, the output is either 'YES' (employee x signed packet i) or 'NO' (employee x did not sign packet i)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((x in packet_path(i) if int(line.split()[0]) == 2 else True) for line in stdin.splitlines()[1:] for x, i in [(int(line.split()[1]), int(line.split()[2]))] if int(line.split()[0]) == 3)",
+        "description": "For a query (x, i), the output is 'YES' if and only if employee x is in the path of packet i (i.e., x signed packet i)."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= employee <= n for employee in range(1, n + 1))",
+        "description": "Employee numbers are always in the range 1 to n."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= packet <= packet_count for packet in range(1, packet_count + 1))",
+        "description": "Packet numbers are always in the range 1 to the total packets given so far."
+      }
+    ]
+  },
+  "original_contract_fingerprint": "17bdcb223d93b2a12383b69089c71dc7fabc8739a6287401e121abb32399ed20",
+  "selected_contract_fingerprint": "17bdcb223d93b2a12383b69089c71dc7fabc8739a6287401e121abb32399ed20",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_21137.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 63.123,
+  "processing_error": null,
+  "finished_at": "2026-09-04T01:21:48.914679+00:00"
+}

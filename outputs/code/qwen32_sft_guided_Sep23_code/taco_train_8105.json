@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_8105",
+  "task_index": 547,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_8105.json",
+  "code": "import sys\nfrom collections import deque\n\ninput = sys.stdin.read().split()\nt = int(input[0])\nindex = 1\nresults = []\n\nfor _ in range(t):\n    n = int(input[index])\n    s = input[index + 1]\n    index += 2\n    prefix = [0] * (n + 1)\n    for i in range(n):\n        prefix[i + 1] = prefix[i] + (1 if s[i] == 'a' else 0)\n    min_length = float('inf')\n    queue = deque()\n    for i in range(n + 1):\n        diff_b = prefix[i] - (i - prefix[i])\n        diff_c = prefix[i] - (i - (prefix[i] - (s[:i].count('c') if i > 0 else 0)))\n        while queue and prefix[queue[0]] > prefix[i]:\n            queue.popleft()\n        while queue and prefix[queue[-1]] >= prefix[i] - diff_b and prefix[queue[-1]] >= prefix[i] - diff_c:\n            queue.pop()\n        queue.append(i)\n        if queue and prefix[i] - prefix[queue[0]] > 0 and prefix[i] - prefix[queue[0]] > i - queue[0] - (prefix[i] - prefix[queue[0]]) and prefix[i] - prefix[queue[0]] > i - queue[\n                0] - ((i - queue[0]) - (prefix[i] - prefix[queue[0]])):\n            min_length = min(min_length, i - queue[0])\n    results.append(str(min_length) if min_length != float('inf') else '-1')\n\nprint('\\n'.join(results))",
+  "generation_seconds": 32.935,
+  "generated_at": "2026-09-23T17:15:38.259606+00:00"
+}

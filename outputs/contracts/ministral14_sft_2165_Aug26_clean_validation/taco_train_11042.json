@@ -1,0 +1,449 @@
+{
+  "task_id": "taco_train_11042",
+  "task_index": 767,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000 and 1 <= m <= 200000",
+        "description": "The number of blocks in strings t and s must be between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(l_i) <= 1000000 for l_i, c_i in t_blocks) and all(1 <= int(l_i) <= 1000000 for l_i, c_i in s_blocks)",
+        "description": "Each block length in t and s must be between 1 and 1,000,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c_i.islower() and len(c_i) == 1 for l_i, c_i in t_blocks) and all(c_i.islower() and len(c_i) == 1 for l_i, c_i in s_blocks)",
+        "description": "Each character in t and s must be a single lowercase English letter."
+      },
+      {
+        "id": "P4",
+        "expression": "len(t_blocks) == n and len(s_blocks) == m",
+        "description": "The number of blocks in t and s must match the given n and m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and 0 <= int(stdout) <= 1000000",
+        "description": "The output must be a non-negative integer representing the number of occurrences of s in t."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(stdout) == sum(1 for p in range(len(decompressed_t)) if p + len(decompressed_s) <= len(decompressed_t) and decompressed_t[p:p+len(decompressed_s)] == decompressed_s)",
+        "description": "The output must equal the number of starting positions p in the decompressed string t where the substring of length |s| starting at p matches the decompressed string s exactly, considering only valid positions where the substring does not exceed the bounds of t."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200000 and 1 <= m <= 200000",
+        "description": "The number of blocks in strings t and s must be between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(l_i) <= 1000000 for l_i, c_i in t_blocks) and all(1 <= int(l_i) <= 1000000 for l_i, c_i in s_blocks)",
+        "description": "Each block length in t and s must be between 1 and 1,000,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(c_i.islower() and len(c_i) == 1 for l_i, c_i in t_blocks) and all(c_i.islower() and len(c_i) == 1 for l_i, c_i in s_blocks)",
+        "description": "Each character in t and s must be a single lowercase English letter."
+      },
+      {
+        "id": "P4",
+        "expression": "len(t_blocks) == n and len(s_blocks) == m",
+        "description": "The number of blocks in t and s must match the given n and m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and 0 <= int(stdout) <= 1000000",
+        "description": "The output must be a non-negative integer representing the number of occurrences of s in t."
+      },
+      {
+        "id": "Q2",
+        "expression": "int(stdout) == sum(1 for p in range(len(t)) if t[p:p+len(s)] == s)",
+        "description": "The output must equal the number of starting positions p in t where the substring of length |s| starting at p matches s exactly."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "25961b0729d26ee53c65d471cad07b6fb2e514d07a286d880073566ade7e0ef3",
+  "selected_contract_fingerprint": "3f1da87558087f0ee2fb6fbeaa34fb190b59dc7a454bb7dfbc09f0f8de4e81a2",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_11042.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+      "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+      "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+        "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+        "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+        "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly defines the correct logic for counting occurrences of `s` in `t` using their compressed block representations. The logic must account for overlapping matches and all possible starting positions in the decompressed `t` where `s` could appear.",
+        "task_evidence": "Your task is to write the program, that given two compressed string t and s finds all occurrences of s in t. Developers know that there may be many such occurrences, so they only ask you to find the number of them. Note that p is the starting position of some occurrence of s in t if and only if t_{p}t_{p} + 1...t_{p} + |s| - 1 = s, where t_{i} is the i-th character of string t.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: issue[1] schema invalid: invalid action 'replace' for 'missing_clause'"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "1 <= n <= 200000 and 1 <= m <= 200000",
+          "description": "The number of blocks in strings t and s must be between 1 and 200,000 inclusive."
+        },
+        {
+          "id": "P2",
+          "expression": "all(1 <= int(l_i) <= 1000000 for l_i, c_i in t_blocks) and all(1 <= int(l_i) <= 1000000 for l_i, c_i in s_blocks)",
+          "description": "Each block length in t and s must be between 1 and 1,000,000 inclusive."
+        },
+        {
+          "id": "P3",
+          "expression": "all(c_i.islower() and len(c_i) == 1 for l_i, c_i in t_blocks) and all(c_i.islower() and len(c_i) == 1 for l_i, c_i in s_blocks)",
+          "description": "Each character in t and s must be a single lowercase English letter."
+        },
+        {
+          "id": "P4",
+          "expression": "len(t_blocks) == n and len(s_blocks) == m",
+          "description": "The number of blocks in t and s must match the given n and m."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout.isdigit() and 0 <= int(stdout) <= 1000000",
+          "description": "The output must be a non-negative integer representing the number of occurrences of s in t."
+        },
+        {
+          "id": "Q2",
+          "expression": "int(stdout) == sum(1 for p in range(len(decompressed_t)) if p + len(decompressed_s) <= len(decompressed_t) and decompressed_t[p:p+len(decompressed_s)] == decompressed_s)",
+          "description": "The output must equal the number of starting positions p in the decompressed string t where the substring of length |s| starting at p matches the decompressed string s exactly, considering only valid positions where the substring does not exceed the bounds of t."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: issue[1] schema invalid: invalid action 'replace' for 'missing_clause'"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+          "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q2",
+          "expression": "int(stdout) == sum(1 for p in range(len(decompress(t_blocks))) if decompress(t_blocks)[p:p+len(decompress(s_blocks))] == decompress(s_blocks))",
+          "description": "The output must equal the number of starting positions p in the decompressed string t where the substring of length |s| starting at p matches the decompressed string s exactly."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "f2a547ef637584d0a5025f6d2c2b2030441f6e690beb79ce4f74fb072fb16e4a",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a precondition ensuring that the decompressed string `t` has length at least `|s|` for any valid `p` (i.e., `len(decompress(t_blocks)) >= len(decompress(s_blocks))`). This is required for the postcondition to be well-defined (no out-of-bounds access).",
+            "task_evidence": "Note that p is the starting position of some occurrence of s in t if and only if t_{p}t_{p+1}...t_{p+|s|-1} = s, where t_{i} is the i-th character of string t.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the postcondition expression to handle edge cases where `len(decompress(s_blocks)) == 0` (though the task constraints imply `m >= 1`, so this may not be strictly necessary). More critically, the expression must account for the compressed representation's ambiguity (e.g., overlapping blocks or non-unique decompressions) by ensuring the comparison is done on the decompressed strings as per the task's definition of `t_p...t_{p+|s|-1}`. The current expression is correct in intent but assumes `decompress` is unambiguous and matches the task's definition of substring matching.",
+            "task_evidence": "Note that the way to represent the string in compressed form may not be unique. For example string \"aaaa\" may be given as ⟨(4, a)⟩, ⟨(3, a),(1, a)⟩, ⟨(2, a),(2, a)⟩...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the output is computed by considering all possible starting positions `p` in the decompressed `t` where the substring of length `|s|` matches the decompressed `s` exactly, accounting for the compressed representation's ambiguity (i.e., the decompressed strings must be compared directly). The current postcondition is correct in spirit but does not explicitly enforce this for all edge cases (e.g., empty `s` or `t` shorter than `s`).",
+            "task_evidence": "Note that p is the starting position of some occurrence of s in t if and only if t_{p}t_{p+1}...t_{p+|s|-1} = s, where t_{i} is the i-th character of string t.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "The expression must work with compressed string representations (blocks) rather than decompressed strings. The current expression assumes `t` and `s` are decompressed strings, which is not the case in the input format.",
+          "task_evidence": "All the messages are represented as a strings consisting of only lowercase English letters. In order to reduce the network load strings are represented in the special compressed form. Compression algorithm works as follows: string is represented as a concatenation of n blocks, each block containing only equal characters.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q2",
+          "expression": "int(stdout) == sum(1 for p in range(len(decompressed_t)) if p + len(decompressed_s) <= len(decompressed_t) and decompressed_t[p:p+len(decompressed_s)] == decompressed_s)",
+          "description": "The output must equal the number of starting positions p in the decompressed string t where the substring of length |s| starting at p matches the decompressed string s exactly, considering only valid positions where the substring does not exceed the bounds of t."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "3f1da87558087f0ee2fb6fbeaa34fb190b59dc7a454bb7dfbc09f0f8de4e81a2",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 2
+  },
+  "repair_attempts_used": 2,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 109.35,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:57:24.964379+00:00"
+}

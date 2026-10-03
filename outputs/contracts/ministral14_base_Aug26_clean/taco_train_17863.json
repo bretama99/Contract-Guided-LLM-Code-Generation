@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_17863",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solve",
+      "signature": "solve(alarms: List[str]) -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(len(alarm) == 5 and alarm[2] == ':' and alarm[0:2].isdigit() and alarm[3:5].isdigit() for alarm in alarms)",
+        "description": "Each alarm time is a string of length 5 in the format 'HH:MM', where HH and MM are two-digit numbers representing hours and minutes."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(alarm[0:2]) <= 23 and 0 <= int(alarm[3:5]) <= 59 for alarm in alarms)",
+        "description": "Each alarm time represents a valid time of day (00:00 to 23:59)."
+      },
+      {
+        "id": "P3",
+        "expression": "len(alarms) >= 1",
+        "description": "The input list of alarms is non-empty."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == '23:59' if len(set(alarms)) == 1 else return_value != '23:59'",
+        "description": "If there is only one unique alarm time, the result is '23:59' (the interval from that time to midnight of the next day). Otherwise, the result is the maximum interval between any two distinct alarm times in chronological order."
+      },
+      {
+        "id": "Q2",
+        "expression": "def time_to_minutes(t: str) -> int: return int(t[0:2]) * 60 + int(t[3:5])\ndef minutes_to_time(m: int) -> str: return f\"{m // 60:02d}:{m % 60:02d}\"",
+        "description": "Helper definitions for converting between time strings and total minutes since midnight."
+      },
+      {
+        "id": "Q3",
+        "expression": "def is_valid_interval(a: str, b: str) -> bool: return time_to_minutes(b) > time_to_minutes(a)\ndef get_interval(a: str, b: str) -> str: return minutes_to_time((time_to_minutes(b) - time_to_minutes(a)) % (24 * 60))",
+        "description": "Helper definitions for checking if an interval is valid (b is after a) and computing the interval duration between two times."
+      },
+      {
+        "id": "Q4",
+        "expression": "unique_alarms = sorted(set(alarms), key=time_to_minutes)\nmax_interval = max((get_interval(unique_alarms[i], unique_alarms[(i + 1) % len(unique_alarms)]) for i in range(len(unique_alarms))), key=lambda x: time_to_minutes(x))",
+        "description": "The result is the maximum interval between any two consecutive alarms in the sorted list of unique alarms, including the interval between the last and first alarm (wrapping around midnight)."
+      },
+      {
+        "id": "Q5",
+        "expression": "return_value == max_interval",
+        "description": "The output string is the maximum interval duration in 'HH:MM' format."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"solve\",\n    \"signature\": \"solve(alarms: List[str]) -> str\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(len(alarm) == 5 and alarm[2] == ':' and alarm[0:2].isdigit() and alarm[3:5].isdigit() for alarm in alarms)\",\n      \"description\": \"Each alarm time is a string of length 5 in the format 'HH:MM', where HH and MM are two-digit numbers representing hours and minutes.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= int(alarm[0:2]) <= 23 and 0 <= int(alarm[3:5]) <= 59 for alarm in alarms)\",\n      \"description\": \"Each alarm time represents a valid time of day (00:00 to 23:59).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(alarms) >= 1\",\n      \"description\": \"The input list of alarms is non-empty.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == '23:59' if len(set(alarms)) == 1 else return_value != '23:59'\",\n      \"description\": \"If there is only one unique alarm time, the result is '23:59' (the interval from that time to midnight of the next day). Otherwise, the result is the maximum interval between any two distinct alarm times in chronological order.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"def time_to_minutes(t: str) -> int: return int(t[0:2]) * 60 + int(t[3:5])\\ndef minutes_to_time(m: int) -> str: return f\\\"{m // 60:02d}:{m % 60:02d}\\\"\",\n      \"description\": \"Helper definitions for converting between time strings and total minutes since midnight.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"def is_valid_interval(a: str, b: str) -> bool: return time_to_minutes(b) > time_to_minutes(a)\\ndef get_interval(a: str, b: str) -> str: return minutes_to_time((time_to_minutes(b) - time_to_minutes(a)) % (24 * 60))\",\n      \"description\": \"Helper definitions for checking if an interval is valid (b is after a) and computing the interval duration between two times.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"unique_alarms = sorted(set(alarms), key=time_to_minutes)\\nmax_interval = max((get_interval(unique_alarms[i], unique_alarms[(i + 1) % len(unique_alarms)]) for i in range(len(unique_alarms))), key=lambda x: time_to_minutes(x))\",\n      \"description\": \"The result is the maximum interval between any two consecutive alarms in the sorted list of unique alarms, including the interval between the last and first alarm (wrapping around midnight).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"return_value == max_interval\",\n      \"description\": \"The output string is the maximum interval duration in 'HH:MM' format.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1272,
+  "generated_tokens": 800,
+  "hit_output_limit": false,
+  "generation_seconds": 35.466,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:57:11.317625+00:00"
+}

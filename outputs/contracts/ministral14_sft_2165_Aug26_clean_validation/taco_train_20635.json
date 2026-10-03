@@ -1,0 +1,504 @@
+{
+  "task_id": "taco_train_20635",
+  "task_index": 587,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "4 <= int(stdin.strip()) <= 1000 and int(stdin.strip()) % 4 == 0",
+        "description": "Input is an integer n that is a multiple of 4 and within the range [4, 1000]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0 <= int(num) <= int(n)**2 - 1 for row in stdout.splitlines() for num in row.split())",
+        "description": "All integers in the output grid are unique and within the range [0, n² - 1]."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()) == int(n) and all(len(row.split()) == int(n) for row in stdout.splitlines())",
+        "description": "The output is a square matrix of size n × n."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(num for row in stdout.splitlines() for num in row.split())) == int(n)**2",
+        "description": "All integers from 0 to n² - 1 appear exactly once in the grid."
+      },
+      {
+        "id": "Q4",
+        "expression": "(lambda rows: all((lambda row: reduce(lambda x, y: x ^ y, map(int, row.split()))) == reduce(lambda x, y: x ^ y, map(int, rows[0].split())) for row in rows))(stdout.splitlines())",
+        "description": "The bitwise XOR of all elements in each row is the same."
+      },
+      {
+        "id": "Q5",
+        "expression": "(lambda grid: all((lambda col: reduce(lambda x, y: x ^ y, [int(grid[i].split()[col]) for i in range(int(n))])) == reduce(lambda x, y: x ^ y, [int(grid[0].split()[0]) for i in range(int(n))]) for col in range(int(n))))(stdout.splitlines())",
+        "description": "The bitwise XOR of all elements in each column is the same."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "4 <= int(stdin.strip()) <= 1000 and int(stdin.strip()) % 4 == 0",
+        "description": "Input is an integer n that is a multiple of 4 and within the range [4, 1000]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0 <= int(num) <= int(n)**2 - 1 for row in stdout.splitlines() for num in row.split())",
+        "description": "All integers in the output grid are unique and within the range [0, n² - 1]."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()) == int(n) and all(len(row.split()) == int(n) for row in stdout.splitlines())",
+        "description": "The output is a square matrix of size n × n."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(num for row in stdout.splitlines() for num in row.split())) == int(n)**2",
+        "description": "All integers from 0 to n² - 1 appear exactly once in the grid."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(row.split()[0]) ^ int(row.split()[1]) ^ ... ^ int(row.split()[int(n)-1]) == xor_value for row in stdout.splitlines())",
+        "description": "The bitwise XOR of all elements in each row is the same (denoted as xor_value)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(int(stdout.splitlines()[i].split()[j]) ^ int(stdout.splitlines()[i].split()[j+1]) ^ ... ^ int(stdout.splitlines()[i].split()[j+int(n)-1]) == xor_value for j in range(int(n)))",
+        "description": "The bitwise XOR of all elements in each column is the same (denoted as xor_value)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "d7b1a9853ddb0dcf830214aed9c915062266961f3b34c1e379744062c7c40044",
+  "selected_contract_fingerprint": "7d5cbb3db6015021bc1b5d2e7f1b1b8b52aa115a1cad6d0fe9161494e6da9782",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_20635.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+      "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+      "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+        "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+        "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+        "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Fix the XOR expression for columns to use a single variable `xor_value` and correctly compute the XOR of all elements in each column. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all columns must have the same XOR value as rows.",
+        "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the XOR value for rows and columns is the same (i.e., `xor_value` is consistent across rows and columns).",
+        "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "ellipsis_not_allowed",
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "ellipsis_not_allowed",
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[4].expression"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "4 <= int(stdin.strip()) <= 1000 and int(stdin.strip()) % 4 == 0",
+          "description": "Input is an integer n that is a multiple of 4 and within the range [4, 1000]."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "all(0 <= int(num) <= int(n)**2 - 1 for row in stdout.splitlines() for num in row.split())",
+          "description": "All integers in the output grid are unique and within the range [0, n² - 1]."
+        },
+        {
+          "id": "Q2",
+          "expression": "len(stdout.splitlines()) == int(n) and all(len(row.split()) == int(n) for row in stdout.splitlines())",
+          "description": "The output is a square matrix of size n × n."
+        },
+        {
+          "id": "Q3",
+          "expression": "len(set(num for row in stdout.splitlines() for num in row.split())) == int(n)**2",
+          "description": "All integers from 0 to n² - 1 appear exactly once in the grid."
+        },
+        {
+          "id": "Q4",
+          "expression": "(lambda rows: all((lambda row: reduce(lambda x, y: x ^ y, map(int, row.split()))) == reduce(lambda x, y: x ^ y, map(int, rows[0].split())) for row in rows))(stdout.splitlines())",
+          "description": "The bitwise XOR of all elements in each row is the same."
+        },
+        {
+          "id": "Q5",
+          "expression": "(lambda grid: all((lambda col: reduce(lambda x, y: x ^ y, [int(grid[i].split()[col]) for i in range(int(n))])) == reduce(lambda x, y: x ^ y, [int(grid[0].split()[0]) for i in range(int(n))]) for col in range(int(n))))(stdout.splitlines())",
+          "description": "The bitwise XOR of all elements in each column is the same."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+          "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+          "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+            "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the XOR expression for rows to use a single variable `xor_value` and correctly compute the XOR of all elements in each row. The current expression is syntactically invalid (ellipsis `...` is not valid Python syntax in this context) and does not capture the requirement that all rows must have the same XOR value.",
+            "task_evidence": "Bitwise XOR of all elements in a row or a column must be the same for each row and column.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(0 <= int(num) <= int(n)**2 - 1 for row in stdout.splitlines() for num in row.split())",
+            "description": "All integers in the output grid are unique and within the range [0, n² - 1]."
+          },
+          {
+            "id": "Q2",
+            "expression": "len(stdout.splitlines()) == int(n) and all(len(row.split()) == int(n) for row in stdout.splitlines())",
+            "description": "The output is a square matrix of size n × n."
+          },
+          {
+            "id": "Q3",
+            "expression": "len(set(num for row in stdout.splitlines() for num in row.split())) == int(n)**2",
+            "description": "All integers from 0 to n² - 1 appear exactly once in the grid."
+          },
+          {
+            "id": "Q4",
+            "expression": "(lambda rows: all((lambda row: reduce(lambda x, y: x ^ y, map(int, row.split()))) == reduce(lambda x, y: x ^ y, map(int, rows[0].split())) for row in rows))(stdout.splitlines())",
+            "description": "The bitwise XOR of all elements in each row is the same."
+          },
+          {
+            "id": "Q5",
+            "expression": "(lambda grid: all((lambda col: reduce(lambda x, y: x ^ y, [int(grid[i].split()[col]) for i in range(int(n))])) == reduce(lambda x, y: x ^ y, [int(grid[0].split()[0]) for i in range(int(n))]) for col in range(int(n))))(stdout.splitlines())",
+            "description": "The bitwise XOR of all elements in each column is the same."
+          }
+        ],
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": "7d5cbb3db6015021bc1b5d2e7f1b1b8b52aa115a1cad6d0fe9161494e6da9782",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 4
+  },
+  "repair_attempts_used": 4,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 125.182,
+  "processing_error": null,
+  "finished_at": "2026-09-04T01:12:16.377355+00:00"
+}

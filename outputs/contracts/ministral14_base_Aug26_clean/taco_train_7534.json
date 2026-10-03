@@ -1,0 +1,51 @@
+{
+  "task_id": "taco_train_7534",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.splitlines()[0]) and n >= 1 and n <= 10**5",
+        "description": "The first line of stdin is an integer n (1 ≤ n ≤ 10^5) representing the number of registration requests."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line) > 0 and line.islower() and line.isalpha() for line in stdin.splitlines()[1:n+1])",
+        "description": "Each of the next n lines is a non-empty string of lowercase Latin letters (length ≤ 32)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines() == [process_request(requests[i], database_up_to_i) for i in range(n)]",
+        "description": "For each request in the input (stored in `requests`), the output line is the system's response: 'OK' if the name is not in the database at the time of the request, or the smallest available name of the form `request + str(i)` (where `i` starts at 1) if the name is already taken. The `database_up_to_i` is the set of all previously registered names (including prompts) up to and including the i-th request."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(response == 'OK' or (response.startswith(request) and response[len(request):].isdigit()) for request, response in zip(requests, stdout.splitlines()))",
+        "description": "Every response is either 'OK' or a valid prompt formed by appending a positive integer to the original request name."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(response != 'OK' or response not in database_up_to_i for request, response, database_up_to_i in zip(requests, stdout.splitlines(), [set(requests[:i]) for i in range(1, n+1)]))",
+        "description": "If the response is 'OK', the requested name is not in the database at the time of the request. If the response is a prompt, it is the smallest available name of the form `request + str(i)` not already in the database."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.splitlines()[0]) and n >= 1 and n <= 10**5\",\n      \"description\": \"The first line of stdin is an integer n (1 ≤ n ≤ 10^5) representing the number of registration requests.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line) > 0 and line.islower() and line.isalpha() for line in stdin.splitlines()[1:n+1])\",\n      \"description\": \"Each of the next n lines is a non-empty string of lowercase Latin letters (length ≤ 32).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines() == [process_request(requests[i], database_up_to_i) for i in range(n)]\",\n      \"description\": \"For each request in the input (stored in `requests`), the output line is the system's response: 'OK' if the name is not in the database at the time of the request, or the smallest available name of the form `request + str(i)` (where `i` starts at 1) if the name is already taken. The `database_up_to_i` is the set of all previously registered names (including prompts) up to and including the i-th request.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(response == 'OK' or (response.startswith(request) and response[len(request):].isdigit()) for request, response in zip(requests, stdout.splitlines()))\",\n      \"description\": \"Every response is either 'OK' or a valid prompt formed by appending a positive integer to the original request name.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(response != 'OK' or response not in database_up_to_i for request, response, database_up_to_i in zip(requests, stdout.splitlines(), [set(requests[:i]) for i in range(1, n+1)]))\",\n      \"description\": \"If the response is 'OK', the requested name is not in the database at the time of the request. If the response is a prompt, it is the smallest available name of the form `request + str(i)` not already in the database.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1432,
+  "generated_tokens": 575,
+  "hit_output_limit": false,
+  "generation_seconds": 25.398,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:46:17.787174+00:00"
+}

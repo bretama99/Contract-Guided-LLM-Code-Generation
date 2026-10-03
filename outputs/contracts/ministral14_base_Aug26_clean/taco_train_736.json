@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_736",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(line.strip() != '' and line.strip().isdigit() for line in stdin.splitlines() if line.strip() != '0')",
+        "description": "Every non-empty line in stdin is a valid positive integer (digits only) except the terminating '0'."
+      },
+      {
+        "id": "P2",
+        "expression": "all(int(line.strip()) > 61 and int(line.strip()) % 2 == 1 for line in stdin.splitlines() if line.strip() != '0')",
+        "description": "Every input number (excluding '0') is an odd integer strictly greater than 61 and less than 10^6."
+      },
+      {
+        "id": "P3",
+        "expression": "stdin.splitlines().count('0') == 1",
+        "description": "The input contains exactly one terminating '0' line."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((stdout_line.strip() == '0 0 0' or (len(stdout_line.strip().split()) == 3 and all(p.isdigit() for p in stdout_line.strip().split()))) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For each input number (excluding '0'), stdout contains either '0 0 0' or exactly three space-separated prime numbers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((int(p1) + int(p2)**2 + int(p3)**3 == int(input_num)) for input_num, stdout_line in zip([line.strip() for line in stdin.splitlines() if line.strip() != '0'], stdout.splitlines()) if stdout_line.strip() != '0 0 0' and (p1, p2, p3) := stdout_line.strip().split())",
+        "description": "For every input number with a non-'0 0 0' output, the sum of the three primes (P1 + P2² + P3³) equals the input number."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout_line.strip() == '0 0 0' or all(is_prime(int(p)) for p in stdout_line.strip().split())) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For every non-'0 0 0' output line, all three numbers are valid primes (2 ≤ p ≤ input_num)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((stdout_line.strip() == '0 0 0' or (p1 := int(stdout_line.strip().split()[0])) >= 2 and (p2 := int(stdout_line.strip().split()[1])) >= 2 and (p3 := int(stdout_line.strip().split()[2])) >= 2) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For every non-'0 0 0' output line, all three primes are ≥ 2 (as primes cannot be 0, 1, or negative)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(line.strip() != '' and line.strip().isdigit() for line in stdin.splitlines() if line.strip() != '0')\",\n      \"description\": \"Every non-empty line in stdin is a valid positive integer (digits only) except the terminating '0'.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(int(line.strip()) > 61 and int(line.strip()) % 2 == 1 for line in stdin.splitlines() if line.strip() != '0')\",\n      \"description\": \"Every input number (excluding '0') is an odd integer strictly greater than 61 and less than 10^6.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"stdin.splitlines().count('0') == 1\",\n      \"description\": \"The input contains exactly one terminating '0' line.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all((stdout_line.strip() == '0 0 0' or (len(stdout_line.strip().split()) == 3 and all(p.isdigit() for p in stdout_line.strip().split()))) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')\",\n      \"description\": \"For each input number (excluding '0'), stdout contains either '0 0 0' or exactly three space-separated prime numbers.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((int(p1) + int(p2)**2 + int(p3)**3 == int(input_num)) for input_num, stdout_line in zip([line.strip() for line in stdin.splitlines() if line.strip() != '0'], stdout.splitlines()) if stdout_line.strip() != '0 0 0' and (p1, p2, p3) := stdout_line.strip().split())\",\n      \"description\": \"For every input number with a non-'0 0 0' output, the sum of the three primes (P1 + P2² + P3³) equals the input number.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout_line.strip() == '0 0 0' or all(is_prime(int(p)) for p in stdout_line.strip().split())) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')\",\n      \"description\": \"For every non-'0 0 0' output line, all three numbers are valid primes (2 ≤ p ≤ input_num).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((stdout_line.strip() == '0 0 0' or (p1 := int(stdout_line.strip().split()[0])) >= 2 and (p2 := int(stdout_line.strip().split()[1])) >= 2 and (p3 := int(stdout_line.strip().split()[2])) >= 2) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')\",\n      \"description\": \"For every non-'0 0 0' output line, all three primes are ≥ 2 (as primes cannot be 0, 1, or negative).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1368,
+  "generated_tokens": 775,
+  "hit_output_limit": false,
+  "generation_seconds": 34.529,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:54:56.890813+00:00"
+}

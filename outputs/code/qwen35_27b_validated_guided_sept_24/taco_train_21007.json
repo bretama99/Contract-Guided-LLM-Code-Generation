@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_21007",
+  "task_index": 216,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_21007.json",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        T = int(next(iterator))\n    except StopIteration:\n        return\n    \n    output = []\n    \n    for _ in range(T):\n        try:\n            N = int(next(iterator))\n            A = [int(next(iterator)) for _ in range(N)]\n            B = [int(next(iterator)) for _ in range(N)]\n        except StopIteration:\n            break\n        \n        pos_map = {}\n        for idx, val in enumerate(B):\n            if val not in pos_map:\n                pos_map[val] = []\n            pos_map[val].append(idx)\n        \n        current_pos = {}\n        for idx, val in enumerate(A):\n            if val not in current_pos:\n                current_pos[val] = []\n            current_pos[val].append(idx)\n        \n        target_indices = []\n        for val in A:\n            targets = current_pos[val]\n            if not targets:\n                continue\n            start_idx = targets.pop(0)\n            b_targets = pos_map[val]\n            target_idx = b_targets.pop(0)\n            target_indices.append((start_idx, target_idx))\n        \n        score = 0\n        for start, target in target_indices:\n            if start < target:\n                score += (target - start) * (A[start] - B[target])\n            elif start > target:\n                score += (start - target) * (A[start] - B[target])\n        \n        output.append(str(score))\n    \n    sys.stdout.write('\\n'.join(output) + '\\n')\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 37.014,
+  "generated_at": "2026-09-25T03:50:03.602169+00:00"
+}

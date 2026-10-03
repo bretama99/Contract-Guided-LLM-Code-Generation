@@ -1,0 +1,86 @@
+{
+  "task_id": "taco_train_858",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T == int(stdin.split()[0]) and T >= 1 and T <= 1000",
+        "description": "T is the number of test cases, where 1 ≤ T ≤ 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= N <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (N := int(line.split()[0])) is not None)",
+        "description": "For each test case, N is the number of days, where 1 ≤ N ≤ 10^5."
+      },
+      {
+        "id": "P3",
+        "expression": "all(2 <= K <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (K := int(line.split()[1])) is not None)",
+        "description": "For each test case, K is the number of places, where 2 ≤ K ≤ 10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(A) == N for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip() and len(line.split()) == N])",
+        "description": "For each test case, the sequence A has exactly N elements."
+      },
+      {
+        "id": "P5",
+        "expression": "all(Ai in {*range(1, K+1), -1} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A)",
+        "description": "Each element in A is either -1 or a place number between 1 and K (inclusive)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(Ai != Aj for i, Ai in enumerate(A) for j, Aj in enumerate(A) if i < j < len(A) and Ai != -1 and Aj != -1 and j == i + 1)",
+        "description": "If two consecutive days have non-decided places (A_i ≠ -1 and A_{i+1} ≠ -1), they must not be the same place."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_sequence) == N for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()])",
+        "description": "If the answer is 'YES', the second line contains exactly N space-separated integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(Ai in {*range(1, K+1)} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A if Ai != -1) and all(Ai in {*range(1, K+1)} for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()] for Ai in output_sequence)",
+        "description": "All non-decided places in the input and all places in the output sequence are valid place numbers between 1 and K (inclusive)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(Ai != Aj for i, Ai in enumerate(output_sequence) for j, Aj in enumerate(output_sequence) if i < j < len(output_sequence) and j == i + 1)",
+        "description": "In the output sequence, no two consecutive days have the same place."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(Ai == Bi for i, Ai in enumerate(A) for Bi in output_sequence if Ai != -1)",
+        "description": "The output sequence respects the original non-decided places (A_i ≠ -1 implies A_i == output_sequence[i])."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('YES' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if any(Ai == -1 for Ai in A)) or all('NO' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if all(Ai != -1 for Ai in A))",
+        "description": "If there are no undecided places (all A_i ≠ -1), the answer must be 'YES' if the sequence already satisfies the consecutive place condition, otherwise 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T == int(stdin.split()[0]) and T >= 1 and T <= 1000\",\n      \"description\": \"T is the number of test cases, where 1 ≤ T ≤ 1000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= N <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (N := int(line.split()[0])) is not None)\",\n      \"description\": \"For each test case, N is the number of days, where 1 ≤ N ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(2 <= K <= 10**5 for line in stdin.splitlines()[1:] if line.strip() and (K := int(line.split()[1])) is not None)\",\n      \"description\": \"For each test case, K is the number of places, where 2 ≤ K ≤ 10^5.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(A) == N for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip() and len(line.split()) == N])\",\n      \"description\": \"For each test case, the sequence A has exactly N elements.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(Ai in {*range(1, K+1), -1} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A)\",\n      \"description\": \"Each element in A is either -1 or a place number between 1 and K (inclusive).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(Ai != Aj for i, Ai in enumerate(A) for j, Aj in enumerate(A) if i < j < len(A) and Ai != -1 and Aj != -1 and j == i + 1)\",\n      \"description\": \"If two consecutive days have non-decided places (A_i ≠ -1 and A_{i+1} ≠ -1), they must not be the same place.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())\",\n      \"description\": \"For each test case, the first line of output is either 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(output_sequence) == N for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()])\",\n      \"description\": \"If the answer is 'YES', the second line contains exactly N space-separated integers.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(Ai in {*range(1, K+1)} for A in [list(map(int, line.split())) for line in stdin.splitlines()[1:] if line.strip()] for Ai in A if Ai != -1) and all(Ai in {*range(1, K+1)} for output_sequence in [list(map(int, line.split())) for line in stdout.splitlines()[1::2] if line.strip()] for Ai in output_sequence)\",\n      \"description\": \"All non-decided places in the input and all places in the output sequence are valid place numbers between 1 and K (inclusive).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(Ai != Aj for i, Ai in enumerate(output_sequence) for j, Aj in enumerate(output_sequence) if i < j < len(output_sequence) and j == i + 1)\",\n      \"description\": \"In the output sequence, no two consecutive days have the same place.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(Ai == Bi for i, Ai in enumerate(A) for Bi in output_sequence if Ai != -1)\",\n      \"description\": \"The output sequence respects the original non-decided places (A_i ≠ -1 implies A_i == output_sequence[i]).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all('YES' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if any(Ai == -1 for Ai in A)) or all('NO' in stdout.splitlines()[i] for i in range(0, len(stdout.splitlines()), 2) if all(Ai != -1 for Ai in A))\",\n      \"description\": \"If there are no undecided places (all A_i ≠ -1), the answer must be 'YES' if the sequence already satisfies the consecutive place condition, otherwise 'NO'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1822,
+  "generated_tokens": 1155,
+  "hit_output_limit": false,
+  "generation_seconds": 53.263,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:20:39.128872+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16131",
+  "task_index": 461,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_16131.json",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    t = int(next(iterator))\n    \n    results = []\n    \n    for _ in range(t):\n        n = int(next(iterator))\n        a = [int(next(iterator)) for _ in range(n)]\n        b = [int(next(iterator)) for _ in range(n)]\n        c = [int(next(iterator)) for _ in range(n)]\n        \n        p = [0] * n\n        \n        # Greedily assign p[i] different from p[i-1]\n        for i in range(n):\n            options = [a[i], b[i], c[i]]\n            prev_val = p[i-1] if i > 0 else None\n            \n            chosen = -1\n            for val in options:\n                if val != prev_val:\n                    chosen = val\n                    break\n            p[i] = chosen\n        \n        # Check wrap-around condition: p[n-1] vs p[0]\n        if p[n-1] == p[0]:\n            # We need to adjust the last element\n            # Since we have 3 distinct options at each position, \n            # and p[n-2] is already fixed, we can pick an option for p[n-1]\n            # that is different from both p[n-2] and p[0].\n            # However, p[0] might have been chosen based on nothing (or p[-1] which doesn't exist),\n            # so we might need to backtrack slightly or just fix the last one carefully.\n            \n            # Actually, since we have 3 choices and only 2 constraints (prev and next),\n            # there is always at least one valid choice for the last element.\n            options_last = [a[n-1], b[n-1], c[n-1]]\n            for val in options_last:\n                if val != p[n-2] and val != p[0]:\n                    p[n-1] = val\n                    break\n        \n        results.append(\" \".join(map(str, p)))\n    \n    print(\"\\n\".join(results))\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 45.873,
+  "generated_at": "2026-09-25T02:54:33.899308+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_776",
+  "task_index": 711,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_test_776.json",
+  "code": "import sys\nfrom math import gcd\nfrom collections import defaultdict\n\nsys.setrecursionlimit(300000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    \n    a = [0] * (n + 1)\n    max_val = 0\n    for i in range(1, n + 1):\n        val = int(next(iterator))\n        a[i] = val\n        max_val = max(max_val, val)\n    \n    adj = [[] for _ in range(n + 1)]\n    for _ in range(n - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    ans = defaultdict(int)\n    \n    def dfs(u, p, current_gcds):\n        new_gcds = {}\n        g = a[u]\n        if g in current_gcds:\n            new_gcds[g] = current_gcds[g] + 1\n        else:\n            new_gcds[g] = 1\n        \n        for v in adj[u]:\n            if v == p:\n                continue\n            \n            child_gcds = dfs(v, u, current_gcds)\n            \n            for g_child, count_child in child_gcds.items():\n                g_new = gcd(g, g_child)\n                if g_new in new_gcds:\n                    new_gcds[g_new] += count_child\n                else:\n                    new_gcds[g_new] = count_child\n        \n        for g_val, count in new_gcds.items():\n            ans[g_val] += count\n        \n        return new_gcds\n    \n    dfs(1, 0, {})\n    \n    output_lines = []\n    for i in range(1, 200001):\n        if ans[i] > 0:\n            output_lines.append(f\"{i} {ans[i]}\")\n    \n    sys.stdout.write('\\n'.join(output_lines) + '\\n')\n\nif __name__ == '__main__':\n    main()",
+  "generation_seconds": 45.345,
+  "generated_at": "2026-09-25T08:45:12.868652+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_20819",
+  "task_index": 650,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_20819.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nMOD = 1000000007\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    N = int(input[0])\n    preferences = []\n    index = 1\n    for i in range(N):\n        current = int(input[index])\n        desired = int(input[index + 1])\n        preferences.append((current, desired))\n        index += 2\n\n    current_to_desired = defaultdict(list)\n    for current, desired in preferences:\n        current_to_desired[current].append(desired)\n\n    visited = [False] * (2 * N + 1)\n    components = []\n\n    def dfs(node):\n        stack = [node]\n        component = []\n        while stack:\n            node = stack.pop()\n            if not visited[node]:\n                visited[node] = True\n                component.append(node)\n                for neighbor in current_to_desired[node]:\n                    if not visited[neighbor]:\n                        stack.append(neighbor)\n        return component\n\n    for node in range(1, 2 * N + 1):\n        if not visited[node]:\n            component = dfs(node)\n            components.append(component)\n\n    result = 1\n    for component in components:\n        cycles = 0\n        nodes_in_cycles = set()\n        for node in component:\n            if node not in nodes_in_cycles:\n                cycle_length = 0\n                current = node\n                while current not in nodes_in_cycles:\n                    nodes_in_cycles.add(current)\n                    current = current_to_desired[current][0]\n                    cycle_length += 1\n                if cycle_length > 0:\n                    cycles += 1\n                    result = (result * cycle_length) % MOD\n\n        if len(component) != cycles:\n            result = (result * factorial(len(component) - cycles)) % MOD\n\n    print(result)\n\ndef factorial(n):\n    fact = 1\n    for i in range(2, n + 1):\n        fact = (fact * i) % MOD\n    return fact\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 38.91,
+  "generated_at": "2026-09-23T20:26:13.410954+00:00"
+}

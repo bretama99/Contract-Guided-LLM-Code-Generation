@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_4425",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t > 0 and all(3 <= n <= 1000 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_')))",
+        "description": "The number of test cases t is at least 1, and for each test case, the number of caves n satisfies 3 ≤ n ≤ 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n <= m <= min((n * (n - 1)) // 2, 2000) for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_')))",
+        "description": "For each test case, the number of tunnels m satisfies n ≤ m ≤ min((n(n-1))/2, 2000)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= 10**9 for a_i in (line.split()[1:] for line in stdin.splitlines() if line.strip() and line.startswith('a_'))[0])",
+        "description": "For each test case, the monster power values a_i satisfy 1 ≤ a_i ≤ 10^9."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= b_i <= 10**9 for b_i in (line.split()[1:] for line in stdin.splitlines() if line.strip() and line.startswith('b_'))[0])",
+        "description": "For each test case, the power increase values b_i satisfy 1 ≤ b_i ≤ 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u_i <= n and 1 <= v_i <= n and u_i != v_i for u_i, v_i in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_') and not line.startswith('n') and not line.startswith('m')))",
+        "description": "For each test case, each tunnel connects two distinct caves u_i and v_i, where 1 ≤ u_i, v_i ≤ n."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(set(tunnel)) == 2 for tunnel in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_') and not line.startswith('n') and not line.startswith('m')))",
+        "description": "No two caves are connected with more than one tunnel."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(adj) >= 2 for adj in (build_adjacency_list(n, tunnels) for n, tunnels in (parse_test_case(stdin))))",
+        "description": "Every cave has at least two tunnels connected to it, ensuring no dead ends."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(isinstance(output, int) for output in (line.strip() for line in stdout.splitlines() if line.strip()))",
+        "description": "The output for each test case is a single integer representing the smallest possible initial power."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= output <= 10**9 for output in (line.strip() for line in stdout.splitlines() if line.strip()))",
+        "description": "The output for each test case is a valid power value between 1 and 10^9."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(can_pass_level(n, a, b, tunnels, output) for n, a, b, tunnels, output in (parse_test_case_with_output(stdin, stdout)))",
+        "description": "The output is the smallest initial power such that the hero can traverse all caves, defeat all monsters, and never get stuck, following the movement rules."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t > 0 and all(3 <= n <= 1000 for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_')))\",\n      \"description\": \"The number of test cases t is at least 1, and for each test case, the number of caves n satisfies 3 ≤ n ≤ 1000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(n <= m <= min((n * (n - 1)) // 2, 2000) for n, m in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_')))\",\n      \"description\": \"For each test case, the number of tunnels m satisfies n ≤ m ≤ min((n(n-1))/2, 2000).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a_i <= 10**9 for a_i in (line.split()[1:] for line in stdin.splitlines() if line.strip() and line.startswith('a_'))[0])\",\n      \"description\": \"For each test case, the monster power values a_i satisfy 1 ≤ a_i ≤ 10^9.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= b_i <= 10**9 for b_i in (line.split()[1:] for line in stdin.splitlines() if line.strip() and line.startswith('b_'))[0])\",\n      \"description\": \"For each test case, the power increase values b_i satisfy 1 ≤ b_i ≤ 10^9.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= u_i <= n and 1 <= v_i <= n and u_i != v_i for u_i, v_i in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_') and not line.startswith('n') and not line.startswith('m')))\",\n      \"description\": \"For each test case, each tunnel connects two distinct caves u_i and v_i, where 1 ≤ u_i, v_i ≤ n.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(len(set(tunnel)) == 2 for tunnel in (line.split() for line in stdin.splitlines() if line.strip() and not line.startswith('a_') and not line.startswith('b_') and not line.startswith('n') and not line.startswith('m')))\",\n      \"description\": \"No two caves are connected with more than one tunnel.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(len(adj) >= 2 for adj in (build_adjacency_list(n, tunnels) for n, tunnels in (parse_test_case(stdin))))\",\n      \"description\": \"Every cave has at least two tunnels connected to it, ensuring no dead ends.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(isinstance(output, int) for output in (line.strip() for line in stdout.splitlines() if line.strip()))\",\n      \"description\": \"The output for each test case is a single integer representing the smallest possible initial power.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= output <= 10**9 for output in (line.strip() for line in stdout.splitlines() if line.strip()))\",\n      \"description\": \"The output for each test case is a valid power value between 1 and 10^9.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(can_pass_level(n, a, b, tunnels, output) for n, a, b, tunnels, output in (parse_test_case_with_output(stdin, stdout)))\",\n      \"description\": \"The output is the smallest initial power such that the hero can traverse all caves, defeat all monsters, and never get stuck, following the movement rules.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2401,
+  "generated_tokens": 998,
+  "hit_output_limit": false,
+  "generation_seconds": 46.284,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:23:50.564700+00:00"
+}

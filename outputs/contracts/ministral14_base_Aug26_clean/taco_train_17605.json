@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_17605",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(int(line.split()), list) and len(line.split()) > 0 for line in stdin.splitlines() if line.strip() != '')",
+        "description": "Every non-empty line in stdin is a space-separated list of integers, representing either group sizes or friend lists."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit())",
+        "description": "Every group size (digit-only line) is between 1 and 100 (inclusive)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(friend) <= 100 for line in stdin.splitlines() if not line.strip().isdigit() for friend in line.split())",
+        "description": "Every friend label in a friend list is between 1 and 100 (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(friend not in line.split() for line in stdin.splitlines() if not line.strip().isdigit() for friend in line.split())",
+        "description": "No friend appears in their own friend list (no self-loops)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(friends) >= 1 for line in stdin.splitlines() if not line.strip().isdigit() for friends in [line.split()])",
+        "description": "Every friend has at least one friend in their group."
+      },
+      {
+        "id": "P6",
+        "expression": "all(any(friend in group_friends for friend in group_friends) for group_friends in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()])",
+        "description": "The friend graph in each group is connected (every friend can reach every other friend via friend links)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == ' '.join([str(most_popular), str(round(avg_distance, 6))])",
+        "description": "For each group, stdout contains the most popular friend label (smallest label in case of ties) and their average distance from all friends in the group (rounded to 6 decimal places)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(friend) <= 100 for friend in stdout.split()[0])",
+        "description": "The most popular friend label is a valid integer between 1 and 100."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= float(distance) <= 100 for distance in [stdout.split()[1]])",
+        "description": "The average distance is a non-negative float (distance cannot exceed 100 for groups of size <= 100)."
+      },
+      {
+        "id": "Q4",
+        "expression": "(lambda group: any(all(1 <= int(f) <= 100 for f in group) and all(f not in group for f in group) and len(group) >= 1 and any(f in group for f in group) for group in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()]))(stdin)",
+        "description": "The most popular friend is chosen from the group's friends, and their average distance is computed as the mean of all pairwise distances (including self-distance 0) in the group."
+      },
+      {
+        "id": "Q5",
+        "expression": "(lambda group: any(all(1 <= int(f) <= 100 for f in group) and all(f not in group for f in group) and len(group) >= 1 and any(f in group for f in group) for group in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()]))(stdin) and (lambda group: any(all(1 <= int(f) <= 100 for f in group) and all(f not in group for f in group) and len(group) >= 1 and any(f in group for f in group) for group in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()]))(stdin)",
+        "description": "The most popular friend is the one with the smallest average distance (notoriety) in their group. In case of ties, the smallest label is chosen."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(int(line.split()), list) and len(line.split()) > 0 for line in stdin.splitlines() if line.strip() != '')\",\n      \"description\": \"Every non-empty line in stdin is a space-separated list of integers, representing either group sizes or friend lists.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit())\",\n      \"description\": \"Every group size (digit-only line) is between 1 and 100 (inclusive).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(friend) <= 100 for line in stdin.splitlines() if not line.strip().isdigit() for friend in line.split())\",\n      \"description\": \"Every friend label in a friend list is between 1 and 100 (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(friend not in line.split() for line in stdin.splitlines() if not line.strip().isdigit() for friend in line.split())\",\n      \"description\": \"No friend appears in their own friend list (no self-loops).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(friends) >= 1 for line in stdin.splitlines() if not line.strip().isdigit() for friends in [line.split()])\",\n      \"description\": \"Every friend has at least one friend in their group.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(any(friend in group_friends for friend in group_friends) for group_friends in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()])\",\n      \"description\": \"The friend graph in each group is connected (every friend can reach every other friend via friend links).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == ' '.join([str(most_popular), str(round(avg_distance, 6))])\",\n      \"description\": \"For each group, stdout contains the most popular friend label (smallest label in case of ties) and their average distance from all friends in the group (rounded to 6 decimal places).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(friend) <= 100 for friend in stdout.split()[0])\",\n      \"description\": \"The most popular friend label is a valid integer between 1 and 100.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= float(distance) <= 100 for distance in [stdout.split()[1]])\",\n      \"description\": \"The average distance is a non-negative float (distance cannot exceed 100 for groups of size <= 100).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"(lambda group: any(all(1 <= int(f) <= 100 for f in group) and all(f not in group for f in group) and len(group) >= 1 and any(f in group for f in group) for group in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()]))(stdin)\",\n      \"description\": \"The most popular friend is chosen from the group's friends, and their average distance is computed as the mean of all pairwise distances (including self-distance 0) in the group.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"(lambda group: any(all(1 <= int(f) <= 100 for f in group) and all(f not in group for f in group) and len(group) >= 1 and any(f in group for f in group) for group in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()]))(stdin) and (lambda group: any(all(1 <= int(f) <= 100 for f in group) and all(f not in group for f in group) and len(group) >= 1 and any(f in group for f in group) for group in [line.split() for line in stdin.splitlines() if not line.strip().isdigit()]))(stdin)\",\n      \"description\": \"The most popular friend is the one with the smallest average distance (notoriety) in their group. In case of ties, the smallest label is chosen.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1790,
+  "generated_tokens": 1081,
+  "hit_output_limit": false,
+  "generation_seconds": 52.677,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:12:18.302808+00:00"
+}

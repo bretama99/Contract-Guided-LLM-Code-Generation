@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_20957",
+  "task_index": 393,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_20957.json",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n    except StopIteration:\n        return\n\n    strings = []\n    for _ in range(n):\n        strings.append(next(iterator))\n\n    try:\n        q_count = int(next(iterator))\n    except StopIteration:\n        q_count = 0\n\n    queries = []\n    for _ in range(q_count):\n        l = int(next(iterator))\n        r = int(next(iterator))\n        pattern = next(iterator)\n        queries.append((l, r, pattern))\n\n    # Precompute for each unique pattern the list of 1-based indices where it appears\n    # Since Q is large and patterns are short, we can cache results per pattern\n    pattern_cache = {}\n\n    results = []\n    for l, r, pattern in queries:\n        if pattern not in pattern_cache:\n            indices = []\n            for idx, s in enumerate(strings):\n                if pattern in s:\n                    indices.append(idx + 1)\n            pattern_cache[pattern] = indices\n        \n        indices = pattern_cache[pattern]\n        # Count how many indices are in [l, r]\n        # Use binary search for efficiency\n        import bisect\n        left_idx = bisect.bisect_left(indices, l)\n        right_idx = bisect.bisect_right(indices, r)\n        count = right_idx - left_idx\n        results.append(count)\n\n    print('\\n'.join(map(str, results)))\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 32.092,
+  "generated_at": "2026-09-25T10:25:38.590388+00:00"
+}

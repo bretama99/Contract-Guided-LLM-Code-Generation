@@ -1,0 +1,65 @@
+{
+  "task_id": "taco_train_7849",
+  "task_index": 355,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(T, int) and 1 <= T <= 50",
+        "description": "The number of test cases T is an integer between 1 and 50 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.strip()) > 0 for line in stdin_lines[1:]) and len([l for l in stdin_lines[1:] if l.strip()]) % 12 == 0",
+        "description": "The input contains exactly 12 non-empty match description lines for each test case."
+      },
+      {
+        "id": "P3",
+        "expression": "all(' vs. ' in line for line in stdin_lines[1:] if line.strip())",
+        "description": "Each match line contains the separator ' vs. '."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= int(hg) <= 100 and 0 <= int(ag) <= 100 for line in stdin_lines[1:] if line.strip() for hg, ag in [(line.split(' vs. ')[0].split()[-1], line.split(' vs. ')[1].split()[0])])",
+        "description": "Goal counts for home and away teams are integers between 0 and 100 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(name) <= 10 and name.islower() and name.isalpha() for line in stdin_lines[1:] if line.strip() for name in [line.split(' vs. ')[0].split()[0], line.split(' vs. ')[1].split()[1]])",
+        "description": "Team names are strings of length at most 10 containing only lowercase English letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == T",
+        "description": "The output contains exactly T lines, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(line.split()) == 2 for line in stdout_lines)",
+        "description": "Each output line contains exactly two space-separated strings."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(stdout_lines[i].split()[0] != stdout_lines[i].split()[1] for i in range(len(stdout_lines)))",
+        "description": "The first and second ranked teams in each output line are distinct."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((lambda teams, matches: sorted(teams.keys(), key=lambda t: (-teams[t]['points'], -teams[t]['gd']))[0:2] == [sorted(teams.keys(), key=lambda t: (-teams[t]['points'], -teams[t]['gd']))[0], sorted(teams.keys(), key=lambda t: (-teams[t]['points'], -teams[t]['gd']))[1]])( {t: {'points': 0, 'gd': 0} for t in set([m['home'], m['away'] for m in matches])}, [ {'home': m['home'], 'away': m['away'], 'hg': m['hg'], 'ag': m['ag']} for m in matches ] ) for matches in [ [ {'home': line.split(' vs. ')[0].split()[0], 'away': line.split(' vs. ')[1].split()[1], 'hg': int(line.split(' vs. ')[0].split()[-1]), 'ag': int(line.split(' vs. ')[1].split()[0])} for line in stdin_lines[i*12+1:(i+1)*12+1] if line.strip()] for i in range(T)])",
+        "description": "For each test case, the output lists the top two teams ranked by points (descending) and then by goal difference (descending), with no ties for these positions."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 88.717,
+  "seed": 397,
+  "generated_at": "2026-09-21T10:55:28.435486+00:00"
+}

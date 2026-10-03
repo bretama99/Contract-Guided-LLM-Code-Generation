@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_19875",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 500 for line in stdin.splitlines()[1:]) and all(1 <= int(line.split()[1]) <= 500 for line in stdin.splitlines()[1:]) and all(1 <= int(line.split()[2]) <= 10**5 for line in stdin.splitlines()[1:])",
+        "description": "All city indices (X_i, Y_i) are integers between 1 and N (inclusive), and all importance values (Z_i) are integers between 1 and 10^5 (inclusive)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == M + 1 and all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "The input consists of exactly M + 1 lines: the first line contains N and M, and the next M lines each contain three integers (X_i, Y_i, Z_i)."
+      },
+      {
+        "id": "P3",
+        "expression": "N >= 3 and M >= 3 and M <= 10**4 and N <= 500",
+        "description": "The constraints on N and M are satisfied: 3 ≤ N ≤ 500 and 3 ≤ M ≤ 10^4."
+      },
+      {
+        "id": "P4",
+        "expression": "all(int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])",
+        "description": "No road connects a city to itself (X_i ≠ Y_i for all roads)."
+      },
+      {
+        "id": "P5",
+        "expression": "any(all(int(line.split()[0]) == x and int(line.split()[1]) == y for line in stdin.splitlines()[1:]) for x in range(1, N + 1) for y in range(1, N + 1) if x != y) or any(all(int(line.split()[0]) == y and int(line.split()[1]) == x for line in stdin.splitlines()[1:]) for x in range(1, N + 1) for y in range(1, N + 1) if x != y)",
+        "description": "The graph is connected (there exists at least one path between any two distinct cities)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.isdigit() and int(stdout) >= 0 and int(stdout) < 10**9 + 7",
+        "description": "The output is a non-negative integer less than 10^9 + 7, representing the product of separation numbers for all unordered pairs of cities modulo 10^9 + 7."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(line.split()[0]) <= N and 1 <= int(line.split()[1]) <= N and int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])",
+        "description": "The output is derived from the input graph where cities are labeled from 1 to N, and no self-loops exist."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= int(line.split()[2]) <= 10**5 for line in stdin.splitlines()[1:])",
+        "description": "The output accounts for all road importance values (Z_i) in the range [1, 10^5]."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= x <= N and 1 <= y <= N and x < y for x in range(1, N + 1) for y in range(x + 1, N + 1))",
+        "description": "The product is computed over all unordered pairs of distinct cities (x, y) where 1 ≤ x < y ≤ N."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(0 <= separation_number(x, y) <= sum(int(line.split()[2]) for line in stdin.splitlines()[1:]) for x in range(1, N + 1) for y in range(x + 1, N + 1))",
+        "description": "For each unordered pair of cities (x, y), the separation number is a non-negative integer bounded by the sum of all road importance values."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(separation_number(x, y) == min(sum(int(line.split()[2]) for line in subset) for subset in good_subsets(x, y)) for x in range(1, N + 1) for y in range(x + 1, N + 1))",
+        "description": "The separation number for a pair (x, y) is the minimum sum of importance values of any good subset of roads, where a good subset is one whose removal disconnects x from y."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 500 for line in stdin.splitlines()[1:]) and all(1 <= int(line.split()[1]) <= 500 for line in stdin.splitlines()[1:]) and all(1 <= int(line.split()[2]) <= 10**5 for line in stdin.splitlines()[1:])\",\n      \"description\": \"All city indices (X_i, Y_i) are integers between 1 and N (inclusive), and all importance values (Z_i) are integers between 1 and 10^5 (inclusive).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == M + 1 and all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input consists of exactly M + 1 lines: the first line contains N and M, and the next M lines each contain three integers (X_i, Y_i, Z_i).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"N >= 3 and M >= 3 and M <= 10**4 and N <= 500\",\n      \"description\": \"The constraints on N and M are satisfied: 3 ≤ N ≤ 500 and 3 ≤ M ≤ 10^4.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])\",\n      \"description\": \"No road connects a city to itself (X_i ≠ Y_i for all roads).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"any(all(int(line.split()[0]) == x and int(line.split()[1]) == y for line in stdin.splitlines()[1:]) for x in range(1, N + 1) for y in range(1, N + 1) if x != y) or any(all(int(line.split()[0]) == y and int(line.split()[1]) == x for line in stdin.splitlines()[1:]) for x in range(1, N + 1) for y in range(1, N + 1) if x != y)\",\n      \"description\": \"The graph is connected (there exists at least one path between any two distinct cities).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.isdigit() and int(stdout) >= 0 and int(stdout) < 10**9 + 7\",\n      \"description\": \"The output is a non-negative integer less than 10^9 + 7, representing the product of separation numbers for all unordered pairs of cities modulo 10^9 + 7.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= N and 1 <= int(line.split()[1]) <= N and int(line.split()[0]) != int(line.split()[1]) for line in stdin.splitlines()[1:])\",\n      \"description\": \"The output is derived from the input graph where cities are labeled from 1 to N, and no self-loops exist.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= int(line.split()[2]) <= 10**5 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The output accounts for all road importance values (Z_i) in the range [1, 10^5].\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= x <= N and 1 <= y <= N and x < y for x in range(1, N + 1) for y in range(x + 1, N + 1))\",\n      \"description\": \"The product is computed over all unordered pairs of distinct cities (x, y) where 1 ≤ x < y ≤ N.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(0 <= separation_number(x, y) <= sum(int(line.split()[2]) for line in stdin.splitlines()[1:]) for x in range(1, N + 1) for y in range(x + 1, N + 1))\",\n      \"description\": \"For each unordered pair of cities (x, y), the separation number is a non-negative integer bounded by the sum of all road importance values.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(separation_number(x, y) == min(sum(int(line.split()[2]) for line in subset) for subset in good_subsets(x, y)) for x in range(1, N + 1) for y in range(x + 1, N + 1))\",\n      \"description\": \"The separation number for a pair (x, y) is the minimum sum of importance values of any good subset of roads, where a good subset is one whose removal disconnects x from y.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1652,
+  "generated_tokens": 1193,
+  "hit_output_limit": false,
+  "generation_seconds": 52.406,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:48:47.968711+00:00"
+}

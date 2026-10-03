@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_537",
+  "task_index": 721,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_test_537.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef is_tree(graph, start, visited):\n    queue = deque([start])\n    visited[start] = True\n    parent = {start: None}\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph[node]:\n            if not visited[neighbor]:\n                visited[neighbor] = True\n                parent[neighbor] = node\n                queue.append(neighbor)\n            elif parent[node] != neighbor:\n                return False\n    return True\n\ndef find_cycle(graph, n):\n    visited = [False] * (n + 1)\n    for i in range(1, n + 1):\n        if not visited[i]:\n            stack = [(i, None)]\n            while stack:\n                node, parent = stack.pop()\n                if visited[node]:\n                    continue\n                visited[node] = True\n                for neighbor in graph[node]:\n                    if neighbor == parent:\n                        continue\n                    if visited[neighbor]:\n                        return True, node, neighbor\n                    stack.append((neighbor, node))\n    return False, None, None\n\ndef is_cthulhu(graph, n, m):\n    cycle_exists, u, v = find_cycle(graph, n)\n    if not cycle_exists:\n        return False\n    visited = [False] * (n + 1)\n    visited[u] = visited[v] = True\n    trees_count = 0\n    for i in range(1, n + 1):\n        if visited[i]:\n            continue\n        if not is_tree(graph, i, visited):\n            return False\n        trees_count += 1\n    return trees_count >= 2\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    m = int(input[index + 1])\n    index += 2\n    graph = defaultdict(list)\n    for _ in range(m):\n        x = int(input[index])\n        y = int(input[index + 1])\n        graph[x].append(y)\n        graph[y].append(x)\n        index += 2\n    if is_cthulhu(graph, n, m):\n        print(\"FHTAGN!\")\n    else:\n        print(\"NO\")\n\nmain()",
+  "generation_seconds": 41.993,
+  "generated_at": "2026-09-23T18:31:47.593780+00:00"
+}

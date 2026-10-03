@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_108",
+  "task_index": 391,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_test_108.json",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    L = int(input_data[0])\n    R = int(input_data[1])\n    \n    if L > R:\n        print(\"NO\")\n        return\n\n    target_range = R - L + 1\n    \n    if target_range == 1:\n        print(\"YES\")\n        print(\"2 1\")\n        print(f\"1 2 {L}\")\n        return\n\n    powers_of_two = []\n    temp = target_range\n    idx = 0\n    while temp > 0:\n        if temp & 1:\n            powers_of_two.append(1 << idx)\n        temp >>= 1\n        idx += 1\n    \n    if len(powers_of_two) > 16:\n        print(\"NO\")\n        return\n\n    edges = []\n    nodes_needed = 1\n    \n    current_offset = L\n    node_indices = [1]\n    \n    for p in powers_of_two:\n        if nodes_needed >= 32:\n            break\n        \n        next_node = nodes_needed + 1\n        if next_node > 32:\n            print(\"NO\")\n            return\n        \n        mid_node = nodes_needed + 1\n        if mid_node > 32:\n            print(\"NO\")\n            return\n            \n        prev_node = node_indices[-1]\n        \n        edges.append((prev_node, mid_node, p))\n        edges.append((mid_node, next_node, 0))\n        \n        node_indices.append(mid_node)\n        node_indices.append(next_node)\n        nodes_needed = next_node\n\n    final_node = nodes_needed\n    start_node = 1\n    \n    total_paths = 0\n    for p in powers_of_two:\n        total_paths += p\n    \n    if total_paths != target_range:\n        print(\"NO\")\n        return\n\n    if nodes_needed > 32:\n        print(\"NO\")\n        return\n\n    print(\"YES\")\n    print(f\"{nodes_needed} {len(edges)}\")\n    for u, v, w in edges:\n        print(f\"{u} {v} {w}\")\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 48.365,
+  "generated_at": "2026-09-26T21:01:43.465904+00:00"
+}

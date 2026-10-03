@@ -1,0 +1,55 @@
+{
+  "task_id": "taco_train_11427",
+  "task_index": 576,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(stdin, str)",
+        "description": "The input is a string containing the full standard input text."
+      },
+      {
+        "id": "P2",
+        "expression": "len(lines) >= 1 and lines[0].strip().isdigit() if (lines := stdin.strip().splitlines()) else False",
+        "description": "The first line of input contains a single integer T representing the number of test cases."
+      },
+      {
+        "id": "P3",
+        "expression": "all(isinstance(int(line.strip()), int) for line in lines[::2] if line.strip())",
+        "description": "Every odd-indexed line (0-based) in the parsed input represents a valid integer N for a test case."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(goals) == n for n, goals in zip([int(lines[i].strip()) for i in range(1, len(lines), 2)], [[int(x) for x in lines[i+1].split()] for i in range(1, len(lines), 2)]))",
+        "description": "For each test case, the number of goal integers provided matches the specified N."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= g <= 1000000 for n in [int(lines[i].strip()) for i in range(1, len(lines), 2)] for g in [int(x) for x in lines[i+1].split()])",
+        "description": "All goal counts are non-negative integers within the specified bounds."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout.strip().splitlines()) == T",
+        "description": "The output contains exactly T lines, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((output_lines[i] == 'UNFIT' and max_diff == -1) or (output_lines[i] == str(max_diff) and max_diff > 0) for i, max_diff in enumerate([max((g_j - g_i) for i, g_i in enumerate(goals) for j, g_j in enumerate(goals) if j > i and g_j > g_i) if any(g_j > g_i for i, g_i in enumerate(goals) for j, g_j in enumerate(goals) if j > i) else -1 for goals in [[int(x) for x in lines[i+1].split()] for i in range(1, len(lines), 2)]]))",
+        "description": "For each test case, if there exists a pair of matches (i, j) with i < j and goals[j] > goals[i], the output is the maximum difference (goals[j] - goals[i]); otherwise, the output is 'UNFIT'."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 67.698,
+  "seed": 618,
+  "generated_at": "2026-09-21T06:40:20.414348+00:00"
+}

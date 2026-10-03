@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_16103",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T18:31:50.719753+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    S = int(input[1])\n    events = []\n    idx = 2\n    for i in range(n):\n        ini = int(input[idx])\n        outi = int(input[idx + 1])\n        wi = int(input[idx + 2])\n        si = int(input[idx + 3])\n        vi = int(input[idx + 4])\n        events.append((ini, 'in', i))\n        events.append((outi, 'out', i))\n        idx += 5\n    events.sort()\n\n    dp = [0] * (n + 1)\n    stack = []\n    weight = 0\n    for time, event_type, i in events:\n        if event_type == 'out':\n            if stack and stack[-1][0] == i:\n                weight -= stack[-1][1]\n                stack.pop()\n        else:\n            while stack and weight + input[i * 5 + 2] > min(S, stack[-1][2]):\n                weight -= stack[-1][1]\n                stack.pop()\n            if not stack or weight + input[i * 5 + 2] <= stack[-1][2]:\n                stack.append((i, input[i * 5 + 2], input[i * 5 + 3]))\n                weight += input[i * 5 + 2]\n                dp[i + 1] = max(dp[i + 1], dp[i] + input[i * 5 + 4])\n            else:\n                dp[i + 1] = dp[i]\n        dp[i + 1] = max(dp[i + 1], dp[max(i, len(stack))])\n    print(dp[n])\n\nif __name__ == \"__main__\":\n    main()"
+}

@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_16190",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T15:28:54.983695+00:00",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef topological_sort(packages, dependencies):\n    in_degree = {pkg: 0 for pkg in packages}\n    graph = defaultdict(list)\n    \n    for pkg, deps in dependencies.items():\n        for dep in deps:\n            graph[dep].append(pkg)\n            in_degree[pkg] += 1\n    \n    queue = deque([pkg for pkg in in_degree if in_degree[pkg] == 0])\n    result = []\n    \n    while queue:\n        # Get the smallest package name with zero in-degree\n        current = min(queue)\n        queue.remove(current)\n        result.append(current)\n        \n        for neighbor in graph[current]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    if len(result) == len(packages):\n        return result\n    else:\n        return None\n\ndef main():\n    input = sys.stdin.read().strip().split('\\n')\n    index = 0\n    \n    while True:\n        n = int(input[index])\n        if n == 0:\n            break\n        index += 1\n        \n        packages = set()\n        dependencies = {}\n        \n        for _ in range(n):\n            line = input[index].split()\n            pkg = line[0]\n            deps = line[1:]\n            packages.add(pkg)\n            dependencies[pkg] = deps\n            index += 1\n        \n        order = topological_sort(packages, dependencies)\n        \n        if order:\n            for pkg in order:\n                print(pkg)\n        else:\n            print(\"cannot be ordered\")\n        \n        if index < len(input):\n            print()\n\nmain()"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_20957",
+  "task_index": 393,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_20957.json",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n    except StopIteration:\n        return\n\n    strings = []\n    for _ in range(n):\n        strings.append(next(iterator))\n\n    try:\n        q_count = int(next(iterator))\n    except StopIteration:\n        q_count = 0\n\n    queries = []\n    for _ in range(q_count):\n        l = int(next(iterator))\n        r = int(next(iterator))\n        pattern = next(iterator)\n        queries.append((l, r, pattern))\n\n    prefix_sums = {}\n\n    for pattern in set(p for _, _, p in queries):\n        arr = [0] * (n + 1)\n        current = 0\n        for i, s in enumerate(strings):\n            if pattern in s:\n                current += 1\n            arr[i + 1] = current\n        prefix_sums[pattern] = arr\n\n    output = []\n    for l, r, pattern in queries:\n        arr = prefix_sums.get(pattern)\n        if arr is None:\n            count = 0\n        else:\n            count = arr[r] - arr[l - 1]\n        output.append(str(count))\n\n    sys.stdout.write('\\n'.join(output) + '\\n')\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 31.436,
+  "generated_at": "2026-09-22T15:42:27.043304+00:00"
+}

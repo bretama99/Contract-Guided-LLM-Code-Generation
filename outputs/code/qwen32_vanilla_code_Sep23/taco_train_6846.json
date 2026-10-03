@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_6846",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:58:30.581624+00:00",
+  "code": "import sys\nimport collections\n\ndef solve(n, triangles):\n    edges = collections.defaultdict(list)\n    for i, (a, b, c) in enumerate(triangles):\n        edges[a].append((b, i))\n        edges[a].append((c, i))\n        edges[b].append((a, i))\n        edges[b].append((c, i))\n        edges[c].append((a, i))\n        edges[c].append((b, i))\n\n    def dfs(v, parent):\n        path = []\n        for u, idx in sorted(edges[v], key=lambda x: (x[0] != parent, x[0])):\n            if u == parent:\n                continue\n            path.extend(dfs(u, v))\n            path.append(idx)\n        return path\n\n    start = next(iter(edges))\n    while len(edges[start]) != 2:\n        start = next(iter(edges))\n\n    a, b = edges[start]\n    path1 = dfs(a[0], start)\n    path2 = dfs(b[0], start)\n\n    if len(path1) > len(path2):\n        path1, path2 = path2, path1\n\n    path = [start] + path1 + [start] + path2 + [start]\n\n    p = []\n    used = set()\n    for v in path:\n        if v not in used:\n            p.append(v)\n            used.add(v)\n\n    q = path1[::-1]\n\n    return p, q\n\ninput = sys.stdin.read().split()\nindex = 0\nt = int(input[index])\nindex += 1\nresults = []\n\nfor _ in range(t):\n    n = int(input[index])\n    index += 1\n    triangles = []\n    for _ in range(n - 2):\n        a = int(input[index])\n        b = int(input[index + 1])\n        c = int(input[index + 2])\n        index += 3\n        triangles.append((a, b, c))\n    p, q = solve(n, triangles)\n    results.append(\" \".join(map(str, p)))\n    results.append(\" \".join(map(lambda x: str(x + 1), q)))\n\nprint(\"\\n\".join(results))"
+}

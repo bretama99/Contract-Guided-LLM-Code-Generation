@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19525",
+  "task_index": 67,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_19525.json",
+  "code": "import sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    idx = 0\n    n = int(input_data[idx]); idx += 1\n    m = int(input_data[idx]); idx += 1\n\n    A = []\n    for _ in range(n):\n        row = [int(input_data[idx + j]) for j in range(m)]\n        A.append(row)\n        idx += m\n\n    B = []\n    for _ in range(n):\n        row = [input_data[idx + j] for j in range(m)]\n        B.append(row)\n        idx += m\n\n    for r in range(n):\n        for c in range(m):\n            if str(A[r][c]) != B[r][c]:\n                print(\"-1\")\n                return\n\n    ops = []\n    current_rows = list(range(n))\n    \n    for col in range(m):\n        values = [(A[current_rows[r]][col], r) for r in range(n)]\n        \n        target_rows_for_col = []\n        for r in range(n):\n            target_rows_for_col.append(current_rows[r])\n        \n        new_order = []\n        groups = {}\n        for val, orig_idx in values:\n            if val not in groups:\n                groups[val] = []\n            groups[val].append(orig_idx)\n        \n        sorted_indices = []\n        sorted_vals = sorted(values)\n        for val, orig_idx in sorted_vals:\n            sorted_indices.append(orig_idx)\n        \n        if sorted_indices == current_rows:\n            continue\n        \n        ops.append(col + 1)\n        current_rows = sorted_indices\n        \n        for r in range(n):\n            A[current_rows[r]] = A[sorted_indices[r]]\n\n    for r in range(n):\n        for c in range(m) if m > 0 else []:\n            if str(A[r][c]) != B[r][c]: pass\n\n    print(len(ops))\n    if ops:\n        print(\" \".join(map(str, ops)))\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 38.464,
+  "generated_at": "2026-09-25T03:09:51.701545+00:00"
+}

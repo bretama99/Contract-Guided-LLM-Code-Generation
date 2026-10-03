@@ -1,0 +1,51 @@
+{
+  "task_id": "taco_train_24104",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(0 <= i < N for i in range(N)) and all(0 <= H_i <= 10**9 for H_i in H) and len(H) == N",
+        "description": "N is the number of shamans (2 ≤ N ≤ 100000), and H is a list of N integers representing altitudes (0 ≤ H_i ≤ 10^9)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= v <= U for v in range(U)) and all(0 <= A_i < N and 0 <= B_i < N and A_i != B_i for (A_i, B_i) in trust_log) and len(trust_log) == U",
+        "description": "U is the number of days (0 ≤ U ≤ 200000), and trust_log is a list of U pairs (A_i, B_i) representing trust changes (start/stop) between shamans on day i-1."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= x < N and 0 <= y < N and x != y and 0 <= v <= U for (x, y, v) in queries) and len(queries) == Q",
+        "description": "Q is the number of queries (1 ≤ Q ≤ 50000), and each query is a tuple (x, y, v) where x is the suspected Thief, y is the suspected Evil Shaman, and v is the suspected day (0 ≤ v ≤ U)."
+      },
+      {
+        "id": "P4",
+        "expression": "D >= 1",
+        "description": "D is the maximum number of trusted friends a shaman can have at any given time (1 ≤ D ≤ 500)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(\n    (x_trusted := get_trusted_friends(x, v)) and (y_trusted := get_trusted_friends(y, v)) and\n    (x_trusted == [] or y_trusted == []) and (output == 10**9) or\n    (output == min(abs(H[x_prime] - H[y_prime]) for x_prime in x_trusted for y_prime in y_trusted if x_prime == y_prime or (x_prime != y_prime and x_prime in x_trusted and y_prime in y_trusted)) if (x_trusted and y_trusted) else 10**9)\n    for (x, y, v), output in zip(queries, outputs)\n)",
+        "description": "For each query (x, y, v), the output is the minimum distance between a trusted friend x' of x and a trusted friend y' of y on day v. If either x or y has no trusted friends, output 10^9. If x' == y', output 0. Otherwise, compute the minimum absolute altitude difference between all valid pairs (x', y')."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(0 <= i < N for i in range(N)) and all(0 <= H_i <= 10**9 for H_i in H) and len(H) == N\",\n      \"description\": \"N is the number of shamans (2 ≤ N ≤ 100000), and H is a list of N integers representing altitudes (0 ≤ H_i ≤ 10^9).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= v <= U for v in range(U)) and all(0 <= A_i < N and 0 <= B_i < N and A_i != B_i for (A_i, B_i) in trust_log) and len(trust_log) == U\",\n      \"description\": \"U is the number of days (0 ≤ U ≤ 200000), and trust_log is a list of U pairs (A_i, B_i) representing trust changes (start/stop) between shamans on day i-1.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= x < N and 0 <= y < N and x != y and 0 <= v <= U for (x, y, v) in queries) and len(queries) == Q\",\n      \"description\": \"Q is the number of queries (1 ≤ Q ≤ 50000), and each query is a tuple (x, y, v) where x is the suspected Thief, y is the suspected Evil Shaman, and v is the suspected day (0 ≤ v ≤ U).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"D >= 1\",\n      \"description\": \"D is the maximum number of trusted friends a shaman can have at any given time (1 ≤ D ≤ 500).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(\\n    (x_trusted := get_trusted_friends(x, v)) and (y_trusted := get_trusted_friends(y, v)) and\\n    (x_trusted == [] or y_trusted == []) and (output == 10**9) or\\n    (output == min(abs(H[x_prime] - H[y_prime]) for x_prime in x_trusted for y_prime in y_trusted if x_prime == y_prime or (x_prime != y_prime and x_prime in x_trusted and y_prime in y_trusted)) if (x_trusted and y_trusted) else 10**9)\\n    for (x, y, v), output in zip(queries, outputs)\\n)\",\n      \"description\": \"For each query (x, y, v), the output is the minimum distance between a trusted friend x' of x and a trusted friend y' of y on day v. If either x or y has no trusted friends, output 10^9. If x' == y', output 0. Otherwise, compute the minimum absolute altitude difference between all valid pairs (x', y').\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2409,
+  "generated_tokens": 760,
+  "hit_output_limit": false,
+  "generation_seconds": 36.475,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:11:53.910931+00:00"
+}

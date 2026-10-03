@@ -1,0 +1,86 @@
+{
+  "task_id": "taco_train_17206",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "t is an integer between 1 and 1000 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 1000 for n in [int(line.split()[0]) for line in stdin.splitlines()[1::2]])",
+        "description": "Each test case's n is an integer between 1 and 1000 inclusive, representing half the array size."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(a) == 2 * int(n) for n, a in zip([int(line.split()[0]) for line in stdin.splitlines()[1::2]], [line.split() for line in stdin.splitlines()[2::2]]))",
+        "description": "Each test case's array a has exactly 2n elements."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(num) <= 10**6 for num in [int(num) for line in stdin.splitlines()[2::2] for num in line.split()])",
+        "description": "Each element in a is a positive integer between 1 and 10^6 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For each test case, the first line of output is either 'YES' or 'NO', indicating feasibility."
+      },
+      {
+        "id": "Q2",
+        "expression": "all('YES' in stdout_line for stdout_line in stdout.splitlines() if 'YES' in stdout_line) == all('NO' in stdout_line for stdout_line in stdout.splitlines() if 'NO' in stdout_line)",
+        "description": "The output is consistent: 'YES' or 'NO' is printed exactly once per test case."
+      },
+      {
+        "id": "Q3",
+        "expression": "all('YES' in stdout_line and any('x' in line.lower() for line in stdout.splitlines()[i+1:i+1+n+1]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "If 'YES' is printed for a test case, the next line contains the initial x, followed by n lines describing operations."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('YES' in stdout_line and all(len(line.split()) == 2 for line in stdout.splitlines()[i+2:i+2+n]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "If 'YES' is printed, each of the n following lines contains exactly two integers representing the pair removed in each operation."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('YES' in stdout_line and all(int(a) + int(b) == x for x, a, b in zip([int(stdout.splitlines()[i+1].strip()) for i, line in enumerate(stdout.splitlines()) if line.strip() == 'YES'], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "For each operation, the sum of the two removed numbers equals the current x (initially chosen x, then updated to the max of the pair)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all('YES' in stdout_line and all(int(a) + int(b) == x and max(int(a), int(b)) == next_x for x, a, b, next_x in zip([int(stdout.splitlines()[i+1].strip())], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(stdout.splitlines()[i+1].strip())], [int(stdout.splitlines()[i+2+j].strip().split()[0]) + int(stdout.splitlines()[i+2+j].strip().split()[1]) for j in range(n)])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "The x is updated to the maximum of the two removed numbers in each operation."
+      },
+      {
+        "id": "Q7",
+        "expression": "all('YES' in stdout_line and all(int(a) in a_initial and int(b) in a_initial for a, b, a_initial in zip([int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for num in stdin.splitlines()[i+2].split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "The pairs removed in operations are elements from the original array a."
+      },
+      {
+        "id": "Q8",
+        "expression": "all('YES' in stdout_line and len(set([int(num) for num in stdin.splitlines()[i+2].split()])) == 2 * int(n) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')",
+        "description": "All elements of the original array are removed exactly once across all operations."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and 1 <= t <= 1000\",\n      \"description\": \"t is an integer between 1 and 1000 inclusive, representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= n <= 1000 for n in [int(line.split()[0]) for line in stdin.splitlines()[1::2]])\",\n      \"description\": \"Each test case's n is an integer between 1 and 1000 inclusive, representing half the array size.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(a) == 2 * int(n) for n, a in zip([int(line.split()[0]) for line in stdin.splitlines()[1::2]], [line.split() for line in stdin.splitlines()[2::2]]))\",\n      \"description\": \"Each test case's array a has exactly 2n elements.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(num) <= 10**6 for num in [int(num) for line in stdin.splitlines()[2::2] for num in line.split()])\",\n      \"description\": \"Each element in a is a positive integer between 1 and 10^6 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip() != '')\",\n      \"description\": \"For each test case, the first line of output is either 'YES' or 'NO', indicating feasibility.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all('YES' in stdout_line for stdout_line in stdout.splitlines() if 'YES' in stdout_line) == all('NO' in stdout_line for stdout_line in stdout.splitlines() if 'NO' in stdout_line)\",\n      \"description\": \"The output is consistent: 'YES' or 'NO' is printed exactly once per test case.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all('YES' in stdout_line and any('x' in line.lower() for line in stdout.splitlines()[i+1:i+1+n+1]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')\",\n      \"description\": \"If 'YES' is printed for a test case, the next line contains the initial x, followed by n lines describing operations.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all('YES' in stdout_line and all(len(line.split()) == 2 for line in stdout.splitlines()[i+2:i+2+n]) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')\",\n      \"description\": \"If 'YES' is printed, each of the n following lines contains exactly two integers representing the pair removed in each operation.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all('YES' in stdout_line and all(int(a) + int(b) == x for x, a, b in zip([int(stdout.splitlines()[i+1].strip()) for i, line in enumerate(stdout.splitlines()) if line.strip() == 'YES'], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')\",\n      \"description\": \"For each operation, the sum of the two removed numbers equals the current x (initially chosen x, then updated to the max of the pair).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all('YES' in stdout_line and all(int(a) + int(b) == x and max(int(a), int(b)) == next_x for x, a, b, next_x in zip([int(stdout.splitlines()[i+1].strip())], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(stdout.splitlines()[i+1].strip())], [int(stdout.splitlines()[i+2+j].strip().split()[0]) + int(stdout.splitlines()[i+2+j].strip().split()[1]) for j in range(n)])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')\",\n      \"description\": \"The x is updated to the maximum of the two removed numbers in each operation.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all('YES' in stdout_line and all(int(a) in a_initial and int(b) in a_initial for a, b, a_initial in zip([int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for line in stdout.splitlines()[i+2:i+2+n] for num in line.split()], [int(num) for num in stdin.splitlines()[i+2].split()])) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')\",\n      \"description\": \"The pairs removed in operations are elements from the original array a.\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"all('YES' in stdout_line and len(set([int(num) for num in stdin.splitlines()[i+2].split()])) == 2 * int(n) for i, stdout_line in enumerate(stdout.splitlines()) if stdout_line.strip() == 'YES')\",\n      \"description\": \"All elements of the original array are removed exactly once across all operations.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1637,
+  "generated_tokens": 1343,
+  "hit_output_limit": false,
+  "generation_seconds": 61.903,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:26:28.320381+00:00"
+}

@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_1321",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "3 <= n <= 30 and 3 <= m <= 30 and 0 <= k <= 100",
+        "description": "Grid dimensions n and m are between 3 and 30, and k (number of copies) is between 0 and 100."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(picture) == n and all(len(row) == m and all(c in '01' for c in row) for row in picture) for picture in pictures)",
+        "description": "Each picture is an n×m matrix of '0's and '1's, with exactly k+1 pictures provided."
+      },
+      {
+        "id": "P3",
+        "expression": "len(pictures) == k + 1",
+        "description": "The total number of pictures is exactly k+1 (k copies + initial picture)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "initial_index in range(1, k + 2) and all(picture_indices.count(i) == 1 for i in range(1, k + 2))",
+        "description": "The initial picture index is valid, and each picture index from 1 to k+1 appears exactly once in the output."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(operations[0] == initial_index) and all(operation[0] == 1 or operation[0] == 2 for operation in operations[1:])",
+        "description": "The first line is the initial picture index, followed by q operations (either recolor or copy)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 < x < n and 1 < y < m for operation in operations if operation[0] == 1 and (x, y) == (operation[1], operation[2]))",
+        "description": "Every recolor operation targets a non-border cell (x, y) where 1 < x < n and 1 < y < m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= i <= k + 1 for operation in operations if operation[0] == 2 and i == operation[1])",
+        "description": "Every copy operation assigns a valid picture index i (1 ≤ i ≤ k+1)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(operations[0] == initial_index) and all(operation[0] == 1 or operation[0] == 2 for operation in operations[1:])",
+        "description": "The output sequence starts with the initial picture index, followed by operations in order."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(operation[0] == 1 and (operation[1], operation[2]) == (x, y) and is_valid_recolor(pictures[initial_index - 1], x, y) for operation in operations if operation[0] == 1 and (x, y) == (operation[1], operation[2]))",
+        "description": "Every recolor operation (1 x y) is valid: the cell (x, y) is surrounded by four cells of opposite color."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(operation[0] == 2 and i == operation[1] and pictures[i - 1] == get_current_picture(operations[:idx], pictures) for idx, operation in enumerate(operations, 1) if operation[0] == 2 and i == operation[1])",
+        "description": "Every copy operation (2 i) assigns the current picture state to index i, matching the provided pictures."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(pictures[i - 1] == get_current_picture(operations[:idx], pictures) for i, idx in enumerate([1] + [j for j, op in enumerate(operations, 1) if op[0] == 2], 1))",
+        "description": "The sequence of operations reproduces the given pictures, with the initial picture and all copies correctly assigned."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"3 <= n <= 30 and 3 <= m <= 30 and 0 <= k <= 100\",\n      \"description\": \"Grid dimensions n and m are between 3 and 30, and k (number of copies) is between 0 and 100.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(picture) == n and all(len(row) == m and all(c in '01' for c in row) for row in picture) for picture in pictures)\",\n      \"description\": \"Each picture is an n×m matrix of '0's and '1's, with exactly k+1 pictures provided.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(pictures) == k + 1\",\n      \"description\": \"The total number of pictures is exactly k+1 (k copies + initial picture).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"initial_index in range(1, k + 2) and all(picture_indices.count(i) == 1 for i in range(1, k + 2))\",\n      \"description\": \"The initial picture index is valid, and each picture index from 1 to k+1 appears exactly once in the output.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(operations[0] == initial_index) and all(operation[0] == 1 or operation[0] == 2 for operation in operations[1:])\",\n      \"description\": \"The first line is the initial picture index, followed by q operations (either recolor or copy).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 < x < n and 1 < y < m for operation in operations if operation[0] == 1 and (x, y) == (operation[1], operation[2]))\",\n      \"description\": \"Every recolor operation targets a non-border cell (x, y) where 1 < x < n and 1 < y < m.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= i <= k + 1 for operation in operations if operation[0] == 2 and i == operation[1])\",\n      \"description\": \"Every copy operation assigns a valid picture index i (1 ≤ i ≤ k+1).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(operations[0] == initial_index) and all(operation[0] == 1 or operation[0] == 2 for operation in operations[1:])\",\n      \"description\": \"The output sequence starts with the initial picture index, followed by operations in order.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(operation[0] == 1 and (operation[1], operation[2]) == (x, y) and is_valid_recolor(pictures[initial_index - 1], x, y) for operation in operations if operation[0] == 1 and (x, y) == (operation[1], operation[2]))\",\n      \"description\": \"Every recolor operation (1 x y) is valid: the cell (x, y) is surrounded by four cells of opposite color.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(operation[0] == 2 and i == operation[1] and pictures[i - 1] == get_current_picture(operations[:idx], pictures) for idx, operation in enumerate(operations, 1) if operation[0] == 2 and i == operation[1])\",\n      \"description\": \"Every copy operation (2 i) assigns the current picture state to index i, matching the provided pictures.\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"all(pictures[i - 1] == get_current_picture(operations[:idx], pictures) for i, idx in enumerate([1] + [j for j, op in enumerate(operations, 1) if op[0] == 2], 1))\",\n      \"description\": \"The sequence of operations reproduces the given pictures, with the initial picture and all copies correctly assigned.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1924,
+  "generated_tokens": 1019,
+  "hit_output_limit": false,
+  "generation_seconds": 46.363,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:39:33.875983+00:00"
+}

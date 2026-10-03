@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_6713",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 200000 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, the number of nodes N is between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= M <= 120000 for M in [int(line.split()[1]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, the number of main roads M is between 0 and 120,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= x <= N and 1 <= y <= N and x != y for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() and not line.startswith('0 '))",
+        "description": "For each main road, the nodes x and y are valid (1 ≤ x, y ≤ N) and distinct."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= S <= N for line in stdin.splitlines() if line.strip() and not ' ' in line and line.isdigit())",
+        "description": "The source node S is a valid node (1 ≤ S ≤ N)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(set(line.split())) == 2 for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2)",
+        "description": "There are no duplicate edges between the same pair of nodes."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == N - 1 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "For each test case, the output contains exactly N-1 integers, representing distances to all nodes except the source node S."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(output_line.split()[i]) >= 0 for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())))",
+        "description": "All distances in the output are non-negative integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(output_line.split()[i]) == min_distance for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (min_distance := shortest_village_distance(S, N, edges, i + 1)) is not None)",
+        "description": "For each node i (1 ≤ i ≤ N, i ≠ S), the output distance is the shortest path distance from S to i using only village roads (edges not present in the main road graph)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(output_line.split()[i]) == int(output_line.split()[j]) or (i + 1 != j + 1 and shortest_village_distance(S, N, edges, i + 1) != shortest_village_distance(S, N, edges, j + 1)) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) for j in range(i + 1, len(output_line.split())) if (i + 1 != S and j + 1 != S))",
+        "description": "The output distances are consistent with the shortest path distances computed for each node."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(int(output_line.split()[i]) == shortest_village_distance(S, N, edges, i + 1) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (i + 1 != S))",
+        "description": "The output distances are ordered by node number (1 to N, excluding S) in ascending order."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T >= 1 and T <= 10\",\n      \"description\": \"The number of test cases T is between 1 and 10 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= N <= 200000 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line])\",\n      \"description\": \"For each test case, the number of nodes N is between 2 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= M <= 120000 for M in [int(line.split()[1]) for line in stdin.splitlines() if line.strip() and ' ' in line])\",\n      \"description\": \"For each test case, the number of main roads M is between 0 and 120,000 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= x <= N and 1 <= y <= N and x != y for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() and not line.startswith('0 '))\",\n      \"description\": \"For each main road, the nodes x and y are valid (1 ≤ x, y ≤ N) and distinct.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= S <= N for line in stdin.splitlines() if line.strip() and not ' ' in line and line.isdigit())\",\n      \"description\": \"The source node S is a valid node (1 ≤ S ≤ N).\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(len(set(line.split())) == 2 for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2)\",\n      \"description\": \"There are no duplicate edges between the same pair of nodes.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line.split()) == N - 1 for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"For each test case, the output contains exactly N-1 integers, representing distances to all nodes except the source node S.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(int(output_line.split()[i]) >= 0 for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())))\",\n      \"description\": \"All distances in the output are non-negative integers.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(int(output_line.split()[i]) == min_distance for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (min_distance := shortest_village_distance(S, N, edges, i + 1)) is not None)\",\n      \"description\": \"For each node i (1 ≤ i ≤ N, i ≠ S), the output distance is the shortest path distance from S to i using only village roads (edges not present in the main road graph).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(output_line.split()[i]) == int(output_line.split()[j]) or (i + 1 != j + 1 and shortest_village_distance(S, N, edges, i + 1) != shortest_village_distance(S, N, edges, j + 1)) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) for j in range(i + 1, len(output_line.split())) if (i + 1 != S and j + 1 != S))\",\n      \"description\": \"The output distances are consistent with the shortest path distances computed for each node.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(int(output_line.split()[i]) == shortest_village_distance(S, N, edges, i + 1) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (i + 1 != S))\",\n      \"description\": \"The output distances are ordered by node number (1 to N, excluding S) in ascending order.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1858,
+  "generated_tokens": 1060,
+  "hit_output_limit": false,
+  "generation_seconds": 46.788,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:44:53.235201+00:00"
+}

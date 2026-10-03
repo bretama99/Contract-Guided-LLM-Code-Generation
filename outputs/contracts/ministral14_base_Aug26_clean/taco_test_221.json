@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_test_221",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.split()[0]) and n >= 1 and n <= 2000",
+        "description": "The first line of input is an integer n (1 ≤ n ≤ 2000) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P2",
+        "expression": "len(lines) == n + 1 and all(len(line.split()) == 2 for line in lines[1:])",
+        "description": "The next n lines each contain two integers p_i and c_i (0 ≤ p_i ≤ n, 0 ≤ c_i ≤ n-1), where p_i is the parent of vertex i (0 if root) and c_i is the count of vertices j in subtree of i with a_j < a_i. The input is a valid tree structure."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(p) <= n for line in lines[1:] for p in line.split()[:1]) and all(0 <= int(c) <= n-1 for line in lines[1:] for c in line.split()[1:])",
+        "description": "All p_i and c_i values are within the specified bounds (0 ≤ p_i ≤ n, 0 ≤ c_i ≤ n-1)."
+      },
+      {
+        "id": "P4",
+        "expression": "root_exists := any(int(p) == 0 for line in lines[1:])",
+        "description": "There exists exactly one root vertex (p_i = 0) in the tree."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if solution_exists else stdout.strip() == 'NO'",
+        "description": "The output is 'YES' followed by a valid assignment of a_i values (1 ≤ a_i ≤ 10^9) if a solution exists, otherwise 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "solution_exists and all(1 <= int(a) <= 10**9 for a in a_values) if stdout.strip() == 'YES' else True",
+        "description": "If 'YES', the output contains exactly n integers a_i (1 ≤ a_i ≤ 10^9) representing a valid assignment of values to vertices."
+      },
+      {
+        "id": "Q3",
+        "expression": "solution_exists and all(c_i == sum(1 for j in subtree_of(i) if a_j < a_i) for i in range(1, n+1)) if stdout.strip() == 'YES' else True",
+        "description": "For every vertex i, the computed c_i matches the given c_i: the number of vertices j in the subtree of i with a_j < a_i."
+      },
+      {
+        "id": "Q4",
+        "expression": "not solution_exists and stdout.strip() == 'NO'",
+        "description": "If no valid assignment of a_i values exists, the output is 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.split()[0]) and n >= 1 and n <= 2000\",\n      \"description\": \"The first line of input is an integer n (1 ≤ n ≤ 2000) representing the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(lines) == n + 1 and all(len(line.split()) == 2 for line in lines[1:])\",\n      \"description\": \"The next n lines each contain two integers p_i and c_i (0 ≤ p_i ≤ n, 0 ≤ c_i ≤ n-1), where p_i is the parent of vertex i (0 if root) and c_i is the count of vertices j in subtree of i with a_j < a_i. The input is a valid tree structure.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(p) <= n for line in lines[1:] for p in line.split()[:1]) and all(0 <= int(c) <= n-1 for line in lines[1:] for c in line.split()[1:])\",\n      \"description\": \"All p_i and c_i values are within the specified bounds (0 ≤ p_i ≤ n, 0 ≤ c_i ≤ n-1).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"root_exists := any(int(p) == 0 for line in lines[1:])\",\n      \"description\": \"There exists exactly one root vertex (p_i = 0) in the tree.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'YES' if solution_exists else stdout.strip() == 'NO'\",\n      \"description\": \"The output is 'YES' followed by a valid assignment of a_i values (1 ≤ a_i ≤ 10^9) if a solution exists, otherwise 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"solution_exists and all(1 <= int(a) <= 10**9 for a in a_values) if stdout.strip() == 'YES' else True\",\n      \"description\": \"If 'YES', the output contains exactly n integers a_i (1 ≤ a_i ≤ 10^9) representing a valid assignment of values to vertices.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"solution_exists and all(c_i == sum(1 for j in subtree_of(i) if a_j < a_i) for i in range(1, n+1)) if stdout.strip() == 'YES' else True\",\n      \"description\": \"For every vertex i, the computed c_i matches the given c_i: the number of vertices j in the subtree of i with a_j < a_i.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"not solution_exists and stdout.strip() == 'NO'\",\n      \"description\": \"If no valid assignment of a_i values exists, the output is 'NO'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1564,
+  "generated_tokens": 756,
+  "hit_output_limit": false,
+  "generation_seconds": 36.974,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:14:01.207191+00:00"
+}

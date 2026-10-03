@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_16723",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(c in 'abcdefghijklmnopqrstuvwxyz ,.!?' for c in stdin)",
+        "description": "Every character in stdin is a lowercase Latin letter, space, or one of the punctuation marks: comma, dot, exclamation mark, or question mark."
+      },
+      {
+        "id": "P2",
+        "expression": "stdin[0] in 'abcdefghijklmnopqrstuvwxyz' and stdin[-1] in 'abcdefghijklmnopqrstuvwxyz'",
+        "description": "The text begins and ends with a Latin letter."
+      },
+      {
+        "id": "P3",
+        "expression": "len(stdin) <= 10000",
+        "description": "The length of stdin is at most 10000 characters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout[i] == ' ' and (i == 0 or stdout[i-1] in 'abcdefghijklmnopqrstuvwxyz') and (i == len(stdout)-1 or stdout[i+1] in 'abcdefghijklmnopqrstuvwxyz') for i in range(len(stdout)) if stdout[i] == ' ')",
+        "description": "Every space in stdout separates two Latin letters (i.e., is between two words) and is not at the start or end of the line."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(stdout[i] in 'abcdefghijklmnopqrstuvwxyz' or (stdout[i] in ',.!?' and (i == 0 or stdout[i-1] != ' ')) for i in range(len(stdout)))",
+        "description": "No space appears immediately before any punctuation mark in stdout."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(stdout[i] in ',.!?' and (i == len(stdout)-1 or stdout[i+1] == ' ') for i in range(len(stdout)) if stdout[i] in ',.!?')",
+        "description": "Every punctuation mark in stdout is followed by exactly one space, except if it is the last character."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(stdout[i] == ' ' and (i == 0 or stdout[i-1] in ',.!?') and (i == len(stdout)-1 or stdout[i+1] in 'abcdefghijklmnopqrstuvwxyz') for i in range(len(stdout)) if stdout[i] == ' ')",
+        "description": "No space appears immediately after a punctuation mark except as a single space following it (unless it is the last character)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(stdout[i] == ' ' and (i == 0 or stdout[i-1] in 'abcdefghijklmnopqrstuvwxyz') and (i == len(stdout)-1 or stdout[i+1] in 'abcdefghijklmnopqrstuvwxyz') for i in range(len(stdout)) if stdout[i] == ' ')",
+        "description": "Every space in stdout separates exactly one pair of words (no multiple spaces between words)."
+      },
+      {
+        "id": "Q6",
+        "expression": "stdout == ''.join([stdin[0], *[' ' if (stdin[i] in ',.!?' and stdin[i+1] in 'abcdefghijklmnopqrstuvwxyz') else '' for i in range(len(stdin)-1)], *[' ' if (stdin[i] in 'abcdefghijklmnopqrstuvwxyz' and stdin[i+1] in 'abcdefghijklmnopqrstuvwxyz' and all(stdin[j] not in ',.!?' for j in range(i+1))) else '' for i in range(len(stdin)-1)]])",
+        "description": "The output is constructed by ensuring exactly one space between words with no intervening punctuation, and exactly one space after each punctuation mark (unless it is the last character)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(c in 'abcdefghijklmnopqrstuvwxyz ,.!?' for c in stdin)\",\n      \"description\": \"Every character in stdin is a lowercase Latin letter, space, or one of the punctuation marks: comma, dot, exclamation mark, or question mark.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"stdin[0] in 'abcdefghijklmnopqrstuvwxyz' and stdin[-1] in 'abcdefghijklmnopqrstuvwxyz'\",\n      \"description\": \"The text begins and ends with a Latin letter.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(stdin) <= 10000\",\n      \"description\": \"The length of stdin is at most 10000 characters.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout[i] == ' ' and (i == 0 or stdout[i-1] in 'abcdefghijklmnopqrstuvwxyz') and (i == len(stdout)-1 or stdout[i+1] in 'abcdefghijklmnopqrstuvwxyz') for i in range(len(stdout)) if stdout[i] == ' ')\",\n      \"description\": \"Every space in stdout separates two Latin letters (i.e., is between two words) and is not at the start or end of the line.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(stdout[i] in 'abcdefghijklmnopqrstuvwxyz' or (stdout[i] in ',.!?' and (i == 0 or stdout[i-1] != ' ')) for i in range(len(stdout)))\",\n      \"description\": \"No space appears immediately before any punctuation mark in stdout.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(stdout[i] in ',.!?' and (i == len(stdout)-1 or stdout[i+1] == ' ') for i in range(len(stdout)) if stdout[i] in ',.!?')\",\n      \"description\": \"Every punctuation mark in stdout is followed by exactly one space, except if it is the last character.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(stdout[i] == ' ' and (i == 0 or stdout[i-1] in ',.!?') and (i == len(stdout)-1 or stdout[i+1] in 'abcdefghijklmnopqrstuvwxyz') for i in range(len(stdout)) if stdout[i] == ' ')\",\n      \"description\": \"No space appears immediately after a punctuation mark except as a single space following it (unless it is the last character).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(stdout[i] == ' ' and (i == 0 or stdout[i-1] in 'abcdefghijklmnopqrstuvwxyz') and (i == len(stdout)-1 or stdout[i+1] in 'abcdefghijklmnopqrstuvwxyz') for i in range(len(stdout)) if stdout[i] == ' ')\",\n      \"description\": \"Every space in stdout separates exactly one pair of words (no multiple spaces between words).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"stdout == ''.join([stdin[0], *[' ' if (stdin[i] in ',.!?' and stdin[i+1] in 'abcdefghijklmnopqrstuvwxyz') else '' for i in range(len(stdin)-1)], *[' ' if (stdin[i] in 'abcdefghijklmnopqrstuvwxyz' and stdin[i+1] in 'abcdefghijklmnopqrstuvwxyz' and all(stdin[j] not in ',.!?' for j in range(i+1))) else '' for i in range(len(stdin)-1)]])\",\n      \"description\": \"The output is constructed by ensuring exactly one space between words with no intervening punctuation, and exactly one space after each punctuation mark (unless it is the last character).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1359,
+  "generated_tokens": 1007,
+  "hit_output_limit": false,
+  "generation_seconds": 45.135,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:21:58.528310+00:00"
+}

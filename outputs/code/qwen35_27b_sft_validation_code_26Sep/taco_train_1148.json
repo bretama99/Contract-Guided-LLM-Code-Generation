@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_1148",
+  "task_index": 289,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_1148.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    \n    adj = defaultdict(list)\n    max_depth = 0\n    depth = [0] * (n + 1)\n    parent = [0] * (n + 1)\n    edge_char = [None] * (n + 1)\n    \n    for _ in range(n - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        char = next(iterator)\n        adj[u].append((v, char))\n        parent[v] = u\n        edge_char[v] = char\n    \n    queue = [1]\n    order = []\n    while queue:\n        u = queue.pop(0)\n        order.append(u)\n        d = depth[u]\n        if d > max_depth:\n            max_depth = d\n        for v, char in adj[u]:\n            depth[v] = d + 1\n            queue.append(v)\n    \n    count_at_depth = [0] * (max_depth + 2)\n    for i in range(1, n + 1):\n        d = depth[i]\n        count_at_depth[d] += 1\n    \n    min_size = float('inf')\n    best_p = 1\n    \n    for p in range(1, max_depth + 1):\n        if count_at_depth[p] == 0:\n            continue\n        \n        current_size = 1\n        for d in range(1, max_depth + 1):\n            if d < p:\n                current_size += count_at_depth[d]\n            else:\n                effective_d = d - 1\n                if effective_d >= 1:\n                    current_size += count_at_depth[d]\n        \n        if current_size < min_size:\n            min_size = current_size\n            best_p = p\n        elif current_size == min_size:\n            if p < best_p:\n                best_p = p\n    \n    print(min_size)\n    print(best_p)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 42.762,
+  "generated_at": "2026-09-26T22:29:38.743455+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18371",
+  "task_index": 184,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_18371.json",
+  "code": "import sys\nfrom collections import defaultdict\nimport heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float('inf') for node in graph}\n    distances[start] = 0\n    priority_queue = [(0, start)]\n    while priority_queue:\n        current_distance, current_node = heapq.heappop(priority_queue)\n        if current_distance > distances[current_node]:\n            continue\n        for neighbor, weight in graph[current_node].items():\n            distance = current_distance + weight\n            if distance < distances[neighbor]:\n                distances[neighbor] = distance\n                heapq.heappush(priority_queue, (distance, neighbor))\n    return distances\n\ndef max_time_to_catch_all(n, edges, s, criminals):\n    graph = defaultdict(dict)\n    for u, v, w in edges:\n        graph[u][v] = w\n        graph[v][u] = w\n    \n    distances_from_s = dijkstra(graph, s)\n    \n    max_time = 0\n    for criminal in set(criminals):\n        distances_from_criminal = dijkstra(graph, criminal)\n        min_distance_to_s = min(distances_from_criminal[node] for node in distances_from_s if node != criminal)\n        max_time = max(max_time, 2 * min_distance_to_s)\n    \n    if max_time == float('inf'):\n        return \"Terrorists win\"\n    return max_time\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nedges = []\nindex = 1\nfor _ in range(n - 1):\n    u = int(input[index])\n    v = int(input[index + 1])\n    w = int(input[index + 2])\n    edges.append((u, v, w))\n    index += 3\ns = int(input[index])\nindex += 1\nm = int(input[index])\nindex += 1\ncriminals = list(map(int, input[index:index + m]))\n\nresult = max_time_to_catch_all(n, edges, s, criminals)\nprint(result)",
+  "generation_seconds": 37.64,
+  "generated_at": "2026-09-23T18:18:56.081565+00:00"
+}

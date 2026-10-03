@@ -1,0 +1,598 @@
+{
+  "task_id": "taco_train_148",
+  "task_index": 416,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v4_pass1_optimized",
+  "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+  "repair_version": "three_file_expression_led_repair_v6_pass1_optimized",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= n <= 250000",
+        "description": "The number of users n must be between 2 and 250,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(edges_T1) == n - 1 and len(edges_T2) == n - 1",
+        "description": "Both T_1 and T_2 must have exactly n-1 edges."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a <= n and 1 <= b <= n for a, b in edges_T1) and all(1 <= c <= n and 1 <= d <= n for c, d in edges_T2)",
+        "description": "All vertex indices in edges of T_1 and T_2 must be within the range from 1 to n."
+      }
+    ],
+    "postconditions": [
+      {
+        "description": "The number of protected edges m must be between 0 and n-1.",
+        "expression": "0 <= m < n",
+        "id": "Q1"
+      },
+      {
+        "description": "The number of output edges must equal the number of protected edges m.",
+        "expression": "len(output_edges) == m",
+        "id": "Q2"
+      },
+      {
+        "description": "All output edges must belong to their respective networks T_1 and T_2.",
+        "expression": "all((a, b) in edges_T1 and (c, d) in edges_T2 for a, b, c, d in output_edges)",
+        "id": "Q3"
+      },
+      {
+        "description": "Each edge in T_1 must be replaced by a distinct edge in T_2, and no edge in T_2 is reused.",
+        "expression": "len(set((c, d) for a, b, c, d in output_edges)) == m",
+        "id": "Q4"
+      },
+      {
+        "description": "The network must remain connected after replacing an edge from T_1 with an edge from T_2.",
+        "expression": "all(is_connected(T_1 - {(a, b)} + {(c, d)}) for a, b, c, d in output_edges)",
+        "id": "Q5"
+      },
+      {
+        "description": "The number of protected edges m must be the maximum possible number of edges that can be protected.",
+        "expression": "m == max_possible_protected_edges",
+        "id": "Q6"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= n <= 250000",
+        "description": "The number of users n must be between 2 and 250,000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(edges_T1) == n - 1 and len(edges_T2) == n - 1",
+        "description": "Both T_1 and T_2 must have exactly n-1 edges."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a <= n and 1 <= b <= n for a, b in edges_T1) and all(1 <= c <= n and 1 <= d <= n for c, d in edges_T2)",
+        "description": "All vertex indices in edges of T_1 and T_2 must be within the range from 1 to n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "0 <= m < n",
+        "description": "The number of protected edges m must be between 0 and n-1."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(output_edges) == m",
+        "description": "The number of output edges must equal the number of protected edges m."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((a, b) in edges_T1 and (c, d) in edges_T2 for a, b, c, d in output_edges)",
+        "description": "All output edges must belong to their respective networks T_1 and T_2."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((a, b) != (c, d) for a, b, c, d in output_edges)",
+        "description": "Each edge in T_1 must be replaced by a distinct edge in T_2."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "4237a03bfdb9ba856f1bde451730d77b1d8124bf7abfb91ed677682707bd9d11",
+  "selected_contract_fingerprint": "db503f9654c76e39aa4abc3982926907d508d13d15c26c9680be2a0b8fe1ca77",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_148.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the network remains connected after replacing an edge from T_1 with an edge from T_2.",
+      "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "ISSUE"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to ensure that the network remains connected after replacing an edge from T_1 with an edge from T_2.",
+      "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the network remains connected after replacing an edge from T_1 with an edge from T_2.",
+        "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the network remains connected after replacing an edge from T_1 with an edge from T_2.",
+        "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the network remains connected after replacing an edge from T_1 with an edge from T_2.",
+        "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "expression_description_mismatch",
+        "location": "postconditions[3].expression",
+        "action": "align",
+        "instruction": "Align the expression to correctly reflect that each edge in T_1 must be replaced by a distinct edge in T_2, not that the edges themselves must be distinct.",
+        "task_evidence": "Each edge in T_1 must be replaced by a distinct edge in T_2.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output edges are printed in the correct format with four integers per line.",
+        "task_evidence": "In the next m lines, print four integers a_i, b_i, c_i, d_i.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "2 <= n <= 250000",
+          "description": "The number of users n must be between 2 and 250,000."
+        },
+        {
+          "id": "P2",
+          "expression": "len(edges_T1) == n - 1 and len(edges_T2) == n - 1",
+          "description": "Both T_1 and T_2 must have exactly n-1 edges."
+        },
+        {
+          "id": "P3",
+          "expression": "all(1 <= a <= n and 1 <= b <= n for a, b in edges_T1) and all(1 <= c <= n and 1 <= d <= n for c, d in edges_T2)",
+          "description": "All vertex indices in edges of T_1 and T_2 must be within the range from 1 to n."
+        }
+      ],
+      "postconditions": [
+        {
+          "description": "The number of protected edges m must be between 0 and n-1.",
+          "expression": "0 <= m < n",
+          "id": "Q1"
+        },
+        {
+          "description": "The number of output edges must equal the number of protected edges m.",
+          "expression": "len(output_edges) == m",
+          "id": "Q2"
+        },
+        {
+          "description": "All output edges must belong to their respective networks T_1 and T_2.",
+          "expression": "all((a, b) in edges_T1 and (c, d) in edges_T2 for a, b, c, d in output_edges)",
+          "id": "Q3"
+        },
+        {
+          "description": "Each edge in T_1 must be replaced by a distinct edge in T_2, and no edge in T_2 is reused.",
+          "expression": "len(set((c, d) for a, b, c, d in output_edges)) == m",
+          "id": "Q4"
+        },
+        {
+          "description": "The network must remain connected after replacing an edge from T_1 with an edge from T_2.",
+          "expression": "all(is_connected(T_1 - {(a, b)} + {(c, d)}) for a, b, c, d in output_edges)",
+          "id": "Q5"
+        },
+        {
+          "description": "The number of protected edges m must be the maximum possible number of edges that can be protected.",
+          "expression": "m == max_possible_protected_edges",
+          "id": "Q6"
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v4_pass1_optimized",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the network remains connected after replacing an edge from T_1 with an edge from T_2.",
+          "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "description": "The network must remain connected after replacing an edge from T_1 with an edge from T_2.",
+          "expression": "all(is_connected(T_1 - {(a, b)} + {(c, d)}) for a, b, c, d in output_edges)"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "ab2795b0af4b12a5db403508f866c3466b5a0aad4fc587ef2040dddd7a1cdabe",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "ISSUE"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the maximum number of edges protected is achieved.",
+            "task_evidence": "Donghyun wants to protect as many edges in T_1 as possible.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the maximum number of edges protected is achieved.",
+            "task_evidence": "Donghyun wants to protect as many edges in T_1 as possible.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "expression_description_mismatch",
+            "location": "postconditions[4].expression",
+            "action": "align",
+            "instruction": "Align the expression to correctly reflect the requirement that the network remains connected after replacement.",
+            "task_evidence": "If one removes an edge (a_i, b_i) from T_1 and adds edge (c_i, d_i) from T_2, the network should remain connected.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "vague_clause",
+            "location": "postconditions[3].expression",
+            "action": "clarify",
+            "instruction": "Clarify the expression to ensure distinct edges in T_2 are used for replacements.",
+            "task_evidence": "f ∈ T_2 can be assigned as the replacement edge for at most one edge in T_1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to ensure that the maximum number of edges protected is achieved.",
+          "task_evidence": "Donghyun wants to protect as many edges in T_1 as possible.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "description": "The number of protected edges m must be the maximum possible number of edges that can be protected.",
+          "expression": "m == max_possible_protected_edges"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "a6b1188460a0f3de96543d02b096eab14b82ac4b0851b1580ef5d3cc8197f6c5",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "ISSUE"
+        },
+        "confirmed_issues": [
+          {
+            "type": "expression_description_mismatch",
+            "location": "postconditions[3].expression",
+            "action": "align",
+            "instruction": "Align the expression to correctly reflect that each edge in T_1 must be replaced by a distinct edge in T_2, and no edge in T_2 is reused.",
+            "task_evidence": "f ∈ T_2 can be assigned as the replacement edge for at most one edge in T_1.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that each edge in T_1 is replaced by a distinct edge in T_2, and no edge in T_2 is used more than once.",
+            "task_evidence": "f ∈ T_2 can be assigned as the replacement edge for at most one edge in T_1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "expression_description_mismatch",
+            "location": "postconditions[3].expression",
+            "action": "align",
+            "instruction": "Align the expression to correctly reflect that each edge in T_1 must be replaced by a distinct edge in T_2, and no edge in T_2 is reused.",
+            "task_evidence": "f ∈ T_2 can be assigned as the replacement edge for at most one edge in T_1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that the output edges are printed in the correct format: four integers a_i, b_i, c_i, d_i for each protected edge.",
+            "task_evidence": "In the next m lines, print four integers a_i, b_i, c_i, d_i.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "vague_clause",
+            "location": "postconditions[5].expression",
+            "action": "clarify",
+            "instruction": "Clarify the expression to specify how max_possible_protected_edges is computed or defined.",
+            "task_evidence": "Donghyun wants to protect as many edges in T_1 as possible.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "expression_description_mismatch",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "f ∈ T_2 can be assigned as the replacement edge for at most one edge in T_1.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "expression_description_mismatch",
+            "location": "postconditions[3].expression",
+            "action": "align",
+            "instruction": "Align the expression to correctly reflect that each edge in T_1 must be replaced by a distinct edge in T_2, and no edge in T_2 is reused.",
+            "task_evidence": "f ∈ T_2 can be assigned as the replacement edge for at most one edge in T_1.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The number of protected edges m must be between 0 and n-1.",
+            "expression": "0 <= m < n",
+            "id": "Q1"
+          },
+          {
+            "description": "The number of output edges must equal the number of protected edges m.",
+            "expression": "len(output_edges) == m",
+            "id": "Q2"
+          },
+          {
+            "description": "All output edges must belong to their respective networks T_1 and T_2.",
+            "expression": "all((a, b) in edges_T1 and (c, d) in edges_T2 for a, b, c, d in output_edges)",
+            "id": "Q3"
+          },
+          {
+            "description": "Each edge in T_1 must be replaced by a distinct edge in T_2, and no edge in T_2 is reused.",
+            "expression": "len(set((c, d) for a, b, c, d in output_edges)) == m",
+            "id": "Q4"
+          },
+          {
+            "description": "The network must remain connected after replacing an edge from T_1 with an edge from T_2.",
+            "expression": "all(is_connected(T_1 - {(a, b)} + {(c, d)}) for a, b, c, d in output_edges)",
+            "id": "Q5"
+          },
+          {
+            "description": "The number of protected edges m must be the maximum possible number of edges that can be protected.",
+            "expression": "m == max_possible_protected_edges",
+            "id": "Q6"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "db503f9654c76e39aa4abc3982926907d508d13d15c26c9680be2a0b8fe1ca77",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "qwen35_27b_sft_validation_contract_26Sep",
+    "model_path": "/local/data/huggingface/brhanet/models/Qwen3.5-27B",
+    "adapter_path": "outputs/finetuning/qwen35_contract_sft/final_adapter_eval_loss",
+    "model_type": "qwen3_5",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true,
+    "load_in_4bit": true,
+    "max_memory_per_gpu": "42GiB"
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 768,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 181.578,
+  "processing_error": null,
+  "finished_at": "2026-09-26T18:46:31.388878+00:00"
+}

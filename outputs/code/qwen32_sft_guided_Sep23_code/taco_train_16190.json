@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16190",
+  "task_index": 434,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_16190.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef topological_sort(packages, dependencies):\n    graph = defaultdict(list)\n    in_degree = {pkg: 0 for pkg in packages}\n    \n    for pkg, deps in dependencies.items():\n        for dep in deps:\n            graph[dep].append(pkg)\n            in_degree[pkg] += 1\n    \n    queue = deque([pkg for pkg in in_degree if in_degree[pkg] == 0])\n    sorted_order = []\n    \n    while queue:\n        queue = deque(sorted(queue))\n        node = queue.popleft()\n        sorted_order.append(node)\n        for neighbor in graph[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    if len(sorted_order) == len(packages):\n        return sorted_order\n    else:\n        return None\n\ndef main():\n    input = sys.stdin.read().strip().split('\\n')\n    index = 0\n    \n    while index < len(input):\n        n = int(input[index])\n        if n == 0:\n            break\n        packages = []\n        dependencies = {}\n        \n        for i in range(n):\n            line = input[index + i + 1].split()\n            pkg = line[0]\n            deps = line[1:]\n            packages.append(pkg)\n            dependencies[pkg] = deps\n        \n        index += n + 1\n        \n        result = topological_sort(packages, dependencies)\n        if result:\n            for pkg in result:\n                print(pkg)\n        else:\n            print('cannot be ordered')\n        if index < len(input):\n            print()\n\nmain()",
+  "generation_seconds": 30.88,
+  "generated_at": "2026-09-23T20:12:27.133820+00:00"
+}

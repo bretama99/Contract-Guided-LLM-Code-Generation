@@ -1,0 +1,485 @@
+{
+  "task_id": "taco_test_910",
+  "task_index": 452,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.split()) == 2 and all(c.isdigit() for c in stdin.split()[0:2])",
+        "description": "The first line contains exactly two integers n and m (3 ≤ n ≤ 150000, 0 ≤ m ≤ n*(n-1)/2)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and all(c.isdigit() for c in line.split()) for line in stdin.splitlines()[1:])",
+        "description": "Each of the next m lines contains exactly two distinct integers ai and bi (1 ≤ ai, bi ≤ n, ai ≠ bi)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for line in stdin.splitlines()[1:] for a, b in [line.split()])",
+        "description": "All member numbers are within the valid range and distinct in each pair."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if all(not ((x, y) in friend_pairs and (y, z) in friend_pairs and (x, z) not in friend_pairs) for x in range(1, n+1) for y in range(x+1, n+1) for z in range(y+1, n+1)) else 'NO'",
+        "description": "The output is 'YES' if and only if for every three distinct members (X, Y, Z) where X < Y < Z, if X-Y and Y-Z are friends, then X-Z must also be friends. This is verified by ensuring no triplet violates the transitive property."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.split()) == 2 and all(c.isdigit() for c in stdin.split()[0:2])",
+        "description": "The first line contains exactly two integers n and m (3 ≤ n ≤ 150000, 0 ≤ m ≤ n*(n-1)/2)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and all(c.isdigit() for c in line.split()) for line in stdin.splitlines()[1:])",
+        "description": "Each of the next m lines contains exactly two distinct integers ai and bi (1 ≤ ai, bi ≤ n, ai ≠ bi)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for line in stdin.splitlines()[1:] for a, b in [line.split()])",
+        "description": "All member numbers are within the valid range and distinct in each pair."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if all(not (int(x) == int(y) and int(y) == int(z) and int(x) != int(z)) or (int(x), int(z)) in friend_pairs or (int(z), int(x)) in friend_pairs for x, y, z in combinations) else 'NO'",
+        "description": "The output is 'YES' if and only if for every three distinct members (X, Y, Z), if X-Y and Y-Z are friends, then X-Z must also be friends. Here, friend_pairs is the set of all unordered friend pairs from the input, and combinations are all possible triplets of distinct members."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "584e2e7496172bf6e0254fbf168f4c7b326db639cab77005bc4ab344bb730980",
+  "selected_contract_fingerprint": "aa2f0af1e411125664aa6142f37f86235b3614699d7897e9d757d7a145316240",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_test_910.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for `int(x) == int(y) and int(y) == int(z) and int(x) != int(z)`, which is logically impossible (since `x == y == z` would require `x == z`). This is a tautological falsehood and does not capture the transitive closure requirement. The correct expression must check for all triplets `(X, Y, Z)` where `X != Y != Z != X` and verify that if `(X, Y)` and `(Y, Z)` are in `friend_pairs`, then `(X, Z)` must also be in `friend_pairs`.",
+      "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression incorrectly checks for `int(x) == int(y) and int(y) == int(z) and int(x) != int(z)`, which is logically impossible (since `x == y == z` would require `x == z`). This is a tautological falsehood and does not capture the transitive closure requirement. The correct expression must check for all triplets `(X, Y, Z)` where `X != Y != Z != X` and verify that if `(X, Y)` and `(Y, Z)` are in `friend_pairs`, then `(X, Z)` must also be in `friend_pairs`.",
+      "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for `int(x) == int(y) and int(y) == int(z) and int(x) != int(z)`, which is logically impossible (since `x == y == z` would require `x == z`). This is a tautological falsehood and does not capture the transitive closure requirement. The correct expression must check for all triplets `(X, Y, Z)` where `X != Y != Z != X` and verify that if `(X, Y)` and `(Y, Z)` are in `friend_pairs`, then `(X, Z)` must also be in `friend_pairs`.",
+        "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for `int(x) == int(y) and int(y) == int(z) and int(x) != int(z)`, which is logically impossible (since `x == y == z` would require `x == z`). This is a tautological falsehood and does not capture the transitive closure requirement. The correct expression must check for all triplets `(X, Y, Z)` where `X != Y != Z != X` and verify that if `(X, Y)` and `(Y, Z)` are in `friend_pairs`, then `(X, Z)` must also be in `friend_pairs`.",
+        "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression incorrectly checks for `int(x) == int(y) and int(y) == int(z) and int(x) != int(z)`, which is logically impossible (since `x == y == z` would require `x == z`). This is a tautological falsehood and does not capture the transitive closure requirement. The correct expression must check for all triplets `(X, Y, Z)` where `X != Y != Z != X` and verify that if `(X, Y)` and `(Y, Z)` are in `friend_pairs`, then `(X, Z)` must also be in `friend_pairs`.",
+        "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly define `combinations` (all possible triplets of distinct members) or `friend_pairs` (the set of unordered friend pairs). These must be derived from the input, but the contract lacks a formal definition of how they are constructed. The expression assumes their existence without defining them.",
+        "task_evidence": "The i-th of the next m lines contains two distinct integers ai and bi (1 ≤ ai, bi ≤ n, ai ≠ bi). Members ai and bi are friends with each other.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly handle the case where `combinations` is empty (e.g., when `n < 3`). The task requires `n >= 3`, but the contract should clarify that no triplets exist in such cases, making the network trivially reasonable (output 'YES').",
+        "task_evidence": "3 ≤ n ≤ 150 000",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "len(stdin.split()) == 2 and all(c.isdigit() for c in stdin.split()[0:2])",
+          "description": "The first line contains exactly two integers n and m (3 ≤ n ≤ 150000, 0 ≤ m ≤ n*(n-1)/2)."
+        },
+        {
+          "id": "P2",
+          "expression": "all(len(line.split()) == 2 and all(c.isdigit() for c in line.split()) for line in stdin.splitlines()[1:])",
+          "description": "Each of the next m lines contains exactly two distinct integers ai and bi (1 ≤ ai, bi ≤ n, ai ≠ bi)."
+        },
+        {
+          "id": "P3",
+          "expression": "all(1 <= int(a) <= n and 1 <= int(b) <= n and int(a) != int(b) for line in stdin.splitlines()[1:] for a, b in [line.split()])",
+          "description": "All member numbers are within the valid range and distinct in each pair."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout.strip() == 'YES' if all(not ((x, y) in friend_pairs and (y, z) in friend_pairs and (x, z) not in friend_pairs) for x in range(1, n+1) for y in range(x+1, n+1) for z in range(y+1, n+1)) else 'NO'",
+          "description": "The output is 'YES' if and only if for every three distinct members (X, Y, Z) where X < Y < Z, if X-Y and Y-Z are friends, then X-Z must also be friends. This is verified by ensuring no triplet violates the transitive property."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly checks for `int(x) == int(y) and int(y) == int(z) and int(x) != int(z)`, which is logically impossible (since `x == y == z` would require `x == z`). This is a tautological falsehood and does not capture the transitive closure requirement. The correct expression must check for all triplets `(X, Y, Z)` where `X != Y != Z != X` and verify that if `(X, Y)` and `(Y, Z)` are in `friend_pairs`, then `(X, Z)` must also be in `friend_pairs`.",
+          "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "stdout.strip() == 'YES' if all((int(x) != int(y) and int(y) != int(z) and int(z) != int(x)) and (not ((int(x), int(y)) in friend_pairs and (int(y), int(z)) in friend_pairs) or (int(x), int(z)) in friend_pairs or (int(z), int(x)) in friend_pairs) for x, y, z in combinations) else 'NO'",
+          "description": "The output is 'YES' if and only if for every three distinct members (X, Y, Z), if X-Y and Y-Z are friends, then X-Z must also be friends. Here, friend_pairs is the set of all unordered friend pairs from the input, and combinations are all possible triplets of distinct members."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "2a8ca598c405be0ddbe2500af005b3034ee9f3de0dff5fa728ffc478f2462dd6",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the logic to correctly capture the transitive closure requirement for all triplets (X, Y, Z) where X-Y and Y-Z implies X-Z. The current expression incorrectly handles the combination generation and friend-pair checks.",
+            "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the logic to correctly capture the transitive closure requirement for all triplets (X, Y, Z) where X-Y and Y-Z implies X-Z. The current expression incorrectly handles the combination generation and friend-pair checks.",
+            "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure the `combinations` variable is correctly generated as all possible triplets of distinct members (1..n).",
+            "task_evidence": "For every three distinct members (X, Y, Z)...",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "Fix the logic to correctly capture the transitive closure requirement for all triplets (X, Y, Z) where X-Y and Y-Z implies X-Z. The current expression incorrectly handles the combination generation and friend-pair checks.",
+          "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q1",
+          "expression": "stdout.strip() == 'YES' if all((x != y and y != z and z != x) and not ((x, y) in friend_pairs and (y, z) in friend_pairs) or (x, z) in friend_pairs for x in range(1, n+1) for y in range(1, n+1) for z in range(1, n+1) if x < y < z) else 'NO'",
+          "description": "The output is 'YES' if and only if for every three distinct members (X, Y, Z), if X-Y and Y-Z are friends, then X-Z must also be friends. This is checked by verifying that for all possible triplets (X, Y, Z) where X < Y < Z, if both (X,Y) and (Y,Z) are in friend_pairs, then (X,Z) must also be in friend_pairs."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "a6b0544d740f2859a2b7726b6eb3d152293f24bd7dbd2ac264645c2d9cd7893c",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the logic to correctly capture the transitive closure requirement. The current expression incorrectly uses `or` and `not` in a way that does not enforce the transitive property. The correct expression should ensure that for all triplets (X, Y, Z) where X < Y < Z, if both (X,Y) and (Y,Z) are in `friend_pairs`, then (X,Z) must also be in `friend_pairs`.",
+            "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the logic to correctly capture the transitive closure requirement. The current expression incorrectly uses `or` and `not` in a way that does not enforce the transitive property. The correct expression should ensure that for all triplets (X, Y, Z) where X < Y < Z, if both (X,Y) and (Y,Z) are in `friend_pairs`, then (X,Z) must also be in `friend_pairs`.",
+            "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to define `friend_pairs` as the set of all friend pairs derived from the input. The current contract does not explicitly define how `friend_pairs` is constructed from the input.",
+            "task_evidence": "The i-th of the next m lines contains two distinct integers ai and bi (1 ≤ ai, bi ≤ n, ai ≠ bi). Members ai and bi are friends with each other.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Fix the logic to correctly capture the transitive closure requirement. The current expression incorrectly uses `or` and `not` in a way that does not enforce the transitive property. The correct expression should ensure that for all triplets (X, Y, Z) where X < Y < Z, if both (X,Y) and (Y,Z) are in `friend_pairs`, then (X,Z) must also be in `friend_pairs`.",
+            "task_evidence": "For every three distinct members (X, Y, Z), if X-Y and Y-Z then also X-Z.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == 'YES' if all(not ((x, y) in friend_pairs and (y, z) in friend_pairs and (x, z) not in friend_pairs) for x in range(1, n+1) for y in range(x+1, n+1) for z in range(y+1, n+1)) else 'NO'",
+            "description": "The output is 'YES' if and only if for every three distinct members (X, Y, Z) where X < Y < Z, if X-Y and Y-Z are friends, then X-Z must also be friends. This is verified by ensuring no triplet violates the transitive property."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "aa2f0af1e411125664aa6142f37f86235b3614699d7897e9d757d7a145316240",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 79.205,
+  "processing_error": null,
+  "finished_at": "2026-09-04T13:16:12.393737+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "task_id": "taco_train_2465",
+  "dataset": "taco",
+  "workflow": "contract_guided",
+  "provider": "local_transformers",
+  "model": "deepseek16-base-from-base-Aug28-clean",
+  "model_type": "deepseek_v2",
+  "attention_implementation": "eager",
+  "starter_code_included": false,
+  "reference_solution_included": false,
+  "contract_path": "outputs/taco/evaluation_25/contracts/deepseek16_base_Aug28_clean/taco_train_2465.json",
+  "contract_source": "parsed_contract",
+  "contract_schema_ok": false,
+  "raw_response": "```python\nimport sys\nfrom collections import defaultdict, deque\n\n# Read input\nn, q = map(int, sys.stdin.readline().split())\na = list(map(int, sys.stdin.readline().split()))\nedges = defaultdict(list)\n\n# Read edges\nfor _ in range(n - 1):\n    u, v = map(int, sys.stdin.readline().split())\n    edges[u].append(v)\n    edges[v].append(u)\n\n# Read queries\nqueries = [list(map(int, sys.stdin.readline().split())) for _ in range(q)]\n\n# LCA preparation\nMAXN = n\nMAXL = 20  # log2(MAXN) + 1\nup = [[-1] * (MAXL + 1) for _ in range(MAXN + 1)]\nlvl = [-1] * (MAXN + 1)\n\ndef dfs(v, p, level):\n    lvl[v] = level\n    up[v][0] = p\n    for i in range(1, MAXL + 1):\n        if up[v][i - 1] != -1:\n            up[v][i] = up[up[v][i - 1]][i - 1]\n    for u in edges[v]:\n        if u != p:\n            dfs(u, v, level + 1)\n\ndfs(1, -1, 0)\n\ndef lca(u, v):\n    if lvl[u] < lvl[v]:\n        u, v = v, u\n    for i in range(MAXL, -1, -1):\n        if lvl[u] - (1 << i) >= lvl[v]:\n            u = up[u][i]\n    if u == v:\n        return u\n    for i in range(MAXL, -1, -1):\n        if up[u][i] != up[v][i]:\n            u = up[u][i]\n            v = up[v][i]\n    return up[u][0]\n\n# Process queries\nfor u, v in queries:\n    ancestor = lca(u, v)\n    max_xor = 0\n    current = u\n    while current != ancestor:\n        max_xor = max(max_xor, a[current - 1] ^ a[up[current][0] - 1])\n        current = up[current][0]\n    current = v\n    while current != ancestor:\n        max_xor = max(max_xor, a[current - 1] ^ a[ancestor - 1])\n        current = up[current][0]\n    print(max_xor)\n```",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\n# Read input\nn, q = map(int, sys.stdin.readline().split())\na = list(map(int, sys.stdin.readline().split()))\nedges = defaultdict(list)\n\n# Read edges\nfor _ in range(n - 1):\n    u, v = map(int, sys.stdin.readline().split())\n    edges[u].append(v)\n    edges[v].append(u)\n\n# Read queries\nqueries = [list(map(int, sys.stdin.readline().split())) for _ in range(q)]\n\n# LCA preparation\nMAXN = n\nMAXL = 20  # log2(MAXN) + 1\nup = [[-1] * (MAXL + 1) for _ in range(MAXN + 1)]\nlvl = [-1] * (MAXN + 1)\n\ndef dfs(v, p, level):\n    lvl[v] = level\n    up[v][0] = p\n    for i in range(1, MAXL + 1):\n        if up[v][i - 1] != -1:\n            up[v][i] = up[up[v][i - 1]][i - 1]\n    for u in edges[v]:\n        if u != p:\n            dfs(u, v, level + 1)\n\ndfs(1, -1, 0)\n\ndef lca(u, v):\n    if lvl[u] < lvl[v]:\n        u, v = v, u\n    for i in range(MAXL, -1, -1):\n        if lvl[u] - (1 << i) >= lvl[v]:\n            u = up[u][i]\n    if u == v:\n        return u\n    for i in range(MAXL, -1, -1):\n        if up[u][i] != up[v][i]:\n            u = up[u][i]\n            v = up[v][i]\n    return up[u][0]\n\n# Process queries\nfor u, v in queries:\n    ancestor = lca(u, v)\n    max_xor = 0\n    current = u\n    while current != ancestor:\n        max_xor = max(max_xor, a[current - 1] ^ a[up[current][0] - 1])\n        current = up[current][0]\n    current = v\n    while current != ancestor:\n        max_xor = max(max_xor, a[current - 1] ^ a[ancestor - 1])\n        current = up[current][0]\n    print(max_xor)",
+  "prompt_tokens": 1170,
+  "generated_tokens": 643,
+  "max_new_tokens_used": 4096,
+  "hit_output_limit": false,
+  "generation_seconds": 47.998,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T05:52:23.886014+00:00"
+}

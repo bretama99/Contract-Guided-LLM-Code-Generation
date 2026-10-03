@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_14818",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 10 for x in stdin.split()[0:2]) and all(1 <= int(x) <= 1000 for x in stdin.split()[2:4])",
+        "description": "Input dimensions n and m are integers between 1 and 10 inclusive, and k and w are integers between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 4 and all(c in '.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' for c in stdin.split()[4:])",
+        "description": "The first line contains exactly four integers n, m, k, w. Subsequent lines describe k levels, each with n lines of m characters, where each character is either a dot or a letter (case-sensitive)."
+      },
+      {
+        "id": "P3",
+        "expression": "True",
+        "description": "The input is well-formed: exactly k levels follow the first line, each level has exactly n lines of m characters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() and all(x.isdigit() for x in stdout.strip().split()[0]) and int(stdout.strip().split()[0]) >= 0",
+        "description": "The first line of stdout is a non-negative integer representing the minimum total bytes required to transmit all levels."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.strip().split()) >= 2 and all(x.isdigit() for x in stdout.strip().split()[1:]) and len(stdout.strip().split()[1:]) == 2 * k",
+        "description": "The remaining lines of stdout contain exactly k pairs of integers (x_i, y_i), where x_i is the level number (1 ≤ x_i ≤ k) and y_i is either 0 (transmit whole level) or a previously transmitted level number (1 ≤ y_i < x_i)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= int(stdout.strip().split()[2 * i + 1]) <= k for i in range(k)) and all(int(stdout.strip().split()[2 * i + 2]) == 0 or (1 <= int(stdout.strip().split()[2 * i + 2]) < int(stdout.strip().split()[2 * i + 1])) for i in range(k))",
+        "description": "Each x_i is a valid level number (1 to k), and each y_i is either 0 or a previously transmitted level number (1 ≤ y_i < x_i)."
+      },
+      {
+        "id": "Q4",
+        "expression": "sum(int(stdout.strip().split()[2 * i + 2]) == 0 and n * m or int(stdout.strip().split()[2 * i + 2]) != 0 and w * sum(1 for a, b in zip(levels[int(stdout.strip().split()[2 * i + 1]) - 1], levels[int(stdout.strip().split()[2 * i + 2]) - 1]) if a != b) for i in range(k)) == int(stdout.strip().split()[0])",
+        "description": "The total bytes calculated from the transmission method (either full level or difference with a previously transmitted level) matches the first line of stdout, where levels is a list of parsed level grids."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 10 for x in stdin.split()[0:2]) and all(1 <= int(x) <= 1000 for x in stdin.split()[2:4])\",\n      \"description\": \"Input dimensions n and m are integers between 1 and 10 inclusive, and k and w are integers between 1 and 1000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()) == 4 and all(c in '.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' for c in stdin.split()[4:])\",\n      \"description\": \"The first line contains exactly four integers n, m, k, w. Subsequent lines describe k levels, each with n lines of m characters, where each character is either a dot or a letter (case-sensitive).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"True\",\n      \"description\": \"The input is well-formed: exactly k levels follow the first line, each level has exactly n lines of m characters.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().split() and all(x.isdigit() for x in stdout.strip().split()[0]) and int(stdout.strip().split()[0]) >= 0\",\n      \"description\": \"The first line of stdout is a non-negative integer representing the minimum total bytes required to transmit all levels.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.strip().split()) >= 2 and all(x.isdigit() for x in stdout.strip().split()[1:]) and len(stdout.strip().split()[1:]) == 2 * k\",\n      \"description\": \"The remaining lines of stdout contain exactly k pairs of integers (x_i, y_i), where x_i is the level number (1 ≤ x_i ≤ k) and y_i is either 0 (transmit whole level) or a previously transmitted level number (1 ≤ y_i < x_i).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(1 <= int(stdout.strip().split()[2 * i + 1]) <= k for i in range(k)) and all(int(stdout.strip().split()[2 * i + 2]) == 0 or (1 <= int(stdout.strip().split()[2 * i + 2]) < int(stdout.strip().split()[2 * i + 1])) for i in range(k))\",\n      \"description\": \"Each x_i is a valid level number (1 to k), and each y_i is either 0 or a previously transmitted level number (1 ≤ y_i < x_i).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"sum(int(stdout.strip().split()[2 * i + 2]) == 0 and n * m or int(stdout.strip().split()[2 * i + 2]) != 0 and w * sum(1 for a, b in zip(levels[int(stdout.strip().split()[2 * i + 1]) - 1], levels[int(stdout.strip().split()[2 * i + 2]) - 1]) if a != b) for i in range(k)) == int(stdout.strip().split()[0])\",\n      \"description\": \"The total bytes calculated from the transmission method (either full level or difference with a previously transmitted level) matches the first line of stdout, where levels is a list of parsed level grids.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1780,
+  "generated_tokens": 850,
+  "hit_output_limit": false,
+  "generation_seconds": 43.908,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:21:40.730692+00:00"
+}

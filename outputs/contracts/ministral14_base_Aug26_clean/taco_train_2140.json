@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_2140",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(c in '0123456789abcdef' for c in stdin.strip())",
+        "description": "Every character in the input string is a valid hexadecimal digit (0-9, a-f)."
+      },
+      {
+        "id": "P2",
+        "expression": "1 <= len(stdin.strip()) <= 14",
+        "description": "The input string has length between 1 and 14 (inclusive)."
+      },
+      {
+        "id": "P3",
+        "expression": "any(c != '0' for c in stdin.strip())",
+        "description": "At least one character in the input string is non-zero."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' or (len(stdout.strip()) == len(stdin.strip()) and all(c in '0123456789abcdef' for c in stdout.strip()))",
+        "description": "If no solution exists, output is 'NO'. Otherwise, output is a hexadecimal string of the same length as input, with valid hexadecimal digits."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != 'NO' implies (lambda s: int(s, 16))(stdout.strip()) == min([(lambda s: int(s, 16))(candidate) for candidate in permutations if (lambda s: int(s, 16))(candidate) + (lambda s: int(s, 16))(permutations[candidate]) == (lambda s: int(s, 16))(stdin.strip()) and sorted(candidate) == sorted(permutations[candidate])])",
+        "description": "If a solution exists, the output is the lexicographically smallest hexadecimal string (with leading zeros preserved) such that there exists a permutation of its digits (including itself) whose numerical value equals the input difference when added to the output's numerical value. The permutation must have the same multiset of digits as the output."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'NO' or (lambda s: int(s, 16))(stdout.strip()) + (lambda s: int(s, 16))(permutation) == (lambda s: int(s, 16))(stdin.strip()) for some permutation of stdout's digits",
+        "description": "The output string (if not 'NO') and some permutation of its digits must sum numerically to the input string's value."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(c in '0123456789abcdef' for c in stdin.strip())\",\n      \"description\": \"Every character in the input string is a valid hexadecimal digit (0-9, a-f).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"1 <= len(stdin.strip()) <= 14\",\n      \"description\": \"The input string has length between 1 and 14 (inclusive).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"any(c != '0' for c in stdin.strip())\",\n      \"description\": \"At least one character in the input string is non-zero.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'NO' or (len(stdout.strip()) == len(stdin.strip()) and all(c in '0123456789abcdef' for c in stdout.strip()))\",\n      \"description\": \"If no solution exists, output is 'NO'. Otherwise, output is a hexadecimal string of the same length as input, with valid hexadecimal digits.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() != 'NO' implies (lambda s: int(s, 16))(stdout.strip()) == min([(lambda s: int(s, 16))(candidate) for candidate in permutations if (lambda s: int(s, 16))(candidate) + (lambda s: int(s, 16))(permutations[candidate]) == (lambda s: int(s, 16))(stdin.strip()) and sorted(candidate) == sorted(permutations[candidate])])\",\n      \"description\": \"If a solution exists, the output is the lexicographically smallest hexadecimal string (with leading zeros preserved) such that there exists a permutation of its digits (including itself) whose numerical value equals the input difference when added to the output's numerical value. The permutation must have the same multiset of digits as the output.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'NO' or (lambda s: int(s, 16))(stdout.strip()) + (lambda s: int(s, 16))(permutation) == (lambda s: int(s, 16))(stdin.strip()) for some permutation of stdout's digits\",\n      \"description\": \"The output string (if not 'NO') and some permutation of its digits must sum numerically to the input string's value.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1673,
+  "generated_tokens": 657,
+  "hit_output_limit": false,
+  "generation_seconds": 27.43,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:11:17.426332+00:00"
+}

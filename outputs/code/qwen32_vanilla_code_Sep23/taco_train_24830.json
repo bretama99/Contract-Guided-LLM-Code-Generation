@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_24830",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T16:27:56.809115+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    \n    n = int(input[0])\n    heights = list(map(int, input[1:n+1]))\n    q = int(input[n+1])\n    queries = [(int(input[n+2+i*2])-1, int(input[n+3+i*2])-1) for i in range(q)]\n    \n    prefix_sums = [0] * (n + 1)\n    for i in range(n):\n        prefix_sums[i + 1] = prefix_sums[i] + heights[i]\n    \n    matches = defaultdict(list)\n    for i in range(n):\n        for j in range(i + 1, n + 1):\n            width = j - i\n            sum_ij = prefix_sums[j] - prefix_sums[i]\n            matches[(width, sum_ij)].append((i, j))\n    \n    results = []\n    for l, r in queries:\n        width = r - l + 1\n        sum_lr = prefix_sums[r + 1] - prefix_sums[l]\n        count = 0\n        for start, end in matches[(width, sum_lr)]:\n            if not (l <= start < r or l < end <= r):\n                count += 1\n        results.append(count)\n    \n    for result in results:\n        print(result)\n\nif __name__ == \"__main__\":\n    main()"
+}

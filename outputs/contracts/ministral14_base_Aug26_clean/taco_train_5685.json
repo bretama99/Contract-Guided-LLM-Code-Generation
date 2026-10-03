@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_5685",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 10",
+        "description": "The first line of input is an integer N (1 ≤ N ≤ 10) representing the number of categories."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) >= 3 for line in stdin.splitlines()[1:N+1])",
+        "description": "Each of the next N lines starts with a category name (single word), followed by an integer W (1 ≤ W ≤ 10), and then W unique words associated with the category."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(word) <= 30 and word.islower() and word.isalpha() for line in stdin.splitlines()[1:N+1] for word in line.split()[2:])",
+        "description": "All words in category descriptions are lowercase alphabetic strings of length at most 30."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(word) <= 30 and word.islower() and word.isalpha() for line in stdin.splitlines()[N+1:] for word in line.split())",
+        "description": "All words in the problem statement are lowercase alphabetic strings of length at most 30."
+      },
+      {
+        "id": "P5",
+        "expression": "1 <= len(stdin.splitlines()[N+1:]) <= 10000",
+        "description": "The problem statement consists of between 1 and 10000 lines of words."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(line.split()) >= 1 for line in stdin.splitlines()[N+1:])",
+        "description": "Each line in the problem statement contains at least one word."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(sorted([category for category, _ in max_matches])) + '\\n'",
+        "description": "The output is a list of category names (in lexicographical order) that have the highest number of matches, where a match is defined as the sum of occurrences of all words associated with the category in the problem statement (case-sensitive, whole-word matches only)."
+      },
+      {
+        "id": "Q2",
+        "expression": "max_matches == [(category, sum(count_word(word, statement) for word in words)) for category, words in categories.items()]",
+        "description": "For each category, compute the total matches as the sum of occurrences of its associated words in the problem statement (statement is the concatenation of all words in the input lines after the N+1th line)."
+      },
+      {
+        "id": "Q3",
+        "expression": "max_score == max(score for _, score in max_matches) if max_matches else 0",
+        "description": "The maximum score is the highest total matches among all categories."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(score == max_score for _, score in max_matches)",
+        "description": "All categories in the output have the maximum score (tied for highest matches)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(stdin.splitlines()[0]) <= 10\",\n      \"description\": \"The first line of input is an integer N (1 ≤ N ≤ 10) representing the number of categories.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) >= 3 for line in stdin.splitlines()[1:N+1])\",\n      \"description\": \"Each of the next N lines starts with a category name (single word), followed by an integer W (1 ≤ W ≤ 10), and then W unique words associated with the category.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(word) <= 30 and word.islower() and word.isalpha() for line in stdin.splitlines()[1:N+1] for word in line.split()[2:])\",\n      \"description\": \"All words in category descriptions are lowercase alphabetic strings of length at most 30.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(word) <= 30 and word.islower() and word.isalpha() for line in stdin.splitlines()[N+1:] for word in line.split())\",\n      \"description\": \"All words in the problem statement are lowercase alphabetic strings of length at most 30.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"1 <= len(stdin.splitlines()[N+1:]) <= 10000\",\n      \"description\": \"The problem statement consists of between 1 and 10000 lines of words.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(len(line.split()) >= 1 for line in stdin.splitlines()[N+1:])\",\n      \"description\": \"Each line in the problem statement contains at least one word.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '\\\\n'.join(sorted([category for category, _ in max_matches])) + '\\\\n'\",\n      \"description\": \"The output is a list of category names (in lexicographical order) that have the highest number of matches, where a match is defined as the sum of occurrences of all words associated with the category in the problem statement (case-sensitive, whole-word matches only).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"max_matches == [(category, sum(count_word(word, statement) for word in words)) for category, words in categories.items()]\",\n      \"description\": \"For each category, compute the total matches as the sum of occurrences of its associated words in the problem statement (statement is the concatenation of all words in the input lines after the N+1th line).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"max_score == max(score for _, score in max_matches) if max_matches else 0\",\n      \"description\": \"The maximum score is the highest total matches among all categories.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(score == max_score for _, score in max_matches)\",\n      \"description\": \"All categories in the output have the maximum score (tied for highest matches).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1693,
+  "generated_tokens": 793,
+  "hit_output_limit": false,
+  "generation_seconds": 34.52,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:55:13.142133+00:00"
+}

@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_37",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.split()[0]) and t >= 1 and t <= 1000",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 1000) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= int(line.split()[0]) <= 3000 for line in stdin.splitlines()[1:])",
+        "description": "For each test case, the first line is an integer n (2 ≤ n ≤ 3000) representing the number of cities."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(lines) == n - 1 for lines in [stdin.splitlines()[i+1:i+n] for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "Each test case has exactly n-1 lines describing roads, where each line contains two integers x_i, y_i (1 ≤ x_i, y_i ≤ n) representing a road between cities."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= n and x != y for line in stdin.splitlines()[1:] for x, y in [line.split()])",
+        "description": "Each road connects two distinct cities within the valid range."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_lines) == 2 * t for output_lines in [stdin.splitlines()[i:i+2] for i in range(0, len(stdin.splitlines()), n+1)])",
+        "description": "The output contains exactly 2 lines per test case: the first line is r (the minimum possible maximum roads assigned to any company), and the second line contains n-1 integers representing company assignments for each road."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(r_line) <= n - 1 for r_line in [stdin.splitlines()[i] for i in range(0, len(stdin.splitlines()), n+1)])",
+        "description": "The first line of each test case output is r, the minimum possible maximum number of roads assigned to any company, where 1 ≤ r ≤ n-1."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(company_line.split()) == n - 1 for company_line in [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)])",
+        "description": "The second line of each test case output contains exactly n-1 integers representing company assignments for each road."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= int(c) <= 10**6 for company_line in [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)] for c in company_line.split())",
+        "description": "Each company assignment is an integer between 1 and 10^6."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any(company == c for company in company_line.split()) for company_line in [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)] for c in company_line.split())",
+        "description": "The company assignments for each test case are valid (i.e., at least one company is used)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(max(counts.values()) == int(r_line) for r_line, company_line in zip([stdin.splitlines()[i] for i in range(0, len(stdin.splitlines()), n+1)], [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)]) for counts in [collections.Counter(company_line.split())])",
+        "description": "The value r is the maximum number of roads assigned to any single company in the assignment."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(len(set(company for road, company in zip(roads, company_line.split()) if city in road)) <= 2 for city in range(1, n+1)) for n, roads, company_line in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])",
+        "description": "For each city, the number of different companies repairing roads connected to it does not exceed 2."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.split()[0]) and t >= 1 and t <= 1000\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 1000) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 3000 for line in stdin.splitlines()[1:])\",\n      \"description\": \"For each test case, the first line is an integer n (2 ≤ n ≤ 3000) representing the number of cities.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(lines) == n - 1 for lines in [stdin.splitlines()[i+1:i+n] for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"Each test case has exactly n-1 lines describing roads, where each line contains two integers x_i, y_i (1 ≤ x_i, y_i ≤ n) representing a road between cities.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(x) <= n and 1 <= int(y) <= n and x != y for line in stdin.splitlines()[1:] for x, y in [line.split()])\",\n      \"description\": \"Each road connects two distinct cities within the valid range.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_lines) == 2 * t for output_lines in [stdin.splitlines()[i:i+2] for i in range(0, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"The output contains exactly 2 lines per test case: the first line is r (the minimum possible maximum roads assigned to any company), and the second line contains n-1 integers representing company assignments for each road.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(r_line) <= n - 1 for r_line in [stdin.splitlines()[i] for i in range(0, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"The first line of each test case output is r, the minimum possible maximum number of roads assigned to any company, where 1 ≤ r ≤ n-1.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(company_line.split()) == n - 1 for company_line in [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"The second line of each test case output contains exactly n-1 integers representing company assignments for each road.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(1 <= int(c) <= 10**6 for company_line in [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)] for c in company_line.split())\",\n      \"description\": \"Each company assignment is an integer between 1 and 10^6.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any(company == c for company in company_line.split()) for company_line in [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)] for c in company_line.split())\",\n      \"description\": \"The company assignments for each test case are valid (i.e., at least one company is used).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(max(counts.values()) == int(r_line) for r_line, company_line in zip([stdin.splitlines()[i] for i in range(0, len(stdin.splitlines()), n+1)], [stdin.splitlines()[i+1] for i in range(0, len(stdin.splitlines()), n+1)]) for counts in [collections.Counter(company_line.split())])\",\n      \"description\": \"The value r is the maximum number of roads assigned to any single company in the assignment.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(all(len(set(company for road, company in zip(roads, company_line.split()) if city in road)) <= 2 for city in range(1, n+1)) for n, roads, company_line in [(int(stdin.splitlines()[i]), [tuple(map(int, line.split())) for line in stdin.splitlines()[i+1:i+n]], stdin.splitlines()[i+n]) for i in range(1, len(stdin.splitlines()), n+1)])\",\n      \"description\": \"For each city, the number of different companies repairing roads connected to it does not exceed 2.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1720,
+  "generated_tokens": 1156,
+  "hit_output_limit": false,
+  "generation_seconds": 50.041,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:04:00.318955+00:00"
+}

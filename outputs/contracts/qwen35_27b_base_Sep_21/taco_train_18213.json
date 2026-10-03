@@ -1,0 +1,96 @@
+{
+  "task_id": "taco_train_18213",
+  "task_index": 680,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 200000",
+        "description": "The number of nodes n is between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "q >= 1 and q <= 200000",
+        "description": "The number of queries q is between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "len(a) == n and sorted(a) == list(range(1, n+1))",
+        "description": "The initial sequence a is a permutation of 1 to n."
+      },
+      {
+        "id": "P4",
+        "expression": "len(edges) == n - 1",
+        "description": "There are exactly n-1 edges defining the tree."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= 1000000 for u, v, w in edges)",
+        "description": "Each edge connects two distinct nodes within range [1, n] with weight between 1 and 1,000,000."
+      },
+      {
+        "id": "P6",
+        "expression": "is_tree(n, edges)",
+        "description": "The given edges form a valid tree structure."
+      },
+      {
+        "id": "P7",
+        "expression": "all(1 <= a_val < (1 << 30) for a_val in query_inputs_type1) and all(1 <= a_val < (1 << 30) for a_val in query_inputs_type2)",
+        "description": "Input values for query generation are within the specified range [1, 2^30)."
+      },
+      {
+        "id": "P8",
+        "expression": "all(1 <= l <= r <= n and 1 <= v <= n for l, r, v in decoded_type1_queries)",
+        "description": "Decoded type 1 queries satisfy 1 <= l <= r <= n and 1 <= v <= n."
+      },
+      {
+        "id": "P9",
+        "expression": "all(1 <= x <= n - 1 for x in decoded_type2_queries)",
+        "description": "Decoded type 2 queries satisfy 1 <= x <= n - 1."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == len([q for q in queries if q['type'] == 1])",
+        "description": "The number of output lines equals the number of type 1 queries."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout_lines[i]) == sum(dist(a[j], a[k]) for j in range(l-1, r) for k in range(j+1, r) if a[j] != a[k]) for i, (l, r, v) in enumerate(decoded_type1_queries) if queries[i]['type'] == 1",
+        "description": "For each type 1 query, the output is the sum of distances between all pairs of nodes in the subsequence a[l..r] where the nodes are distinct."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(a_after_swap[x-1] == a_before_swap[x] and a_after_swap[x] == a_before_swap[x-1] for x in decoded_type2_queries)",
+        "description": "For each type 2 query, the sequence is updated by swapping the elements at indices x and x+1 (1-based), and subsequent queries use this updated sequence."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(ans_i == (ans_prev ^ (a_val ^ (ans_prev + 1))) for ans_i, ans_prev, a_val in zip(computed_answers, [0] + computed_answers, query_inputs_type1) if query_type == 1",
+        "description": "The decoding of l, r, v and x uses the previous answer (ans0=0) and the XOR formula as specified."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "is_permutation(current_sequence, n)",
+        "description": "The sequence a remains a permutation of 1 to n after any number of type 2 swap operations."
+      },
+      {
+        "id": "I2",
+        "expression": "is_tree(n, edges)",
+        "description": "The tree structure defined by edges remains unchanged throughout all queries."
+      }
+    ]
+  },
+  "generation_seconds": 86.046,
+  "seed": 722,
+  "generated_at": "2026-09-21T08:12:54.447351+00:00"
+}

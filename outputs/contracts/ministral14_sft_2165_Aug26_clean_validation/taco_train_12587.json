@@ -1,0 +1,864 @@
+{
+  "task_id": "taco_train_12587",
+  "task_index": 256,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(n) <= 100000 and 1 <= int(m) <= 100000 and 2 <= int(h) <= 100000",
+        "description": "Input constraints for n (data centers), m (clients), and h (hours per day) must be satisfied."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(u) < int(h) for u in u_list.split())",
+        "description": "Each maintenance hour u_j must be in the range [0, h-1]."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(c1) <= int(n) and 1 <= int(c2) <= int(n) and int(c1) != int(c2) for c1, c2 in client_pairs)",
+        "description": "Each client pair (c_{i,1}, c_{i,2}) must consist of two distinct data center indices within the valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "len(u_list.split()) == int(n) and len(client_pairs) == int(m)",
+        "description": "The number of maintenance hours must match n, and the number of client pairs must match m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)",
+        "description": "The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+        "description": "For every client pair, the original maintenance hours of their data centers are not equal to each other's shifted hours (mod h)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs if c1 in selected_indices and c2 in selected_indices)",
+        "description": "For every client pair where both data centers are selected, their shifted maintenance hours are not equal."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) or (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+        "description": "For every client pair, at least one of the following holds: the original maintenance hours are not equal to each other's shifted hours (mod h)."
+      },
+      {
+        "id": "Q5",
+        "expression": "1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices)",
+        "description": "The output k is a valid count of selected data centers, and the selected indices are within the valid range."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "2 <= int(n) <= 100000 and 1 <= int(m) <= 100000 and 2 <= int(h) <= 100000",
+        "description": "Input constraints for n (data centers), m (clients), and h (hours per day) must be satisfied."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= int(u) < int(h) for u in u_list.split())",
+        "description": "Each maintenance hour u_j must be in the range [0, h-1]."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(c1) <= int(n) and 1 <= int(c2) <= int(n) and int(c1) != int(c2) for c1, c2 in client_pairs)",
+        "description": "Each client pair (c_{i,1}, c_{i,2}) must consist of two distinct data center indices within the valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "len(u_list.split()) == int(n) and len(client_pairs) == int(m)",
+        "description": "The number of maintenance hours must match n, and the number of client pairs must match m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)",
+        "description": "The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+        "description": "For every client pair, the original maintenance hours of their data centers are not equal to each other's shifted hours (mod h)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs if c1 in selected_indices and c2 in selected_indices)",
+        "description": "For every client pair where both data centers are selected, their shifted maintenance hours are not equal."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) or (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+        "description": "For every client pair, at least one of the following holds: the original maintenance hours are not equal to each other's shifted hours (mod h)."
+      },
+      {
+        "id": "Q5",
+        "expression": "1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices)",
+        "description": "The output k is a valid count of selected data centers, and the selected indices are within the valid range."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "4ed21cdfee6a4b43200470b0808cbc7ca24f04f880ed139bc34d6f6dbb408da2",
+  "selected_contract_fingerprint": "4ed21cdfee6a4b43200470b0808cbc7ca24f04f880ed139bc34d6f6dbb408da2",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_12587.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+      "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+      "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "remove",
+        "instruction": "Q4 is redundant and incorrect because it is a weaker version of Q2 (it uses 'or' instead of 'and' and does not enforce the core requirement). The task requires that **no** client pair has both data centers under maintenance at the same hour after shifting, which is already fully captured by Q2.",
+        "task_evidence": "condition u_{c_{i}, 1} ≠ u_{c_{i}, 2} should hold for each client, or otherwise his data may be unaccessible while data centers that store it are under maintenance.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Q3 is redundant and incorrect. It only checks pairs where **both** data centers are selected, but the task requires that **no** client pair has both data centers under maintenance at the same hour **after shifting**, regardless of whether they are selected or not. Replace with: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if c1 in selected_indices and c2 in selected_indices)` (but this is still incomplete; see the missing_clause issue above).",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+      "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+      "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "remove",
+        "instruction": "Q4 is redundant and incorrect because it is a weaker version of Q2 (it uses 'or' instead of 'and' and does not enforce the core requirement). The task requires that **no** client pair has both data centers under maintenance at the same hour after shifting, which is already fully captured by Q2.",
+        "task_evidence": "condition u_{c_{i}, 1} ≠ u_{c_{i}, 2} should hold for each client, or otherwise his data may be unaccessible while data centers that store it are under maintenance.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Q3 is redundant and incorrect. It only checks pairs where **both** data centers are selected, but the task requires that **no** client pair has both data centers under maintenance at the same hour **after shifting**, regardless of whether they are selected or not. Replace with: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if c1 in selected_indices and c2 in selected_indices)` (but this is still incomplete; see the missing_clause issue above).",
+        "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition ensuring that **after shifting**, no client pair has both data centers under maintenance at the same hour. This is the core requirement of the task and is not fully captured by the current clauses. The expression should be: `all((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h) for c1, c2 in client_pairs if (c1 in selected_indices and c2 not in selected_indices) or (c1 not in selected_indices and c2 in selected_indices) or (c1 in selected_indices and c2 in selected_indices))`",
+          "task_evidence": "data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q6",
+          "expression": "all(((int(u_list[c1 - 1]) + 1) % int(h) != (int(u_list[c2 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)",
+          "description": "For every client pair, after shifting the maintenance hours of selected data centers by one hour (mod h), the shifted maintenance hours of their data centers are not equal."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "c57468c43d579be3f19c5a18020329f91fe6b3d714671d732083e698b11eec8e",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2]",
+            "action": "remove",
+            "instruction": "Q3 is redundant and incorrect because it restates Q2's condition for a subset of cases (only when both data centers are selected). The task requires that **no client's data is inaccessible at any hour**, which is already fully captured by Q2 and Q6. Q3 does not add new constraints and is logically subsumed by Q2.",
+            "task_evidence": "",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2]",
+            "action": "remove",
+            "instruction": "Q3 is redundant and incorrect because it restates Q2's condition for a subset of cases (only when both data centers are selected). The task requires that **no client's data is inaccessible at any hour**, which is already fully captured by Q2 and Q6. Q3 does not add new constraints and is logically subsumed by Q2.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3]",
+            "action": "remove",
+            "instruction": "Q4 is incorrect because it uses an OR condition where the task requires an AND-like guarantee (no two data centers for any client can have overlapping maintenance hours after shifting). The task's core requirement is that **no client's data is inaccessible at any hour**, which is already fully captured by Q2 and Q6. Q4's OR logic contradicts the task's requirement of ensuring accessibility for all clients.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that **after shifting the maintenance hours of selected data centers by one hour (mod h), no client's data is inaccessible at any hour**. This means that for every client pair (c1, c2), the shifted maintenance hours of their data centers must not overlap (i.e., they must not be equal). This is already partially covered by Q6, but Q6 does not account for cases where only one data center is selected (and the other is not). The task requires that **for every client, at least one of their data centers is available at every hour**, which is not fully captured by the current clauses.",
+            "task_evidence": "Such an experiment should not break the accessibility guarantees, meaning that data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5]",
+            "action": "replace",
+            "instruction": "Replace Q6's expression with: `all(((int(u_list[c1 - 1]) + (1 if c1 in selected_indices else 0)) % int(h) != (int(u_list[c2 - 1]) + (1 if c2 in selected_indices else 0)) % int(h)) for c1, c2 in client_pairs)`. This ensures that for every client pair, the shifted maintenance hours (accounting for whether each data center is selected) are not equal, which is the core requirement of the task.",
+            "task_evidence": "Such an experiment should not break the accessibility guarantees, meaning that data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2]",
+          "action": "remove",
+          "instruction": "Q3 is redundant and incorrect because it restates Q2's condition for a subset of cases (only when both data centers are selected). The task requires that **no client's data is inaccessible at any hour**, which is already fully captured by Q2 and Q6. Q3 does not add new constraints and is logically subsumed by Q2.",
+          "task_evidence": "",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": null,
+        "repair_model_calls": 0,
+        "generation_errors": [],
+        "candidate_fingerprint": "8318d9beaedea77960892d00fc99fcf0f3506c04f999306003efe04c8b3a3f92",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that after shifting the selected data centers' maintenance hours by one hour, **no client's data becomes unavailable** (i.e., for every client pair, at least one of the two data centers is **not** under maintenance at any given hour). This is the core requirement of the task.",
+            "task_evidence": "Due to occasional timezone change in different cities all over the world, the maintenance time in some of the data centers may change by one hour sometimes. Company should be prepared for such situation, that is why they decided to conduct an experiment... such an experiment should not break the accessibility guarantees, meaning that data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Remove this clause entirely as it is redundant and logically equivalent to Q2 (which is already present).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all((int(u_list[c1 - 1]) != (int(u_list[c2 - 1]) + 1) % int(h)) and (int(u_list[c2 - 1]) != (int(u_list[c1 - 1]) + 1) % int(h)) for c1, c2 in client_pairs)` (same as Q2). The current expression is logically redundant and does not add new constraints.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that after shifting the selected data centers' maintenance hours by one hour, **no client's data becomes unavailable** (i.e., for every client pair, at least one of the two data centers is **not** under maintenance at any given hour). This is the core requirement of the task.",
+            "task_evidence": "Due to occasional timezone change in different cities all over the world, the maintenance time in some of the data centers may change by one hour sometimes. Company should be prepared for such situation, that is why they decided to conduct an experiment... such an experiment should not break the accessibility guarantees, meaning that data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace with: `all(not ((int(u_list[c1 - 1]) + (1 if c1 in selected_indices else 0)) % int(h) == (int(u_list[c2 - 1]) + (1 if c2 in selected_indices else 0)) % int(h)) for c1, c2 in client_pairs)` to ensure that after shifting, no client's data centers have overlapping maintenance hours.",
+            "task_evidence": "the condition u_{c_{i}, 1} ≠ u_{c_{i}, 2} should hold for each client, or otherwise his data may be unaccessible while data centers that store it are under maintenance.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[4].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Due to occasional timezone change in different cities all over the world, the maintenance time in some of the data centers may change by one hour sometimes. Company should be prepared for such situation, that is why they decided to conduct an experiment... such an experiment should not break the accessibility guarantees, meaning that data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that after shifting the selected data centers' maintenance hours by one hour, **no client's data becomes unavailable** (i.e., for every client pair, at least one of the two data centers is **not** under maintenance at any given hour). This is the core requirement of the task.",
+            "task_evidence": "Due to occasional timezone change in different cities all over the world, the maintenance time in some of the data centers may change by one hour sometimes. Company should be prepared for such situation, that is why they decided to conduct an experiment... such an experiment should not break the accessibility guarantees, meaning that data of any client should be still available during any hour of a day after the data center maintenance times are changed.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)",
+            "description": "The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(not ((int(u_list[c1 - 1]) + (1 if c1 in selected_indices else 0)) % int(h) == (int(u_list[c2 - 1]) + (1 if c2 in selected_indices else 0)) % int(h)) for c1, c2 in client_pairs)",
+            "description": "For every client pair, after shifting the maintenance hours of selected data centers by one hour (mod h), the shifted maintenance hours of their data centers are not equal, ensuring no client's data is inaccessible at any hour."
+          },
+          {
+            "id": "Q3",
+            "expression": "1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices)",
+            "description": "The output k is a valid count of selected data centers, and the selected indices are within the valid range."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "67fb0bc305f00ef316a84e4b71ea6fd88e6d7ab4584218b8de47b46e5ab7f4e7",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the selected data centers form a minimal subset (i.e., no proper subset of the selected data centers satisfies the accessibility guarantee). This is required by the task's goal of finding the minimum number of data centers to shift.",
+            "task_evidence": "find out the minimum number of data centers that have to be included in an experiment in order to keep the data accessibility guarantees.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the selected data centers form a minimal subset (i.e., no proper subset of the selected data centers satisfies the accessibility guarantee). This is required by the task's goal of finding the minimum number of data centers to shift.",
+            "task_evidence": "find out the minimum number of data centers that have to be included in an experiment in order to keep the data accessibility guarantees.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly capture the requirement that **after shifting**, no client's data centers have overlapping maintenance hours. The current expression incorrectly uses `u_list[c1 - 1]` and `u_list[c2 - 1]` (original hours) instead of the shifted hours for all data centers (including non-selected ones). The shifted hour for a data center should be `(u_j + 1) % h` if it is selected, otherwise `u_j`.",
+            "task_evidence": "the condition u_{c_{i}, 1} ≠ u_{c_{i}, 2} should hold for each client, or otherwise his data may be unaccessible while data centers that store it are under maintenance.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[1].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "find out the minimum number of data centers that have to be included in an experiment in order to keep the data accessibility guarantees.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the selected data centers form a minimal subset (i.e., no proper subset of the selected data centers satisfies the accessibility guarantee). This is required by the task's goal of finding the minimum number of data centers to shift.",
+            "task_evidence": "find out the minimum number of data centers that have to be included in an experiment in order to keep the data accessibility guarantees.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)",
+            "description": "The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(not ((int(u_list[c1 - 1]) + (1 if c1 in selected_indices else 0)) % int(h) == (int(u_list[c2 - 1]) + (1 if c2 in selected_indices else 0)) % int(h)) for c1, c2 in client_pairs)",
+            "description": "For every client pair, after shifting the maintenance hours of selected data centers by one hour (mod h), the shifted maintenance hours of their data centers are not equal, ensuring no client's data is inaccessible at any hour."
+          },
+          {
+            "id": "Q3",
+            "expression": "1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices)",
+            "description": "The output k is a valid count of selected data centers, and the selected indices are within the valid range."
+          },
+          {
+            "id": "Q4",
+            "expression": "not any(len(selected_subset) < int(k) and all(not ((int(u_list[c1 - 1]) + (1 if c1 in selected_subset else 0)) % int(h) == (int(u_list[c2 - 1]) + (1 if c2 in selected_subset else 0)) % int(h)) for c1, c2 in client_pairs) for selected_subset in subsets(selected_indices))",
+            "description": "The selected data centers form a minimal subset: no proper subset of the selected data centers satisfies the accessibility guarantee."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "a632032ea127b32aba6d5bd2896cf9651208181204373e3d981a45681fcf84f2",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the original maintenance schedule (before any shifts) already satisfies the accessibility guarantee (i.e., no client's data centers have the same maintenance hour). This is implied by the problem statement's guarantee but not explicitly enforced in the contract.",
+            "task_evidence": "It is guaranteed that the given maintenance schedule allows each client to access at least one copy of his data at any moment of day.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the minimality check (Q4) with a correct expression that ensures no smaller subset of selected data centers satisfies the accessibility guarantee. The current expression is flawed because it does not correctly model minimality (e.g., it checks all subsets of `selected_indices`, which is computationally infeasible and logically incorrect for minimality). Instead, use a helper or a more precise expression that enforces minimality via a constructive or existential check.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the selected data centers' indices are distinct and correspond to a valid subset of the input data centers (1 ≤ x_i ≤ n). This is partially covered by Q3 but should be explicitly tied to the output format (e.g., `len(set(selected_indices)) == len(selected_indices)`).",
+            "task_evidence": "In the second line print k distinct integers x_1, x_2, ..., x_k (1 ≤ x_i ≤ n).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "find out the minimum number of data centers that have to be included in an experiment in order to keep the data accessibility guarantees.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the selected data centers form a minimal subset (i.e., no proper subset of the selected data centers satisfies the accessibility guarantee). This is required by the task's goal of finding the minimum number of data centers to shift.",
+            "task_evidence": "find out the minimum number of data centers that have to be included in an experiment in order to keep the data accessibility guarantees.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(0 <= (int(u) + 1) % int(h) < int(h) for u in selected_u) and len(selected_u) == int(k)",
+            "description": "The selected data centers' maintenance hours are shifted by one hour (mod h), and k is the count of selected data centers."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(not ((int(u_list[c1 - 1]) + (1 if c1 in selected_indices else 0)) % int(h) == (int(u_list[c2 - 1]) + (1 if c2 in selected_indices else 0)) % int(h)) for c1, c2 in client_pairs)",
+            "description": "For every client pair, after shifting the maintenance hours of selected data centers by one hour (mod h), the shifted maintenance hours of their data centers are not equal, ensuring no client's data is inaccessible at any hour."
+          },
+          {
+            "id": "Q3",
+            "expression": "1 <= int(k) <= int(n) and all(1 <= int(x) <= int(n) for x in selected_indices) and len(set(selected_indices)) == len(selected_indices)",
+            "description": "The output k is a valid count of selected data centers, and the selected indices are distinct and within the valid range."
+          },
+          {
+            "id": "Q4",
+            "expression": "not exists(selected_subset, len(selected_subset) < int(k) and all(not ((int(u_list[c1 - 1]) + (1 if c1 in selected_subset else 0)) % int(h) == (int(u_list[c2 - 1]) + (1 if c2 in selected_subset else 0)) % int(h)) for c1, c2 in client_pairs))",
+            "description": "The selected data centers form a minimal subset: no smaller subset of data centers satisfies the accessibility guarantee."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "3e584b5948ac18cde484b73c8cdec321624b238ee63f85355913e0c2f2ae009b",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the original maintenance schedule (before any shifts) already satisfies the accessibility guarantee (i.e., no client's data centers have the same maintenance hour). This is implied by the problem statement's guarantee but not explicitly enforced in the contract.",
+            "task_evidence": "It is guaranteed that the given maintenance schedule allows each client to access at least one copy of his data at any moment of day.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the existential quantifier in Q4 with a universal quantifier to correctly enforce minimality. The current expression checks for the existence of a smaller subset that satisfies the condition, but minimality requires that **no** smaller subset satisfies the condition. The logic should be: 'for all subsets smaller than k, at least one client pair violates the accessibility guarantee.'",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the selected subset of data centers is non-empty (as required by the problem statement). This is not explicitly enforced in the contract, though Q3's `1 <= int(k)` partially covers it.",
+            "task_evidence": "choosing some non-empty subset of data centers",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[1].expression",
+            "action": "replace",
+            "instruction": "Replace the expression in Q2 to correctly handle the case where `c1` or `c2` is in `selected_indices`. The current expression uses `selected_indices` as a set, but the logic for shifting maintenance hours should use the original `selected_u` (or equivalent) to ensure consistency with Q1. The expression should also ensure that the shifted maintenance hours for all client pairs are distinct.",
+            "task_evidence": "the shifted maintenance hours of their data centers are not equal, ensuring no client's data is inaccessible at any hour",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[1].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 4
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 237.442,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:01:08.519949+00:00"
+}

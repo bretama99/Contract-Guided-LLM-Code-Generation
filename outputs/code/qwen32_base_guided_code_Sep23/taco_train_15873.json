@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_15873",
+  "task_index": 657,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_15873.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef find_shortest_cycle(n, file_names, sections):\n    graph = defaultdict(list)\n    for section in sections:\n        name = section[0]\n        for dep in section[2:]:\n            graph[name].append(dep)\n\n    def bfs(start):\n        queue = deque([(start, [start])])\n        visited = {start: [start]}\n        while queue:\n            node, path = queue.popleft()\n            for neighbor in graph[node]:\n                if neighbor == start:\n                    return path + [start]\n                if neighbor not in visited:\n                    visited[neighbor] = path + [neighbor]\n                    queue.append((neighbor, path + [neighbor]))\n        return None\n\n    shortest_cycle = None\n    for file_name in file_names:\n        cycle = bfs(file_name)\n        if cycle:\n            if shortest_cycle is None or len(cycle) < len(shortest_cycle):\n                shortest_cycle = cycle\n\n    if shortest_cycle:\n        return ' '.join(shortest_cycle)\n    else:\n        return 'SHIP IT'\n\ninput = sys.stdin.read().splitlines()\nn = int(input[0])\nfile_names = input[1].split()\nsections = []\nfor i in range(n):\n    section = input[2 + i * (int(input[2 + i].split()[1]) + 1):2 + (i + 1) * (int(input[2 + i].split()[1]) + 2)]\n    sections.append(section)\n\nprint(find_shortest_cycle(n, file_names, sections))",
+  "generation_seconds": 29.287,
+  "generated_at": "2026-09-23T20:30:38.762480+00:00"
+}

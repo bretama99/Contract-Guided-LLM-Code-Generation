@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_3636",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t > 0 and t <= 20000",
+        "description": "The number of test cases t is between 1 and 20000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 200000 for n, m in test_cases) and all(1 <= m <= min(200000, n*(n-1)//2) for n, m in test_cases)",
+        "description": "For each test case, n is between 2 and 200000 inclusive, and m is between 1 and min(200000, n*(n-1)//2) inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= t_i <= 1 for edge in edges for t_i in edge) and all(1 <= x_i <= n and 1 <= y_i <= n for edge in edges for x_i, y_i in edge[1:])",
+        "description": "Each edge has a type t_i (0 for undirected, 1 for directed) and connects vertices x_i and y_i within the valid range."
+      },
+      {
+        "id": "P4",
+        "expression": "all(x_i != y_i for edge in edges for x_i, y_i in edge[1:])",
+        "description": "No self-loops exist in the graph."
+      },
+      {
+        "id": "P5",
+        "expression": "all(not any((x1 == x2 and y1 == y2) or (x1 == y2 and y1 == x2) for i in range(len(edges)) for j in range(i+1, len(edges)) for edge1 in [edges[i]] for edge2 in [edges[j]] for x1, y1 in edge1[1:] for x2, y2 in edge2[1:]))",
+        "description": "No multiple edges exist between the same pair of vertices."
+      },
+      {
+        "id": "P6",
+        "expression": "sum(n for n, m in test_cases) <= 200000 and sum(m for n, m in test_cases) <= 200000",
+        "description": "The sum of n and the sum of m across all test cases do not exceed 200000."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == 'NO' or (stdout.startswith('YES') and len(edges_output) == m)",
+        "description": "If the answer is 'NO', output only 'NO'. If the answer is 'YES', output 'YES' followed by exactly m lines describing the directed edges."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= x <= n and 1 <= y <= n for x, y in edges_output) and all(x != y for x, y in edges_output)",
+        "description": "Each directed edge in the output connects distinct vertices within the valid range."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(t_i == 1 or (t_i == 0 and (x_i, y_i) in edges_output or (y_i, x_i) in edges_output) for edge in edges for t_i, x_i, y_i in edge)",
+        "description": "All directed edges in the input are preserved in the output. All undirected edges are directed in one of the two possible ways."
+      },
+      {
+        "id": "Q4",
+        "expression": "not any((x, y) in edges_output and (y, x) in edges_output for x, y in edges_output)",
+        "description": "No directed cycles exist in the resulting graph."
+      },
+      {
+        "id": "Q5",
+        "expression": "stdout == 'NO' or (stdout.startswith('YES') and is_dag(edges_output))",
+        "description": "If the answer is 'YES', the resulting graph is a directed acyclic graph (DAG)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t > 0 and t <= 20000\",\n      \"description\": \"The number of test cases t is between 1 and 20000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= n <= 200000 for n, m in test_cases) and all(1 <= m <= min(200000, n*(n-1)//2) for n, m in test_cases)\",\n      \"description\": \"For each test case, n is between 2 and 200000 inclusive, and m is between 1 and min(200000, n*(n-1)//2) inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= t_i <= 1 for edge in edges for t_i in edge) and all(1 <= x_i <= n and 1 <= y_i <= n for edge in edges for x_i, y_i in edge[1:])\",\n      \"description\": \"Each edge has a type t_i (0 for undirected, 1 for directed) and connects vertices x_i and y_i within the valid range.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(x_i != y_i for edge in edges for x_i, y_i in edge[1:])\",\n      \"description\": \"No self-loops exist in the graph.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(not any((x1 == x2 and y1 == y2) or (x1 == y2 and y1 == x2) for i in range(len(edges)) for j in range(i+1, len(edges)) for edge1 in [edges[i]] for edge2 in [edges[j]] for x1, y1 in edge1[1:] for x2, y2 in edge2[1:]))\",\n      \"description\": \"No multiple edges exist between the same pair of vertices.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"sum(n for n, m in test_cases) <= 200000 and sum(m for n, m in test_cases) <= 200000\",\n      \"description\": \"The sum of n and the sum of m across all test cases do not exceed 200000.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == 'NO' or (stdout.startswith('YES') and len(edges_output) == m)\",\n      \"description\": \"If the answer is 'NO', output only 'NO'. If the answer is 'YES', output 'YES' followed by exactly m lines describing the directed edges.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= x <= n and 1 <= y <= n for x, y in edges_output) and all(x != y for x, y in edges_output)\",\n      \"description\": \"Each directed edge in the output connects distinct vertices within the valid range.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(t_i == 1 or (t_i == 0 and (x_i, y_i) in edges_output or (y_i, x_i) in edges_output) for edge in edges for t_i, x_i, y_i in edge)\",\n      \"description\": \"All directed edges in the input are preserved in the output. All undirected edges are directed in one of the two possible ways.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"not any((x, y) in edges_output and (y, x) in edges_output for x, y in edges_output)\",\n      \"description\": \"No directed cycles exist in the resulting graph.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"stdout == 'NO' or (stdout.startswith('YES') and is_dag(edges_output))\",\n      \"description\": \"If the answer is 'YES', the resulting graph is a directed acyclic graph (DAG).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1859,
+  "generated_tokens": 997,
+  "hit_output_limit": false,
+  "generation_seconds": 43.717,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:56:32.739483+00:00"
+}

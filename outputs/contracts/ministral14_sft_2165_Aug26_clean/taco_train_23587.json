@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_23587",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= n <= 1000 for n, m in (line.split() for line in stdin.splitlines()[1::2]))",
+        "description": "For each test case, the number of people n is between 2 and 1000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= m <= n for n, m in (line.split() for line in stdin.splitlines()[1::2]))",
+        "description": "For each test case, the number of chains m is between 1 and n inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(a) == n and all(0 <= ai <= 10**4 for ai in a) for a in (list(map(int, line.split())) for line in stdin.splitlines()[2::2]))",
+        "description": "For each test case, the fridge weights a are a list of n integers, each between 0 and 10^4 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "any(output.strip() == '-1' or (output.strip().split() and output.strip().split()[0].isdigit() and int(output.strip().split()[0]) >= 0) for output in (stdout.split('\\n\\n')[i] for i in range(len(stdout.split('\\n\\n')))))",
+        "description": "For each test case, the output is either -1 (no solution) or a non-negative integer c (minimum total cost) followed by m lines of chain connections."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output.split()) == 1 and output.split()[0] == '-1' or (len(output.split()) >= 1 and output.split()[0].isdigit() and int(output.split()[0]) >= 0 and len(output.split()[1:]) == m * 2) for output in (stdout.split('\\n\\n')[i] for i in range(len(stdout.split('\\n\\n')))))",
+        "description": "If a solution exists, the first line is the minimum total cost c, followed by exactly m lines of chain connections (u_i, v_i). If no solution exists, output is exactly -1."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(any(all(u != v for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) for output in (stdout.split('\\n\\n')[i] for i in range(len(stdout.split('\\n\\n')))))",
+        "description": "Each chain connects two distinct fridges (u_i != v_i)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(all(1 <= u <= n and 1 <= v <= n for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) for output in (stdout.split('\\n\\n')[i] for i in range(len(stdout.split('\\n\\n')))))",
+        "description": "Each chain connects fridges within the valid range [1, n]."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any(all(1 <= u <= n and 1 <= v <= n and u != v for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) and sum(a[u-1] + a[v-1] for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) == int(output.split()[0]) for output in (stdout.split('\\n\\n')[i] for i in range(len(stdout.split('\\n\\n')))))",
+        "description": "The total cost c is the sum of a_u + a_v for all m chains, where a is the fridge weight list for the test case."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(any(all(not any((u == i and v != i) or (v == i and u != i) for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) or (all((u == i and v != i) or (v == i and u != i) for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) and len(set((u, v) for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])))) for i in range(1, n+1)) for output in (stdout.split('\\n\\n')[i] for i in range(len(stdout.split('\\n\\n')))))",
+        "description": "For each fridge i, no other person j (j != i) can open fridge i alone. This means that for each fridge i, either there are no chains connected to it, or all chains connected to it are controlled by i (i.e., all chains connected to i are of the form (i, j) or (j, i) for some j)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T >= 1 and T <= 10\",\n      \"description\": \"The number of test cases T is between 1 and 10 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= n <= 1000 for n, m in (line.split() for line in stdin.splitlines()[1::2]))\",\n      \"description\": \"For each test case, the number of people n is between 2 and 1000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= m <= n for n, m in (line.split() for line in stdin.splitlines()[1::2]))\",\n      \"description\": \"For each test case, the number of chains m is between 1 and n inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(a) == n and all(0 <= ai <= 10**4 for ai in a) for a in (list(map(int, line.split())) for line in stdin.splitlines()[2::2]))\",\n      \"description\": \"For each test case, the fridge weights a are a list of n integers, each between 0 and 10^4 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"any(output.strip() == '-1' or (output.strip().split() and output.strip().split()[0].isdigit() and int(output.strip().split()[0]) >= 0) for output in (stdout.split('\\\\n\\\\n')[i] for i in range(len(stdout.split('\\\\n\\\\n')))))\",\n      \"description\": \"For each test case, the output is either -1 (no solution) or a non-negative integer c (minimum total cost) followed by m lines of chain connections.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(output.split()) == 1 and output.split()[0] == '-1' or (len(output.split()) >= 1 and output.split()[0].isdigit() and int(output.split()[0]) >= 0 and len(output.split()[1:]) == m * 2) for output in (stdout.split('\\\\n\\\\n')[i] for i in range(len(stdout.split('\\\\n\\\\n')))))\",\n      \"description\": \"If a solution exists, the first line is the minimum total cost c, followed by exactly m lines of chain connections (u_i, v_i). If no solution exists, output is exactly -1.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(any(all(u != v for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) for output in (stdout.split('\\\\n\\\\n')[i] for i in range(len(stdout.split('\\\\n\\\\n')))))\",\n      \"description\": \"Each chain connects two distinct fridges (u_i != v_i).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(all(1 <= u <= n and 1 <= v <= n for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) for output in (stdout.split('\\\\n\\\\n')[i] for i in range(len(stdout.split('\\\\n\\\\n')))))\",\n      \"description\": \"Each chain connects fridges within the valid range [1, n].\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any(all(1 <= u <= n and 1 <= v <= n and u != v for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) and sum(a[u-1] + a[v-1] for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) == int(output.split()[0]) for output in (stdout.split('\\\\n\\\\n')[i] for i in range(len(stdout.split('\\\\n\\\\n')))))\",\n      \"description\": \"The total cost c is the sum of a_u + a_v for all m chains, where a is the fridge weight list for the test case.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(any(all(not any((u == i and v != i) or (v == i and u != i) for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) or (all((u == i and v != i) or (v == i and u != i) for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])) and len(set((u, v) for u, v in (tuple(map(int, line.split())) for line in output.split()[1:])))) for i in range(1, n+1)) for output in (stdout.split('\\\\n\\\\n')[i] for i in range(len(stdout.split('\\\\n\\\\n')))))\",\n      \"description\": \"For each fridge i, no other person j (j != i) can open fridge i alone. This means that for each fridge i, either there are no chains connected to it, or all chains connected to it are controlled by i (i.e., all chains connected to i are of the form (i, j) or (j, i) for some j).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1924,
+  "generated_tokens": 1276,
+  "hit_output_limit": false,
+  "generation_seconds": 55.341,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:58:59.423136+00:00"
+}

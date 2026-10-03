@@ -1,0 +1,106 @@
+{
+  "task_id": "taco_train_5461",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 100000",
+        "description": "The number of records in the log is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(line.strip().split() for line in stdin.splitlines()[1:])",
+        "description": "Each log line is non-empty and consists of space-separated tokens."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(tokens) == 2 or len(tokens) == 1 for tokens in [line.strip().split() for line in stdin.splitlines()[1:]])",
+        "description": "Each log line is either 'insert x', 'getMin x', or 'removeMin'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(tokens[0] in ['insert', 'getMin', 'removeMin'] for tokens in [line.strip().split() for line in stdin.splitlines()[1:]])",
+        "description": "Each log line starts with 'insert', 'getMin', or 'removeMin'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(int(tokens[1]) if len(tokens) == 2 else True for tokens in [line.strip().split() for line in stdin.splitlines()[1:]])",
+        "description": "If a line has a number (insert/getMin), it is an integer between -10^9 and 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.splitlines()[0].strip() == str(m) and m >= len(stdin.splitlines()) - 1",
+        "description": "The first line of stdout is the integer m, the total number of operations in the corrected log, which is at least the original number of records."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line in stdout.splitlines()[1:] for line in stdin.splitlines()[1:])",
+        "description": "The original log lines (excluding the first line) appear as a subsequence in the corrected log, preserving their order."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(line.strip().split() for line in stdout.splitlines()[1:])",
+        "description": "Each line in the corrected log is non-empty and consists of space-separated tokens."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(tokens) == 2 or len(tokens) == 1 for tokens in [line.strip().split() for line in stdout.splitlines()[1:]])",
+        "description": "Each line in the corrected log is either 'insert x', 'getMin x', or 'removeMin'."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(tokens[0] in ['insert', 'getMin', 'removeMin'] for tokens in [line.strip().split() for line in stdout.splitlines()[1:]])",
+        "description": "Each line in the corrected log starts with 'insert', 'getMin', or 'removeMin'."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(int(tokens[1]) if len(tokens) == 2 else True for tokens in [line.strip().split() for line in stdout.splitlines()[1:]])",
+        "description": "If a line in the corrected log has a number (insert/getMin), it is an integer between -10^9 and 10^9."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(int(tokens[1]) <= 10**9 and int(tokens[1]) >= -10**9 for tokens in [line.strip().split() for line in stdout.splitlines()[1:] if len(line.strip().split()) == 2])",
+        "description": "All numbers in the corrected log are within the specified bounds."
+      },
+      {
+        "id": "Q8",
+        "expression": "m == len(stdout.splitlines()) - 1 and m <= 1000000",
+        "description": "The total number of operations in the corrected log does not exceed 1,000,000."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(heap_min == int(tokens[1]) for tokens in [line.strip().split() for line in stdout.splitlines()[1:]] if tokens[0] == 'getMin')",
+        "description": "For every 'getMin x' operation in the corrected log, the minimum element in the heap at that point is exactly x."
+      },
+      {
+        "id": "Q10",
+        "expression": "all(heap_non_empty_before_op for op in [line.strip().split() for line in stdout.splitlines()[1:]] if op[0] in ['getMin', 'removeMin'])",
+        "description": "For every 'getMin' or 'removeMin' operation in the corrected log, the heap is non-empty immediately before the operation."
+      },
+      {
+        "id": "Q11",
+        "expression": "all(heap_after_op == heap_before_op - {min_val} if op[0] == 'removeMin' else heap_after_op == heap_before_op | {int(op[1])} if op[0] == 'insert' else True for op, heap_before_op, heap_after_op in zip([line.strip().split() for line in stdout.splitlines()[1:]], heap_states[:-1], heap_states[1:]))",
+        "description": "The heap state transitions in the corrected log are consistent with the operations: 'insert x' adds x, 'removeMin' removes the minimum, and 'getMin' does not modify the heap."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 1 and n <= 100000\",\n      \"description\": \"The number of records in the log is between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(line.strip().split() for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each log line is non-empty and consists of space-separated tokens.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(tokens) == 2 or len(tokens) == 1 for tokens in [line.strip().split() for line in stdin.splitlines()[1:]])\",\n      \"description\": \"Each log line is either 'insert x', 'getMin x', or 'removeMin'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(tokens[0] in ['insert', 'getMin', 'removeMin'] for tokens in [line.strip().split() for line in stdin.splitlines()[1:]])\",\n      \"description\": \"Each log line starts with 'insert', 'getMin', or 'removeMin'.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(int(tokens[1]) if len(tokens) == 2 else True for tokens in [line.strip().split() for line in stdin.splitlines()[1:]])\",\n      \"description\": \"If a line has a number (insert/getMin), it is an integer between -10^9 and 10^9.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.splitlines()[0].strip() == str(m) and m >= len(stdin.splitlines()) - 1\",\n      \"description\": \"The first line of stdout is the integer m, the total number of operations in the corrected log, which is at least the original number of records.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line in stdout.splitlines()[1:] for line in stdin.splitlines()[1:])\",\n      \"description\": \"The original log lines (excluding the first line) appear as a subsequence in the corrected log, preserving their order.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(line.strip().split() for line in stdout.splitlines()[1:])\",\n      \"description\": \"Each line in the corrected log is non-empty and consists of space-separated tokens.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(len(tokens) == 2 or len(tokens) == 1 for tokens in [line.strip().split() for line in stdout.splitlines()[1:]])\",\n      \"description\": \"Each line in the corrected log is either 'insert x', 'getMin x', or 'removeMin'.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(tokens[0] in ['insert', 'getMin', 'removeMin'] for tokens in [line.strip().split() for line in stdout.splitlines()[1:]])\",\n      \"description\": \"Each line in the corrected log starts with 'insert', 'getMin', or 'removeMin'.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(int(tokens[1]) if len(tokens) == 2 else True for tokens in [line.strip().split() for line in stdout.splitlines()[1:]])\",\n      \"description\": \"If a line in the corrected log has a number (insert/getMin), it is an integer between -10^9 and 10^9.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(int(tokens[1]) <= 10**9 and int(tokens[1]) >= -10**9 for tokens in [line.strip().split() for line in stdout.splitlines()[1:] if len(line.strip().split()) == 2])\",\n      \"description\": \"All numbers in the corrected log are within the specified bounds.\"\n    },\n    {\n      \"id\": \"Q8\",\n      \"expression\": \"m == len(stdout.splitlines()) - 1 and m <= 1000000\",\n      \"description\": \"The total number of operations in the corrected log does not exceed 1,000,000.\"\n    },\n    {\n      \"id\": \"Q9\",\n      \"expression\": \"all(heap_min == int(tokens[1]) for tokens in [line.strip().split() for line in stdout.splitlines()[1:]] if tokens[0] == 'getMin')\",\n      \"description\": \"For every 'getMin x' operation in the corrected log, the minimum element in the heap at that point is exactly x.\"\n    },\n    {\n      \"id\": \"Q10\",\n      \"expression\": \"all(heap_non_empty_before_op for op in [line.strip().split() for line in stdout.splitlines()[1:]] if op[0] in ['getMin', 'removeMin'])\",\n      \"description\": \"For every 'getMin' or 'removeMin' operation in the corrected log, the heap is non-empty immediately before the operation.\"\n    },\n    {\n      \"id\": \"Q11\",\n      \"expression\": \"all(heap_after_op == heap_before_op - {min_val} if op[0] == 'removeMin' else heap_after_op == heap_before_op | {int(op[1])} if op[0] == 'insert' else True for op, heap_before_op, heap_after_op in zip([line.strip().split() for line in stdout.splitlines()[1:]], heap_states[:-1], heap_states[1:]))\",\n      \"description\": \"The heap state transitions in the corrected log are consistent with the operations: 'insert x' adds x, 'removeMin' removes the minimum, and 'getMin' does not modify the heap.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1895,
+  "generated_tokens": 1362,
+  "hit_output_limit": false,
+  "generation_seconds": 60.079,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T22:18:14.979849+00:00"
+}

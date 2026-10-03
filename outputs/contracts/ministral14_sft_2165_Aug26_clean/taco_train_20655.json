@@ -1,0 +1,82 @@
+{
+  "task_id": "taco_train_20655",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 2 * 10**5 and 1 <= m <= 3 * 10**5 and 1 <= q <= 5 * 10**5",
+        "description": "Input dimensions are within stated bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "len(p) == n and all(1 <= x <= n for x in p) and len(set(p)) == n",
+        "description": "p is a list of n distinct integers from 1 to n."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)",
+        "description": "Each edge connects two distinct vertices within bounds."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= v <= n for query in queries if query[0] == 1 and len(query) == 2) and all(1 <= i <= m for query in queries if query[0] == 2 and len(query) == 2)",
+        "description": "Query vertex v and edge index i are within valid ranges."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= i <= m for i in deleted_edges) and len(deleted_edges) <= q",
+        "description": "Deleted edges are valid and not repeated."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_lines) == num_type1_queries and all(x in {0} | {p_i for p_i in p} for x in stdout_lines))",
+        "description": "For each type-1 query, output is either 0 or a remaining p_u in the connected component of v."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(p_u == 0 for u in vertices_with_zeroed_p) and len(vertices_with_zeroed_p) == num_zeroed_queries",
+        "description": "After a type-1 query, the selected p_u is set to 0."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(edge not in active_edges for edge in deleted_edges)",
+        "description": "Deleted edges are removed from the active graph."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(connected_component(v, active_edges) == connected_component(v, active_edges) for v in vertices)",
+        "description": "Connected components are consistent with active edges."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= p_i <= n for p_i in p) and len(set(p)) == n - num_zeroed_queries",
+        "description": "Remaining p_i values are distinct and within 1 to n, excluding zeroed values."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= len(active_edges) <= m)",
+        "description": "Active edges are a subset of original edges."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 2 * 10**5 and 1 <= m <= 3 * 10**5 and 1 <= q <= 5 * 10**5\",\n      \"description\": \"Input dimensions are within stated bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(p) == n and all(1 <= x <= n for x in p) and len(set(p)) == n\",\n      \"description\": \"p is a list of n distinct integers from 1 to n.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)\",\n      \"description\": \"Each edge connects two distinct vertices within bounds.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= v <= n for query in queries if query[0] == 1 and len(query) == 2) and all(1 <= i <= m for query in queries if query[0] == 2 and len(query) == 2)\",\n      \"description\": \"Query vertex v and edge index i are within valid ranges.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= i <= m for i in deleted_edges) and len(deleted_edges) <= q\",\n      \"description\": \"Deleted edges are valid and not repeated.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_lines) == num_type1_queries and all(x in {0} | {p_i for p_i in p} for x in stdout_lines))\",\n      \"description\": \"For each type-1 query, output is either 0 or a remaining p_u in the connected component of v.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(p_u == 0 for u in vertices_with_zeroed_p) and len(vertices_with_zeroed_p) == num_zeroed_queries\",\n      \"description\": \"After a type-1 query, the selected p_u is set to 0.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(edge not in active_edges for edge in deleted_edges)\",\n      \"description\": \"Deleted edges are removed from the active graph.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(connected_component(v, active_edges) == connected_component(v, active_edges) for v in vertices)\",\n      \"description\": \"Connected components are consistent with active edges.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(1 <= p_i <= n for p_i in p) and len(set(p)) == n - num_zeroed_queries\",\n      \"description\": \"Remaining p_i values are distinct and within 1 to n, excluding zeroed values.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(1 <= len(active_edges) <= m)\",\n      \"description\": \"Active edges are a subset of original edges.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1615,
+  "generated_tokens": 764,
+  "hit_output_limit": false,
+  "generation_seconds": 33.169,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:19:34.307786+00:00"
+}

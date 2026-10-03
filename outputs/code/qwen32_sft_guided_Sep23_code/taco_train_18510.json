@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18510",
+  "task_index": 109,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_18510.json",
+  "code": "import sys\nfrom collections import deque\n\ndef read_input():\n    input = sys.stdin.read().strip().split('\\n\\n')\n    n, m, k = map(int, input[0].split())\n    layers = [[list(row) for row in layer.split('\\n')] for layer in input[1:]]\n    return n, m, k, layers\n\ndef bfs(start, n, m, k, layers, visited):\n    queue = deque([start])\n    visited[start] = True\n    while queue:\n        x, y, z = queue.popleft()\n        for dx, dy, dz in [(1, 0, 0), (0, 1, 0), (0, 0, 1)]:\n            nx, ny, nz = x + dx, y + dy, z + dz\n            if 0 <= nx < n and 0 <= ny < m and 0 <= nz < k and layers[nx][ny][nz] == '1' and not visited[(nx, ny, nz)]:\n                visited[(nx, ny, nz)] = True\n                queue.append((nx, ny, nz))\n\ndef is_critical(x, y, z, n, m, k, layers):\n    visited = {(i, j, l): False for i in range(n) for j in range(m) for l in range(k)}\n    bfs((0, 0, 0), n, m, k, layers, visited)\n    if not visited[(x, y, z)]:\n        return False\n    visited[(x, y, z)] = False\n    bfs((0, 0, 0), n, m, к, layers, visited)\n    return not visited[(x, y, z)]\n\ndef count_critical_cpus(n, m, k, layers):\n    critical_count = 0\n    for x in range(n):\n        for y in range(m):\n            for z in range(k):\n                if layers[x][y][z] == '1' and is_critical(x, y, z, n, m, k, layers.copy()):\n                    critical_count += 1\n    return critical_count\n\ndef main():\n    n, m, k, layers = read_input()\n    critical_count = count_critical_cpus(n, m, k, layers)\n    print(critical_count)\n\nmain()",
+  "generation_seconds": 44.647,
+  "generated_at": "2026-09-23T17:44:27.270233+00:00"
+}

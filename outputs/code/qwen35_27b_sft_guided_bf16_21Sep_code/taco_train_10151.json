@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_10151",
+  "task_index": 567,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_10151.json",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    m = int(next(iterator))\n    k = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    \n    for _ in range(m):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    visited = [False] * (n + 1)\n    parent = [0] * (n + 1)\n    \n    start_node = 1\n    stack = [start_node]\n    visited[start_node] = True\n    \n    cycle_node = -1\n    \n    while stack:\n        u = stack[-1]\n        found_unvisited = False\n        \n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n                found_unvisited = True\n                break\n            elif v != parent[u]:\n                if len(stack) >= k + 1:\n                    cycle_node = v\n                    break\n        \n        if cycle_node != -1:\n            break\n            \n        if not found_unvisited:\n            stack.pop()\n    \n    if cycle_node != -1:\n        path = []\n        curr = stack[-1]\n        while curr != cycle_node:\n            path.append(curr)\n            curr = parent[curr]\n        path.append(cycle_node)\n        \n        path.reverse()\n        print(len(path))\n        print(\" \".join(map(str, path)))\n    else:\n        pass\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 36.869,
+  "generated_at": "2026-09-22T22:10:23.796437+00:00"
+}

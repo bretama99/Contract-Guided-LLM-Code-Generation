@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_3065",
+  "task_index": 521,
+  "dataset": "taco",
+  "model": "qwen35_27b_validated_guided_sept_24",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validated_sept_24/taco_train_3065.json",
+  "code": "import sys\nimport heapq\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    \n    try:\n        T_str = next(iterator)\n        T = int(T_str)\n    except StopIteration:\n        return\n        \n    results = []\n    \n    for _ in range(T):\n        try:\n            N = int(next(iterator))\n            K = int(next(iterator))\n            \n            A = []\n            for _ in range(N):\n                A.append(int(next(iterator)))\n                \n            B = []\n            for _ in range(N):\n                B.append(int(next(iterator)))\n        except StopIteration:\n            break\n            \n        current_interaction = 0\n        for i in range(N):\n            current_interaction += A[i] * B[i]\n        \n        pq = []\n        for i in range(N):\n            gain = abs(B[i])\n            if gain > 0:\n                heapq.heappush(pq, (-gain, i))\n        \n        remaining_k = K\n        \n        while remaining_k > 0 and pq:\n            neg_gain, idx = heapq.heappop(pq)\n            gain = -neg_gain\n            \n            if gain == 0:\n                break\n                \n            needed = 0\n            if B[idx] > 0:\n                needed = -A[idx]\n            else:\n                needed = A[idx]\n                \n            if needed <= 0:\n                add = remaining_k\n                remaining_k = 0\n            else:\n                add = min(remaining_k, needed)\n                remaining_k -= add\n                \n            current_interaction += add * gain\n            \n            if remaining_k > 0 and needed > 0:\n                heapq.heappush(pq, (-gain * 2, idx))\n                \n        results.append(str(current_interaction))\n        \n    sys.stdout.write('\\n'.join(results) + '\\n')\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 39.744,
+  "generated_at": "2026-09-25T03:39:02.138407+00:00"
+}

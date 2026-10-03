@@ -1,0 +1,60 @@
+{
+  "task_id": "taco_train_6247",
+  "task_index": 17,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= m <= 3000",
+        "description": "The number of participants m and the number of remembered top results n satisfy 1 <= n <= m <= 3000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(scores) == n",
+        "description": "The input contains exactly n integers representing the remembered scores."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= s <= 2 * m for s in scores)",
+        "description": "Each remembered score is a non-negative integer not exceeding 2*m."
+      },
+      {
+        "id": "P4",
+        "expression": "all(scores[i] >= scores[i+1] for i in range(n-1))",
+        "description": "The remembered scores are provided in non-ascending order."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "output_lines[0] == 'no' or (output_lines[0] == 'yes' and len(output_lines) == m + 1)",
+        "description": "The output starts with 'no' if no valid tournament exists, or 'yes' followed by exactly m lines describing the tournament matrix."
+      },
+      {
+        "id": "Q2",
+        "expression": "output_lines[0] == 'no' or (all(len(row) == m and row[i] == 'X' for i, row in enumerate(output_lines[1:])) and all(row[j] in 'WDL' for row in output_lines[1:] for j in range(m) if j != output_lines[1:].index(row)))",
+        "description": "If 'yes' is printed, the matrix has m rows of length m, with 'X' on the main diagonal and 'W', 'D', or 'L' elsewhere."
+      },
+      {
+        "id": "Q3",
+        "expression": "output_lines[0] == 'no' or (all((output_lines[1+i][j] == 'W' and output_lines[1+j][i] == 'L') or (output_lines[1+i][j] == 'L' and output_lines[1+j][i] == 'W') or (output_lines[1+i][j] == 'D' and output_lines[1+j][i] == 'D') for i in range(m) for j in range(m) if i != j))",
+        "description": "The tournament matrix is consistent: for every pair of distinct players, the result is symmetric (Win/Loss or Draw/Draw)."
+      },
+      {
+        "id": "Q4",
+        "expression": "output_lines[0] == 'no' or (sorted([sum(2 if cell == 'W' else 1 if cell == 'D' else 0 for cell in row) for row in output_lines[1:]], reverse=True)[:n] == scores)",
+        "description": "If 'yes' is printed, the calculated scores for all players, sorted in non-ascending order, match the given remembered scores for the top n players."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 72.653,
+  "seed": 59,
+  "generated_at": "2026-09-21T05:44:32.126903+00:00"
+}

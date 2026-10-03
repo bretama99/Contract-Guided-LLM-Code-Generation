@@ -1,0 +1,101 @@
+{
+  "task_id": "taco_train_22206",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": null,
+      "signature": "def solve(T: int, test_cases: list[tuple[int, int, int, int, int, list[tuple[int, int, int]]]]) -> list[str]: ..."
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 3",
+        "description": "The number of test cases T is between 1 and 3 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= K <= N <= 10**5 for N, K, _, _, _ in test_cases)",
+        "description": "For each test case, the number of cities N is between 2 and 10^5, and the number of old cities K is between 2 and N."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= M <= 10**5 for _, _, _, M, _ in test_cases)",
+        "description": "For each test case, the number of newer roads M is between 0 and 10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= S <= N for _, _, _, _, S in test_cases)",
+        "description": "For each test case, the starting city S is between 1 and N."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= a_i <= N and 1 <= b_i <= N and a_i != b_i for _, _, _, _, _, roads in test_cases for a_i, b_i, _ in roads)",
+        "description": "For each test case, every newer road connects two distinct cities a_i and b_i, each between 1 and N."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= c_i <= 10**9 for _, _, _, _, _, roads in test_cases for _, _, c_i in roads)",
+        "description": "For each test case, every newer road length c_i is between 1 and 10^9."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(set((a_i, b_i) for a_i, b_i, _ in roads)) == len(roads) for _, _, _, _, _, roads in test_cases)",
+        "description": "For each test case, all newer roads are distinct (no duplicate pairs)."
+      },
+      {
+        "id": "P8",
+        "expression": "all(1 <= X <= 10**9 for _, X, _, _, _ in test_cases)",
+        "description": "For each test case, the length X of roads between old cities is between 1 and 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == T",
+        "description": "The output contains exactly one line per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(line.split()) == N for line in output)",
+        "description": "Each output line contains exactly N integers, one for each city."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(all(0 <= int(dist) <= 10**18 for dist in line.split()) for line in output)",
+        "description": "Each distance in the output is a non-negative integer (up to 10^18)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(line.split()[S_idx - 1]) == 0 for (_, _, _, _, S_idx, _), line in zip(test_cases, output))",
+        "description": "The distance from city S to itself is always 0."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(all(int(line.split()[i - 1]) == int(line.split()[j - 1]) or int(line.split()[i - 1]) < int(line.split()[j - 1]) for i in range(1, N + 1) for j in range(1, N + 1) if i != j) for (N, _, _, _, _, _), line in zip(test_cases, output))",
+        "description": "The computed distances are consistent with the shortest-path property (transitivity)."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(int(line.split()[i - 1]) == min(int(line.split()[i - 1]), int(line.split()[j - 1]) + c) for (N, K, X, _, S_idx, roads), line in zip(test_cases, output) for a_i, b_i, c in roads for i in range(1, N + 1) if (a_i == i and b_i == S_idx) or (b_i == i and a_i == S_idx)) for i in range(1, N + 1))",
+        "description": "The computed distances respect the newer roads' lengths (direct connections)."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(int(line.split()[i - 1]) == X for (N, K, X, _, S_idx, _), line in zip(test_cases, output) for i in range(1, K + 1) if i != S_idx) for (N, K, _, _, S_idx, _) in test_cases)",
+        "description": "The distance between any two old cities (1..K) is exactly X, if no shorter path exists via newer roads."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": null,\n    \"signature\": \"def solve(T: int, test_cases: list[tuple[int, int, int, int, int, list[tuple[int, int, int]]]]) -> list[str]: ...\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T >= 1 and T <= 3\",\n      \"description\": \"The number of test cases T is between 1 and 3 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(2 <= K <= N <= 10**5 for N, K, _, _, _ in test_cases)\",\n      \"description\": \"For each test case, the number of cities N is between 2 and 10^5, and the number of old cities K is between 2 and N.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= M <= 10**5 for _, _, _, M, _ in test_cases)\",\n      \"description\": \"For each test case, the number of newer roads M is between 0 and 10^5.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= S <= N for _, _, _, _, S in test_cases)\",\n      \"description\": \"For each test case, the starting city S is between 1 and N.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= a_i <= N and 1 <= b_i <= N and a_i != b_i for _, _, _, _, _, roads in test_cases for a_i, b_i, _ in roads)\",\n      \"description\": \"For each test case, every newer road connects two distinct cities a_i and b_i, each between 1 and N.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= c_i <= 10**9 for _, _, _, _, _, roads in test_cases for _, _, c_i in roads)\",\n      \"description\": \"For each test case, every newer road length c_i is between 1 and 10^9.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(len(set((a_i, b_i) for a_i, b_i, _ in roads)) == len(roads) for _, _, _, _, _, roads in test_cases)\",\n      \"description\": \"For each test case, all newer roads are distinct (no duplicate pairs).\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"all(1 <= X <= 10**9 for _, X, _, _, _ in test_cases)\",\n      \"description\": \"For each test case, the length X of roads between old cities is between 1 and 10^9.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output) == T\",\n      \"description\": \"The output contains exactly one line per test case.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(line.split()) == N for line in output)\",\n      \"description\": \"Each output line contains exactly N integers, one for each city.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(all(0 <= int(dist) <= 10**18 for dist in line.split()) for line in output)\",\n      \"description\": \"Each distance in the output is a non-negative integer (up to 10^18).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(int(line.split()[S_idx - 1]) == 0 for (_, _, _, _, S_idx, _), line in zip(test_cases, output))\",\n      \"description\": \"The distance from city S to itself is always 0.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(all(int(line.split()[i - 1]) == int(line.split()[j - 1]) or int(line.split()[i - 1]) < int(line.split()[j - 1]) for i in range(1, N + 1) for j in range(1, N + 1) if i != j) for (N, _, _, _, _, _), line in zip(test_cases, output))\",\n      \"description\": \"The computed distances are consistent with the shortest-path property (transitivity).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(all(int(line.split()[i - 1]) == min(int(line.split()[i - 1]), int(line.split()[j - 1]) + c) for (N, K, X, _, S_idx, roads), line in zip(test_cases, output) for a_i, b_i, c in roads for i in range(1, N + 1) if (a_i == i and b_i == S_idx) or (b_i == i and a_i == S_idx)) for i in range(1, N + 1))\",\n      \"description\": \"The computed distances respect the newer roads' lengths (direct connections).\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"all(all(int(line.split()[i - 1]) == X for (N, K, X, _, S_idx, _), line in zip(test_cases, output) for i in range(1, K + 1) if i != S_idx) for (N, K, _, _, S_idx, _) in test_cases)\",\n      \"description\": \"The distance between any two old cities (1..K) is exactly X, if no shorter path exists via newer roads.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2004,
+  "generated_tokens": 1289,
+  "hit_output_limit": false,
+  "generation_seconds": 56.252,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:27:45.935011+00:00"
+}

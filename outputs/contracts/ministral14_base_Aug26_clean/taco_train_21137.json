@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_21137",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 3 for line in stdin.splitlines()[1:])",
+        "description": "Each event type t is either 1 (boss assignment), 2 (document packet), or 3 (query)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(y) <= n for line in stdin.splitlines()[1:] if line.split()[0] == '1' and len(line.split()) == 3 for x, y in [(line.split()[1], line.split()[2])])",
+        "description": "For type 1 events, x and y are valid employee numbers (1 ≤ x, y ≤ n)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= n for line in stdin.splitlines()[1:] if line.split()[0] == '2' and len(line.split()) == 2 for x in [line.split()[1]])",
+        "description": "For type 2 events, x is a valid employee number (1 ≤ x ≤ n)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(x) <= n and 1 <= int(i) <= packet_count for line in stdin.splitlines()[1:] if line.split()[0] == '3' and len(line.split()) == 3 for x, i in [(line.split()[1], line.split()[2])])",
+        "description": "For type 3 events, x is a valid employee number (1 ≤ x ≤ n) and i is a valid packet number (1 ≤ i ≤ packet_count, where packet_count is the number of packets given so far)."
+      },
+      {
+        "id": "P5",
+        "expression": "n == int(stdin.splitlines()[0].split()[0]) and m == int(stdin.splitlines()[0].split()[1])",
+        "description": "The first line contains integers n (1 ≤ n ≤ 10^5) and m (1 ≤ m ≤ 10^5), representing the number of employees and events, respectively."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(line.split()) == 3 if line.split()[0] == '1' else len(line.split()) == 2 if line.split()[0] == '2' else len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each event line has the correct number of arguments: 3 for type 1 and 3, 2 for type 2."
+      },
+      {
+        "id": "P7",
+        "expression": "any(line.split()[0] == '3' for line in stdin.splitlines()[1:])",
+        "description": "The input contains at least one query of type 3."
+      },
+      {
+        "id": "P8",
+        "expression": "all(not has_cycle(boss_map) for boss_map in [build_boss_map(stdin.splitlines()[1:])])",
+        "description": "The company's boss hierarchy never contains cycles (guaranteed by the problem statement)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['YES', 'NO'] for stdout_line in stdout.splitlines())",
+        "description": "Each output line for a type 3 query is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_line == 'YES') == (x in get_signers(x, i, events) for line in stdin.splitlines()[1:] if line.split()[0] == '3' for x, i in [(line.split()[1], line.split()[2])] for stdout_line in stdout.splitlines() if (x, i) == (line.split()[1], line.split()[2]))",
+        "description": "For each type 3 query (x, i), the output is 'YES' if and only if employee x signed the i-th document packet. The i-th packet is the one given on the i-th type 2 event in chronological order."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each event type t is either 1 (boss assignment), 2 (document packet), or 3 (query).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(x) <= n and 1 <= int(y) <= n for line in stdin.splitlines()[1:] if line.split()[0] == '1' and len(line.split()) == 3 for x, y in [(line.split()[1], line.split()[2])])\",\n      \"description\": \"For type 1 events, x and y are valid employee numbers (1 ≤ x, y ≤ n).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= n for line in stdin.splitlines()[1:] if line.split()[0] == '2' and len(line.split()) == 2 for x in [line.split()[1]])\",\n      \"description\": \"For type 2 events, x is a valid employee number (1 ≤ x ≤ n).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(x) <= n and 1 <= int(i) <= packet_count for line in stdin.splitlines()[1:] if line.split()[0] == '3' and len(line.split()) == 3 for x, i in [(line.split()[1], line.split()[2])])\",\n      \"description\": \"For type 3 events, x is a valid employee number (1 ≤ x ≤ n) and i is a valid packet number (1 ≤ i ≤ packet_count, where packet_count is the number of packets given so far).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"n == int(stdin.splitlines()[0].split()[0]) and m == int(stdin.splitlines()[0].split()[1])\",\n      \"description\": \"The first line contains integers n (1 ≤ n ≤ 10^5) and m (1 ≤ m ≤ 10^5), representing the number of employees and events, respectively.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(len(line.split()) == 3 if line.split()[0] == '1' else len(line.split()) == 2 if line.split()[0] == '2' else len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each event line has the correct number of arguments: 3 for type 1 and 3, 2 for type 2.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"any(line.split()[0] == '3' for line in stdin.splitlines()[1:])\",\n      \"description\": \"The input contains at least one query of type 3.\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"all(not has_cycle(boss_map) for boss_map in [build_boss_map(stdin.splitlines()[1:])])\",\n      \"description\": \"The company's boss hierarchy never contains cycles (guaranteed by the problem statement).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line in ['YES', 'NO'] for stdout_line in stdout.splitlines())\",\n      \"description\": \"Each output line for a type 3 query is either 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout_line == 'YES') == (x in get_signers(x, i, events) for line in stdin.splitlines()[1:] if line.split()[0] == '3' for x, i in [(line.split()[1], line.split()[2])] for stdout_line in stdout.splitlines() if (x, i) == (line.split()[1], line.split()[2]))\",\n      \"description\": \"For each type 3 query (x, i), the output is 'YES' if and only if employee x signed the i-th document packet. The i-th packet is the one given on the i-th type 2 event in chronological order.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1595,
+  "generated_tokens": 1012,
+  "hit_output_limit": false,
+  "generation_seconds": 51.869,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:22:38.600798+00:00"
+}

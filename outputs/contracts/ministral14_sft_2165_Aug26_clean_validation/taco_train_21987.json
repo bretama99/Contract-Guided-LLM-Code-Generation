@@ -1,0 +1,820 @@
+{
+  "task_id": "taco_train_21987",
+  "task_index": 673,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.splitlines()) >= 2 and stdin.splitlines()[1].isdigit()",
+        "description": "The first line is your name (non-empty string), and the second line is an integer n (1 ≤ n ≤ 100) representing the number of actions."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 6 for line in stdin.splitlines()[2:2+n])",
+        "description": "Each of the next n lines contains exactly one action in the format 'X posted on Y's wall', 'X commented on Y's post', or 'X likes Y's post', with exactly one space between words."
+      },
+      {
+        "id": "P3",
+        "expression": "all('s' in line for line in stdin.splitlines()[2:2+n])",
+        "description": "All action lines contain the possessive form 's' (e.g., 'Y's wall', 'Y's post')."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(name) <= 10 for name in re.findall(r'\\b[a-z]{1,10}\\b', stdin))",
+        "description": "All names in the input consist of 1 to 10 lowercase Latin letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+        "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(name != my_name for name in distinct_names)",
+        "description": "The output excludes your name (the first line of input)."
+      },
+      {
+        "id": "Q3",
+        "expression": "distinct_names == sorted(set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name})",
+        "description": "The output includes all distinct names from the input actions (excluding your name), even if their priority factor is zero."
+      },
+      {
+        "id": "Q4",
+        "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in distinct_names}",
+        "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated for all distinct names in the output."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(name in priority for name in distinct_names)",
+        "description": "Every name in the output has a computed priority factor."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.splitlines()) >= 2 and stdin.splitlines()[1].isdigit()",
+        "description": "The first line is your name (non-empty string), and the second line is an integer n (1 ≤ n ≤ 100) representing the number of actions."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 6 for line in stdin.splitlines()[2:2+n])",
+        "description": "Each of the next n lines contains exactly one action in the format 'X posted on Y's wall', 'X commented on Y's post', or 'X likes Y's post', with exactly one space between words."
+      },
+      {
+        "id": "P3",
+        "expression": "all('s' in line for line in stdin.splitlines()[2:2+n])",
+        "description": "All action lines contain the possessive form 's' (e.g., 'Y's wall', 'Y's post')."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(name) <= 10 for name in re.findall(r'\\b[a-z]{1,10}\\b', stdin))",
+        "description": "All names in the input consist of 1 to 10 lowercase Latin letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+        "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(name != my_name for name in distinct_names)",
+        "description": "The output excludes your name (the first line of input)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(name in distinct_names for name in set(re.findall(r'\\b[a-z]{1,10}\\b', stdin)) - {my_name})",
+        "description": "The output includes all distinct names from the input (excluding your name), even if their priority factor is zero."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "f2c021adfa1ddcaf16601689ce8aad1710fb1a3cc9d9246fed5db3042ea95b4c",
+  "selected_contract_fingerprint": "857504e1c6780e4ca4b67f9f3307274ee6174ea7f6cbb9b2a1333e4524e11b04",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_21987.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to compute the priority factor for each name based on the given actions (15 for 'posted', 10 for 'commented', 5 for 'likes').",
+      "task_evidence": "This priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition to compute the priority factor for each name based on the given actions (15 for 'posted', 10 for 'commented', 5 for 'likes').",
+      "task_evidence": "This priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to compute the priority factor for each name based on the given actions (15 for 'posted', 10 for 'commented', 5 for 'likes').",
+        "task_evidence": "This priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to compute the priority factor for each name based on the given actions (15 for 'posted', 10 for 'commented', 5 for 'likes').",
+        "task_evidence": "This priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to compute the priority factor for each name based on the given actions (15 for 'posted', 10 for 'commented', 5 for 'likes').",
+        "task_evidence": "This priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the priority factor is bidirectional (i.e., the priority factor between X and Y is the same as between Y and X).",
+        "task_evidence": "each action will increase the priority factor between X and Y (and vice versa) by the above value of points",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the priority factor is computed correctly for each name (excluding yourself) based on the actions involving them.",
+        "task_evidence": "You will be given n actions... and you have to print all the distinct names in these actions sorted according to the priority factor with you.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the priority factor is computed as the sum of points from all actions involving the name (excluding yourself).",
+        "task_evidence": "The priority factor between X and Y is the same as the priority factor between Y and X.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the priority factor is computed for all distinct names in the input (excluding yourself).",
+        "task_evidence": "The output includes all distinct names from the input (excluding your name), even if their priority factor is zero.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "len(stdin.splitlines()) >= 2 and stdin.splitlines()[1].isdigit()",
+          "description": "The first line is your name (non-empty string), and the second line is an integer n (1 ≤ n ≤ 100) representing the number of actions."
+        },
+        {
+          "id": "P2",
+          "expression": "all(len(line.split()) == 6 for line in stdin.splitlines()[2:2+n])",
+          "description": "Each of the next n lines contains exactly one action in the format 'X posted on Y's wall', 'X commented on Y's post', or 'X likes Y's post', with exactly one space between words."
+        },
+        {
+          "id": "P3",
+          "expression": "all('s' in line for line in stdin.splitlines()[2:2+n])",
+          "description": "All action lines contain the possessive form 's' (e.g., 'Y's wall', 'Y's post')."
+        },
+        {
+          "id": "P4",
+          "expression": "all(1 <= len(name) <= 10 for name in re.findall(r'\\b[a-z]{1,10}\\b', stdin))",
+          "description": "All names in the input consist of 1 to 10 lowercase Latin letters."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+          "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+        },
+        {
+          "id": "Q2",
+          "expression": "all(name != my_name for name in distinct_names)",
+          "description": "The output excludes your name (the first line of input)."
+        },
+        {
+          "id": "Q3",
+          "expression": "distinct_names == sorted(set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name})",
+          "description": "The output includes all distinct names from the input actions (excluding your name), even if their priority factor is zero."
+        },
+        {
+          "id": "Q4",
+          "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in distinct_names}",
+          "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated for all distinct names in the output."
+        },
+        {
+          "id": "Q5",
+          "expression": "all(name in priority for name in distinct_names)",
+          "description": "Every name in the output has a computed priority factor."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: audit keys must be exactly checks,issues"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition to compute the priority factor for each name based on the given actions (15 for 'posted', 10 for 'commented', 5 for 'likes').",
+          "task_evidence": "This priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in set(re.findall(r'\\b[a-z]{1,10}\\b', stdin)) - {my_name}}",
+          "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'posted', 10 points for 'commented', and 5 points for 'likes'."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "3d577673956ce9261ba4b91f757bb8e8123dac33b9a6f84fda09d70c8bbb97e5",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all three action types and ensure the name extraction matches the task's requirements.",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all three action types and ensure the name extraction matches the task's requirements.",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure the priority factor is computed only for names appearing in actions (excluding your name).",
+            "task_evidence": "You have to print all the distinct names in these actions sorted according to the priority factor with you.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Fix the priority calculation logic to correctly handle all three action types and ensure the name extraction matches the task's requirements.",
+          "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in set(re.findall(r'\\b[a-z]+\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name}}",
+          "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated only for names appearing in the actions (excluding your name)."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "9860f206d0e42ff3b78c28f1377cde780629c82ed86c1e242100e3b425c08da7",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all action types and ensure the priority factor is computed for all names (excluding your name) appearing in the actions.",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure the priority factor is computed for all distinct names in the input (excluding your name), even if they have zero priority.",
+            "task_evidence": "The output includes all distinct names from the input (excluding your name), even if their priority factor is zero.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 2
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all three action types and ensure the name extraction matches the task's requirements.",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+            "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(name != my_name for name in distinct_names)",
+            "description": "The output excludes your name (the first line of input)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(name in distinct_names for name in set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name})",
+            "description": "The output includes all distinct names from the input actions (excluding your name), even if their priority factor is zero."
+          },
+          {
+            "id": "Q4",
+            "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name}}",
+            "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated for all distinct names in the actions (excluding your name)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(name in priority for name in distinct_names)",
+            "description": "Every name in the output has a computed priority factor."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "9ef6aae32b5d37ed59983af23c79e50d337bd46cac4ed8fda144c127f0576906",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all action types and name positions. The current expression fails to account for the correct parsing of action lines (e.g., 'X posted on Y's wall' should split into 6 parts, but the logic for 'likes' is misaligned).",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all action types and name positions. The current expression fails to account for the correct parsing of action lines (e.g., 'X posted on Y's wall' should split into 6 parts, but the logic for 'likes' is misaligned).",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure the priority factor is computed for all distinct names in the actions (including those not directly interacting with you, but excluding your name). The current contract does not explicitly enforce this for all names in the input.",
+            "task_evidence": "The priority factor between X and Y is the same as the priority factor between Y and X. You have to print all the distinct names in these actions sorted according to the priority factor with you.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression for `distinct_names` is redundant and incorrect. It should directly derive from the set of names in the actions (excluding your name), not rely on a regex-based extraction that may not align with the task's requirements.",
+            "task_evidence": "Print m lines, where m is the number of distinct names in the input (excluding yourself).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The sorting key in the expression is incorrect. The priority factor should be computed for each name's interaction with you (not just any interaction), and the lexicographical order should only apply as a tiebreaker.",
+            "task_evidence": "The names should be sorted according to the priority factor with you in the descending order. If two or more names have the same priority factor, print them in the alphabetical (lexicographical) order.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[0].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all action types and name positions. The current expression fails to account for the correct parsing of action lines (e.g., 'X posted on Y's wall' should split into 6 parts, but the logic for 'likes' is misaligned).",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+            "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(name != my_name for name in distinct_names)",
+            "description": "The output excludes your name (the first line of input)."
+          },
+          {
+            "id": "Q3",
+            "expression": "distinct_names == sorted(set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name})",
+            "description": "The output includes all distinct names from the input actions (excluding your name), even if their priority factor is zero."
+          },
+          {
+            "id": "Q4",
+            "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name}}",
+            "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated for all distinct names in the actions (excluding your name)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(name in priority for name in distinct_names)",
+            "description": "Every name in the output has a computed priority factor."
+          },
+          {
+            "id": "Q6",
+            "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in distinct_names}",
+            "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated for all distinct names in the output."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "466b76917fa1b2ff4a1e3e7a2ba2c2ce2ce969fa36f252bf7b968653280b3899",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_audit_structured_output_unresolved",
+        "verification_model_calls": 2,
+        "checks": null,
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_failed",
+            "detail": "semantic_audit: issue[3] schema invalid: invalid action 'align' for 'incorrect_clause'"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Fix the priority calculation logic to correctly handle all action types and name positions. The current expression fails to account for the correct parsing of action lines (e.g., 'X posted on Y's wall' should split into 6 parts, but the logic for 'likes' is misaligned).",
+            "task_evidence": "The priority factor will be affected by three types of actions: 1. 'X posted on Y's wall' (15 points), 2. 'X commented on Y's post' (10 points), 3. 'X likes Y's post' (5 points).",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+            "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(name != my_name for name in distinct_names)",
+            "description": "The output excludes your name (the first line of input)."
+          },
+          {
+            "id": "Q3",
+            "expression": "distinct_names == sorted(set(re.findall(r'\\b[a-z]{1,10}\\b', ' '.join(stdin.splitlines()[2:2+n]))) - {my_name})",
+            "description": "The output includes all distinct names from the input actions (excluding your name), even if their priority factor is zero."
+          },
+          {
+            "id": "Q4",
+            "expression": "priority == {name: sum(15 if ('posted' in line and name in (line.split()[0], line.split()[3])) else 10 if ('commented' in line and name in (line.split()[0], line.split()[3])) else 5 if ('likes' in line and name in (line.split()[0], line.split()[2])) else 0 for line in stdin.splitlines()[2:2+n]) for name in distinct_names}",
+            "description": "The priority factor for each name is computed by summing the points from all actions where the name appears as either X or Y: 15 points for 'X posted on Y's wall', 10 points for 'X commented on Y's post', and 5 points for 'X likes Y's post'. The priority factor is calculated for all distinct names in the output."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(name in priority for name in distinct_names)",
+            "description": "Every name in the output has a computed priority factor."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "857504e1c6780e4ca4b67f9f3307274ee6174ea7f6cbb9b2a1333e4524e11b04",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 362.339,
+  "processing_error": null,
+  "finished_at": "2026-09-04T04:29:15.418357+00:00"
+}

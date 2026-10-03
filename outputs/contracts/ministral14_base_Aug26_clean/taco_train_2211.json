@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_2211",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) <= 100000 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[2]) <= 10**9 for line in stdin.splitlines()[1:])",
+        "description": "The first line contains two integers n (2 ≤ n ≤ 100 000) and m (1 ≤ m ≤ 300 000). Each of the next m lines contains three integers ai, bi, and li (1 ≤ ai, bi ≤ n; ai ≠ bi; 1 ≤ li ≤ 10^9), representing a path between pastures ai and bi with length li."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == m + 1",
+        "description": "The input consists of exactly m + 1 lines: one line for n and m, followed by m lines for the paths."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each path line contains exactly three integers: ai, bi, and li."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.strip()) == 1 and (line.strip() == '-1' or (line.strip().isdigit() and 1 <= int(line.strip()) <= 10**9)) for line in stdout.splitlines())",
+        "description": "For each of the m lines of output, the line contains either '-1' (indicating no sunny paving exists) or a positive integer representing the minimum possible length of the longest paved path in a sunny paving using the first i paths."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout.splitlines()[i] == '-1') or (all(1 <= int(line.split()[2]) <= int(stdout.splitlines()[i]) for line in stdin.splitlines()[1:i+1]) if stdout.splitlines()[i] != '-1' else True) for i in range(m))",
+        "description": "If a sunny paving exists for the first i paths, the output is the minimum possible maximum length of paved paths in such a paving. If no such paving exists, the output is '-1'. The output for the i-th line depends only on the first i paths."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout.splitlines()[i] == '-1') or (any(all(1 <= int(line.split()[2]) <= int(stdout.splitlines()[i]) for line in selected_paths) and all(sum(1 for path in selected_paths if pasture in {path[0], path[1]}) % 2 == 1 for pasture in range(1, int(stdin.splitlines()[0].split()[0]) + 1)) for selected_paths in possible_pavings) if stdout.splitlines()[i] != '-1' else True) for i in range(m))",
+        "description": "For each i, if the output is not '-1', there exists a subset of the first i paths (selected_paths) where every pasture is incident to an odd number of paved paths (sunny paving), and the maximum length of the paved paths in this subset is equal to the output value. Here, possible_pavings is the set of all valid sunny paving subsets of the first i paths."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 100000 for line in stdin.splitlines()[0:1]) and all(1 <= int(line.split()[2]) <= 10**9 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The first line contains two integers n (2 ≤ n ≤ 100 000) and m (1 ≤ m ≤ 300 000). Each of the next m lines contains three integers ai, bi, and li (1 ≤ ai, bi ≤ n; ai ≠ bi; 1 ≤ li ≤ 10^9), representing a path between pastures ai and bi with length li.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == m + 1\",\n      \"description\": \"The input consists of exactly m + 1 lines: one line for n and m, followed by m lines for the paths.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each path line contains exactly three integers: ai, bi, and li.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.strip()) == 1 and (line.strip() == '-1' or (line.strip().isdigit() and 1 <= int(line.strip()) <= 10**9)) for line in stdout.splitlines())\",\n      \"description\": \"For each of the m lines of output, the line contains either '-1' (indicating no sunny paving exists) or a positive integer representing the minimum possible length of the longest paved path in a sunny paving using the first i paths.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout.splitlines()[i] == '-1') or (all(1 <= int(line.split()[2]) <= int(stdout.splitlines()[i]) for line in stdin.splitlines()[1:i+1]) if stdout.splitlines()[i] != '-1' else True) for i in range(m))\",\n      \"description\": \"If a sunny paving exists for the first i paths, the output is the minimum possible maximum length of paved paths in such a paving. If no such paving exists, the output is '-1'. The output for the i-th line depends only on the first i paths.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout.splitlines()[i] == '-1') or (any(all(1 <= int(line.split()[2]) <= int(stdout.splitlines()[i]) for line in selected_paths) and all(sum(1 for path in selected_paths if pasture in {path[0], path[1]}) % 2 == 1 for pasture in range(1, int(stdin.splitlines()[0].split()[0]) + 1)) for selected_paths in possible_pavings) if stdout.splitlines()[i] != '-1' else True) for i in range(m))\",\n      \"description\": \"For each i, if the output is not '-1', there exists a subset of the first i paths (selected_paths) where every pasture is incident to an odd number of paved paths (sunny paving), and the maximum length of the paved paths in this subset is equal to the output value. Here, possible_pavings is the set of all valid sunny paving subsets of the first i paths.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1811,
+  "generated_tokens": 852,
+  "hit_output_limit": false,
+  "generation_seconds": 38.592,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:40:57.226289+00:00"
+}

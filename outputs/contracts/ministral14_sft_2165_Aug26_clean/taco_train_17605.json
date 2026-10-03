@@ -1,0 +1,86 @@
+{
+  "task_id": "taco_train_17605",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(int(line.split()), list) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit())",
+        "description": "Each friend list line contains space-separated integers representing friend labels."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit() and int(line) > 0)",
+        "description": "Each friend label is a positive integer between 1 and 100."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(friends) >= 1 for friends in [line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()])",
+        "description": "Each friend has at least one friend in their list."
+      },
+      {
+        "id": "P4",
+        "expression": "all(friend not in friends for friends in [line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()] for friend in friends)",
+        "description": "No friend is in their own friend list."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit() and int(line) > 0 and int(line) <= 100)",
+        "description": "Number of friends in a group is between 1 and 100."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit() and int(line) > 0 and int(line) <= 100)",
+        "description": "Number of groups is at most 100."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "Each output line contains exactly two space-separated values: the most popular friend label and the average distance."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output_line.split()[0].isdigit() for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "The first value in each output line is a valid friend label."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= float(output_line.split()[1]) <= 100 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "The second value in each output line is a valid average distance between 0 and 100."
+      },
+      {
+        "id": "Q4",
+        "expression": "all('{:.6f}'.format(float(output_line.split()[1])) == output_line.split()[1] for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "The average distance is printed with exactly six decimal places."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(min([(sum(distances[friend]) / len(distances[friend]), friend) for friend in friends])[1] == int(output_line.split()[0]) for friends, output_line in zip([line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()], stdout.splitlines()) if output_line.strip())",
+        "description": "The most popular friend is the one with the least average distance (notoriety) from all other friends in the group. In case of a tie, the friend with the smallest label is chosen."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(float(output_line.split()[1]) == sum(distances[most_popular_friend]) / len(distances[most_popular_friend]) for friends, output_line in zip([line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()], stdout.splitlines()) if output_line.strip() for most_popular_friend in [min([(sum(distances[friend]) / len(distances[friend]), friend) for friend in friends])[1]] for distances in [compute_distances(friends)])",
+        "description": "The average distance is correctly computed as the average of distances from all friends to the most popular friend."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(isinstance(int(line.split()), list) for line in stdin.splitlines() if line.strip() and not line.strip().isdigit())\",\n      \"description\": \"Each friend list line contains space-separated integers representing friend labels.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit() and int(line) > 0)\",\n      \"description\": \"Each friend label is a positive integer between 1 and 100.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(friends) >= 1 for friends in [line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()])\",\n      \"description\": \"Each friend has at least one friend in their list.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(friend not in friends for friends in [line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()] for friend in friends)\",\n      \"description\": \"No friend is in their own friend list.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit() and int(line) > 0 and int(line) <= 100)\",\n      \"description\": \"Number of friends in a group is between 1 and 100.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= int(line) <= 100 for line in stdin.splitlines() if line.strip().isdigit() and int(line) > 0 and int(line) <= 100)\",\n      \"description\": \"Number of groups is at most 100.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"Each output line contains exactly two space-separated values: the most popular friend label and the average distance.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output_line.split()[0].isdigit() for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"The first value in each output line is a valid friend label.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= float(output_line.split()[1]) <= 100 for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"The second value in each output line is a valid average distance between 0 and 100.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all('{:.6f}'.format(float(output_line.split()[1])) == output_line.split()[1] for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"The average distance is printed with exactly six decimal places.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(min([(sum(distances[friend]) / len(distances[friend]), friend) for friend in friends])[1] == int(output_line.split()[0]) for friends, output_line in zip([line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()], stdout.splitlines()) if output_line.strip())\",\n      \"description\": \"The most popular friend is the one with the least average distance (notoriety) from all other friends in the group. In case of a tie, the friend with the smallest label is chosen.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(float(output_line.split()[1]) == sum(distances[most_popular_friend]) / len(distances[most_popular_friend]) for friends, output_line in zip([line.split() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()], stdout.splitlines()) if output_line.strip() for most_popular_friend in [min([(sum(distances[friend]) / len(distances[friend]), friend) for friend in friends])[1]] for distances in [compute_distances(friends)])\",\n      \"description\": \"The average distance is correctly computed as the average of distances from all friends to the most popular friend.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1790,
+  "generated_tokens": 1068,
+  "hit_output_limit": false,
+  "generation_seconds": 48.022,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:35:48.756244+00:00"
+}

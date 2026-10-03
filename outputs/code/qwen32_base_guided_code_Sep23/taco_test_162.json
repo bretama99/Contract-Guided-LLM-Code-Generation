@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_test_162",
+  "task_index": 159,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_test_162.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef solve(n, m, friendships):\n    graph = defaultdict(list)\n    for i, j, b in friendships:\n        graph[i].append((j, b))\n        graph[j].append((i, 1 - b))\n    \n    visited = [False] * (n + 1)\n    incomes = [None] * (n + 1)\n    \n    def bfs(start):\n        queue = deque([(start, 0)])\n        while queue:\n            node, income = queue.popleft()\n            if visited[node]:\n                continue\n            visited[node] = True\n            incomes[node] = income\n            for neighbor, b in graph[node]:\n                if not visited[neighbor]:\n                    if b == 1:\n                        queue.append((neighbor, income + 1))\n                    else:\n                        queue.append((neighbor, income - 1))\n    \n    for i in range(1, n + 1):\n        if not visited[i]:\n            bfs(i)\n    \n    for i, j, b in friendships:\n        if b == 1 and abs(incomes[i] - incomes[j]) != 1:\n            return \"NO\"\n        if abs(incomes[i] - incomes[j]) != 1:\n            return f\"NO\"\n    \n    max_income = max(incomes[1:])\n    min_income = min(incomes[1:])\n    inequality = max_income - min_income\n    \n    adjusted_incomes = [x - min_income for x in incomes[1:]]\n    \n    return f\"YES\\n{inequality}\\n{' '.join(map(str, adjusted_incomes))}\"\n\ninput = sys.stdin.read().strip().split()\nn = int(input[0])\nm = int(input[1])\nfriendships = [(int(input[3*i+2]), int(input[3*i+3]), int(input[3*i+4])) for i in range(m)]\nprint(solve(n, m, friendships))",
+  "generation_seconds": 36.919,
+  "generated_at": "2026-09-23T20:31:11.493950+00:00"
+}

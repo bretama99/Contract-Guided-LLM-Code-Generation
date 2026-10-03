@@ -1,0 +1,51 @@
+{
+  "task_id": "taco_train_19525",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 1500 and 1 <= m <= 1500 for n, m in [(int(stdin.split()[0]), int(stdin.split()[1]))])",
+        "description": "Input dimensions n and m are integers between 1 and 1500 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == m for line in stdin.splitlines()[2:2+n]) and all(len(line.split()) == m for line in stdin.splitlines()[2+n:2+2*n])",
+        "description": "Each of the n lines for table A and table B contains exactly m integers."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x) <= n for line in stdin.splitlines()[2:2+n] for x in line.split()) and all(1 <= int(x) <= n for line in stdin.splitlines()[2+n:2+2*n] for x in line.split())",
+        "description": "All elements in tables A and B are integers between 1 and n inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (stdout.strip().split() and (int(stdout.strip().split()[0]) == k for k in range(0, 5001)) and all(1 <= int(c) <= m for c in stdout.strip().split()[1:]))",
+        "description": "Output is either '-1' if no valid sequence exists, or a non-negative integer k (0 ≤ k ≤ 5000) followed by k integers c_i (1 ≤ c_i ≤ m) representing the columns to sort by."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and (lambda: (lambda A, B, cols: all(all(A[i][j] == B[perm[i]][j] for j in range(m)) for i in range(n)) for A, B, perm in [(parse_table_A(), parse_table_B(), compute_permutation(parse_table_A(), parse_table_B(), [int(c)-1 for c in stdout.strip().split()[1:]]) if stdout.strip().split()[0] != '0' else [i for i in range(n)])))(parse_table_A(), parse_table_B(), [int(c)-1 for c in stdout.strip().split()[1:]]) if stdout.strip().split()[0] != '0' else True)",
+        "description": "If the output is not '-1', applying the sequence of column sorts (1-based) to table A yields table B, where each sort is stable and preserves relative order of equal elements in the chosen column."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 1500 and 1 <= m <= 1500 for n, m in [(int(stdin.split()[0]), int(stdin.split()[1]))])\",\n      \"description\": \"Input dimensions n and m are integers between 1 and 1500 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == m for line in stdin.splitlines()[2:2+n]) and all(len(line.split()) == m for line in stdin.splitlines()[2+n:2+2*n])\",\n      \"description\": \"Each of the n lines for table A and table B contains exactly m integers.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x) <= n for line in stdin.splitlines()[2:2+n] for x in line.split()) and all(1 <= int(x) <= n for line in stdin.splitlines()[2+n:2+2*n] for x in line.split())\",\n      \"description\": \"All elements in tables A and B are integers between 1 and n inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == '-1' or (stdout.strip().split() and (int(stdout.strip().split()[0]) == k for k in range(0, 5001)) and all(1 <= int(c) <= m for c in stdout.strip().split()[1:]))\",\n      \"description\": \"Output is either '-1' if no valid sequence exists, or a non-negative integer k (0 ≤ k ≤ 5000) followed by k integers c_i (1 ≤ c_i ≤ m) representing the columns to sort by.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() != '-1' and (lambda: (lambda A, B, cols: all(all(A[i][j] == B[perm[i]][j] for j in range(m)) for i in range(n)) for A, B, perm in [(parse_table_A(), parse_table_B(), compute_permutation(parse_table_A(), parse_table_B(), [int(c)-1 for c in stdout.strip().split()[1:]]) if stdout.strip().split()[0] != '0' else [i for i in range(n)])))(parse_table_A(), parse_table_B(), [int(c)-1 for c in stdout.strip().split()[1:]]) if stdout.strip().split()[0] != '0' else True)\",\n      \"description\": \"If the output is not '-1', applying the sequence of column sorts (1-based) to table A yields table B, where each sort is stable and preserves relative order of equal elements in the chosen column.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1702,
+  "generated_tokens": 688,
+  "hit_output_limit": false,
+  "generation_seconds": 31.116,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:03:30.492518+00:00"
+}

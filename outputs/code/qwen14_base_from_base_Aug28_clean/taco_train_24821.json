@@ -1,0 +1,23 @@
+{
+  "task_id": "taco_train_24821",
+  "dataset": "taco",
+  "workflow": "contract_guided",
+  "provider": "local_transformers",
+  "model": "qwen14-base-from-base-Aug28-clean",
+  "model_type": "qwen2",
+  "attention_implementation": "sdpa",
+  "starter_code_included": false,
+  "reference_solution_included": false,
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen14_base_Aug28_clean/taco_train_24821.json",
+  "contract_source": "parsed_contract",
+  "contract_schema_ok": true,
+  "raw_response": "```python\nimport sys\nfrom collections import defaultdict, deque\n\ndef read_input():\n    import sys\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    M = int(data[1])\n    \n    E = list(map(int, data[2:2+N]))\n    \n    dependencies = []\n    index = 2 + N\n    for _ in range(M):\n        T1 = int(data[index])\n        T2 = int(data[index + 1])\n        dependencies.append((T1, T2))\n        index += 2\n    \n    return N, M, E, dependencies\n\ndef topological_sort(N, dependencies):\n    in_degree = [0] * N\n    graph = defaultdict(list)\n    \n    for T1, T2 in dependencies:\n        graph[T2].append(T1)\n        in_degree[T1] += 1\n    \n    queue = deque([i for i in range(N) if in_degree[i] == 0])\n    topo_order = []\n    \n    while queue:\n        node = queue.popleft()\n        topo_order.append(node)\n        for neighbor in graph[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    return topo_order\n\ndef min_coprocessor_calls(N, M, E, dependencies):\n    topo_order = topological_sort(N, dependencies)\n    coprocessor_calls = 0\n    current_set = set()\n    \n    for task in topo_order:\n        if E[task] == 1:\n            current_set.add(task)\n            for dep in dependencies:\n                if dep[0] == task and dep[1] not in current_set:\n                    break\n            else:\n                coprocessor_calls += 1\n                current_set.clear()\n    \n    if current_set:\n        coprocessor_calls += 1\n    \n    return coprocessor_calls\n\ndef main():\n    N, M, E, dependencies = read_input()\n    result = min_coprocessor_calls(N, M, E, dependencies)\n    print(result)\n\nif __name__ == \"__main__\":\n    main()\n```",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef read_input():\n    import sys\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    M = int(data[1])\n    \n    E = list(map(int, data[2:2+N]))\n    \n    dependencies = []\n    index = 2 + N\n    for _ in range(M):\n        T1 = int(data[index])\n        T2 = int(data[index + 1])\n        dependencies.append((T1, T2))\n        index += 2\n    \n    return N, M, E, dependencies\n\ndef topological_sort(N, dependencies):\n    in_degree = [0] * N\n    graph = defaultdict(list)\n    \n    for T1, T2 in dependencies:\n        graph[T2].append(T1)\n        in_degree[T1] += 1\n    \n    queue = deque([i for i in range(N) if in_degree[i] == 0])\n    topo_order = []\n    \n    while queue:\n        node = queue.popleft()\n        topo_order.append(node)\n        for neighbor in graph[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    return topo_order\n\ndef min_coprocessor_calls(N, M, E, dependencies):\n    topo_order = topological_sort(N, dependencies)\n    coprocessor_calls = 0\n    current_set = set()\n    \n    for task in topo_order:\n        if E[task] == 1:\n            current_set.add(task)\n            for dep in dependencies:\n                if dep[0] == task and dep[1] not in current_set:\n                    break\n            else:\n                coprocessor_calls += 1\n                current_set.clear()\n    \n    if current_set:\n        coprocessor_calls += 1\n    \n    return coprocessor_calls\n\ndef main():\n    N, M, E, dependencies = read_input()\n    result = min_coprocessor_calls(N, M, E, dependencies)\n    print(result)\n\nif __name__ == \"__main__\":\n    main()",
+  "prompt_tokens": 1139,
+  "generated_tokens": 450,
+  "max_new_tokens_used": 4096,
+  "hit_output_limit": false,
+  "generation_seconds": 21.719,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T06:55:50.992993+00:00"
+}

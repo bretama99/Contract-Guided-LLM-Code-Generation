@@ -1,0 +1,223 @@
+{
+  "task_id": "taco_train_538",
+  "task_index": 111,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "The number of test cases t is an integer between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(l == int(l) and r == int(r) and 1 <= l <= r <= 10**9 for l, r in [line.split() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case contains two integers l and r where 1 ≤ l ≤ r ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip() in ['YES', 'NO'] for stdout in [line.strip() for line in stdout.splitlines()])",
+        "description": "For each test case, the output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout == 'YES') == any(a > 0 and all((x // a) * a + (a if (x % a) >= (a / 2) else 0) > x for x in range(l, r + 1)) for a in range(1, r + 1)) for l, r, stdout in zip([int(line.split()[0]) for line in stdin.splitlines()[1:t+1]], [int(line.split()[1]) for line in stdin.splitlines()[1:t+1]], [line.strip() for line in stdout.splitlines()]))",
+        "description": "For each test case, 'YES' is printed if there exists an integer a such that for every x in [l, r], the customer buys more cans than they wanted initially. Otherwise, 'NO' is printed."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "The number of test cases t is an integer between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(l == int(l) and r == int(r) and 1 <= l <= r <= 10**9 for l, r in [line.split() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case contains two integers l and r where 1 ≤ l ≤ r ≤ 10^9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout.strip() in ['YES', 'NO'] for stdout in [line.strip() for line in stdout.splitlines()])",
+        "description": "For each test case, the output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout == 'YES') == any(a > 0 and all((x // a) * a + (a if (x % a) >= (a / 2) else 0) > x for x in range(l, r + 1)) for a in range(1, r + 1)) for l, r, stdout in zip([int(line.split()[0]) for line in stdin.splitlines()[1:t+1]], [int(line.split()[1]) for line in stdin.splitlines()[1:t+1]], [line.strip() for line in stdout.splitlines()]))",
+        "description": "For each test case, 'YES' is printed if there exists an integer a such that for every x in [l, r], the customer buys more cans than they wanted initially. Otherwise, 'NO' is printed."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "905d08af23fa95e296c5c50e9249cec0af23db1d42b7b4cec27ca8f13df5e5b7",
+  "selected_contract_fingerprint": "905d08af23fa95e296c5c50e9249cec0af23db1d42b7b4cec27ca8f13df5e5b7",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_538.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the requirement that the customer must buy *more* cans than they wanted initially. The current expression checks for `> x`, but the logic for `a` selection and the modulo condition is not fully aligned with the task's greedy strategy. Specifically, the expression does not enforce that the customer's final purchase is strictly greater than `x` for *all* `x` in `[l, r]` when `a` is chosen optimally. The task requires that for *every* `x` in `[l, r]`, the customer's purchase exceeds `x` (i.e., `(x // a) * a + (a if (x % a) >= (a / 2) else 0) > x`). The current expression's `a` range (`range(1, r + 1)`) is also impractical for large `r` (up to 1e9) and does not reflect the task's intent to find *any* valid `a` (not necessarily brute-forcing all possibilities).",
+        "task_evidence": "Can you choose such size of pack $a$ that each customer buys more cans than they wanted initially?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract lacks a postcondition that ensures the chosen `a` (if it exists) is such that for *every* `x` in `[l, r]`, the customer's purchase is strictly greater than `x`. The current expression does not explicitly enforce this for all `x` in the range, nor does it account for the fact that `a` must be chosen *once* to satisfy all `x` in `[l, r]` simultaneously.",
+        "task_evidence": "Can you choose such size of pack $a$ that each customer buys more cans than they wanted initially?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "issue_confirmation: REJECTED needs issue_index=null"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the requirement that the customer must buy *more* cans than they wanted initially. The current expression checks for `> x`, but the logic for `a` selection and the modulo condition is not fully aligned with the task's greedy strategy. Specifically, the expression does not enforce that the customer's final purchase is strictly greater than `x` for *all* `x` in `[l, r]` when `a` is chosen optimally. The task requires that for *every* `x` in `[l, r]`, the customer's purchase exceeds `x` (i.e., `(x // a) * a + (a if (x % a) >= (a / 2) else 0) > x`). The current expression's `a` range (`range(1, r + 1)`) is also impractical for large `r` (up to 1e9) and does not reflect the task's intent to find *any* valid `a` (not necessarily brute-forcing all possibilities).",
+        "task_evidence": "Can you choose such size of pack $a$ that each customer buys more cans than they wanted initially?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract lacks a postcondition that ensures the chosen `a` (if it exists) is such that for *every* `x` in `[l, r]`, the customer's purchase is strictly greater than `x`. The current expression does not explicitly enforce this for all `x` in the range, nor does it account for the fact that `a` must be chosen *once* to satisfy all `x` in `[l, r]` simultaneously.",
+        "task_evidence": "Can you choose such size of pack $a$ that each customer buys more cans than they wanted initially?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 2
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "issue_confirmation: REJECTED needs issue_index=null"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 22.969,
+  "processing_error": null,
+  "finished_at": "2026-09-04T01:45:33.833878+00:00"
+}

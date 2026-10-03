@@ -1,0 +1,353 @@
+{
+  "task_id": "taco_train_19292",
+  "task_index": 6,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200 and 2 <= m <= 10**5",
+        "description": "n is the number of time-steps (1 ≤ n ≤ 200) and m is the number of target banana counts (2 ≤ m ≤ 10^5)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t_i <= 2 for t_i, _, _ in operations) and all(1 <= y_i <= m for _, _, y_i in operations)",
+        "description": "Each operation has a type t_i (1 or 2) and a bound y_i (1 ≤ y_i ≤ m)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 1) and all(10**5 < x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 2)",
+        "description": "For type 1, x'_i is in [1, 10^5 * m]; for type 2, x'_i is in (10^5, 10^5 * m]."
+      },
+      {
+        "id": "P4",
+        "expression": "len(operations) == n",
+        "description": "The input contains exactly n operations."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == m and all(1 <= j <= m for j in range(1, m + 1))",
+        "description": "The output is a list of exactly m integers, one for each target banana count j from 1 to m."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output[j - 1] == -1 or (1 <= output[j - 1] <= n) for j in range(1, m + 1))",
+        "description": "For each target j, output[j - 1] is either -1 (impossible) or a valid time-step index (1 ≤ output[j - 1] ≤ n)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output[j - 1] == -1) or (exists(sequence, k_sequence) where (len(sequence) == output[j - 1]) and (k_sequence[0] == 0) and (all(k_sequence[i] == k_sequence[i - 1] if a_i == 0 else (k_sequence[i] == ceil(k_sequence[i - 1] + x_i) if t_i == 1 else k_sequence[i] == ceil(k_sequence[i - 1] * x_i)) for i in range(1, output[j - 1] + 1)) and (k_sequence[output[j - 1]] == j))) for j in range(1, m + 1))",
+        "description": "For each target j, if output[j - 1] is not -1, there exists a sequence of operations and choices of a_i such that after applying the first output[j - 1] operations, exactly j bananas are obtained."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output[j - 1] == -1) or (all(output[k - 1] == -1 or output[k - 1] > output[j - 1] for k in range(1, j))) for j in range(1, m + 1))",
+        "description": "If a target j is reachable, its earliest time-step is strictly before any later reachable target k > j."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 200 and 2 <= m <= 10**5",
+        "description": "n is the number of time-steps (1 ≤ n ≤ 200) and m is the number of target banana counts (2 ≤ m ≤ 10^5)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t_i <= 2 for t_i, _, _ in operations) and all(1 <= y_i <= m for _, _, y_i in operations)",
+        "description": "Each operation has a type t_i (1 or 2) and a bound y_i (1 ≤ y_i ≤ m)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 1) and all(10**5 < x_prime_i <= 10**5 * m for t_i, x_prime_i, _ in operations if t_i == 2)",
+        "description": "For type 1, x'_i is in [1, 10^5 * m]; for type 2, x'_i is in (10^5, 10^5 * m]."
+      },
+      {
+        "id": "P4",
+        "expression": "len(operations) == n",
+        "description": "The input contains exactly n operations."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == m and all(1 <= j <= m for j in range(1, m + 1))",
+        "description": "The output is a list of exactly m integers, one for each target banana count j from 1 to m."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output[j - 1] == -1 or (1 <= output[j - 1] <= n) for j in range(1, m + 1))",
+        "description": "For each target j, output[j - 1] is either -1 (impossible) or a valid time-step index (1 ≤ output[j - 1] ≤ n)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output[j - 1] == -1) or (exists(sequence, k_sequence) where (len(sequence) == output[j - 1]) and (k_sequence[0] == 0) and (all(k_sequence[i] == k_sequence[i - 1] if a_i == 0 else (k_sequence[i] == ceil(k_sequence[i - 1] + x_i) if t_i == 1 else k_sequence[i] == ceil(k_sequence[i - 1] * x_i)) for i in range(1, output[j - 1] + 1)) and (k_sequence[output[j - 1]] == j))) for j in range(1, m + 1))",
+        "description": "For each target j, if output[j - 1] is not -1, there exists a sequence of operations and choices of a_i such that after applying the first output[j - 1] operations, exactly j bananas are obtained."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((output[j - 1] == -1) or (all(output[k - 1] == -1 or output[k - 1] > output[j - 1] for k in range(1, j))) for j in range(1, m + 1))",
+        "description": "If a target j is reachable, its earliest time-step is strictly before any later reachable target k > j."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "fa5a34342fb16df73a7baa8787b3b9f5bf415682e7e79e0f82c7d41c99e01a1f",
+  "selected_contract_fingerprint": "fa5a34342fb16df73a7baa8787b3b9f5bf415682e7e79e0f82c7d41c99e01a1f",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_19292.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence of operations and choices of a_i are consistent with the given constraints (0 ≤ a_i ≤ y_i) for each operation.",
+        "task_evidence": "pick an a_i, such that 0 ≤ a_i ≤ y_i",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the earliest time-step for a target j is the minimal possible across all valid sequences of operations.",
+        "task_evidence": "earliest time-step at which you can create exactly j bananas",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly enforce that for all reachable targets j, the earliest time-step is strictly before any later reachable target k > j, and that no earlier time-step is possible for j.",
+        "task_evidence": "earliest time-step at which you can create exactly j bananas",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output for unreachable targets is -1, and for reachable targets, the time-step is valid and minimal.",
+        "task_evidence": "If you cannot create exactly j bananas, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence of operations respects the ceiling function (⌈x⌉) for both type 1 and type 2 operations.",
+        "task_evidence": "k:=⌈(k + x_i)⌉ and k:=⌈(k ⋅ x_i)⌉",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output for j=1 is -1 if it is impossible to create exactly 1 banana (since k starts at 0 and operations may not allow reaching 1).",
+        "task_evidence": "Initially, k = 0.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 6
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence of operations and choices of a_i are consistent with the given constraints (0 ≤ a_i ≤ y_i) for each operation.",
+        "task_evidence": "pick an a_i, such that 0 ≤ a_i ≤ y_i",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the earliest time-step for a target j is the minimal possible across all valid sequences of operations.",
+        "task_evidence": "earliest time-step at which you can create exactly j bananas",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly enforce that for all reachable targets j, the earliest time-step is strictly before any later reachable target k > j, and that no earlier time-step is possible for j.",
+        "task_evidence": "earliest time-step at which you can create exactly j bananas",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output for unreachable targets is -1, and for reachable targets, the time-step is valid and minimal.",
+        "task_evidence": "If you cannot create exactly j bananas, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the sequence of operations respects the ceiling function (⌈x⌉) for both type 1 and type 2 operations.",
+        "task_evidence": "k:=⌈(k + x_i)⌉ and k:=⌈(k ⋅ x_i)⌉",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output for j=1 is -1 if it is impossible to create exactly 1 banana (since k starts at 0 and operations may not allow reaching 1).",
+        "task_evidence": "Initially, k = 0.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[2].expression",
+        "detail": "invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 6
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 27.713,
+  "processing_error": null,
+  "finished_at": "2026-09-03T22:51:31.551948+00:00"
+}

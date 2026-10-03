@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13085",
+  "task_index": 93,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_13085.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nm = int(input[1])\na = list(map(int, input[2:2+n]))\nedges = [(int(input[2+n+2*i]), int(input[2+n+2*i+1])) for i in range(n-1)]\nqueries = [(int(input[2+n+2*(n-1)+2*i]), int(input[2+n+2*(n-1)+2*i+1])) if input[2+n+2*(n-1)+2*i] == '1' else (int(input[2+n+2*(n-1)+2*i]),) for i in range(m)]\n\nchildren = defaultdict(list)\nfor v, u in edges:\n    children[v].append(u)\n    children[u].append(v)\n\nvalues = a[:]\nparent = {1: None}\nstack = [1]\nwhile stack:\n    node = stack.pop()\n    for child in children[node]:\n        if child != parent[node]:\n            parent[child] = node\n            stack.append(child)\n\ndef update(node, val):\n    values[node-1] += val\n    for child in children[node]:\n        if child != parent[node]:\n            update(child, -val)\n\nquery_results = []\nfor query in queries:\n    if query[0] == 1:\n        update(query[1], query[2])\n    else:\n        query_results.append(values[query[1]-1])\n\nfor result in query_results:\n    print(result)",
+  "generation_seconds": 28.98,
+  "generated_at": "2026-09-23T17:37:54.713224+00:00"
+}

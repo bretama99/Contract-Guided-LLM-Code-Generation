@@ -1,0 +1,62 @@
+{
+  "task_id": "taco_train_18510",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 100 and 1 <= m <= 100 and 1 <= k <= 100 for n, m, k in [int(x) for x in stdin.split()[0:3]])",
+        "description": "Input dimensions n, m, k are integers between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "stdin.count('\\n') == n * (m + 1) + (n - 1)",
+        "description": "Input format matches n blocks of m lines each, with k characters per line, separated by empty lines."
+      },
+      {
+        "id": "P3",
+        "expression": "all(line.strip() == '' or all(c in '01' for c in line.strip()) for line in stdin.split('\\n') if line.strip() != '')",
+        "description": "Each non-empty line contains only '0' or '1' characters, representing broken or working CPUs respectively."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= n * m * k",
+        "description": "Output is a non-negative integer representing the count of critical CPUs."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= x <= n and 1 <= y <= m and 1 <= z <= k for x, y, z in [(int(x), int(y), int(z)) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1) if is_critical(x, y, z, parsed_input)])",
+        "description": "A CPU (x, y, z) is counted as critical if and only if its removal disrupts at least one control relationship between two other CPUs (a, b, c) and (d, e, f)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(not is_critical(x, y, z, parsed_input) for x, y, z in [(int(x), int(y), int(z)) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1) if not is_critical(x, y, z, parsed_input)])",
+        "description": "A CPU (x, y, z) is not counted as critical if its removal does not disrupt any control relationship between two other CPUs."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= x <= n and 1 <= y <= m and 1 <= z <= k for x, y, z in [(int(x), int(y), int(z)) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1)])",
+        "description": "CPU coordinates (x, y, z) are always within the bounds of the supercomputer dimensions."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 100 and 1 <= m <= 100 and 1 <= k <= 100 for n, m, k in [int(x) for x in stdin.split()[0:3]])\",\n      \"description\": \"Input dimensions n, m, k are integers between 1 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"stdin.count('\\\\n') == n * (m + 1) + (n - 1)\",\n      \"description\": \"Input format matches n blocks of m lines each, with k characters per line, separated by empty lines.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(line.strip() == '' or all(c in '01' for c in line.strip()) for line in stdin.split('\\\\n') if line.strip() != '')\",\n      \"description\": \"Each non-empty line contains only '0' or '1' characters, representing broken or working CPUs respectively.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().isdigit() and 0 <= int(stdout.strip()) <= n * m * k\",\n      \"description\": \"Output is a non-negative integer representing the count of critical CPUs.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= x <= n and 1 <= y <= m and 1 <= z <= k for x, y, z in [(int(x), int(y), int(z)) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1) if is_critical(x, y, z, parsed_input)])\",\n      \"description\": \"A CPU (x, y, z) is counted as critical if and only if its removal disrupts at least one control relationship between two other CPUs (a, b, c) and (d, e, f).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(not is_critical(x, y, z, parsed_input) for x, y, z in [(int(x), int(y), int(z)) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1) if not is_critical(x, y, z, parsed_input)])\",\n      \"description\": \"A CPU (x, y, z) is not counted as critical if its removal does not disrupt any control relationship between two other CPUs.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(1 <= x <= n and 1 <= y <= m and 1 <= z <= k for x, y, z in [(int(x), int(y), int(z)) for x in range(1, n + 1) for y in range(1, m + 1) for z in range(1, k + 1)])\",\n      \"description\": \"CPU coordinates (x, y, z) are always within the bounds of the supercomputer dimensions.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2014,
+  "generated_tokens": 786,
+  "hit_output_limit": false,
+  "generation_seconds": 35.373,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:27:28.185728+00:00"
+}

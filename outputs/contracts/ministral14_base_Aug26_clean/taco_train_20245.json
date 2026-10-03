@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_20245",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(2 <= int(line.split()[0]) <= 1000 and 1 <= int(line.split()[1]) <= 5000 for line in stdin.splitlines()[1:])",
+        "description": "Input must contain exactly m lines after the first line, where n and m satisfy 2 ≤ n ≤ 1000 and 1 ≤ m ≤ 5000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(a) < int(b) <= n for line in stdin.splitlines()[1:] for a, b in [line.split()])",
+        "description": "Each flight is a one-directional edge from city a to city b where 1 ≤ a < b ≤ n."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set((int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()])) == m",
+        "description": "No two flights are between the same pair of cities (no duplicate edges)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(not any((int(a), int(b)) == (int(x), int(y)) and (int(x), int(y)) != (int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()] for x, y in [line.split()]))",
+        "description": "No cyclical paths exist in the directed graph (no directed cycles)."
+      },
+      {
+        "id": "P5",
+        "expression": "any(all(int(b) == n for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:]] if int(a) == 1)) or any(all(int(a) == 1 for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:]] if int(b) == n))",
+        "description": "There exists at least one path from city 1 to city n using the given flights (strongly connected from 1 to n)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'No' or (stdout.strip() == 'Yes' and len(stdout.splitlines()) == m + 1 and all(line in ['1', '2'] for line in stdout.splitlines()[1:]))",
+        "description": "If no valid assignment exists, output is exactly 'No'. Otherwise, output is 'Yes' followed by m lines, each containing either 1 or 2, representing flight durations."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'Yes' and all(1 <= int(duration) <= 2 for duration in stdout.splitlines()[1:])",
+        "description": "Each flight duration in the output is either 1 or 2."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == 'Yes' and (lambda: all(all(sum(int(duration) for a, b, duration in zip(edges, durations)) == T for path in paths) for T in [sum(int(duration) for a, b, duration in zip(edges, durations)) for path in paths if all(int(b) == n for a, b in path)]) if (lambda: (edges := [(int(a), int(b)) for a, b in [line.split() for line in stdin.splitlines()[1:]]]), (durations := [line for line in stdout.splitlines()[1:]]), (paths := [path for path in dfs_paths(1, n, edges)]) and paths) else False)()",
+        "description": "For all paths from city 1 to city n, the sum of flight durations along the path is the same (all paths have equal total duration). Here, `dfs_paths` is a helper to generate all paths from 1 to n using the given edges."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(2 <= int(line.split()[0]) <= 1000 and 1 <= int(line.split()[1]) <= 5000 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Input must contain exactly m lines after the first line, where n and m satisfy 2 ≤ n ≤ 1000 and 1 ≤ m ≤ 5000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(a) < int(b) <= n for line in stdin.splitlines()[1:] for a, b in [line.split()])\",\n      \"description\": \"Each flight is a one-directional edge from city a to city b where 1 ≤ a < b ≤ n.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(set((int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()])) == m\",\n      \"description\": \"No two flights are between the same pair of cities (no duplicate edges).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(not any((int(a), int(b)) == (int(x), int(y)) and (int(x), int(y)) != (int(a), int(b)) for line in stdin.splitlines()[1:] for a, b in [line.split()] for x, y in [line.split()]))\",\n      \"description\": \"No cyclical paths exist in the directed graph (no directed cycles).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"any(all(int(b) == n for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:]] if int(a) == 1)) or any(all(int(a) == 1 for a, b in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines()[1:]] if int(b) == n))\",\n      \"description\": \"There exists at least one path from city 1 to city n using the given flights (strongly connected from 1 to n).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'No' or (stdout.strip() == 'Yes' and len(stdout.splitlines()) == m + 1 and all(line in ['1', '2'] for line in stdout.splitlines()[1:]))\",\n      \"description\": \"If no valid assignment exists, output is exactly 'No'. Otherwise, output is 'Yes' followed by m lines, each containing either 1 or 2, representing flight durations.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'Yes' and all(1 <= int(duration) <= 2 for duration in stdout.splitlines()[1:])\",\n      \"description\": \"Each flight duration in the output is either 1 or 2.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"stdout.strip() == 'Yes' and (lambda: all(all(sum(int(duration) for a, b, duration in zip(edges, durations)) == T for path in paths) for T in [sum(int(duration) for a, b, duration in zip(edges, durations)) for path in paths if all(int(b) == n for a, b in path)]) if (lambda: (edges := [(int(a), int(b)) for a, b in [line.split() for line in stdin.splitlines()[1:]]]), (durations := [line for line in stdout.splitlines()[1:]]), (paths := [path for path in dfs_paths(1, n, edges)]) and paths) else False)()\",\n      \"description\": \"For all paths from city 1 to city n, the sum of flight durations along the path is the same (all paths have equal total duration). Here, `dfs_paths` is a helper to generate all paths from 1 to n using the given edges.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1571,
+  "generated_tokens": 972,
+  "hit_output_limit": false,
+  "generation_seconds": 44.328,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:24:51.774744+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_11745",
+  "task_index": 139,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_11745.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n        m = int(next(iterator))\n    except StopIteration:\n        return\n\n    adj = defaultdict(set)\n    \n    for _ in range(m):\n        try:\n            u = int(next(iterator))\n            v = int(next(iterator))\n            adj[u].add(v)\n            adj[v].add(u)\n        except StopIteration:\n            break\n\n    if n == 1:\n        print(\"Yes\")\n        return\n\n    def has_path(start_node, visited_count, mask):\n        if visited_count == n:\n            return True\n        \n        current = next(iter([i for i in range(1, n+1) if (mask >> (i-1)) & 1]))\n        \n        for neighbor in adj[current]:\n            if not ((mask >> (neighbor-1)) & 1):\n                new_mask = mask | (1 << (neighbor-1))\n                if has_path(neighbor, visited_count + 1, new_mask):\n                    return True\n        return False\n\n    found = False\n    for start in range(1, n + 1):\n        initial_mask = 1 << (start - 1)\n        if has_path(start, 1, initial_mask):\n            found = True\n            break\n\n    if found:\n        print(\"Yes\")\n    else:\n        print(\"No\")\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 38.696,
+  "generated_at": "2026-09-26T22:14:35.648267+00:00"
+}

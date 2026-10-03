@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_9190",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen35_27b_vanilla_Sep_21",
+  "generated_at": "2026-09-22T00:45:11.733255+00:00",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    n = int(input_data[0])\n    names = input_data[1:n+1]\n    \n    graph = defaultdict(set)\n    in_degree = {chr(ord('a') + i): 0 for i in range(26)}\n    \n    # Build the graph based on lexicographical constraints\n    for i in range(n - 1):\n        s1 = names[i]\n        s2 = names[i+1]\n        \n        min_len = min(len(s1), len(s2))\n        found_diff = False\n        \n        for j in range(min_len):\n            if s1[j] != s2[j]:\n                # s1[j] must come before s2[j]\n                u, v = s1[j], s2[j]\n                if v not in graph[u]:\n                    graph[u].add(v)\n                    in_degree[v] += 1\n                found_diff = True\n                break\n        \n        if not found_diff:\n            # If no difference found, then s1 must be a prefix of s2\n            # If s1 is longer than s2, it's impossible\n            if len(s1) > len(s2):\n                print(\"Impossible\")\n                return\n\n    # Topological sort using Kahn's algorithm\n    queue = deque()\n    for char in in_degree:\n        if in_degree[char] == 0:\n            queue.append(char)\n    \n    result = []\n    while queue:\n        u = queue.popleft()\n        result.append(u)\n        \n        for v in graph[u]:\n            in_degree[v] -= 1\n            if in_degree[v] == 0:\n                queue.append(v)\n    \n    if len(result) < 26:\n        print(\"Impossible\")\n    else:\n        print(\"\".join(result))\n\nif __name__ == \"__main__\":\n    solve()"
+}

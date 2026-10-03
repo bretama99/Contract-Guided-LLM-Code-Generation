@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_test_60",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(stdin.splitlines()[0]) and t >= 1 and t <= 10**4",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10^4) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 0 for line in stdin.splitlines()[1::] if line.strip() == '')",
+        "description": "Each test case is preceded by an empty line in the input."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 2 and all(1 <= int(x) <= n for x in line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith(' ') and ' ' in line)",
+        "description": "Each corridor is described by two integers u_j and v_j (1 ≤ u_j, v_j ≤ n) representing bidirectional connections between rooms."
+      },
+      {
+        "id": "P4",
+        "expression": "all(2 <= int(x) <= n for x in stdin.splitlines()[i].split() if i % 2 == 0 and i > 0 and i < len(stdin.splitlines()) and len(stdin.splitlines()[i].split()) == k)",
+        "description": "For each test case, the k integers x_i (2 ≤ x_i ≤ n) represent the rooms where friends are initially placed, with all x_i distinct."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= k < n <= 2 * 10**5 for n, k in [(int(x) for x in line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith(' ') and ' ' in line and line.split()[0].isdigit() and line.split()[1].isdigit()])",
+        "description": "For each test case, n and k satisfy 1 ≤ k < n ≤ 2 * 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(line.strip() in ['-1'] or (line.strip().isdigit() and 1 <= int(line.strip()) <= k) for line in stdout.splitlines() if line.strip())",
+        "description": "For each test case, the output is either -1 (Vlad wins) or a positive integer m (1 ≤ m ≤ k) representing the minimal number of friends needed to catch Vlad."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout.splitlines()) == t)",
+        "description": "The number of output lines equals the number of test cases t."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout.splitlines()[i].strip() == '-1') == (not any(all(x != 1 for x in path) and len(path) == 1 for path in leaves) or not any(all(x != 1 for x in path) and len(path) == 1 for path in leaves)) for i, (n, k, x, edges) in enumerate(parse_input(stdin.splitlines())) if i < t)",
+        "description": "If there exists at least one leaf node (room with exactly one corridor) other than room 1, and Vlad can reach it without being intercepted by any subset of friends, the answer is -1. Otherwise, the answer is the minimal number of friends required to block all such paths."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((stdout.splitlines()[i].strip() != '-1') == (any(1 <= m <= k for m in possible_minimal_subsets) and all(len(subset) >= int(stdout.splitlines()[i].strip()) for subset in possible_minimal_subsets)) for i, (n, k, x, edges) in enumerate(parse_input(stdin.splitlines())) if i < t)",
+        "description": "If a minimal subset of friends exists that can intercept Vlad before he reaches any leaf node other than room 1, the answer is the size of the smallest such subset. Otherwise, the answer is -1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(stdin.splitlines()[0]) and t >= 1 and t <= 10**4\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10^4) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 0 for line in stdin.splitlines()[1::] if line.strip() == '')\",\n      \"description\": \"Each test case is preceded by an empty line in the input.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 2 and all(1 <= int(x) <= n for x in line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith(' ') and ' ' in line)\",\n      \"description\": \"Each corridor is described by two integers u_j and v_j (1 ≤ u_j, v_j ≤ n) representing bidirectional connections between rooms.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(2 <= int(x) <= n for x in stdin.splitlines()[i].split() if i % 2 == 0 and i > 0 and i < len(stdin.splitlines()) and len(stdin.splitlines()[i].split()) == k)\",\n      \"description\": \"For each test case, the k integers x_i (2 ≤ x_i ≤ n) represent the rooms where friends are initially placed, with all x_i distinct.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= k < n <= 2 * 10**5 for n, k in [(int(x) for x in line.split()) for line in stdin.splitlines() if line.strip() and not line.startswith(' ') and ' ' in line and line.split()[0].isdigit() and line.split()[1].isdigit()])\",\n      \"description\": \"For each test case, n and k satisfy 1 ≤ k < n ≤ 2 * 10^5.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(line.strip() in ['-1'] or (line.strip().isdigit() and 1 <= int(line.strip()) <= k) for line in stdout.splitlines() if line.strip())\",\n      \"description\": \"For each test case, the output is either -1 (Vlad wins) or a positive integer m (1 ≤ m ≤ k) representing the minimal number of friends needed to catch Vlad.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout.splitlines()) == t)\",\n      \"description\": \"The number of output lines equals the number of test cases t.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout.splitlines()[i].strip() == '-1') == (not any(all(x != 1 for x in path) and len(path) == 1 for path in leaves) or not any(all(x != 1 for x in path) and len(path) == 1 for path in leaves)) for i, (n, k, x, edges) in enumerate(parse_input(stdin.splitlines())) if i < t)\",\n      \"description\": \"If there exists at least one leaf node (room with exactly one corridor) other than room 1, and Vlad can reach it without being intercepted by any subset of friends, the answer is -1. Otherwise, the answer is the minimal number of friends required to block all such paths.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((stdout.splitlines()[i].strip() != '-1') == (any(1 <= m <= k for m in possible_minimal_subsets) and all(len(subset) >= int(stdout.splitlines()[i].strip()) for subset in possible_minimal_subsets)) for i, (n, k, x, edges) in enumerate(parse_input(stdin.splitlines())) if i < t)\",\n      \"description\": \"If a minimal subset of friends exists that can intercept Vlad before he reaches any leaf node other than room 1, the answer is the size of the smallest such subset. Otherwise, the answer is -1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1896,
+  "generated_tokens": 1002,
+  "hit_output_limit": false,
+  "generation_seconds": 44.42,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:24:36.875766+00:00"
+}

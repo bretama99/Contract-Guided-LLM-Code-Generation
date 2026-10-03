@@ -1,0 +1,101 @@
+{
+  "task_id": "taco_train_18002",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "solve",
+      "signature": "def solve(t, test_cases) -> list: ..."
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(t, int) and t >= 1 and t <= 50",
+        "description": "t is the number of test cases, an integer between 1 and 50 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(isinstance(test_case, tuple) and len(test_case) == 3 for test_case in test_cases)",
+        "description": "Each test case is a tuple of (N, P, M), where N is the number of computers, P is the number of connections, and M is the number of queries."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N >= 1 and N <= 1000 and P >= N - 1 and P <= 100000 and M >= 1 and M <= 100000 for N, P, M in test_cases)",
+        "description": "For each test case, N is between 1 and 1000, P is between N-1 and 100000, and M is between 1 and 100000."
+      },
+      {
+        "id": "P4",
+        "expression": "all(isinstance(connections, list) and len(connections) == P and all(len(conn) == 3 for conn in connections) for _, _, _, connections in test_cases)",
+        "description": "Each test case's connections are a list of P tuples, each tuple representing (u, v, d) where u and v are computer IDs and d is the distance."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= u <= N and 1 <= v <= N and 1 <= d <= 1000000 for N, _, _, connections in test_cases for u, v, d in connections)",
+        "description": "For each connection (u, v, d), u and v are computer IDs between 1 and N, and d is a distance between 1 and 1000000."
+      },
+      {
+        "id": "P6",
+        "expression": "all(isinstance(queries, list) and len(queries) == M and all(len(query) == 2 for query in queries) for _, _, _, _, queries in test_cases)",
+        "description": "Each test case's queries are a list of M tuples, each tuple representing (u, v) where u and v are computer IDs."
+      },
+      {
+        "id": "P7",
+        "expression": "all(1 <= u <= N and 1 <= v <= N for N, _, _, _, queries in test_cases for u, v in queries)",
+        "description": "For each query (u, v), u and v are computer IDs between 1 and N."
+      },
+      {
+        "id": "P8",
+        "expression": "all(u != v for N, _, _, connections in test_cases for u, v, _ in connections)",
+        "description": "No connection is from a computer to itself."
+      },
+      {
+        "id": "P9",
+        "expression": "all(d1 != d2 for N, _, _, connections in test_cases for i in range(len(connections)) for j in range(i + 1, len(connections)) for d1, d2 in [(connections[i][2], connections[j][2])])",
+        "description": "All distances d in connections are unique within a test case."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(return_value) == t",
+        "description": "The output is a list of t results, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(isinstance(result, list) and len(result) == M for result in return_value)",
+        "description": "Each test case result is a list of M answers, one for each query."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(isinstance(answer, int) for result in return_value for answer in result)",
+        "description": "Each answer is an integer representing the minimum cable length."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(answer >= 0 for result in return_value for answer in result)",
+        "description": "Each answer is non-negative."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(any((u == q[0] and v == q[1]) or (u == q[1] and v == q[0]) for q in queries) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for u, v in queries)",
+        "description": "Each query (u, v) must have a valid path in the constructed spanning tree."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(answer == min(sum(d for u, v, d in path) for path in get_all_paths(u, v, connections)) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for (u, v), answer in zip(queries, result))",
+        "description": "Each answer is the minimum total distance of a path between u and v in the constructed spanning tree."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"solve\",\n    \"signature\": \"def solve(t, test_cases) -> list: ...\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"isinstance(t, int) and t >= 1 and t <= 50\",\n      \"description\": \"t is the number of test cases, an integer between 1 and 50 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(isinstance(test_case, tuple) and len(test_case) == 3 for test_case in test_cases)\",\n      \"description\": \"Each test case is a tuple of (N, P, M), where N is the number of computers, P is the number of connections, and M is the number of queries.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(N >= 1 and N <= 1000 and P >= N - 1 and P <= 100000 and M >= 1 and M <= 100000 for N, P, M in test_cases)\",\n      \"description\": \"For each test case, N is between 1 and 1000, P is between N-1 and 100000, and M is between 1 and 100000.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(isinstance(connections, list) and len(connections) == P and all(len(conn) == 3 for conn in connections) for _, _, _, connections in test_cases)\",\n      \"description\": \"Each test case's connections are a list of P tuples, each tuple representing (u, v, d) where u and v are computer IDs and d is the distance.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= u <= N and 1 <= v <= N and 1 <= d <= 1000000 for N, _, _, connections in test_cases for u, v, d in connections)\",\n      \"description\": \"For each connection (u, v, d), u and v are computer IDs between 1 and N, and d is a distance between 1 and 1000000.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(isinstance(queries, list) and len(queries) == M and all(len(query) == 2 for query in queries) for _, _, _, _, queries in test_cases)\",\n      \"description\": \"Each test case's queries are a list of M tuples, each tuple representing (u, v) where u and v are computer IDs.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(1 <= u <= N and 1 <= v <= N for N, _, _, _, queries in test_cases for u, v in queries)\",\n      \"description\": \"For each query (u, v), u and v are computer IDs between 1 and N.\"\n    },\n    {\n      \"id\": \"P8\",\n      \"expression\": \"all(u != v for N, _, _, connections in test_cases for u, v, _ in connections)\",\n      \"description\": \"No connection is from a computer to itself.\"\n    },\n    {\n      \"id\": \"P9\",\n      \"expression\": \"all(d1 != d2 for N, _, _, connections in test_cases for i in range(len(connections)) for j in range(i + 1, len(connections)) for d1, d2 in [(connections[i][2], connections[j][2])])\",\n      \"description\": \"All distances d in connections are unique within a test case.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(return_value) == t\",\n      \"description\": \"The output is a list of t results, one for each test case.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(isinstance(result, list) and len(result) == M for result in return_value)\",\n      \"description\": \"Each test case result is a list of M answers, one for each query.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(isinstance(answer, int) for result in return_value for answer in result)\",\n      \"description\": \"Each answer is an integer representing the minimum cable length.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(answer >= 0 for result in return_value for answer in result)\",\n      \"description\": \"Each answer is non-negative.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(any((u == q[0] and v == q[1]) or (u == q[1] and v == q[0]) for q in queries) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for u, v in queries)\",\n      \"description\": \"Each query (u, v) must have a valid path in the constructed spanning tree.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all(answer == min(sum(d for u, v, d in path) for path in get_all_paths(u, v, connections)) for N, _, _, connections, queries, result in zip(test_cases, [connections for _, _, _, connections, _ in test_cases], [queries for _, _, _, _, queries in test_cases], return_value) for (u, v), answer in zip(queries, result))\",\n      \"description\": \"Each answer is the minimum total distance of a path between u and v in the constructed spanning tree.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1545,
+  "generated_tokens": 1313,
+  "hit_output_limit": false,
+  "generation_seconds": 58.658,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:04:52.693584+00:00"
+}

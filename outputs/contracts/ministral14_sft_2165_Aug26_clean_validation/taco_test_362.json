@@ -1,0 +1,279 @@
+{
+  "task_id": "taco_test_362",
+  "task_index": 339,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and t > 0 and t <= 10**5",
+        "description": "The number of test cases t is an integer between 1 and 10^5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n == int(n) and n > 0 and n <= 10**5 for n in [int(line) for line in stdin_lines[1::2]])",
+        "description": "For each test case, n is an integer between 1 and 10^5 inclusive, where 2n is the length of the binary string."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) == 2 * int(n) and all(c in {'0', '1'} for c in s) for n, s in zip([int(line) for line in stdin_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)]))",
+        "description": "For each test case, the binary string s has length exactly 2n and consists only of characters '0' and '1'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_lines) == 2 * t or (len(stdout_lines) == 2 * t - 1 and '-1' in stdout_lines[-1]) for t in [int(stdin_lines[0])])",
+        "description": "For each test case, the output is either two lines (m and p indices) or one line with '-1' if no solution exists."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((m == -1 or (m == int(m) and 0 <= m <= 2 * int(n))) for m, n in zip([int(line) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the first line of the output contains an integer m (0 ≤ m ≤ 2n) representing the number of indices in the subsequence to rotate."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((m == -1 or (len(b_indices) == m and all(1 <= int(b) <= 2 * int(n) for b in b_indices) and len(set(b_indices)) == m)) for m, b_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the first line of the output contains m distinct indices b_1, ..., b_m in increasing order, where 1 ≤ b_i ≤ 2n."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((m == -1 or (len(p_indices) == int(n) and all(1 <= int(p) <= 2 * int(n) for p in p_indices) and len(set(p_indices)) == int(n)) for m, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the second line of the output contains n distinct indices p_1, ..., p_n in increasing order, where 1 ≤ p_i ≤ 2n."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((m == -1 or (len(set(b_indices).union(set(p_indices))) == 2 * int(n) and len(set(b_indices).intersection(set(p_indices))) == 0)) for m, b_indices, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the indices b_1, ..., b_m and p_1, ..., p_n are disjoint and cover all indices from 1 to 2n exactly once."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((m == -1 or (s_rotated := list(s), [s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[i - 1]]) if i > 0 else s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[-1]]) for i in range(m)], s_p := ''.join([s_rotated[p - 1] for p in p_indices]), s_q := ''.join([s_rotated[q - 1] for q in range(1, 2 * int(n) + 1) if q not in p_indices]), s_p == s_q)) for m, b_indices, p_indices, s, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, after rotating the subsequence b_1, ..., b_m right by one position, the subsequences s^p and s^q formed by indices p_1, ..., p_n and the remaining indices respectively are equal."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and t > 0 and t <= 10**5",
+        "description": "The number of test cases t is an integer between 1 and 10^5 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(n == int(n) and n > 0 and n <= 10**5 for n in [int(line) for line in stdin_lines[1::2]])",
+        "description": "For each test case, n is an integer between 1 and 10^5 inclusive, where 2n is the length of the binary string."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(s) == 2 * int(n) and all(c in {'0', '1'} for c in s) for n, s in zip([int(line) for line in stdin_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)]))",
+        "description": "For each test case, the binary string s has length exactly 2n and consists only of characters '0' and '1'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_lines) == 2 * t or (len(stdout_lines) == 2 * t - 1 and '-1' in stdout_lines[-1]) for t in [int(stdin_lines[0])])",
+        "description": "For each test case, the output is either two lines (m and p indices) or one line with '-1' if no solution exists."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((m == -1 or (m == int(m) and 0 <= m <= 2 * int(n))) for m, n in zip([int(line) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the first line of the output contains an integer m (0 ≤ m ≤ 2n) representing the number of indices in the subsequence to rotate."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((m == -1 or (len(b_indices) == m and all(1 <= int(b) <= 2 * int(n) for b in b_indices) and len(set(b_indices)) == m)) for m, b_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the first line of the output contains m distinct indices b_1, ..., b_m in increasing order, where 1 ≤ b_i ≤ 2n."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((m == -1 or (len(p_indices) == int(n) and all(1 <= int(p) <= 2 * int(n) for p in p_indices) and len(set(p_indices)) == int(n)) for m, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the second line of the output contains n distinct indices p_1, ..., p_n in increasing order, where 1 ≤ p_i ≤ 2n."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((m == -1 or (len(set(b_indices).union(set(p_indices))) == 2 * int(n) and len(set(b_indices).intersection(set(p_indices))) == 0)) for m, b_indices, p_indices, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, the indices b_1, ..., b_m and p_1, ..., p_n are disjoint and cover all indices from 1 to 2n exactly once."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((m == -1 or (s_rotated := list(s), [s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[i - 1]]) if i > 0 else s_rotated.__setitem__(b_indices[i], s_rotated[b_indices[-1]]) for i in range(m)], s_p := ''.join([s_rotated[p - 1] for p in p_indices]), s_q := ''.join([s_rotated[q - 1] for q in range(1, 2 * int(n) + 1) if q not in p_indices]), s_p == s_q)) for m, b_indices, p_indices, s, n in zip([int(line) for line in stdout_lines[::2]], [list(map(int, line.split()[1:])) for line in stdout_lines[::2]], [list(map(int, line.split())) for line in stdout_lines[1::2]], [stdin_lines[i] for i in range(2, len(stdin_lines), 2)], [int(stdin_lines[i]) for i in range(1, len(stdin_lines), 2)]))",
+        "description": "If a solution exists, after rotating the subsequence b_1, ..., b_m right by one position, the subsequences s^p and s^q formed by indices p_1, ..., p_n and the remaining indices respectively are equal."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "be872a21231b2269a9972fac733932871b6130523a2bca146811198e2be058a8",
+  "selected_contract_fingerprint": "be872a21231b2269a9972fac733932871b6130523a2bca146811198e2be058a8",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_test_362.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_or_representation_uncertainty",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[3].expression",
+        "detail": "'(' was never closed (<unknown>, line 1)"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "representation_issues_block_correct_certification",
+        "count": 4,
+        "codes": [
+          "assignment_expression_not_allowed",
+          "invalid_expression_syntax"
+        ]
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_or_representation_uncertainty",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "postconditions[3].expression",
+        "detail": "'(' was never closed (<unknown>, line 1)"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[5].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "representation_issues_block_correct_certification",
+        "count": 4,
+        "codes": [
+          "assignment_expression_not_allowed",
+          "invalid_expression_syntax"
+        ]
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 31.839,
+  "processing_error": null,
+  "finished_at": "2026-09-04T09:56:18.812267+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_2815",
+  "task_index": 864,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_2815.json",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    idx = 0\n    n = int(data[idx]); idx += 1\n    a = []\n    for _ in range(n):\n        a.append(int(data[idx])); idx += 1\n    k = int(data[idx]); idx += 1\n    bad = []\n    for _ in range(k):\n        bad.append(int(data[idx])); idx += 1\n    \n    MOD = 1000000007\n    total_sum = sum(a)\n    \n    if k == 0:\n        fact_n = 1\n        from collections import Counter\n        cnt = Counter(a)\n        for x in cnt.values():\n            f = 1\n            for i in range(1, x + 1):\n                f = (f * i) % MOD\n            fact_n = (fact_n * pow(f, MOD - 2, MOD)) % MOD\n        f_n = 1\n        for i in range(1, n + 1):\n            f_n = (f_n * i) % MOD\n        ans = (f_n * fact_n) % MOD\n        print(ans)\n        return\n\n    bad_set = set(bad)\n    bad.sort()\n    \n    memo = {}\n    \n    def solve(mask, current_pos):\n        if current_pos in bad_set:\n            return 0\n        if mask == (1 << n) - 1:\n            return 1\n        \n        state = (mask, current_pos)\n        if state in memo:\n            return memo[state]\n        \n        res = 0\n        for i in range(n):\n            if not (mask & (1 << i)):\n                new_pos = current_pos + a[i]\n                if new_pos > total_sum:\n                    continue\n                if new_pos in bad_set:\n                    continue\n                if new_pos == total_sum:\n                    if (mask | (1 << i)) == (1 << n) - 1:\n                        res = (res + 1) % MOD\n                else:\n                    res = (res + solve(mask | (1 << i), new_pos)) % MOD\n        memo[state] = res\n        return res\n\n    ans = solve(0, 0)\n    print(ans)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 43.23,
+  "generated_at": "2026-09-22T19:52:56.183964+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_102",
+  "task_index": 291,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_102.json",
+  "code": "import sys\nfrom collections import deque\n\ndef topological_sort(n, edges, main_courses):\n    indegree = [0] * (n + 1)\n    graph = [[] for _ in range(n + 1)]\n    \n    for i, deps in enumerate(edges, 1):\n        for dep in deps:\n            graph[dep].append(i)\n            indegree[i] += 1\n    \n    queue = deque([i for i in range(1, n + 1) if indegree[i] == 0])\n    order = []\n    \n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for neighbor in graph[node]:\n            indegree[neighbor] -= 1\n            if indegree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    return order\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    k = int(input[index + 1])\n    main_courses = set(map(int, input[index + 2:index + 2 + k]))\n    index += 2 + k\n    edges = []\n    for _ in range(n):\n        t = int(input[index])\n        deps = list(map(int, input[index + 1:index + 1 + t]))\n        edges.append(deps)\n        index += 1 + t\n    \n    order = topological_sort(n, edges, main_courses)\n    reachable = set(order)\n    \n    if not main_courses.issubset(reachable):\n        print(-1)\n        return\n    \n    result = []\n    visited = set()\n    for course in order:\n        if course in main_courses and course not in visited:\n            result.append(course)\n            visited.add(course)\n    \n    print(len(result))\n    print(' '.join(map(str, result)))\n\nmain()",
+  "generation_seconds": 34.523,
+  "generated_at": "2026-09-23T19:09:03.889975+00:00"
+}

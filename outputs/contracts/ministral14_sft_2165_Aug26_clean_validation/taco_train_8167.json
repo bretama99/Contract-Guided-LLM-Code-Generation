@@ -1,0 +1,765 @@
+{
+  "task_id": "taco_train_8167",
+  "task_index": 16,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t.is_integer() and 1 <= t <= 10**4",
+        "description": "t is an integer between 1 and 10^4 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(x.is_integer() and 1 <= x <= 2**29 for x in [int(line) for line in stdin.splitlines()[1:]])",
+        "description": "Each x in the input is an integer between 1 and 2^29 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == t",
+        "description": "The output contains exactly t lines, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((a.is_integer() and b.is_integer() and 0 < a <= 2**32 and 0 < b <= 2**32) or (line == '-1') for line in output_lines for a, b in [line.split() if line != '-1' else []])",
+        "description": "Each output line is either '-1' or two integers a and b such that 0 < a, b ≤ 2^32."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((a ^ b == x and (a + b) / 2 == x) or line == '-1' for line, x in zip(output_lines, [int(line) for line in stdin.splitlines()[1:]]) for a, b in [line.split() if line != '-1' else []])",
+        "description": "For each test case, if the output is not '-1', then a and b satisfy a ⊕ b = x and (a + b)/2 = x. Otherwise, no such a and b exist."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t.is_integer() and 1 <= t <= 10**4",
+        "description": "t is an integer between 1 and 10^4 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(x.is_integer() and 1 <= x <= 2**29 for x in [int(line) for line in stdin.splitlines()[1:]])",
+        "description": "Each x in the input is an integer between 1 and 2^29 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == t",
+        "description": "The output contains exactly t lines, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((a.is_integer() and b.is_integer() and 0 < a <= 2**32 and 0 < b <= 2**32) or (line == '-1') for line in output_lines for a, b in [line.split() if line != '-1' else []])",
+        "description": "Each output line is either '-1' or two integers a and b such that 0 < a, b ≤ 2^32."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((a ^ b == x and (a + b) / 2 == x) or line == '-1' for line, x in zip(output_lines, [int(line) for line in stdin.splitlines()[1:]]) for a, b in [line.split() if line != '-1' else []])",
+        "description": "For each test case, if the output is not '-1', then a and b satisfy a ⊕ b = x and (a + b)/2 = x. Otherwise, no such a and b exist."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "d1b8d2109416586088ed7c007f2998d9859f7a36773b0b0a1dddd9d3c3c9a9aa",
+  "selected_contract_fingerprint": "d1b8d2109416586088ed7c007f2998d9859f7a36773b0b0a1dddd9d3c3c9a9aa",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_8167.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+      "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+      "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+        "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+        "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+        "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly enforce that **no** valid (a, b) pair exists when the output is '-1'. The task requires that '-1' is output **only** when no such pair exists, but the current contract does not explicitly state this as a requirement. This is a material omission in the postcondition semantics.",
+        "task_evidence": "If there are no matching pairs, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+      "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[2].expression",
+      "action": "replace",
+      "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+      "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+        "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+        "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+        "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly enforce that **no** valid (a, b) pair exists when the output is '-1'. The task requires that '-1' is output **only** when no such pair exists, but the current contract does not explicitly state this as a requirement. This is a material omission in the postcondition semantics.",
+        "task_evidence": "If there are no matching pairs, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "The postcondition expression does not correctly capture the requirement that **both** conditions (a ⊕ b = x **and** (a + b)/2 = x) must hold simultaneously for a valid pair (a, b). The current expression uses `or` instead of `and`, which allows invalid pairs where only one condition is satisfied. The task requires **both** conditions to be true for a valid solution.",
+          "task_evidence": "a ⊕ b = x and (a + b)/2 = x",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "all((line == '-1' or (a.is_integer() and b.is_integer() and a ^ b == x and (a + b) / 2 == x)) for line, x in zip(output_lines, [int(line) for line in stdin.splitlines()[1:]]) for a, b in [tuple(map(int, line.split())) if line != '-1' else []])",
+          "description": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b)/2 = x. Otherwise, no such a and b exist."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "5228be024d0bc5ef0eca9b2d5041eb21bf333c7ca03e432bed19f759fca826a6",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that `(a + b) / 2 == x` is a floating-point equality check. The task specifies division is performed **without rounding**, meaning `(a + b)` must be exactly `2 * x` (i.e., `(a + b) == 2 * x`). This is a material defect because the original task requires exact equality, not approximate equality.",
+            "task_evidence": "division is performed without rounding..",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that `(a + b) / 2 == x` is a floating-point equality check. The task specifies division is performed **without rounding**, meaning `(a + b)` must be exactly `2 * x` (i.e., `(a + b) == 2 * x`). This is a material defect because the original task requires exact equality, not approximate equality.",
+            "task_evidence": "division is performed without rounding..",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that `a` and `b` are **positive integers** (as per the task's `a, b > 0`). The current expression allows `a` or `b` to be zero if the input `x` is zero (though the input constraint `x >= 1` mitigates this, it is still a missing requirement in the contract).",
+            "task_evidence": "Vlad found two positive numbers $a$ and $b$ ($a,b>0$).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that `a` and `b` are **integers** (as implied by the task's context of bitwise XOR and integer division). The current expression checks for `is_integer()`, but this is redundant for integers in Python and does not enforce the task's implicit integer requirement for `a` and `b`.",
+            "task_evidence": "Vlad found two positive numbers $a$ and $b$ ($a,b>0$).",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that `a` and `b` are **distinct** (if required by the task). While the task does not explicitly forbid `a == b`, the bitwise XOR `a ^ b` would be zero if `a == b`, which contradicts the input constraint `x >= 1`. However, the task does not explicitly require distinctness, so this is a secondary concern. The primary missing requirement is the positivity and integer constraints (already covered above).",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "The expression incorrectly assumes that `(a + b) / 2 == x` is a floating-point equality check. The task specifies division is performed **without rounding**, meaning `(a + b)` must be exactly `2 * x` (i.e., `(a + b) == 2 * x`). This is a material defect because the original task requires exact equality, not approximate equality.",
+          "task_evidence": "division is performed without rounding..",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "all((line == '-1') or (a ^ b == x and (a + b) == 2 * x) for line, x in zip(output_lines, [int(line) for line in stdin.splitlines()[1:]]) for a, b in [tuple(map(int, line.split())) if line != '-1' else []])",
+          "description": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x. Otherwise, no such a and b exist."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "70425cb33b1a732304efa9016de4e75415cd0ac21191210bccd0e7fadc461b9e",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The postcondition expression incorrectly assumes that `(a + b) == 2 * x` is a requirement. The original task states that `(a + b) / 2 = x` (i.e., `(a + b) == 2 * x` is a derived consequence of the equation, not an independent requirement). However, the core requirement is that `a ⊕ b == x` **and** `(a + b) / 2 == x` (which is equivalent to `(a + b) == 2 * x`). The expression is redundant and does not capture the **bitwise XOR** requirement correctly in isolation. The correct expression should enforce both conditions simultaneously, as the task requires both `a ⊕ b == x` and `(a + b) / 2 == x` to hold.",
+            "task_evidence": "a ⊕ b = (a + b) / 2",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that `(a + b) / 2 == x` (i.e., `(a + b) == 2 * x`) **and** `a ⊕ b == x` **must both hold** for the same pair `(a, b)`. The current expression in `Q3` conflates these into a single condition, which is incorrect. The task requires **both** conditions to be satisfied simultaneously for a valid `(a, b)` pair.",
+            "task_evidence": "a ⊕ b = (a + b) / 2",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 2
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "division is performed without rounding..",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly assumes that `(a + b) / 2 == x` is a floating-point equality check. The task specifies division is performed **without rounding**, meaning `(a + b)` must be exactly `2 * x` (i.e., `(a + b) == 2 * x`). This is a material defect because the original task requires exact equality, not approximate equality.",
+            "task_evidence": "division is performed without rounding..",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output contains exactly t lines, one for each test case.",
+            "expression": "len(output_lines) == t",
+            "id": "Q1"
+          },
+          {
+            "description": "Each output line is either '-1' or two positive integers a and b such that 0 < a, b ≤ 2^32.",
+            "expression": "all((line == '-1') or (a.is_integer() and b.is_integer() and 0 < a <= 2**32 and 0 < b <= 2**32) for line in output_lines for a, b in [tuple(map(int, line.split())) if line != '-1' else []])",
+            "id": "Q2"
+          },
+          {
+            "description": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x. Otherwise, no such a and b exist.",
+            "expression": "all((line == '-1') or (a ^ b == x and (a + b) == 2 * x) for line, x in zip(output_lines, [int(line) for line in stdin.splitlines()[1:]]) for a, b in [tuple(map(int, line.split())) if line != '-1' else []])",
+            "id": "Q3"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "180aa298df2c8539c4cfd06fc17f7a14061d1af40400b1c11763d57557bf73b3",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The postcondition expression incorrectly assumes `x` is directly accessible from `stdin.splitlines()[1:]` in the output validation context. The expression must validate that for each test case, the output line (if not '-1') satisfies both `a ^ b == x` and `(a + b) == 2 * x`, where `x` is the corresponding input value for that test case. The current expression incorrectly binds `x` to the entire list of inputs, not per-test-case.",
+            "task_evidence": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The postcondition expression incorrectly assumes `x` is directly accessible from `stdin.splitlines()[1:]` in the output validation context. The expression must validate that for each test case, the output line (if not '-1') satisfies both `a ^ b == x` and `(a + b) == 2 * x`, where `x` is the corresponding input value for that test case. The current expression incorrectly binds `x` to the entire list of inputs, not per-test-case.",
+            "task_evidence": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that for each test case, if the output is not '-1', then `a` and `b` are positive integers (0 < a, b) and satisfy the bitwise XOR and sum conditions. The current postcondition Q3 does not explicitly enforce the positivity constraint (0 < a, b) in the expression, only in the description.",
+            "task_evidence": "Output a and b (0 < a, b ≤ 2^32), such that x = a ⊕ b = (a + b)/2.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The postcondition expression incorrectly assumes `x` is directly accessible from `stdin.splitlines()[1:]` in the output validation context. The expression must validate that for each test case, the output line (if not '-1') satisfies both `a ^ b == x` and `(a + b) == 2 * x`, where `x` is the corresponding input value for that test case. The current expression incorrectly binds `x` to the entire list of inputs, not per-test-case.",
+            "task_evidence": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output contains exactly t lines, one for each test case.",
+            "expression": "len(output_lines) == t",
+            "id": "Q1"
+          },
+          {
+            "description": "Each output line is either '-1' or two positive integers a and b such that 0 < a, b ≤ 2^32.",
+            "expression": "all((line == '-1') or (a > 0 and b > 0 and a <= 2**32 and b <= 2**32) for line in output_lines for a, b in [tuple(map(int, line.split())) if line != '-1' else []])",
+            "id": "Q2"
+          },
+          {
+            "description": "For each test case, if the output is not '-1', then a and b satisfy both a ⊕ b = x and (a + b) = 2 * x, where x is the corresponding input value for that test case. Otherwise, no such a and b exist.",
+            "expression": "all((line == '-1') or (a ^ b == x and (a + b) == 2 * x) for line, x in zip(output_lines, [int(stdin.splitlines()[i+1]) for i in range(t)]))",
+            "id": "Q3"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "cad08af80b9047727d87dd27597971adbdb3d85bd8ccbe74d2fedde78c291085",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly references `stdin` inside postconditions, which is invalid. The postcondition must use only the output and input values passed to the function (or derived from them in a statically verifiable way). The input values must be captured as part of the function's logical contract (e.g., via a helper or explicit parameter).",
+            "task_evidence": "Each test case is described by a single integer x (1 ≤ x ≤ 2^29) — the number that Vlad remembered.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly references `stdin` inside postconditions, which is invalid. The postcondition must use only the output and input values passed to the function (or derived from them in a statically verifiable way). The input values must be captured as part of the function's logical contract (e.g., via a helper or explicit parameter).",
+            "task_evidence": "Each test case is described by a single integer x (1 ≤ x ≤ 2^29) — the number that Vlad remembered.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that for each test case, if the output is '-1', then no valid (a, b) pair exists for the given x. This is a material requirement from the task.",
+            "task_evidence": "If there are no matching pairs, output -1.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that the output must be derived from the input x in a way that satisfies the mathematical constraints (a ⊕ b = x and (a + b) = 2x). The current expression is invalid due to the `stdin` reference, but the requirement itself is missing.",
+            "task_evidence": "x = a ⊕ b = (a + b)/2",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Each test case is described by a single integer x (1 ≤ x ≤ 2^29) — the number that Vlad remembered.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression incorrectly references `stdin` inside postconditions, which is invalid. The postcondition must use only the output and input values passed to the function (or derived from them in a statically verifiable way). The input values must be captured as part of the function's logical contract (e.g., via a helper or explicit parameter).",
+            "task_evidence": "Each test case is described by a single integer x (1 ≤ x ≤ 2^29) — the number that Vlad remembered.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output contains exactly t lines, one for each test case.",
+            "expression": "len(output_lines) == t",
+            "id": "Q1"
+          },
+          {
+            "description": "Each output line is either '-1' or two positive integers a and b such that 0 < a, b ≤ 2^32.",
+            "expression": "all((line == '-1') or (a > 0 and b > 0 and a <= 2**32 and b <= 2**32) for line in output_lines for a, b in [tuple(map(int, line.split())) if line != '-1' else []])",
+            "id": "Q2"
+          },
+          {
+            "description": "For each test case, if the output is not '-1', then the corresponding a and b satisfy both a ⊕ b = x and (a + b) = 2 * x, where x is the input value for that test case. Otherwise, no such a and b exist.",
+            "expression": "all((line == '-1') or (a ^ b == x and (a + b) == 2 * x) for line, x in zip(output_lines, input_values))",
+            "id": "Q3"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "1db929b2a934c23779ea319f1903b4607ab552504d6c0cee85cc4d2fdc6fa4b5",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression `(a + b) == 2 * x` is incorrect. The task requires `(a + b) / 2 == x`, which is equivalent to `(a + b) == 2 * x` only if division is exact (no rounding). However, the task explicitly states that division is performed **without rounding**, meaning `(a + b)` must be exactly `2 * x` (since `a` and `b` are integers). The current expression is correct in this case, but the **description** is misleading because it conflates the bitwise XOR condition with the division condition. The **expression** itself is correct, but the **description** should be split or clarified to avoid ambiguity. However, since the expression is correct, this is not a defect in the expression itself but in the description. Since the task requires **both** `a ⊕ b == x` and `(a + b) / 2 == x` (which is equivalent to `(a + b) == 2 * x` for integers), the expression is correct, but the **description** is redundant and could be improved for clarity. No repair is needed for the expression, but the description should be aligned with the task's intent.",
+            "task_evidence": "a ⊕ b = (a + b) / 2",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "The contract does not explicitly enforce that `a` and `b` must be **positive** integers (as per the task: `0 < a, b ≤ 2^32`). While this is partially covered in `Q2`, the **postcondition** for correctness (`Q3`) does not explicitly state that `a` and `b` must satisfy `a > 0 and b > 0` when they are output. This is a **material requirement** from the task and should be explicitly included in the postcondition expression.",
+            "task_evidence": "0 < a, b ≤ 2^32",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 2
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 206.365,
+  "processing_error": null,
+  "finished_at": "2026-09-03T23:06:25.789218+00:00"
+}

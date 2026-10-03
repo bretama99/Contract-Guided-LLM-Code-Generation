@@ -1,0 +1,271 @@
+{
+  "task_id": "taco_train_495",
+  "task_index": 341,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 5 * 10**5",
+        "description": "The number of people (excluding Bob) is between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= a_i <= n for a_i in a)",
+        "description": "Each a_i is a non-negative integer between 0 and n (inclusive), representing the number of friends for each person."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (all(isinstance(x, int) for x in stdout.split()) and all(0 <= x <= n for x in stdout.split()))",
+        "description": "Output is either '-1' (no solution) or a space-separated list of integers representing all possible values of Bob's friends, each between 0 and n (inclusive)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(x in possible_solutions(a, n) for x in stdout.split()) if stdout != '-1' else True",
+        "description": "Every output value is a valid solution for Bob's number of friends, given the input degrees a and n. The function possible_solutions(a, n) returns all valid k such that a graph with degrees a + [k] exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "sorted(stdout.split()) == sorted([str(x) for x in possible_solutions(a, n)]) if stdout != '-1' else True",
+        "description": "Output values are unique, sorted in increasing order, and match all possible solutions."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and n <= 5 * 10**5",
+        "description": "The number of people (excluding Bob) is between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= a_i <= n for a_i in a)",
+        "description": "Each a_i is a non-negative integer between 0 and n (inclusive), representing the number of friends for each person."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '-1' or (all(isinstance(x, int) for x in stdout.split()) and all(0 <= x <= n for x in stdout.split()))",
+        "description": "Output is either '-1' (no solution) or a space-separated list of integers representing all possible values of Bob's friends, each between 0 and n (inclusive)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(x in possible_solutions(a, n) for x in stdout.split()) if stdout != '-1' else True",
+        "description": "Every output value is a valid solution for Bob's number of friends, given the input degrees a and n. The function possible_solutions(a, n) returns all valid k such that a graph with degrees a + [k] exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "sorted(stdout.split()) == sorted([str(x) for x in possible_solutions(a, n)]) if stdout != '-1' else True",
+        "description": "Output values are unique, sorted in increasing order, and match all possible solutions."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "3a5c353ccb366a21c8c92ae8e47ebcbc5b96304493dee15403911b030924616d",
+  "selected_contract_fingerprint": "3a5c353ccb366a21c8c92ae8e47ebcbc5b96304493dee15403911b030924616d",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_495.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "UNCERTAIN",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a precondition or invariant to ensure the input degrees `a` and `n` can form a valid graph realization problem (Havel-Hakimi or Erdős–Gallai conditions) when combined with any possible `k` for Bob's friends. The task requires checking feasibility of the degree sequence `a + [k]` for all possible `k` in `[0, n]`.",
+        "task_evidence": "Since there may be many possible answers, print all of them. If no solution exists, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output is derived from a valid graph realization check (e.g., Havel-Hakimi or Erdős–Gallai) for the degree sequence `a + [k]` for all possible `k` in `[0, n]`. The current `possible_solutions(a, n)` is not defined in the contract and may not capture the task's graph realization constraints.",
+        "task_evidence": "Help him find out how many friends he has. Since there may be many possible answers, print all of them. If no solution exists, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output values of `k` are derived from a valid graph realization problem where the sum of degrees in `a + [k]` is even (a necessary condition for a graph to exist).",
+        "task_evidence": "Each user thus has a non-negative amount of friends.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "UNCERTAIN",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a precondition or invariant to ensure the input degrees `a` and `n` can form a valid graph realization problem (Havel-Hakimi or Erdős–Gallai conditions) when combined with any possible `k` for Bob's friends. The task requires checking feasibility of the degree sequence `a + [k]` for all possible `k` in `[0, n]`.",
+        "task_evidence": "Since there may be many possible answers, print all of them. If no solution exists, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output is derived from a valid graph realization check (e.g., Havel-Hakimi or Erdős–Gallai) for the degree sequence `a + [k]` for all possible `k` in `[0, n]`. The current `possible_solutions(a, n)` is not defined in the contract and may not capture the task's graph realization constraints.",
+        "task_evidence": "Help him find out how many friends he has. Since there may be many possible answers, print all of them. If no solution exists, output -1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output values of `k` are derived from a valid graph realization problem where the sum of degrees in `a + [k]` is even (a necessary condition for a graph to exist).",
+        "task_evidence": "Each user thus has a non-negative amount of friends.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 51.754,
+  "processing_error": null,
+  "finished_at": "2026-09-04T09:57:37.231126+00:00"
+}

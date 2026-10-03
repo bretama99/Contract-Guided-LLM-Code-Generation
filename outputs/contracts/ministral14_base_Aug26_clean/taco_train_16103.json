@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_16103",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(0 <= ini < outi < 2 * n for ini, outi, _, _, _ in parcels) and all(0 <= wi <= 1000 and 0 <= si <= 1000 and 1 <= vi <= 10**6 for _, _, wi, si, vi in parcels)",
+        "description": "Each parcel has valid time bounds (ini < outi < 2n), weight (0 ≤ wi ≤ 1000), strength (0 ≤ si ≤ 1000), and value (1 ≤ vi ≤ 10^6)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(parcels) == n and 1 <= n <= 500 and 0 <= S <= 1000",
+        "description": "Input contains exactly n parcels (1 ≤ n ≤ 500) and platform strength S (0 ≤ S ≤ 1000)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(ini != inj or outi != outj for i in range(n) for j in range(i + 1, n) for ini, outi, _, _, _ in [parcels[i], parcels[j]])",
+        "description": "No two parcels share both arrival time (ini) and delivery time (outi)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "isinstance(max_bourles, int) and max_bourles >= 0",
+        "description": "Output is a non-negative integer representing the maximum total value (in bourles) achievable by optimally selecting and delivering parcels."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= total_weight <= S for total_weight in platform_weights) and all(weight_above <= strength for weight_above, strength in zip(weight_above_stack, strengths_stack))",
+        "description": "For every valid state in the optimal solution, the total weight on the platform never exceeds S, and each box's strength is ≥ the total weight of boxes above it."
+      },
+      {
+        "id": "Q3",
+        "expression": "max_bourles == sum(vi for i, (ini, outi, wi, si, vi) in enumerate(parcels) if selected[i])",
+        "description": "The output is the sum of values (vi) of all parcels selected for delivery at their exact outi time in the optimal solution."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(ini <= outi for i, (ini, outi, _, _, _) in enumerate(parcels) if selected[i])",
+        "description": "Every selected parcel is delivered at or after its arrival time (ini ≤ outi)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(parcels[i][0] == parcels[j][0] or parcels[i][1] == parcels[j][1] or (parcels[i][0] != parcels[j][0] and parcels[i][1] != parcels[j][1]) for i in range(n) for j in range(i + 1, n) if selected[i] and selected[j])",
+        "description": "No two selected parcels share both arrival and delivery times (ensures no ambiguity in delivery order)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(0 <= ini < outi < 2 * n for ini, outi, _, _, _ in parcels) and all(0 <= wi <= 1000 and 0 <= si <= 1000 and 1 <= vi <= 10**6 for _, _, wi, si, vi in parcels)\",\n      \"description\": \"Each parcel has valid time bounds (ini < outi < 2n), weight (0 ≤ wi ≤ 1000), strength (0 ≤ si ≤ 1000), and value (1 ≤ vi ≤ 10^6).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(parcels) == n and 1 <= n <= 500 and 0 <= S <= 1000\",\n      \"description\": \"Input contains exactly n parcels (1 ≤ n ≤ 500) and platform strength S (0 ≤ S ≤ 1000).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(ini != inj or outi != outj for i in range(n) for j in range(i + 1, n) for ini, outi, _, _, _ in [parcels[i], parcels[j]])\",\n      \"description\": \"No two parcels share both arrival time (ini) and delivery time (outi).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"isinstance(max_bourles, int) and max_bourles >= 0\",\n      \"description\": \"Output is a non-negative integer representing the maximum total value (in bourles) achievable by optimally selecting and delivering parcels.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= total_weight <= S for total_weight in platform_weights) and all(weight_above <= strength for weight_above, strength in zip(weight_above_stack, strengths_stack))\",\n      \"description\": \"For every valid state in the optimal solution, the total weight on the platform never exceeds S, and each box's strength is ≥ the total weight of boxes above it.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"max_bourles == sum(vi for i, (ini, outi, wi, si, vi) in enumerate(parcels) if selected[i])\",\n      \"description\": \"The output is the sum of values (vi) of all parcels selected for delivery at their exact outi time in the optimal solution.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(ini <= outi for i, (ini, outi, _, _, _) in enumerate(parcels) if selected[i])\",\n      \"description\": \"Every selected parcel is delivered at or after its arrival time (ini ≤ outi).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(parcels[i][0] == parcels[j][0] or parcels[i][1] == parcels[j][1] or (parcels[i][0] != parcels[j][0] and parcels[i][1] != parcels[j][1]) for i in range(n) for j in range(i + 1, n) if selected[i] and selected[j])\",\n      \"description\": \"No two selected parcels share both arrival and delivery times (ensures no ambiguity in delivery order).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2041,
+  "generated_tokens": 845,
+  "hit_output_limit": false,
+  "generation_seconds": 36.946,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:44:54.596830+00:00"
+}

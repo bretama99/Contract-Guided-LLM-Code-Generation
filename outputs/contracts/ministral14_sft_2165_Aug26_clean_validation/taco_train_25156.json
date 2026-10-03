@@ -1,0 +1,293 @@
+{
+  "task_id": "taco_train_25156",
+  "task_index": 283,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100",
+        "description": "The number of test cases t is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])",
+        "description": "For each test case, the lists b_i and w_i have exactly n elements each."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])",
+        "description": "Each b_i (bees) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])",
+        "description": "Each w_i (wasps) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)",
+        "description": "Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])",
+        "description": "The input describes a tree with exactly n - 1 edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+        "description": "The output contains exactly one line per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.strip()) >= 0 for stdout in [stdout.strip() for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= max_wins <= m for max_wins in [int(stdout.strip()) for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is the maximum number of villages where Ugly Wasp wins, which cannot exceed m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(all(w_i > b_i for i in village) or all(w_i <= b_i for i in village) for village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "For each village in the optimal partition, Ugly Wasp either wins (strictly more wasps than bees) or loses (otherwise)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(partition) == m for partition in [get_partition_from_input(stdin)])",
+        "description": "The partition must contain exactly m villages."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(1 <= i <= n for village in partition for i in village) for partition in [get_partition_from_input(stdin)])",
+        "description": "Each village in the partition contains only valid nesting place indices between 1 and n."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(i not in other_village for village in partition for other_village in partition if village != other_village for i in village) for partition in [get_partition_from_input(stdin)])",
+        "description": "The villages in the partition are disjoint (no overlapping nesting places)."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(all(i in some_village for i in range(1, n + 1) for some_village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "The partition covers all nesting places from 1 to n."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(sum(1 for village in partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for partition, stdout in zip([get_partition_from_input(stdin)], stdout.splitlines()))",
+        "description": "The output is the maximum number of villages where the total wasps strictly exceed the total bees."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= t <= 100",
+        "description": "The number of test cases t is between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= m <= n <= 3000 for n, m in [(int(line.split()[0]), int(line.split()[1])) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, n (number of nesting places) and m (number of villages) satisfy 1 ≤ m ≤ n ≤ 3000."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(b) == n and len(w) == n for b, w, n in [(list(map(int, line.split())), list(map(int, line.split())), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and ' ' in line and 'b' in line or 'w' in line])",
+        "description": "For each test case, the lists b_i and w_i have exactly n elements each."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= b_i <= 10**9 for b_i in [int(x) for line in stdin.splitlines() if line.strip() and 'b' in line for x in line.split()])",
+        "description": "Each b_i (bees) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= w_i <= 10**9 for w_i in [int(x) for line in stdin.splitlines() if line.strip() and 'w' in line for x in line.split()])",
+        "description": "Each w_i (wasps) is a non-negative integer up to 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= x_i <= n and 1 <= y_i <= n and x_i != y_i for x_i, y_i, n in [(int(x), int(y), int(line.split()[0])) for line in stdin.splitlines() if line.strip() and 'x' in line or 'y' in line for x, y in [line.split()]] if n >= 2)",
+        "description": "Each pair (x_i, y_i) represents adjacent nesting places, with 1 ≤ x_i, y_i ≤ n and x_i ≠ y_i."
+      },
+      {
+        "id": "P7",
+        "expression": "all(len(edges) == n - 1 for edges, n in [([tuple(map(int, line.split())) for line in lines if line.strip() and 'x' in line or 'y' in line], int(lines[0].split()[0])) for lines in [stdin.splitlines()[i:i + n] for i in range(1, len(stdin.splitlines()), n + 2)]])",
+        "description": "The input describes a tree with exactly n - 1 edges."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t for stdout in [stdout for _ in range(t)])",
+        "description": "The output contains exactly one line per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(stdout.strip()) >= 0 for stdout in [stdout.strip() for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is a non-negative integer."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= max_wins <= m for max_wins in [int(stdout.strip()) for stdout in stdout.splitlines()])",
+        "description": "The output for each test case is the maximum number of villages where Ugly Wasp wins, which cannot exceed m."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(all(w_i > b_i for i in village) or all(w_i <= b_i for i in village) for village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "For each village in the optimal partition, Ugly Wasp either wins (strictly more wasps than bees) or loses (otherwise)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(len(partition) == m for partition in [get_partition_from_input(stdin)])",
+        "description": "The partition must contain exactly m villages."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(all(1 <= i <= n for village in partition for i in village) for partition in [get_partition_from_input(stdin)])",
+        "description": "Each village in the partition contains only valid nesting place indices between 1 and n."
+      },
+      {
+        "id": "Q7",
+        "expression": "all(all(i not in other_village for village in partition for other_village in partition if village != other_village for i in village) for partition in [get_partition_from_input(stdin)])",
+        "description": "The villages in the partition are disjoint (no overlapping nesting places)."
+      },
+      {
+        "id": "Q8",
+        "expression": "all(all(i in some_village for i in range(1, n + 1) for some_village in partition) for partition in [get_partition_from_input(stdin)])",
+        "description": "The partition covers all nesting places from 1 to n."
+      },
+      {
+        "id": "Q9",
+        "expression": "all(sum(1 for village in partition if sum(w_i for i in village) > sum(b_i for i in village)) == int(stdout.strip()) for partition, stdout in zip([get_partition_from_input(stdin)], stdout.splitlines()))",
+        "description": "The output is the maximum number of villages where the total wasps strictly exceed the total bees."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "e486b3f025c1a6c18456ce15ffe453133a2b83a4e55446ecb50a73a2151b0944",
+  "selected_contract_fingerprint": "e486b3f025c1a6c18456ce15ffe453133a2b83a4e55446ecb50a73a2151b0944",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_25156.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 56.926,
+  "processing_error": null,
+  "finished_at": "2026-09-04T07:47:45.912684+00:00"
+}

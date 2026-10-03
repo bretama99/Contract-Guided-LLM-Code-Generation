@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13893",
+  "task_index": 726,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_13893.json",
+  "code": "import sys\nfrom math import gcd\nfrom collections import defaultdict\n\ndef euler_totient(n):\n    result = n\n    p = 2\n    while p * p <= n:\n        if n % p == 0:\n            while n % p == 0:\n                n //= p\n            result -= result // p\n        p += 1\n    if n > 1:\n        result -= result // n\n    return result\n\ndef main():\n    MOD = 10**9 + 7\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n    edges = [(int(input[2+i*2]), int(input[3+i*2])) for i in range(n-1)]\n\n    adj = defaultdict(list)\n    for x, y in edges:\n        adj[x].append(y)\n        adj[y].append(x)\n\n    depth = [0] * (n + 1)\n    size = [0] * (n + 1)\n    parent = [0] * (n + 1)\n\n    def dfs(u, p):\n        parent[u] = p\n        size[u] = 1\n        for v in adj[u]:\n            if v != p:\n                depth[v] = depth[u] + 1\n                size[u] += dfs(v, u)\n        return size[u]\n\n    dfs(1, 0)\n\n    def reroot(u, p):\n        for v in adj[u]:\n            if v != p:\n                reroot(v, u)\n        for v in adj[u]:\n            if v != p:\n                size[u] -= size[v]\n                size[v] += size[u]\n\n    reroot(1, 0)\n\n    total_sum = 0\n    for u in range(1, n + 1):\n        for v in adj[u]:\n            if parent[u] == v:\n                continue\n            d = abs(depth[u] - depth[v])\n            total_sum += euler_totient(a[u] * a[v]) * d * size[u] * size[v]\n\n    P = total_sum\n    Q = n * (n - 1) // 2\n    result = (P * pow(Q, -1, MOD) - 1) % MOD\n    print(result)\n\nmain()",
+  "generation_seconds": 44.259,
+  "generated_at": "2026-09-23T18:33:43.273023+00:00"
+}

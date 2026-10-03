@@ -1,0 +1,447 @@
+{
+  "task_id": "taco_test_991",
+  "task_index": 80,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 300000 and 0 <= m <= 300000",
+        "description": "The graph has between 1 and 300,000 vertices and between 0 and 300,000 edges."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u_i < v_i <= n for u_i, v_i, w_i in edges) and all(1 <= w_i <= 10**9 for _, _, w_i in edges)",
+        "description": "Each edge connects distinct vertices within the valid range, and each edge weight is between 1 and 10^9."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set((min(u_i, v_i), max(u_i, v_i)) for u_i, v_i, _ in edges)) == m",
+        "description": "There is no more than one edge between any pair of vertices."
+      },
+      {
+        "id": "P4",
+        "expression": "1 <= u <= n",
+        "description": "The start vertex u is within the valid range of vertices."
+      },
+      {
+        "id": "P5",
+        "expression": "len(edges) == m",
+        "description": "The number of edges provided matches the input m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == [str(total_weight)] + [str(edge_index) for edge_index in selected_edges]",
+        "description": "The first line of stdout is the minimum total weight of the edges in the shortest-path tree, and the second line contains the 1-based indices of the edges included in the tree."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= edge_index <= m for edge_index in selected_edges)",
+        "description": "Each edge index in the output is within the valid range of input edges."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(selected_edges) == n - 1",
+        "description": "The number of edges in the tree is exactly n - 1, forming a spanning tree."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v, _ in [(edges[edge_index - 1][0], edges[edge_index - 1][1]) for edge_index in selected_edges])",
+        "description": "The selected edges are valid and connect distinct vertices."
+      },
+      {
+        "id": "Q5",
+        "expression": "total_weight == sum(edges[edge_index - 1][2] for edge_index in selected_edges)",
+        "description": "The total weight is the sum of the weights of the selected edges."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(shortest_path_in_tree(u, v) == shortest_path_in_graph(u, v) for v in range(1, n + 1))",
+        "description": "For every vertex v, the shortest path from u to v in the tree matches the shortest path in the original graph."
+      },
+      {
+        "id": "Q7",
+        "expression": "total_weight == min(sum(edges[edge_index - 1][2] for edge_index in candidate_edges) for candidate_edges in possible_shortest_path_trees(u, edges, n))",
+        "description": "The total weight of the selected edges is the minimum possible among all valid shortest-path trees from vertex u."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 300000 and 0 <= m <= 300000",
+        "description": "The graph has between 1 and 300,000 vertices and between 0 and 300,000 edges."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u_i < v_i <= n for u_i, v_i, w_i in edges) and all(1 <= w_i <= 10**9 for _, _, w_i in edges)",
+        "description": "Each edge connects distinct vertices within the valid range, and each edge weight is between 1 and 10^9."
+      },
+      {
+        "id": "P3",
+        "expression": "len(set((min(u_i, v_i), max(u_i, v_i)) for u_i, v_i, _ in edges)) == m",
+        "description": "There is no more than one edge between any pair of vertices."
+      },
+      {
+        "id": "P4",
+        "expression": "1 <= u <= n",
+        "description": "The start vertex u is within the valid range of vertices."
+      },
+      {
+        "id": "P5",
+        "expression": "len(edges) == m",
+        "description": "The number of edges provided matches the input m."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == [str(total_weight)] + [str(edge_index) for edge_index in selected_edges]",
+        "description": "The first line of stdout is the minimum total weight of the edges in the shortest-path tree, and the second line contains the 1-based indices of the edges included in the tree."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= edge_index <= m for edge_index in selected_edges)",
+        "description": "Each edge index in the output is within the valid range of input edges."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(selected_edges) == n - 1",
+        "description": "The number of edges in the tree is exactly n - 1, forming a spanning tree."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v, _ in [(edges[edge_index - 1][0], edges[edge_index - 1][1]) for edge_index in selected_edges])",
+        "description": "The selected edges are valid and connect distinct vertices."
+      },
+      {
+        "id": "Q5",
+        "expression": "total_weight == sum(edges[edge_index - 1][2] for edge_index in selected_edges)",
+        "description": "The total weight is the sum of the weights of the selected edges."
+      },
+      {
+        "id": "Q6",
+        "expression": "all(shortest_path_in_tree(u, v) == shortest_path_in_graph(u, v) for v in range(1, n + 1))",
+        "description": "For every vertex v, the shortest path from u to v in the tree matches the shortest path in the original graph."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "05d38ecfbbe99a24bb103a9c89bf6b7df08f9df5a5808fb7380995131cdda81e",
+  "selected_contract_fingerprint": "c9ab853b026a9a92759e2a8216bd6a47a495659598b2f068c70e39392e031ff3",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_test_991.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring the selected edges form a shortest-path tree with minimum total weight among all possible shortest-path trees from vertex u.",
+      "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring the selected edges form a shortest-path tree with minimum total weight among all possible shortest-path trees from vertex u.",
+      "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring the selected edges form a shortest-path tree with minimum total weight among all possible shortest-path trees from vertex u.",
+        "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring the selected edges form a shortest-path tree with minimum total weight among all possible shortest-path trees from vertex u.",
+        "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring the selected edges form a shortest-path tree with minimum total weight among all possible shortest-path trees from vertex u.",
+        "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly verify that the selected edges form a shortest-path tree with minimum total weight. The current expression only checks path equivalence, not minimality of total weight.",
+        "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "1 <= n <= 300000 and 0 <= m <= 300000",
+          "description": "The graph has between 1 and 300,000 vertices and between 0 and 300,000 edges."
+        },
+        {
+          "id": "P2",
+          "expression": "all(1 <= u_i < v_i <= n for u_i, v_i, w_i in edges) and all(1 <= w_i <= 10**9 for _, _, w_i in edges)",
+          "description": "Each edge connects distinct vertices within the valid range, and each edge weight is between 1 and 10^9."
+        },
+        {
+          "id": "P3",
+          "expression": "len(set((min(u_i, v_i), max(u_i, v_i)) for u_i, v_i, _ in edges)) == m",
+          "description": "There is no more than one edge between any pair of vertices."
+        },
+        {
+          "id": "P4",
+          "expression": "1 <= u <= n",
+          "description": "The start vertex u is within the valid range of vertices."
+        },
+        {
+          "id": "P5",
+          "expression": "len(edges) == m",
+          "description": "The number of edges provided matches the input m."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout.strip().split() == [str(total_weight)] + [str(edge_index) for edge_index in selected_edges]",
+          "description": "The first line of stdout is the minimum total weight of the edges in the shortest-path tree, and the second line contains the 1-based indices of the edges included in the tree."
+        },
+        {
+          "id": "Q2",
+          "expression": "all(1 <= edge_index <= m for edge_index in selected_edges)",
+          "description": "Each edge index in the output is within the valid range of input edges."
+        },
+        {
+          "id": "Q3",
+          "expression": "len(selected_edges) == n - 1",
+          "description": "The number of edges in the tree is exactly n - 1, forming a spanning tree."
+        },
+        {
+          "id": "Q4",
+          "expression": "all(1 <= u <= n and 1 <= v <= n and u != v for u, v, _ in [(edges[edge_index - 1][0], edges[edge_index - 1][1]) for edge_index in selected_edges])",
+          "description": "The selected edges are valid and connect distinct vertices."
+        },
+        {
+          "id": "Q5",
+          "expression": "total_weight == sum(edges[edge_index - 1][2] for edge_index in selected_edges)",
+          "description": "The total weight is the sum of the weights of the selected edges."
+        },
+        {
+          "id": "Q6",
+          "expression": "all(shortest_path_in_tree(u, v) == shortest_path_in_graph(u, v) for v in range(1, n + 1))",
+          "description": "For every vertex v, the shortest path from u to v in the tree matches the shortest path in the original graph."
+        },
+        {
+          "id": "Q7",
+          "expression": "total_weight == min(sum(edges[edge_index - 1][2] for edge_index in candidate_edges) for candidate_edges in possible_shortest_path_trees(u, edges, n))",
+          "description": "The total weight of the selected edges is the minimum possible among all valid shortest-path trees from vertex u."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: audit keys must be exactly checks,issues"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition ensuring the selected edges form a shortest-path tree with minimum total weight among all possible shortest-path trees from vertex u.",
+          "task_evidence": "Your task is to find the shortest-path tree of the given graph from vertex u, the total weight of whose edges is minimum possible.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q7",
+          "expression": "total_weight == min(sum(edges[edge_index - 1][2] for edge_index in candidate_edges) for candidate_edges in possible_shortest_path_trees(u, edges, n))",
+          "description": "The total weight of the selected edges is the minimum possible among all valid shortest-path trees from vertex u."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "c9ab853b026a9a92759e2a8216bd6a47a495659598b2f068c70e39392e031ff3",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 1
+  },
+  "repair_attempts_used": 1,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 51.815,
+  "processing_error": null,
+  "finished_at": "2026-09-04T00:47:58.414780+00:00"
+}

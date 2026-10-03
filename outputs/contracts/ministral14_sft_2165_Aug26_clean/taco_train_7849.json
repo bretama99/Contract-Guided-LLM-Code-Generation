@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_7849",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.is_integer() and 1 <= T <= 50",
+        "description": "T is an integer between 1 and 50 inclusive, representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 5 for line in stdin.splitlines() if line.strip())",
+        "description": "Each match line has exactly 5 space-separated tokens: HomeTeamName, HomeTeamGoals, 'vs.', AwayTeamGoals, AwayTeamName."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= int(goals) <= 100 for line in stdin.splitlines() if line.strip() for goals in [line.split()[1], line.split()[3]])",
+        "description": "HomeTeamGoals and AwayTeamGoals are integers between 0 and 100 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(team_name) <= 10 and team_name.islower() and team_name.isalpha() for line in stdin.splitlines() if line.strip() for team_name in [line.split()[0], line.split()[4]])",
+        "description": "Team names are lowercase alphabetic strings of length 1 to 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "Each output line contains exactly two space-separated team names."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(team1 != team2 for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()])",
+        "description": "The two team names in each output line are distinct."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(team1 in teams and team2 in teams for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])",
+        "description": "The two team names in each output line are valid teams from the input."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(team1_points > team2_points or (team1_points == team2_points and team1_goal_diff > team2_goal_diff) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for team1_points, team1_goal_diff in [get_team_stats(team1)] for team2_points, team2_goal_diff in [get_team_stats(team2)])",
+        "description": "The first team in the output line has strictly more points than the second team, or if points are equal, a strictly higher goal difference."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(team1_points >= team2_points >= team3_points >= team4_points for teams in [get_teams_in_test_case()] for team1, team2, team3, team4 in [sorted(teams, key=lambda t: (-get_team_stats(t)[0], -get_team_stats(t)[1]))] for team1_points, _ in [get_team_stats(team1)] for team2_points, _ in [get_team_stats(team2)])",
+        "description": "The first team in the output line is the top-ranked team, and the second team is the second top-ranked team, based on points and goal difference."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T.is_integer() and 1 <= T <= 50\",\n      \"description\": \"T is an integer between 1 and 50 inclusive, representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 5 for line in stdin.splitlines() if line.strip())\",\n      \"description\": \"Each match line has exactly 5 space-separated tokens: HomeTeamName, HomeTeamGoals, 'vs.', AwayTeamGoals, AwayTeamName.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(0 <= int(goals) <= 100 for line in stdin.splitlines() if line.strip() for goals in [line.split()[1], line.split()[3]])\",\n      \"description\": \"HomeTeamGoals and AwayTeamGoals are integers between 0 and 100 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= len(team_name) <= 10 and team_name.islower() and team_name.isalpha() for line in stdin.splitlines() if line.strip() for team_name in [line.split()[0], line.split()[4]])\",\n      \"description\": \"Team names are lowercase alphabetic strings of length 1 to 10.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(output_line.split()) == 2 for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"Each output line contains exactly two space-separated team names.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(team1 != team2 for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()])\",\n      \"description\": \"The two team names in each output line are distinct.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(team1 in teams and team2 in teams for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for teams in [set(line.split()[0] for line in stdin.splitlines() if line.strip()) | set(line.split()[4] for line in stdin.splitlines() if line.strip())])\",\n      \"description\": \"The two team names in each output line are valid teams from the input.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(team1_points > team2_points or (team1_points == team2_points and team1_goal_diff > team2_goal_diff) for output_line in stdout.splitlines() if output_line.strip() for team1, team2 in [output_line.split()] for team1_points, team1_goal_diff in [get_team_stats(team1)] for team2_points, team2_goal_diff in [get_team_stats(team2)])\",\n      \"description\": \"The first team in the output line has strictly more points than the second team, or if points are equal, a strictly higher goal difference.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(team1_points >= team2_points >= team3_points >= team4_points for teams in [get_teams_in_test_case()] for team1, team2, team3, team4 in [sorted(teams, key=lambda t: (-get_team_stats(t)[0], -get_team_stats(t)[1]))] for team1_points, _ in [get_team_stats(team1)] for team2_points, _ in [get_team_stats(team2)])\",\n      \"description\": \"The first team in the output line is the top-ranked team, and the second team is the second top-ranked team, based on points and goal difference.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2084,
+  "generated_tokens": 914,
+  "hit_output_limit": false,
+  "generation_seconds": 41.234,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T11:55:32.571880+00:00"
+}

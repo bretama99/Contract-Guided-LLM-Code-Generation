@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_5243",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= N <= 5 * 10**5 and 1 <= M <= 5 * 10**5 and 1 <= Q <= 5 * 10**5 for _ in [N, M, Q])",
+        "description": "N, M, and Q are within the specified upper bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "len(parent) == N - 1 and all(1 <= parent[i] <= i + 1 for i in range(N - 1))",
+        "description": "The parent array has exactly N-1 elements, where parent[i] is the parent of factory i+2 (1-based), and parent[i] < i+2."
+      },
+      {
+        "id": "P3",
+        "expression": "len(B) == N and all(1 <= B[i] <= M for i in range(N))",
+        "description": "The B array has exactly N elements, where B[i] is the businessman (1-based) owning factory i+1."
+      },
+      {
+        "id": "P4",
+        "expression": "len(threshold) == M and all(1 <= threshold[i] <= 10**18 for i in range(M))",
+        "description": "The threshold array has exactly M elements, where threshold[i] is the target amount for businessman i+1."
+      },
+      {
+        "id": "P5",
+        "expression": "Q == len(queries) and all(1 <= F <= N and 1 <= X <= 10**6 and 0 <= D <= 10**6 for F, X, D in queries)",
+        "description": "The queries array has exactly Q elements, where each query is a tuple (F, X, D) with F being the factory (1-based), X the donation amount, and D the increment factor."
+      },
+      {
+        "id": "P6",
+        "expression": "all(1 <= F <= N for F, _, _ in queries)",
+        "description": "All factory indices F in queries are within the valid range [1, N]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.split()) == 1 or (line.split()[0].isdigit() and 1 <= int(line.split()[0]) <= Q + 1) for line in stdout.splitlines() if line != 'rekt')",
+        "description": "For each businessman i (1-based), the output line is either 'rekt' or a year number (1-based) between 1 and Q+1, indicating the first year after which the businessman's cumulative earnings meet or exceed their threshold."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout.splitlines()[i] == 'rekt' or (1 <= int(stdout.splitlines()[i]) <= Q + 1 and sum(earnings[B[j] - 1] for j in range(N) if B[j] == i + 1) >= threshold[i] after processing first int(stdout.splitlines()[i]) - 1 queries)) for i in range(M))",
+        "description": "For each businessman i (1-based), if the output is not 'rekt', the cumulative earnings of all factories owned by businessman i after the specified year (inclusive) must meet or exceed their threshold. If 'rekt', the cumulative earnings never meet the threshold in Q years."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout.splitlines()[i] == 'rekt' or (1 <= int(stdout.splitlines()[i]) <= Q + 1 and sum(earnings[B[j] - 1] for j in range(N) if B[j] == i + 1) < threshold[i] after processing first int(stdout.splitlines()[i]) - 2 queries)) for i in range(M))",
+        "description": "For each businessman i (1-based), if the output is a year Y, the cumulative earnings of all factories owned by businessman i after Y-1 years must be below their threshold, ensuring Y is the first year the threshold is met."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= N <= 5 * 10**5 and 1 <= M <= 5 * 10**5 and 1 <= Q <= 5 * 10**5 for _ in [N, M, Q])\",\n      \"description\": \"N, M, and Q are within the specified upper bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(parent) == N - 1 and all(1 <= parent[i] <= i + 1 for i in range(N - 1))\",\n      \"description\": \"The parent array has exactly N-1 elements, where parent[i] is the parent of factory i+2 (1-based), and parent[i] < i+2.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"len(B) == N and all(1 <= B[i] <= M for i in range(N))\",\n      \"description\": \"The B array has exactly N elements, where B[i] is the businessman (1-based) owning factory i+1.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(threshold) == M and all(1 <= threshold[i] <= 10**18 for i in range(M))\",\n      \"description\": \"The threshold array has exactly M elements, where threshold[i] is the target amount for businessman i+1.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"Q == len(queries) and all(1 <= F <= N and 1 <= X <= 10**6 and 0 <= D <= 10**6 for F, X, D in queries)\",\n      \"description\": \"The queries array has exactly Q elements, where each query is a tuple (F, X, D) with F being the factory (1-based), X the donation amount, and D the increment factor.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(1 <= F <= N for F, _, _ in queries)\",\n      \"description\": \"All factory indices F in queries are within the valid range [1, N].\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.split()) == 1 or (line.split()[0].isdigit() and 1 <= int(line.split()[0]) <= Q + 1) for line in stdout.splitlines() if line != 'rekt')\",\n      \"description\": \"For each businessman i (1-based), the output line is either 'rekt' or a year number (1-based) between 1 and Q+1, indicating the first year after which the businessman's cumulative earnings meet or exceed their threshold.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout.splitlines()[i] == 'rekt' or (1 <= int(stdout.splitlines()[i]) <= Q + 1 and sum(earnings[B[j] - 1] for j in range(N) if B[j] == i + 1) >= threshold[i] after processing first int(stdout.splitlines()[i]) - 1 queries)) for i in range(M))\",\n      \"description\": \"For each businessman i (1-based), if the output is not 'rekt', the cumulative earnings of all factories owned by businessman i after the specified year (inclusive) must meet or exceed their threshold. If 'rekt', the cumulative earnings never meet the threshold in Q years.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((stdout.splitlines()[i] == 'rekt' or (1 <= int(stdout.splitlines()[i]) <= Q + 1 and sum(earnings[B[j] - 1] for j in range(N) if B[j] == i + 1) < threshold[i] after processing first int(stdout.splitlines()[i]) - 2 queries)) for i in range(M))\",\n      \"description\": \"For each businessman i (1-based), if the output is a year Y, the cumulative earnings of all factories owned by businessman i after Y-1 years must be below their threshold, ensuring Y is the first year the threshold is met.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1993,
+  "generated_tokens": 993,
+  "hit_output_limit": false,
+  "generation_seconds": 47.066,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:59:11.914454+00:00"
+}

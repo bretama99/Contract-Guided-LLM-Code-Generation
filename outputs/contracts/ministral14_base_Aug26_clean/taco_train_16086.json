@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_16086",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "maxCandies",
+      "signature": "def maxCandies(status: List[int], candies: List[int], keys: List[List[int]], containedBoxes: List[List[int]], initialBoxes: List[int]) -> int:"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(status) == len(candies) == len(keys) == len(containedBoxes) and 1 <= len(status) <= 1000",
+        "description": "All input lists have the same length n, where 1 ≤ n ≤ 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(status[i] in {0, 1} for i in range(len(status)))",
+        "description": "Each status[i] is either 0 (closed) or 1 (open)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= candies[i] <= 1000 for i in range(len(candies)))",
+        "description": "Each candies[i] is an integer between 1 and 1000 (inclusive)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= len(keys[i]) <= len(status) and all(0 <= keys[i][j] < len(status) for j in range(len(keys[i]))) and len(set(keys[i])) == len(keys[i]) for i in range(len(keys)))",
+        "description": "Each keys[i] is a list of unique box indices (0 ≤ keys[i][j] < n), with no duplicates."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= len(containedBoxes[i]) <= len(status) and all(0 <= containedBoxes[i][j] < len(status) for j in range(len(containedBoxes[i]))) and len(set(containedBoxes[i])) == len(containedBoxes[i]) for i in range(len(containedBoxes)))",
+        "description": "Each containedBoxes[i] is a list of unique box indices (0 ≤ containedBoxes[i][j] < n), with no duplicates."
+      },
+      {
+        "id": "P6",
+        "expression": "all(0 <= initialBoxes[i] < len(status) for i in range(len(initialBoxes)))",
+        "description": "Each initialBoxes[i] is a valid box index (0 ≤ initialBoxes[i] < n)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == sum(candies[i] for i in accessible_boxes) and accessible_boxes == set(collectible_boxes(status, candies, keys, containedBoxes, initialBoxes))",
+        "description": "The function returns the sum of candies in all boxes that can be accessed starting from initialBoxes, where accessible_boxes is the set of all boxes that can be opened following the rules (open if status is 1 or a key is obtained, and recursively for contained boxes)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(box in accessible_boxes for box in initialBoxes if status[box] == 1)",
+        "description": "All boxes in initialBoxes with status 1 are included in accessible_boxes."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(box in accessible_boxes for box in containedBoxes[box_idx] if box_idx in accessible_boxes and status[box_idx] == 1)",
+        "description": "If a box box_idx is accessible and open (status[box_idx] == 1), all boxes contained in it (containedBoxes[box_idx]) are also accessible."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(box in accessible_boxes for box in keys[box_idx] if box_idx in accessible_boxes and status[box_idx] == 1)",
+        "description": "If a box box_idx is accessible and open (status[box_idx] == 1), all boxes that can be opened with its keys (keys[box_idx]) are also accessible."
+      },
+      {
+        "id": "Q5",
+        "expression": "not any(box in accessible_boxes for box in initialBoxes if status[box] == 0)",
+        "description": "No closed box in initialBoxes is included in accessible_boxes unless a key to open it is obtained from another accessible box."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"maxCandies\",\n    \"signature\": \"def maxCandies(status: List[int], candies: List[int], keys: List[List[int]], containedBoxes: List[List[int]], initialBoxes: List[int]) -> int:\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(status) == len(candies) == len(keys) == len(containedBoxes) and 1 <= len(status) <= 1000\",\n      \"description\": \"All input lists have the same length n, where 1 ≤ n ≤ 1000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(status[i] in {0, 1} for i in range(len(status)))\",\n      \"description\": \"Each status[i] is either 0 (closed) or 1 (open).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= candies[i] <= 1000 for i in range(len(candies)))\",\n      \"description\": \"Each candies[i] is an integer between 1 and 1000 (inclusive).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= len(keys[i]) <= len(status) and all(0 <= keys[i][j] < len(status) for j in range(len(keys[i]))) and len(set(keys[i])) == len(keys[i]) for i in range(len(keys)))\",\n      \"description\": \"Each keys[i] is a list of unique box indices (0 ≤ keys[i][j] < n), with no duplicates.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(0 <= len(containedBoxes[i]) <= len(status) and all(0 <= containedBoxes[i][j] < len(status) for j in range(len(containedBoxes[i]))) and len(set(containedBoxes[i])) == len(containedBoxes[i]) for i in range(len(containedBoxes)))\",\n      \"description\": \"Each containedBoxes[i] is a list of unique box indices (0 ≤ containedBoxes[i][j] < n), with no duplicates.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(0 <= initialBoxes[i] < len(status) for i in range(len(initialBoxes)))\",\n      \"description\": \"Each initialBoxes[i] is a valid box index (0 ≤ initialBoxes[i] < n).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == sum(candies[i] for i in accessible_boxes) and accessible_boxes == set(collectible_boxes(status, candies, keys, containedBoxes, initialBoxes))\",\n      \"description\": \"The function returns the sum of candies in all boxes that can be accessed starting from initialBoxes, where accessible_boxes is the set of all boxes that can be opened following the rules (open if status is 1 or a key is obtained, and recursively for contained boxes).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(box in accessible_boxes for box in initialBoxes if status[box] == 1)\",\n      \"description\": \"All boxes in initialBoxes with status 1 are included in accessible_boxes.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(box in accessible_boxes for box in containedBoxes[box_idx] if box_idx in accessible_boxes and status[box_idx] == 1)\",\n      \"description\": \"If a box box_idx is accessible and open (status[box_idx] == 1), all boxes contained in it (containedBoxes[box_idx]) are also accessible.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(box in accessible_boxes for box in keys[box_idx] if box_idx in accessible_boxes and status[box_idx] == 1)\",\n      \"description\": \"If a box box_idx is accessible and open (status[box_idx] == 1), all boxes that can be opened with its keys (keys[box_idx]) are also accessible.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"not any(box in accessible_boxes for box in initialBoxes if status[box] == 0)\",\n      \"description\": \"No closed box in initialBoxes is included in accessible_boxes unless a key to open it is obtained from another accessible box.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1859,
+  "generated_tokens": 1034,
+  "hit_output_limit": false,
+  "generation_seconds": 45.273,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T21:45:39.881269+00:00"
+}

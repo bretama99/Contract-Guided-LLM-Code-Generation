@@ -1,0 +1,56 @@
+{
+  "task_id": "taco_train_2448",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= n for x in [n, m, q]) and all(1 <= int(x) <= n for x in T) and all(1 <= int(x) <= 1e9 for x in T) and all(1 <= int(x) <= n for x in [x_i, y_i, k_i] for line in queries for x_i, y_i, k_i in line.split())",
+        "description": "Input dimensions n, m, q are positive integers within bounds; city types T_i are positive integers; queries x_i, y_i, k_i are valid city indices and k_i is a positive integer."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 and all(int(x) >= 1 for x in line.split()) for line in roads) and all(len(line.split()) == 3 for line in queries)",
+        "description": "Each road is defined by three positive integers (x_i, y_i, u_i) where x_i ≠ y_i; each query is defined by three integers (x_i, y_i, k_i)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(u) <= 1e9 for line in roads for u in line.split()[2:])",
+        "description": "Each road's crowd value u_i is a positive integer."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout_line.strip()) > 0 and (int(stdout_line.strip()) == -1 or int(stdout_line.strip()) >= 1) for stdout_line in stdout.splitlines())",
+        "description": "For each query, stdout contains exactly one line with either -1 (no valid path) or a positive integer representing the minimum crowd value of a valid path."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(any(all(T[city] == T[prev_city] for city, prev_city in zip(path[1:], path[:-1])) or any(T[city] != T[prev_city] for city, prev_city in zip(path[1:], path[:-1]))) for path in valid_paths) and all(len(set(T[city] for city in path)) >= k for path in valid_paths) and all(max(crowd_values[road] for road in path_roads) == crowd_value for path, path_roads, crowd_value in valid_paths_with_crowd)",
+        "description": "For each query (x_i, y_i, k_i), if a valid path exists, the output is the minimum crowd value among all paths from x_i to y_i that include at least k_i distinct building types (T_i values). A valid path is a sequence of cities starting at x_i and ending at y_i, where the path's crowd value is the maximum crowd value of its roads. If no such path exists, output is -1."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(crowd_value == min(max(crowd_values[road] for road in path_roads) for path, path_roads in valid_paths) if valid_paths else -1 for (x_i, y_i, k_i), crowd_value, valid_paths in zip(queries, stdout_lines, valid_paths_list))",
+        "description": "The output for each query is the minimum crowd value among all valid paths (as defined in Q2) or -1 if no valid path exists."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= n for x in [n, m, q]) and all(1 <= int(x) <= n for x in T) and all(1 <= int(x) <= 1e9 for x in T) and all(1 <= int(x) <= n for x in [x_i, y_i, k_i] for line in queries for x_i, y_i, k_i in line.split())\",\n      \"description\": \"Input dimensions n, m, q are positive integers within bounds; city types T_i are positive integers; queries x_i, y_i, k_i are valid city indices and k_i is a positive integer.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 and all(int(x) >= 1 for x in line.split()) for line in roads) and all(len(line.split()) == 3 for line in queries)\",\n      \"description\": \"Each road is defined by three positive integers (x_i, y_i, u_i) where x_i ≠ y_i; each query is defined by three integers (x_i, y_i, k_i).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(u) <= 1e9 for line in roads for u in line.split()[2:])\",\n      \"description\": \"Each road's crowd value u_i is a positive integer.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout_line.strip()) > 0 and (int(stdout_line.strip()) == -1 or int(stdout_line.strip()) >= 1) for stdout_line in stdout.splitlines())\",\n      \"description\": \"For each query, stdout contains exactly one line with either -1 (no valid path) or a positive integer representing the minimum crowd value of a valid path.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(any(all(T[city] == T[prev_city] for city, prev_city in zip(path[1:], path[:-1])) or any(T[city] != T[prev_city] for city, prev_city in zip(path[1:], path[:-1]))) for path in valid_paths) and all(len(set(T[city] for city in path)) >= k for path in valid_paths) and all(max(crowd_values[road] for road in path_roads) == crowd_value for path, path_roads, crowd_value in valid_paths_with_crowd)\",\n      \"description\": \"For each query (x_i, y_i, k_i), if a valid path exists, the output is the minimum crowd value among all paths from x_i to y_i that include at least k_i distinct building types (T_i values). A valid path is a sequence of cities starting at x_i and ending at y_i, where the path's crowd value is the maximum crowd value of its roads. If no such path exists, output is -1.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(crowd_value == min(max(crowd_values[road] for road in path_roads) for path, path_roads in valid_paths) if valid_paths else -1 for (x_i, y_i, k_i), crowd_value, valid_paths in zip(queries, stdout_lines, valid_paths_list))\",\n      \"description\": \"The output for each query is the minimum crowd value among all valid paths (as defined in Q2) or -1 if no valid path exists.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1968,
+  "generated_tokens": 847,
+  "hit_output_limit": false,
+  "generation_seconds": 39.086,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:18:29.404034+00:00"
+}

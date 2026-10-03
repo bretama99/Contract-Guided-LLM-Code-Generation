@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_20245",
+  "task_index": 907,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_20245.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    m = int(input[1])\n    flights = [(int(input[2 + 2 * i]), int(input[3 + 2 * i])) for i in range(m)]\n    \n    graph = defaultdict(list)\n    for a, b in flights:\n        graph[a].append(b)\n    \n    dist = [-1] * (n + 1)\n    dist[1] = 0\n    queue = deque([1])\n    \n    while queue:\n        u = queue.popleft()\n        for v in graph[u]:\n            if dist[v] == -1:\n                dist[v] = dist[u] + 1\n                queue.append(v)\n    \n    if dist[n] == -1:\n        print(\"No\")\n        return\n    \n    def dfs(u, d):\n        if u == n:\n            return True\n        for v in graph[u]:\n            if dist[v] == d + 1:\n                if dfs(v, d + 1):\n                    return True\n        return False\n    \n    def assign_durations(u, d):\n        for v in graph[u]:\n            if dist[v] == d + (2 if dfs(v, d + 1) else 1):\n                durations[flights.index((u, v))] = 2 if dfs(v, d + 1) else 1\n                assign_durations(v, d + (2 if dfs(v, d + 1) else 2))\n    \n    durations = [0] * m\n    assign_durations(1, 0)\n    \n    if any(d == 0 for d in durations):\n        print(\"No\")\n    else:\n        print(\"Yes\")\n        print(\"\\n\".join(map(str, durations)))\n\nmain()",
+  "generation_seconds": 35.008,
+  "generated_at": "2026-09-23T19:58:38.909355+00:00"
+}

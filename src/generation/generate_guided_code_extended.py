@@ -1,0 +1,296 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from src.generation import generation_core_extended as core
+from src.prompts.generation_prompts import CODE_GUIDANCE_RULES
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate one contract-guided solution per TACO task."
+        )
+    )
+
+    parser.add_argument("--task-file", type=Path, required=True)
+    parser.add_argument("--contract-dir", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--model-path", type=Path, required=True)
+    parser.add_argument("--adapter-path", type=Path)
+    parser.add_argument("--model-name", required=True)
+    parser.add_argument("--start", type=int, default=0)
+    parser.add_argument("--count", type=int)
+    parser.add_argument("--overwrite", action="store_true")
+    
+    parser.add_argument(
+        "--require-contract",
+        action="store_true",
+        help="Fail instead of falling back to vanilla generation when a contract is missing.",
+    )
+    parser.add_argument(
+    "--strict-contract-json",
+    action="store_true",
+    help="Require the stored contract to be valid contract JSON.",
+    )
+    core.add_runtime_arguments(parser)
+
+    return core.finish_arguments(parser, parser.parse_args())
+
+
+def load_contract(path, strict=False):
+    try:
+        record = core.read_json(path)
+    except (OSError, ValueError) as error:
+        return "", f"Cannot read contract: {error}"
+
+    if isinstance(record, dict):
+        value = record.get(
+            "contract",
+            record if "interface" in record else None,
+        )
+    else:
+        value = record
+
+    if value is None or (
+        isinstance(value, str) and not value.strip()
+    ):
+        return "", "No contract response stored"
+
+    text = (
+        value
+        if isinstance(value, str)
+        else json.dumps(
+            value,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+    )
+    if strict:
+        try:
+            parsed = json.loads(text)
+        except ValueError as error:
+            return "", f"Contract is not valid JSON: {error}"
+
+        if not isinstance(parsed, dict):
+            return "", "Contract JSON must be an object"
+
+        required = {
+            "interface",
+            "preconditions",
+            "postconditions",
+            "invariants",
+        }
+
+        if set(parsed.keys()) != required:
+            return "", (
+                "Contract has invalid top-level keys: "
+                f"{sorted(parsed.keys())}"
+            )
+
+        if not isinstance(parsed["interface"], dict):
+            return "", "Contract interface must be an object"
+
+        for field in (
+            "preconditions",
+            "postconditions",
+            "invariants",
+        ):
+            if not isinstance(parsed[field], list):
+                return "", f"Contract {field} must be a list"
+
+        text = json.dumps(
+            parsed,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+    return text, None
+
+
+def build_user_prompt(task, contract_text):
+    question = core.taco_question(task)
+
+    if not question:
+        raise ValueError("Task has no question text")
+
+    return "\n".join([
+        "ORIGINAL TASK:",
+        question,
+        "",
+        "REQUIRED INTERFACE:",
+        core.taco_interface(task),
+        "",
+        "CONTRACT GUIDANCE:",
+        contract_text or (
+            "No contract response is available. "
+            "Solve the original task using its required interface."
+        ),
+    ])
+
+
+def generate_record(runtime, args, job, contract_text):
+    record = {
+        "task_id": job["task_id"],
+        "task_index": job["index"],
+        "dataset": "taco",
+        "model": args.model_name,
+        "attention_implementation": (
+            runtime["settings"]["attention_implementation"]
+        ),
+        "contract_path": str(job["contract_path"]),
+        "code": "",
+        "generation_seconds": None,
+        "generated_at": None,
+    }
+
+    metadata = {}
+    error = None
+
+    try:
+        encoded = core.encode_chat_32(
+            runtime["tokenizer"],
+            CODE_GUIDANCE_RULES,
+            build_user_prompt(job["task"], contract_text),
+        )
+
+        _, final, metadata = core.generate_response_32(
+            runtime,
+            args,
+            encoded,
+            job["index"],
+            "code",
+        )
+
+        # Preserve the response; correctness belongs to evaluation.
+        record["code"] = final
+        record["generation_seconds"] = metadata["generation_seconds"]
+
+    except Exception as exception:
+        error = f"{type(exception).__name__}: {exception}"
+
+    record["generated_at"] = core.now()
+
+    return record, metadata, error
+
+
+def main():
+    args = parse_args()
+
+    selected = core.selected_tasks(
+        core.load_tasks(args.task_file),
+        args.start,
+        args.count,
+    )
+
+    if not selected:
+        raise ValueError("No tasks selected; check --start and --count")
+
+    jobs = core.prepare_jobs(selected, args)
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    runtime = None
+    time_hits = 0
+
+    summary = {
+        "selected": len(jobs),
+        "saved": 0,
+        "reused": 0,
+        "empty_responses": 0,
+        "generation_errors": 0,
+        "generated_without_contract": 0,
+        "new_output_limit_hits": 0,
+        "started_at": core.now(),
+    }
+
+    for job in jobs:
+        previous = core.existing_record(
+            job,
+            "code",
+            args.overwrite,
+        )
+
+        if previous is not None:
+            summary["reused"] += 1
+            print(f"REUSED {job['task_id']}", flush=True)
+            continue
+
+        contract_text, issue = load_contract(
+            job["contract_path"],
+            strict=args.strict_contract_json,
+        )
+        if issue is not None:
+            if args.require_contract:
+                raise RuntimeError(
+                    f"{job['task_id']}: required contract unavailable: {issue}"
+                )
+        
+            summary["generated_without_contract"] += 1
+            print(
+                f"NOTE {job['task_id']}: {issue}. "
+                "Generating from the original task.",
+                flush=True,
+            )
+
+        if runtime is None:
+            runtime = core.load_runtime_32(args, stage="code")
+
+        print(f"GENERATING {job['task_id']}", flush=True)
+
+        record, metadata, error = generate_record(
+            runtime,
+            args,
+            job,
+            contract_text,
+        )
+
+        core.save_json(job["destination"], record)
+        summary["saved"] += 1
+
+        summary["empty_responses"] += int(
+            not record["code"].strip()
+        )
+        summary["generation_errors"] += int(error is not None)
+        summary["new_output_limit_hits"] += int(
+            metadata.get("hit_output_limit", False)
+        )
+
+        timed_out = metadata.get("time_budget_exhausted", False)
+        time_hits += int(timed_out)
+
+        print(
+            f"SAVED {job['task_id']} "
+            f"tokens={metadata.get('generated_tokens')} "
+            f"limit={metadata.get('hit_output_limit', False)} "
+            f"time_limit={timed_out} "
+            f"seconds={record['generation_seconds']} "
+            f"tok/s={metadata.get('tokens_per_second')} "
+            f"eos={metadata.get('ended_with_eos', False)} "
+            f"issue={error}",
+            flush=True,
+        )
+
+    summary["finished_at"] = core.now()
+    count_label = args.count if args.count is not None else "all"
+
+    core.save_json(
+        args.output_dir / f"_summary_{args.start}_{count_label}.json",
+        summary,
+    )
+
+    print(
+        json.dumps(summary, indent=2, ensure_ascii=False),
+        flush=True,
+    )
+    print(
+        f"NEW_TIME_LIMIT_HITS {time_hits}; "
+        "partial responses were preserved.",
+        flush=True,
+    )
+
+    return 1 if summary["generation_errors"] else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

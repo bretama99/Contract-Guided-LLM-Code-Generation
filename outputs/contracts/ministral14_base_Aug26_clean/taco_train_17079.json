@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_17079",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "maskPII",
+      "signature": "str -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(S) <= 40",
+        "description": "The input string S has length at most 40 characters."
+      },
+      {
+        "id": "P2",
+        "expression": "all(c.isalpha() or c in {'@', '.', '+', '-', '(', ')', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} for c in S)",
+        "description": "The input string S contains only alphabetic characters, '@', '.', '+', '-', '(', ')', ' ', or digits."
+      },
+      {
+        "id": "P3",
+        "expression": "S.count('@') == 1 and S.count('.') >= 1 or all(c.isdigit() or c in {'+', '-', '(', ')', ' '} for c in S)",
+        "description": "The input string S is either a valid email (contains exactly one '@' and at least one '.') or a valid phone number (contains only digits and allowed formatting characters)."
+      },
+      {
+        "id": "P4",
+        "expression": "len(S) >= 8 if '@' in S else len(S) >= 10",
+        "description": "If S is an email, its length is at least 8; if S is a phone number, its length is at least 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "@ in S and (return_value == S.lower() and all(c == '*' for c in return_value[1:-1] if c.isalpha() and c != return_value[0] and c != return_value[-1]))",
+        "description": "If S is an email, the output is the lowercase version of S with all letters between the first and last letter of the first name replaced by exactly 5 asterisks ('*')."
+      },
+      {
+        "id": "Q2",
+        "expression": "@ not in S and (return_value == '+' + '***-***-***-' + S[-4:] if '+' in S or any(c in {'+', '-', '(', ')'} for c in S) else '***-***-' + S[-4:])",
+        "description": "If S is a phone number, the output exposes only the last 4 digits and masks all other digits. The country code (if present) is masked as '+***-***-***-', and the local number is formatted as '***-***-1111'. Extraneous formatting characters are removed."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(return_value) == (len(S) if '@' in S else (4 + 3 * 3 if '+' in S or any(c in {'+', '-', '(', ')'} for c in S) else 4 + 3 * 2))",
+        "description": "The output length matches the expected masked format: for emails, it preserves the original length; for phone numbers, it follows the masked pattern length (e.g., 12 characters for '+***-***-***-1111')."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"functional\",\n    \"class_name\": null,\n    \"function_name\": \"maskPII\",\n    \"signature\": \"str -> str\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(S) <= 40\",\n      \"description\": \"The input string S has length at most 40 characters.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(c.isalpha() or c in {'@', '.', '+', '-', '(', ')', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} for c in S)\",\n      \"description\": \"The input string S contains only alphabetic characters, '@', '.', '+', '-', '(', ')', ' ', or digits.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"S.count('@') == 1 and S.count('.') >= 1 or all(c.isdigit() or c in {'+', '-', '(', ')', ' '} for c in S)\",\n      \"description\": \"The input string S is either a valid email (contains exactly one '@' and at least one '.') or a valid phone number (contains only digits and allowed formatting characters).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(S) >= 8 if '@' in S else len(S) >= 10\",\n      \"description\": \"If S is an email, its length is at least 8; if S is a phone number, its length is at least 10.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"@ in S and (return_value == S.lower() and all(c == '*' for c in return_value[1:-1] if c.isalpha() and c != return_value[0] and c != return_value[-1]))\",\n      \"description\": \"If S is an email, the output is the lowercase version of S with all letters between the first and last letter of the first name replaced by exactly 5 asterisks ('*').\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"@ not in S and (return_value == '+' + '***-***-***-' + S[-4:] if '+' in S or any(c in {'+', '-', '(', ')'} for c in S) else '***-***-' + S[-4:])\",\n      \"description\": \"If S is a phone number, the output exposes only the last 4 digits and masks all other digits. The country code (if present) is masked as '+***-***-***-', and the local number is formatted as '***-***-1111'. Extraneous formatting characters are removed.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(return_value) == (len(S) if '@' in S else (4 + 3 * 3 if '+' in S or any(c in {'+', '-', '(', ')'} for c in S) else 4 + 3 * 2))\",\n      \"description\": \"The output length matches the expected masked format: for emails, it preserves the original length; for phone numbers, it follows the masked pattern length (e.g., 12 characters for '+***-***-***-1111').\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1769,
+  "generated_tokens": 776,
+  "hit_output_limit": false,
+  "generation_seconds": 35.8,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:51:15.546666+00:00"
+}

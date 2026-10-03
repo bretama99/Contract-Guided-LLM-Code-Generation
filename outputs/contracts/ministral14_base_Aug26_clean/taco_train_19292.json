@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_19292",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 1 and m >= 2 and n <= 200 and m <= 10**5",
+        "description": "Input constraints: n is the number of time-steps (1 ≤ n ≤ 200), m is the number of target banana counts (2 ≤ m ≤ 10^5)."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t_i <= 2 for t_i, x_prime_i, y_i in operations) and all(1 <= y_i <= m for t_i, x_prime_i, y_i in operations)",
+        "description": "Each operation has t_i ∈ {1, 2} (type 1 or 2) and y_i ∈ [1, m], where operations is the list of parsed input lines."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= x_prime_i <= 10**5 * m for t_i, x_prime_i, y_i in operations if t_i == 1) and all(10**5 < x_prime_i <= 10**5 * m for t_i, x_prime_i, y_i in operations if t_i == 2)",
+        "description": "For type 1 operations, x'_i ∈ [1, 10^5 * m]; for type 2 operations, x'_i ∈ (10^5, 10^5 * m]. x_i = x'_i / 10^5."
+      },
+      {
+        "id": "P4",
+        "expression": "len(operations) == n",
+        "description": "The input contains exactly n operations, one per line."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output) == m and all(isinstance(x, int) for x in output) and all(-1 <= x <= n for x in output)",
+        "description": "Output is a list of m integers, each representing the earliest time-step (1 ≤ step ≤ n) to reach exactly j bananas, or -1 if impossible."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output[j-1] == -1 or (1 <= output[j-1] <= n and exists(sequence_of_choices, k_final == j)) for j in range(1, m+1))",
+        "description": "For each target j ∈ [1, m], output[j-1] is the smallest step s ∈ [1, n] where a sequence of choices (a_1, ..., a_s) exists such that applying the first s operations with those choices yields exactly j bananas (k_final = j). If no such s exists, output[j-1] = -1."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(output[j-1] == -1 or all(output[j-1] == min_step for min_step in possible_steps(j)) for j in range(1, m+1))",
+        "description": "For each j ∈ [1, m], if possible_steps(j) is the set of steps where j bananas can be achieved, then output[j-1] is the minimum of possible_steps(j). If possible_steps(j) is empty, output[j-1] = -1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n >= 1 and m >= 2 and n <= 200 and m <= 10**5\",\n      \"description\": \"Input constraints: n is the number of time-steps (1 ≤ n ≤ 200), m is the number of target banana counts (2 ≤ m ≤ 10^5).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= t_i <= 2 for t_i, x_prime_i, y_i in operations) and all(1 <= y_i <= m for t_i, x_prime_i, y_i in operations)\",\n      \"description\": \"Each operation has t_i ∈ {1, 2} (type 1 or 2) and y_i ∈ [1, m], where operations is the list of parsed input lines.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= x_prime_i <= 10**5 * m for t_i, x_prime_i, y_i in operations if t_i == 1) and all(10**5 < x_prime_i <= 10**5 * m for t_i, x_prime_i, y_i in operations if t_i == 2)\",\n      \"description\": \"For type 1 operations, x'_i ∈ [1, 10^5 * m]; for type 2 operations, x'_i ∈ (10^5, 10^5 * m]. x_i = x'_i / 10^5.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"len(operations) == n\",\n      \"description\": \"The input contains exactly n operations, one per line.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(output) == m and all(isinstance(x, int) for x in output) and all(-1 <= x <= n for x in output)\",\n      \"description\": \"Output is a list of m integers, each representing the earliest time-step (1 ≤ step ≤ n) to reach exactly j bananas, or -1 if impossible.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output[j-1] == -1 or (1 <= output[j-1] <= n and exists(sequence_of_choices, k_final == j)) for j in range(1, m+1))\",\n      \"description\": \"For each target j ∈ [1, m], output[j-1] is the smallest step s ∈ [1, n] where a sequence of choices (a_1, ..., a_s) exists such that applying the first s operations with those choices yields exactly j bananas (k_final = j). If no such s exists, output[j-1] = -1.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(output[j-1] == -1 or all(output[j-1] == min_step for min_step in possible_steps(j)) for j in range(1, m+1))\",\n      \"description\": \"For each j ∈ [1, m], if possible_steps(j) is the set of steps where j bananas can be achieved, then output[j-1] is the minimum of possible_steps(j). If possible_steps(j) is empty, output[j-1] = -1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2123,
+  "generated_tokens": 816,
+  "hit_output_limit": false,
+  "generation_seconds": 38.94,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:26:23.857387+00:00"
+}

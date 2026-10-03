@@ -1,0 +1,563 @@
+{
+  "task_id": "taco_train_21571",
+  "task_index": 687,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.split()[0]) <= 26",
+        "description": "k is a positive integer between 1 and 26 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[1]) >= 1 and len(stdin.split()[1]) <= 100",
+        "description": "q is a non-empty string of lowercase Latin letters with length between 1 and 100 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' if not exists_valid_partition(q, k) else stdout.strip() == 'YES'",
+        "description": "If no partition of q into k non-empty substrings exists where all first characters are distinct, output 'NO'. Otherwise, output 'YES'."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()) == 1 if stdout.strip() == 'NO' else len(stdout.splitlines()) == k + 1",
+        "description": "If 'NO' is printed, output exactly one line. If 'YES' is printed, output exactly k+1 lines (the first line is 'YES', followed by k lines of strings)."
+      },
+      {
+        "id": "Q3",
+        "expression": "''.join(stdout.splitlines()[1:k+1]) == q if stdout.strip() == 'YES' else True",
+        "description": "If 'YES' is printed, the concatenation of the k strings must equal the input string q."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(len(s) >= 1 for s in stdout.splitlines()[1:k+1]) if stdout.strip() == 'YES' else True",
+        "description": "If 'YES' is printed, the next k lines must be non-empty strings."
+      },
+      {
+        "id": "Q5",
+        "expression": "len(set(s[0] for s in stdout.splitlines()[1:k+1])) == k if stdout.strip() == 'YES' else True",
+        "description": "If 'YES' is printed, the first characters of the k strings must all be distinct."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.split()[0]) <= 26",
+        "description": "k is a positive integer between 1 and 26 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[1]) >= 1 and len(stdin.split()[1]) <= 100",
+        "description": "q is a non-empty string of lowercase Latin letters with length between 1 and 100 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' if not any(len(set(s[0] for s in partition)) == len(partition) for partition in partitions(q, k)) else stdout.strip() == 'YES'",
+        "description": "If no partition of q into k non-empty substrings exists where all first characters are distinct, output 'NO'. Otherwise, output 'YES' followed by any valid partition."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(s) >= 1 for s in [stdout.splitlines()[i] for i in range(1, k+1)]) if stdout.strip() == 'YES' else True",
+        "description": "If 'YES' is printed, the next k lines must be non-empty strings that concatenate to q."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(set(s[0] for s in [stdout.splitlines()[i] for i in range(1, k+1)])) == k if stdout.strip() == 'YES' else True",
+        "description": "If 'YES' is printed, the first characters of the k strings must all be distinct."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "6386e5061bac06bdbe2290059ae8c373cc9da10bd99dd71ed5fb14867fccfcf1",
+  "selected_contract_fingerprint": "7ba027205177c0556b6d1ebdf7e3440a11276aa49312e50e5c8ff4fadfb9afb0",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_21571.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+      "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "missing_clause",
+      "location": "postconditions",
+      "action": "add",
+      "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+      "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+        "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+        "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+        "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly capture the existence of a valid partition. The current expression is underspecified and does not align with the task's requirement of finding *any* valid partition.",
+        "task_evidence": "Find any beautiful sequence of strings or determine that the beautiful sequence doesn't exist.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "1 <= int(stdin.split()[0]) <= 26",
+          "description": "k is a positive integer between 1 and 26 inclusive."
+        },
+        {
+          "id": "P2",
+          "expression": "len(stdin.split()[1]) >= 1 and len(stdin.split()[1]) <= 100",
+          "description": "q is a non-empty string of lowercase Latin letters with length between 1 and 100 inclusive."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "stdout.strip() == 'NO' if not exists_valid_partition(q, k) else stdout.strip() == 'YES'",
+          "description": "If no partition of q into k non-empty substrings exists where all first characters are distinct, output 'NO'. Otherwise, output 'YES'."
+        },
+        {
+          "id": "Q2",
+          "expression": "len(stdout.splitlines()) == 1 if stdout.strip() == 'NO' else len(stdout.splitlines()) == k + 1",
+          "description": "If 'NO' is printed, output exactly one line. If 'YES' is printed, output exactly k+1 lines (the first line is 'YES', followed by k lines of strings)."
+        },
+        {
+          "id": "Q3",
+          "expression": "''.join(stdout.splitlines()[1:k+1]) == q if stdout.strip() == 'YES' else True",
+          "description": "If 'YES' is printed, the concatenation of the k strings must equal the input string q."
+        },
+        {
+          "id": "Q4",
+          "expression": "all(len(s) >= 1 for s in stdout.splitlines()[1:k+1]) if stdout.strip() == 'YES' else True",
+          "description": "If 'YES' is printed, the next k lines must be non-empty strings."
+        },
+        {
+          "id": "Q5",
+          "expression": "len(set(s[0] for s in stdout.splitlines()[1:k+1])) == k if stdout.strip() == 'YES' else True",
+          "description": "If 'YES' is printed, the first characters of the k strings must all be distinct."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+          "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "''.join(stdout.splitlines()[1:k+1]) == q",
+          "description": "If 'YES' is printed, the concatenation of the k strings must equal q."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "0bd806bf4c5e531de003b717cfe152930c7fc5992be568af5d66fe2b8141668e",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output format matches the task's requirement of printing 'YES' followed by exactly k lines (or 'NO') when a valid partition exists.",
+            "task_evidence": "If such sequence doesn't exist, then print in a single line \"NO\" (without the quotes). Otherwise, print in the first line \"YES\" (without the quotes) and in the next k lines print the beautiful sequence of strings s_1, s_2, ..., s_k.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly capture the task's requirement: the output must be 'NO' if no valid partition exists, otherwise 'YES' followed by exactly k non-empty strings that satisfy the distinct-first-character and concatenation conditions.",
+            "task_evidence": "If such sequence doesn't exist, then print in a single line \"NO\" (without the quotes). Otherwise, print in the first line \"YES\" (without the quotes) and in the next k lines print the beautiful sequence of strings s_1, s_2, ..., s_k.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly capture the task's requirement: the concatenation of the k strings must equal q, and the first line must be 'YES' (not just the k lines).",
+            "task_evidence": "If 'YES' is printed, the next k lines must be non-empty strings that concatenate to q.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "add",
+          "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+          "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "''.join(stdout.splitlines()[1:k+1]) == q",
+          "description": "If 'YES' is printed, the concatenation of the k strings must equal the input string q."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "8986a151c3d602382ff83531b914029bb597599997feb125c0f9194548f585b1",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that ensures the output format matches the task's requirement of printing 'YES' followed by exactly k lines (or 'NO') when a valid partition exists.",
+            "task_evidence": "If such sequence doesn't exist, then print in a single line \"NO\" (without the quotes). Otherwise, print in the first line \"YES\" (without the quotes) and in the next k lines print the beautiful sequence of strings s_1, s_2, ..., s_k.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly capture the task's requirement: the output must be 'NO' if no valid partition exists, otherwise 'YES' followed by exactly k non-empty strings whose concatenation is q and whose first characters are distinct. The current expression is overly complex and incorrectly references undefined `partitions` and `partition` functions.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly capture the task's requirement: the concatenation of the k strings must equal q, and the first line after 'YES' must be the first string in the partition. The current expression incorrectly skips the first line (index 0) and starts from index 1.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[0].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 3
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the concatenation of the k strings equals q when 'YES' is printed.",
+            "task_evidence": "A sequence of k strings s_1, s_2, ..., s_{k} is called beautiful, if the concatenation of these strings is string q",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() == 'NO' if not exists_valid_partition(q, k) else stdout.strip() == 'YES'",
+            "description": "If no partition of q into k non-empty substrings exists where all first characters are distinct, output 'NO'. Otherwise, output 'YES'."
+          },
+          {
+            "id": "Q2",
+            "expression": "len(stdout.splitlines()) == 1 if stdout.strip() == 'NO' else len(stdout.splitlines()) == k + 1",
+            "description": "If 'NO' is printed, output exactly one line. If 'YES' is printed, output exactly k+1 lines (the first line is 'YES', followed by k lines of strings)."
+          },
+          {
+            "id": "Q3",
+            "expression": "''.join(stdout.splitlines()[1:k+1]) == q if stdout.strip() == 'YES' else True",
+            "description": "If 'YES' is printed, the concatenation of the k strings must equal the input string q."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(len(s) >= 1 for s in stdout.splitlines()[1:k+1]) if stdout.strip() == 'YES' else True",
+            "description": "If 'YES' is printed, the next k lines must be non-empty strings."
+          },
+          {
+            "id": "Q5",
+            "expression": "len(set(s[0] for s in stdout.splitlines()[1:k+1])) == k if stdout.strip() == 'YES' else True",
+            "description": "If 'YES' is printed, the first characters of the k strings must all be distinct."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "7ba027205177c0556b6d1ebdf7e3440a11276aa49312e50e5c8ff4fadfb9afb0",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 82.227,
+  "processing_error": null,
+  "finished_at": "2026-09-04T04:57:56.762083+00:00"
+}

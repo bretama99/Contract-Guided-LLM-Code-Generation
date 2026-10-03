@@ -1,0 +1,70 @@
+{
+  "task_id": "taco_train_15230",
+  "task_index": 188,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "h >= 2 and w >= 2 and q >= 1",
+        "description": "Grid dimensions h and w are at least 2, and the number of days q is at least 1."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(row) == w and all(c in '.#' for c in row) for row in grid_rows)",
+        "description": "The grid consists of h rows, each of length w, containing only '.' (allowed) or '#' (permanently blocked)."
+      },
+      {
+        "id": "P3",
+        "expression": "grid_rows[0][0] == '.' and grid_rows[h-1][w-1] == '.'",
+        "description": "The start cell (0,0) and end cell (h-1, w-1) are not permanently blocked."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= k <= 10 for k in daily_block_counts)",
+        "description": "For each day, the number of temporarily blocked cells k is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P5",
+        "expression": "all(all(1 <= r <= h and 1 <= c <= w for r, c in day_blocks) and len(set(day_blocks)) == len(day_blocks) for day_blocks in all_day_blocks)",
+        "description": "For each day, all blocked cells have valid coordinates within the grid, and the list of blocked cells contains no duplicates."
+      },
+      {
+        "id": "P6",
+        "expression": "all((r-1, c-1) not in [(0,0), (h-1, w-1)] and grid_rows[r-1][c-1] == '.' for day_blocks in all_day_blocks for r, c in day_blocks)",
+        "description": "Temporarily blocked cells are never the start or end cell, and are never permanently blocked."
+      },
+      {
+        "id": "P7",
+        "expression": "is_interesting_base_case",
+        "description": "It is guaranteed that the grid with no temporary blocks allows a valid round trip (start to end and back without revisiting cells except start)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == q",
+        "description": "The output contains exactly q lines, one for each day."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line in ['YES', 'NO'] for line in stdout_lines)",
+        "description": "Each output line is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((has_valid_round_trip(grid_rows, h, w, day_blocks) and line == 'YES') or (not has_valid_round_trip(grid_rows, h, w, day_blocks) and line == 'NO') for day_blocks, line in zip(all_day_blocks, stdout_lines))",
+        "description": "For each day, the output is 'YES' if and only if there exists a path from (0,0) to (h-1, w-1) and a return path from (h-1, w-1) to (0,0) such that the two paths are internally vertex-disjoint (no cell is visited twice except the start/end cell which is visited at the beginning and end of the round trip)."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 80.319,
+  "seed": 230,
+  "generated_at": "2026-09-21T08:17:02.862463+00:00"
+}

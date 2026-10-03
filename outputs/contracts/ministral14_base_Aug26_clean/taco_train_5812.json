@@ -1,0 +1,77 @@
+{
+  "task_id": "taco_train_5812",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(x) <= 500000 for x in stdin.split()[:3])",
+        "description": "Input integers n (students), m (acquaintances), and k (groups) satisfy 1 ≤ n ≤ 500000, 0 ≤ m ≤ 500000, and 2 ≤ k ≤ 500000."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 3 + n + 2 * m",
+        "description": "Input format is correct: first line has n, m, k; second line has n group assignments; next m lines have 2 integers each for acquaintances."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(c) <= k for c in stdin.split()[3:3+n])",
+        "description": "Each student's group assignment c_i satisfies 1 ≤ c_i ≤ k."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(a) <= n and 1 <= int(b) <= n and a != b for a, b in (stdin.split()[3+n+2*i:3+n+2*i+2] for i in range(m)))",
+        "description": "Each acquaintance pair (a_i, b_i) has distinct students 1 ≤ a_i, b_i ≤ n."
+      },
+      {
+        "id": "P5",
+        "expression": "len(set((min(a, b), max(a, b)) for a, b in (stdin.split()[3+n+2*i:3+n+2*i+2] for i in range(m)))) == m",
+        "description": "No unordered acquaintance pair is repeated."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(sum(1 for g1 in range(1, k+1) for g2 in range(g1+1, k+1) if is_valid_pair(g1, g2, stdin)))",
+        "description": "Output is the count of valid group pairs (g1, g2) where g1 < g2, such that the combined students of groups g1 and g2 can be split into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(stdout) <= k * (k - 1) // 2)",
+        "description": "Output is a non-negative integer within the possible range of group pair counts (0 to k(k-1)/2)."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "lambda g1, g2, stdin: (lambda students: all(not are_acquaintances(a, b, stdin) for a in students for b in students if a != b))(get_students(g1, g2, stdin))",
+        "description": "A helper predicate is_valid_pair(g1, g2, stdin) is true if the students in groups g1 and g2 can be partitioned into two teams with no internal acquaintance pairs. This is equivalent to the combined students forming a bipartite graph where edges are acquaintance pairs."
+      },
+      {
+        "id": "I2",
+        "expression": "lambda g1, g2, stdin: (lambda students: len(students) == len(get_students(g1, g2, stdin)))",
+        "description": "get_students(g1, g2, stdin) returns the list of all student indices (1-based) in groups g1 and g2, including empty groups."
+      },
+      {
+        "id": "I3",
+        "expression": "lambda a, b, stdin: (a, b) in {(min(int(x), int(y)), max(int(x), int(y))) for x, y in (stdin.split()[3+n+2*i:3+n+2*i+2] for i in range(m))}",
+        "description": "are_acquaintances(a, b, stdin) is true if students a and b are listed as acquaintances in the input."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(x) <= 500000 for x in stdin.split()[:3])\",\n      \"description\": \"Input integers n (students), m (acquaintances), and k (groups) satisfy 1 ≤ n ≤ 500000, 0 ≤ m ≤ 500000, and 2 ≤ k ≤ 500000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()) == 3 + n + 2 * m\",\n      \"description\": \"Input format is correct: first line has n, m, k; second line has n group assignments; next m lines have 2 integers each for acquaintances.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(c) <= k for c in stdin.split()[3:3+n])\",\n      \"description\": \"Each student's group assignment c_i satisfies 1 ≤ c_i ≤ k.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(a) <= n and 1 <= int(b) <= n and a != b for a, b in (stdin.split()[3+n+2*i:3+n+2*i+2] for i in range(m)))\",\n      \"description\": \"Each acquaintance pair (a_i, b_i) has distinct students 1 ≤ a_i, b_i ≤ n.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len(set((min(a, b), max(a, b)) for a, b in (stdin.split()[3+n+2*i:3+n+2*i+2] for i in range(m)))) == m\",\n      \"description\": \"No unordered acquaintance pair is repeated.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == str(sum(1 for g1 in range(1, k+1) for g2 in range(g1+1, k+1) if is_valid_pair(g1, g2, stdin)))\",\n      \"description\": \"Output is the count of valid group pairs (g1, g2) where g1 < g2, such that the combined students of groups g1 and g2 can be split into two teams with no acquaintance pairs within any team.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(stdout) <= k * (k - 1) // 2)\",\n      \"description\": \"Output is a non-negative integer within the possible range of group pair counts (0 to k(k-1)/2).\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"lambda g1, g2, stdin: (lambda students: all(not are_acquaintances(a, b, stdin) for a in students for b in students if a != b))(get_students(g1, g2, stdin))\",\n      \"description\": \"A helper predicate is_valid_pair(g1, g2, stdin) is true if the students in groups g1 and g2 can be partitioned into two teams with no internal acquaintance pairs. This is equivalent to the combined students forming a bipartite graph where edges are acquaintance pairs.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"lambda g1, g2, stdin: (lambda students: len(students) == len(get_students(g1, g2, stdin)))\",\n      \"description\": \"get_students(g1, g2, stdin) returns the list of all student indices (1-based) in groups g1 and g2, including empty groups.\"\n    },\n    {\n      \"id\": \"I3\",\n      \"expression\": \"lambda a, b, stdin: (a, b) in {(min(int(x), int(y)), max(int(x), int(y))) for x, y in (stdin.split()[3+n+2*i:3+n+2*i+2] for i in range(m))}\",\n      \"description\": \"are_acquaintances(a, b, stdin) is true if students a and b are listed as acquaintances in the input.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1838,
+  "generated_tokens": 997,
+  "hit_output_limit": false,
+  "generation_seconds": 50.001,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:07:27.389308+00:00"
+}

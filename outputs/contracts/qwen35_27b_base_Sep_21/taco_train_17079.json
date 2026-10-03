@@ -1,0 +1,60 @@
+{
+  "task_id": "taco_train_17079",
+  "task_index": 627,
+  "contract": {
+    "interface": {
+      "mode": "functional",
+      "class_name": null,
+      "function_name": "maskPII",
+      "signature": "def maskPII(S: str) -> str"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "isinstance(S, str)",
+        "description": "Input S is a string."
+      },
+      {
+        "id": "P2",
+        "expression": "len(S) <= 40",
+        "description": "The length of S is at most 40."
+      },
+      {
+        "id": "P3",
+        "expression": "('@' in S and '.' in S) or (all(c.isdigit() or c in '+-() ' for c in S))",
+        "description": "S is either a valid email (contains '@' and '.') or a valid phone number (contains only digits and allowed separators)."
+      },
+      {
+        "id": "P4",
+        "expression": "len(S) >= 8 if '@' in S else len(S) >= 10",
+        "description": "Emails have length at least 8; phone numbers have length at least 10."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "isinstance(return_value, str)",
+        "description": "The return value is a string."
+      },
+      {
+        "id": "Q2",
+        "expression": "('@' in S) == ('@' in return_value)",
+        "description": "The output is an email mask if and only if the input is an email."
+      },
+      {
+        "id": "Q3",
+        "expression": "('@' in S) and (return_value == (S.split('@')[0][0].lower() + '*****' + S.split('@')[0][-1].lower() + '@' + S.split('@')[1].lower()))",
+        "description": "If S is an email, the output is the first letter of the first name (lowercased), followed by 5 asterisks, followed by the last letter of the first name (lowercased), followed by '@', followed by the rest of the email (domain) in lowercase."
+      },
+      {
+        "id": "Q4",
+        "expression": "('@' not in S) and (return_value == ('+' + '-' * (len(digits) - 10) + '*' * (len(digits) - 10) + '-' + '***-***-' + digits[-4:]) if len(digits) > 10 else ('***-***-' + digits[-4:]))",
+        "description": "If S is a phone number, let digits be the sequence of all digits in S. If there are more than 10 digits, the output starts with '+', followed by asterisks equal to the number of country code digits, then '-***-***-' and the last 4 digits. If there are exactly 10 digits, the output is '***-***-' followed by the last 4 digits."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 66.653,
+  "seed": 669,
+  "generated_at": "2026-09-21T07:25:21.679648+00:00"
+}

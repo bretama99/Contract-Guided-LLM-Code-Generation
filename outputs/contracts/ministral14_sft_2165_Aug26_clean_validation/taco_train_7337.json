@@ -1,0 +1,285 @@
+{
+  "task_id": "taco_train_7337",
+  "task_index": 506,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= m <= n <= 123456",
+        "description": "The number of cities n and attacked cities m satisfy 1 ≤ m ≤ n ≤ 123456."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u_i <= n and 1 <= v_i <= n and u_i != v_i for u_i, v_i in roads)",
+        "description": "Each road connects two distinct cities within the valid range [1, n]."
+      },
+      {
+        "id": "P3",
+        "expression": "len(roads) == n - 1",
+        "description": "The road system has exactly n - 1 roads, forming a tree."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= city <= n for city in attacked_cities) and len(attacked_cities) == m",
+        "description": "Attacked cities are distinct and within the valid range [1, n]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "teleport_city == min(city for city in possible_teleport_cities)",
+        "description": "The teleport city is the smallest-numbered city among all optimal starting cities."
+      },
+      {
+        "id": "Q2",
+        "expression": "min_time == min(sum(distances[teleport_city][city] for city in attacked_cities) for teleport_city in range(1, n + 1))",
+        "description": "The minimum time is the smallest sum of distances from the teleport city to all attacked cities."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == f'{teleport_city}\\n{min_time}'",
+        "description": "The output consists of the teleport city followed by the minimum time, each on a separate line."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= m <= n <= 123456",
+        "description": "The number of cities n and attacked cities m satisfy 1 ≤ m ≤ n ≤ 123456."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= u_i <= n and 1 <= v_i <= n and u_i != v_i for u_i, v_i in roads)",
+        "description": "Each road connects two distinct cities within the valid range [1, n]."
+      },
+      {
+        "id": "P3",
+        "expression": "len(roads) == n - 1",
+        "description": "The road system has exactly n - 1 roads, forming a tree."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= city <= n for city in attacked_cities) and len(attacked_cities) == m",
+        "description": "Attacked cities are distinct and within the valid range [1, n]."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "teleport_city == min(city for city in possible_teleport_cities)",
+        "description": "The teleport city is the smallest-numbered city among all optimal starting cities."
+      },
+      {
+        "id": "Q2",
+        "expression": "min_time == min(sum(distances[teleport_city][city] for city in attacked_cities) for teleport_city in range(1, n + 1))",
+        "description": "The minimum time is the smallest sum of distances from the teleport city to all attacked cities."
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout == f'{teleport_city}\\n{min_time}'",
+        "description": "The output consists of the teleport city followed by the minimum time, each on a separate line."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "b58ed672b9e7667d62dfc145a73869e46d1004dcb602a6e92c96991d5176eafc",
+  "selected_contract_fingerprint": "b58ed672b9e7667d62dfc145a73869e46d1004dcb602a6e92c96991d5176eafc",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_7337.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the `distances` matrix is correctly computed as the shortest path distances (which, in a tree, is simply the number of edges in the unique path) between every pair of cities.",
+        "task_evidence": "Super M can pass from one city to another only using the given roads. Moreover, passing through one road takes her exactly one kron - the time unit used in Byteforces.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure `possible_teleport_cities` is derived from all cities that minimize the sum of distances to the attacked cities.",
+        "task_evidence": "You are to help Super M, by calculating the city in which she should teleport at the beginning in order to end her job in the minimum time (measured in krons).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly define `possible_teleport_cities` as the set of cities that minimize the sum of distances to the attacked cities, and ensure `teleport_city` is chosen as the smallest-numbered city among them.",
+        "task_evidence": "If there are many possible optimal answers, print the one with the lowest city number.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the `min_time` is the sum of distances from the chosen `teleport_city` to all attacked cities.",
+        "task_evidence": "Also, provide her with this time so she can plan her way back to Codeforces.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 4
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the `distances` matrix is correctly computed as the shortest path distances (which, in a tree, is simply the number of edges in the unique path) between every pair of cities.",
+        "task_evidence": "Super M can pass from one city to another only using the given roads. Moreover, passing through one road takes her exactly one kron - the time unit used in Byteforces.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure `possible_teleport_cities` is derived from all cities that minimize the sum of distances to the attacked cities.",
+        "task_evidence": "You are to help Super M, by calculating the city in which she should teleport at the beginning in order to end her job in the minimum time (measured in krons).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly define `possible_teleport_cities` as the set of cities that minimize the sum of distances to the attacked cities, and ensure `teleport_city` is chosen as the smallest-numbered city among them.",
+        "task_evidence": "If there are many possible optimal answers, print the one with the lowest city number.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the `min_time` is the sum of distances from the chosen `teleport_city` to all attacked cities.",
+        "task_evidence": "Also, provide her with this time so she can plan her way back to Codeforces.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 4
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 21.602,
+  "processing_error": null,
+  "finished_at": "2026-09-03T19:14:12.490624+00:00"
+}

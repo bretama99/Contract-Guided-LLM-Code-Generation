@@ -1,0 +1,233 @@
+{
+  "task_id": "taco_train_24380",
+  "task_index": 609,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.strip()) > 0 and len(stdin.strip()) <= 1000",
+        "description": "The input string is non-empty and has length not greater than 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(c.islower() or c.isdigit() or c == '.' for c in stdin)",
+        "description": "The input string contains only lowercase letters, digits, and dots."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(name) <= 10 for name in [stdin[i:j] for i, j in zip(range(0, len(stdin), 1), range(11, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each name in the bill has length not more than 10."
+      },
+      {
+        "id": "P4",
+        "expression": "all(price[0].isdigit() and price[-1].isdigit() for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price starts and ends with a digit."
+      },
+      {
+        "id": "P5",
+        "expression": "all('.' not in price[:-1] or price.count('.') == 1 for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price has at most one dot (decimal point) except possibly at the end."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(price.split('.')) == 1 or (len(price.split('.')) == 2 and len(price.split('.')[1]) == 2) for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price is either an integer or has exactly two digits after the decimal point."
+      },
+      {
+        "id": "P7",
+        "expression": "all(any(c.isdigit() for c in price.split('.')[0]) for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price has at least one digit before any decimal point."
+      },
+      {
+        "id": "P8",
+        "expression": "all(len(price.split('.')) == 1 or (len(price.split('.')) == 2 and price.split('.')[1].isdigit()) for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price has digits only in the cents part if a decimal point is present."
+      },
+      {
+        "id": "P9",
+        "expression": "all(0 < float(price.replace('.', '')) / 100 <= 10**6 for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price is not less than one cent and not greater than 10^6 dollars."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == format_total_price(sum(float(price.replace('.', '')) / 100 for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j]))",
+        "description": "The output is the total price of all purchases in the bill, formatted exactly as per the input price format."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.strip()) > 0 and len(stdin.strip()) <= 1000",
+        "description": "The input string is non-empty and has length not greater than 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(c.islower() or c.isdigit() or c == '.' for c in stdin)",
+        "description": "The input string contains only lowercase letters, digits, and dots."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(name) <= 10 for name in [stdin[i:j] for i, j in zip(range(0, len(stdin), 1), range(11, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each name in the bill has length not more than 10."
+      },
+      {
+        "id": "P4",
+        "expression": "all(price[0].isdigit() and price[-1].isdigit() for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price starts and ends with a digit."
+      },
+      {
+        "id": "P5",
+        "expression": "all('.' not in price[:-1] or price.count('.') == 1 for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price has at most one dot (decimal point) except possibly at the end."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(price.split('.')) == 1 or (len(price.split('.')) == 2 and len(price.split('.')[1]) == 2) for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price is either an integer or has exactly two digits after the decimal point."
+      },
+      {
+        "id": "P7",
+        "expression": "all(any(c.isdigit() for c in price.split('.')[0]) for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price has at least one digit before any decimal point."
+      },
+      {
+        "id": "P8",
+        "expression": "all(len(price.split('.')) == 1 or (len(price.split('.')) == 2 and price.split('.')[1].isdigit()) for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price has digits only in the cents part if a decimal point is present."
+      },
+      {
+        "id": "P9",
+        "expression": "all(0 < float(price.replace('.', '')) / 100 <= 10**6 for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j])",
+        "description": "Each price is not less than one cent and not greater than 10^6 dollars."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == format_total_price(sum(float(price.replace('.', '')) / 100 for price in [stdin[i:j] for i, j in zip(range(11, len(stdin) + 1, 11), range(11 + 1, len(stdin) + 1, 11)) if i < j]))",
+        "description": "The output is the total price of all purchases in the bill, formatted exactly as per the input price format."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "d87e2a8c5d6e2e00fd0b43e73c7700ff6ca456df22f54580950e8d35f6dc0c44",
+  "selected_contract_fingerprint": "d87e2a8c5d6e2e00fd0b43e73c7700ff6ca456df22f54580950e8d35f6dc0c44",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_24380.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 63.197,
+  "processing_error": null,
+  "finished_at": "2026-09-04T02:04:53.922039+00:00"
+}

@@ -1,0 +1,72 @@
+{
+  "task_id": "taco_train_17822",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 2500 and 1 <= m <= 2500 and 1 <= q <= 100000",
+        "description": "Grid dimensions n and m are within bounds, and total actions q is within bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t <= 3 for t, _, _, _, _ in actions)",
+        "description": "Each action type t is either 1 (place barrier), 2 (remove barrier), or 3 (query path)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= r1 <= r2 <= n and 1 <= c1 <= c2 <= m for t, r1, c1, r2, c2 in actions)",
+        "description": "Coordinates r1, c1, r2, c2 are within grid bounds and r1 <= r2, c1 <= c2 for all actions."
+      },
+      {
+        "id": "P4",
+        "expression": "all(2 <= r1 <= r2 <= n - 1 and 2 <= c1 <= c2 <= m - 1 for t, r1, c1, r2, c2 in actions if t in {1, 2})",
+        "description": "For barrier actions (t=1 or t=2), coordinates are strictly within the inner grid (not on the boundary)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(actions[i][0] == 2 implies (r1, c1, r2, c2) in existing_barriers for i in range(len(actions)) if actions[i][0] == 2)",
+        "description": "A barrier removal (t=2) only occurs if the specified barrier exists in the current set of barriers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_lines[i] in {'Yes', 'No'} for i in range(len(query_indices)))",
+        "description": "For each query (t=3), output is either 'Yes' or 'No'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_lines[i] == 'Yes') == is_path_possible(actions[:query_indices[i]], query_indices[i]) for i in range(len(query_indices)))",
+        "description": "For each query (t=3), output 'Yes' if there exists a path from (r1, c1) to (r2, c2) without crossing any barriers, otherwise 'No'."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(2 <= r <= n - 1 and 2 <= c <= m - 1 for (r, c) in barrier_corners)",
+        "description": "Barriers are always placed strictly within the inner grid (not on the boundary)."
+      },
+      {
+        "id": "I2",
+        "expression": "all(not (r1 <= r <= r2 and c1 <= c <= c2) or (r, c) not in barrier_corners for (r1, c1, r2, c2) in existing_barriers for (r, c) in barrier_corners)",
+        "description": "Barriers do not intersect or share common points with other barriers."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 2500 and 1 <= m <= 2500 and 1 <= q <= 100000\",\n      \"description\": \"Grid dimensions n and m are within bounds, and total actions q is within bounds.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= t <= 3 for t, _, _, _, _ in actions)\",\n      \"description\": \"Each action type t is either 1 (place barrier), 2 (remove barrier), or 3 (query path).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= r1 <= r2 <= n and 1 <= c1 <= c2 <= m for t, r1, c1, r2, c2 in actions)\",\n      \"description\": \"Coordinates r1, c1, r2, c2 are within grid bounds and r1 <= r2, c1 <= c2 for all actions.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(2 <= r1 <= r2 <= n - 1 and 2 <= c1 <= c2 <= m - 1 for t, r1, c1, r2, c2 in actions if t in {1, 2})\",\n      \"description\": \"For barrier actions (t=1 or t=2), coordinates are strictly within the inner grid (not on the boundary).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(actions[i][0] == 2 implies (r1, c1, r2, c2) in existing_barriers for i in range(len(actions)) if actions[i][0] == 2)\",\n      \"description\": \"A barrier removal (t=2) only occurs if the specified barrier exists in the current set of barriers.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_lines[i] in {'Yes', 'No'} for i in range(len(query_indices)))\",\n      \"description\": \"For each query (t=3), output is either 'Yes' or 'No'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((stdout_lines[i] == 'Yes') == is_path_possible(actions[:query_indices[i]], query_indices[i]) for i in range(len(query_indices)))\",\n      \"description\": \"For each query (t=3), output 'Yes' if there exists a path from (r1, c1) to (r2, c2) without crossing any barriers, otherwise 'No'.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(2 <= r <= n - 1 and 2 <= c <= m - 1 for (r, c) in barrier_corners)\",\n      \"description\": \"Barriers are always placed strictly within the inner grid (not on the boundary).\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(not (r1 <= r <= r2 and c1 <= c <= c2) or (r, c) not in barrier_corners for (r1, c1, r2, c2) in existing_barriers for (r, c) in barrier_corners)\",\n      \"description\": \"Barriers do not intersect or share common points with other barriers.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1931,
+  "generated_tokens": 831,
+  "hit_output_limit": false,
+  "generation_seconds": 38.387,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:08:14.716044+00:00"
+}

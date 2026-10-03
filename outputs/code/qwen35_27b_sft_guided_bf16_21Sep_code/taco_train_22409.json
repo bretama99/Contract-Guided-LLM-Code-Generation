@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_22409",
+  "task_index": 962,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_22409.json",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        N = int(next(iterator))\n    except StopIteration:\n        return\n\n    matrix = []\n    for _ in range(N):\n        row = []\n        for _ in range(N):\n            row.append(int(next(iterator)))\n        matrix.append(row)\n\n    MOD = 10**9 + 7\n\n    adj = [[] for _ in range(N * N)]\n    degree = [0] * (N * N)\n    \n    def get_idx(r, c):\n        return r * N + c\n\n    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n\n    for r in range(N):\n        for c in range(N):\n            curr_val = matrix[r][c]\n            curr_idx = get_idx(r, c)\n            for dr, dc in directions:\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < N and 0 <= nc < N:\n                    neighbor_val = matrix[nr][nc]\n                    if neighbor_val < curr_val:\n                        neighbor_idx = get_idx(nr, nc)\n                        adj[curr_idx].append(neighbor_idx)\n                        degree[neighbor_idx] += 1\n\n    dp = [1] * (N * N)\n    queue = deque()\n\n    for i in range(N * N):\n        if degree[i] == 0:\n            queue.append(i)\n\n    while queue:\n        u = queue.popleft()\n        for v in adj[u]:\n            degree[v] -= 1\n            if degree[v] == 0:\n                queue.append(v)\n            dp[v] = (dp[v] + dp[u]) % MOD\n\n    total = sum(dp) % MOD\n    print(total)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 36.386,
+  "generated_at": "2026-09-22T21:10:36.238664+00:00"
+}

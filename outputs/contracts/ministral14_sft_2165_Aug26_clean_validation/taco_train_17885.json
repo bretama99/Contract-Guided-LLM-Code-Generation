@@ -1,0 +1,967 @@
+{
+  "task_id": "taco_train_17885",
+  "task_index": 937,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= T <= 50000",
+        "description": "The number of test cases T is between 1 and 50,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 500000 for n in [int(line) for line in stdin.splitlines() if line.strip().isdigit() and 'n' not in line])",
+        "description": "Each test case has a number of vertices n between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == n - 1 for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])])",
+        "description": "Each test case has exactly n-1 edges forming a tree."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= v <= n and 1 <= u <= n for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])] for v, u in edges)",
+        "description": "Each edge connects vertices v and u where 1 ≤ v, u ≤ n."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(colors) == n for n, colors in [(int(stdin.readline()), stdin.readline().strip()) for _ in range(T)])",
+        "description": "The color string has exactly n characters for each test case."
+      },
+      {
+        "id": "P6",
+        "expression": "all(c in 'WN' for c in colors) for colors in [stdin.readline().strip() for _ in range(T)])",
+        "description": "Each character in the color string is either 'W' (white) or 'N' (uncolored)."
+      },
+      {
+        "id": "P7",
+        "expression": "any(c == 'N' for c in colors) for colors in [stdin.readline().strip() for _ in range(T)])",
+        "description": "There is at least one uncolored vertex ('N') in each test case."
+      },
+      {
+        "id": "P8",
+        "expression": "not any(all(c == 'W' for c in path) for path in get_all_paths(tree, n) if len(path) == 3)",
+        "description": "There is no existing path of three white vertices ('W') in the initial configuration."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() in ['White', 'Draw', 'Black']",
+        "description": "The output for each test case is either 'White', 'Draw', or 'Black'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output == 'White' or output == 'Draw' or output == 'Black' for output in [line.strip() for line in stdout.splitlines() if line.strip()])",
+        "description": "Each line of output corresponds to a test case and is one of the three possible outcomes."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(optimally_wins_white(tree, colors) == (output == 'White') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "If the white player can force a win with optimal play, the output is 'White'."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(optimally_wins_black(tree, colors) == (output == 'Black') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "If the black player can force a win with optimal play, the output is 'Black'."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(output == 'Draw' for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]) if not optimally_wins_white(tree, colors) and not optimally_wins_black(tree, colors))",
+        "description": "If neither player can force a win with optimal play, the output is 'Draw'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= T <= 50000",
+        "description": "The number of test cases T is between 1 and 50,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 500000 for n in [int(line) for line in stdin.splitlines() if line.strip().isdigit() and 'n' not in line])",
+        "description": "Each test case has a number of vertices n between 1 and 500,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(edges) == n - 1 for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])])",
+        "description": "Each test case has exactly n-1 edges forming a tree."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= v <= n and 1 <= u <= n for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])] for v, u in edges)",
+        "description": "Each edge connects vertices v and u where 1 ≤ v, u ≤ n."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(colors) == n for n, colors in [(int(stdin.readline()), stdin.readline().strip()) for _ in range(T)])",
+        "description": "The color string has exactly n characters for each test case."
+      },
+      {
+        "id": "P6",
+        "expression": "all(c in 'WN' for c in colors) for colors in [stdin.readline().strip() for _ in range(T)])",
+        "description": "Each character in the color string is either 'W' (white) or 'N' (uncolored)."
+      },
+      {
+        "id": "P7",
+        "expression": "any(c == 'N' for c in colors) for colors in [stdin.readline().strip() for _ in range(T)])",
+        "description": "There is at least one uncolored vertex ('N') in each test case."
+      },
+      {
+        "id": "P8",
+        "expression": "not any(all(c == 'W' for c in path) for path in get_all_paths(tree, n) if len(path) == 3)",
+        "description": "There is no existing path of three white vertices ('W') in the initial configuration."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() in ['White', 'Draw', 'Black']",
+        "description": "The output for each test case is either 'White', 'Draw', or 'Black'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output == 'White' or output == 'Draw' or output == 'Black' for output in [line.strip() for line in stdout.splitlines() if line.strip()])",
+        "description": "Each line of output corresponds to a test case and is one of the three possible outcomes."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(optimally_wins_white(tree, colors) == (output == 'White') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "If the white player can force a win with optimal play, the output is 'White'."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(optimally_wins_black(tree, colors) == (output == 'Black') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+        "description": "If the black player can force a win with optimal play, the output is 'Black'."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(output == 'Draw' for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)])]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]) if not optimally_wins_white(tree, colors) and not optimally_wins_black(tree, colors))",
+        "description": "If neither player can force a win with optimal play, the output is 'Draw'."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "d43785b59660cac334b1867c855fc225bb206abd57d1e8e18b72aa3b9da400cf",
+  "selected_contract_fingerprint": "d43785b59660cac334b1867c855fc225bb206abd57d1e8e18b72aa3b9da400cf",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_17885.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[7].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+      "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "ISSUE",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[7].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+      "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[7].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+        "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[7].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+        "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[7].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+        "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure the input is read in the correct order: first T, then for each test case, n, followed by n-1 edges, then the color string. The current contract does not enforce this.",
+        "task_evidence": "The first line contains a single integer T (1 ≤ T ≤ 50 000) — the number of test cases. Then descriptions of T test cases follow.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression references undefined helpers `optimally_wins_white` and `build_tree`. These are not part of the contract and cannot be used in expressions. Replace with a task-grounded expression that verifies the output aligns with the game's optimal play rules (e.g., 'White' only if white can force a win, 'Black' only if black can force a win, else 'Draw').",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Same as above: `optimally_wins_black` is undefined. Replace with a task-grounded expression.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Same as above: `optimally_wins_white` and `optimally_wins_black` are undefined. Replace with a task-grounded expression that ensures 'Draw' is only output when neither player can force a win.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the output for each test case is determined by the game's rules: 'White' if white can force a win, 'Black' if black can force a win, else 'Draw'. The current contract lacks a direct expression-led mapping to the task's requirements.",
+        "task_evidence": "Could you please find who will win the game or whether it ends as a draw, assuming both players play optimally?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[5].expression",
+        "detail": "unmatched ')' (<unknown>, line 1)"
+      },
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[6].expression",
+        "detail": "unmatched ')' (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "preconditions[7].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[7].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+      "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "ISSUE",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "preconditions[7].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+      "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[7].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+        "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[7].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+        "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "preconditions[7].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+        "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure the input is read in the correct order: first T, then for each test case, n, followed by n-1 edges, then the color string. The current contract does not enforce this.",
+        "task_evidence": "The first line contains a single integer T (1 ≤ T ≤ 50 000) — the number of test cases. Then descriptions of T test cases follow.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "The expression references undefined helpers `optimally_wins_white` and `build_tree`. These are not part of the contract and cannot be used in expressions. Replace with a task-grounded expression that verifies the output aligns with the game's optimal play rules (e.g., 'White' only if white can force a win, 'Black' only if black can force a win, else 'Draw').",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Same as above: `optimally_wins_black` is undefined. Replace with a task-grounded expression.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "Same as above: `optimally_wins_white` and `optimally_wins_black` are undefined. Replace with a task-grounded expression that ensures 'Draw' is only output when neither player can force a win.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure the output for each test case is determined by the game's rules: 'White' if white can force a win, 'Black' if black can force a win, else 'Draw'. The current contract lacks a direct expression-led mapping to the task's requirements.",
+        "task_evidence": "Could you please find who will win the game or whether it ends as a draw, assuming both players play optimally?",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[5].expression",
+        "detail": "unmatched ')' (<unknown>, line 1)"
+      },
+      {
+        "code": "invalid_expression_syntax",
+        "location": "preconditions[6].expression",
+        "detail": "unmatched ')' (<unknown>, line 1)"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "preconditions[7].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[2].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 3,
+        "location": "postconditions[3].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions[4].expression"
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions[7].expression",
+          "action": "replace",
+          "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+          "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"},{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[6].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"},{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[6].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions[7].expression",
+          "action": "replace",
+          "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+          "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"},{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[6].expression\"}]",
+          "candidate failed blocking representation gate: [{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[5].expression\"},{\"code\":\"invalid_expression_syntax\",\"detail\":\"unmatched ')' (<unknown>, line 1)\",\"location\":\"preconditions[6].expression\"}]"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "preconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete preconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "preconditions[7].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly capture the task's guarantee that no path of three white vertices exists in the initial configuration. The task states this is a **guarantee**, not a runtime check. Remove this precondition entirely as it is a task invariant, not a contract precondition.",
+            "task_evidence": "It's guaranteed that there is no path of three white vertices.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The number of test cases T is between 1 and 50,000 inclusive.",
+            "expression": "1 <= T <= 50000",
+            "id": "P1"
+          },
+          {
+            "description": "Each test case has a number of vertices n between 1 and 500,000 inclusive.",
+            "expression": "all(1 <= n <= 500000 for n in [int(stdin.readline()) for _ in range(T)])",
+            "id": "P2"
+          },
+          {
+            "description": "Each test case has exactly n-1 edges forming a tree.",
+            "expression": "all(len(edges) == n - 1 for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)])",
+            "id": "P3"
+          },
+          {
+            "description": "Each edge connects vertices v and u where 1 ≤ v, u ≤ n.",
+            "expression": "all(1 <= v <= n and 1 <= u <= n for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)] for v, u in edges)",
+            "id": "P4"
+          },
+          {
+            "description": "The color string has exactly n characters for each test case.",
+            "expression": "all(len(colors) == n for n, colors in [(int(stdin.readline()), stdin.readline().strip()) for _ in range(T)])",
+            "id": "P5"
+          },
+          {
+            "description": "Each character in the color string is either 'W' (white) or 'N' (uncolored).",
+            "expression": "all(c in 'WN' for c in colors for colors in [stdin.readline().strip() for _ in range(T)])",
+            "id": "P6"
+          },
+          {
+            "description": "There is at least one uncolored vertex ('N') in each test case.",
+            "expression": "all(any(c == 'N' for c in colors) for colors in [stdin.readline().strip() for _ in range(T)])",
+            "id": "P7"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "462e3d9d12eafce43ecbf541f472bf77f43362be6e8a9a314934d25ea6f67d4d",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the **substantive input-output relation** for determining the winner (White/Black/Draw) based on optimal play, including the **path-of-three** winning condition and the **draw** condition when no player can force a win.",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the **substantive input-output relation** for determining the winner (White/Black/Draw) based on optimal play, including the **path-of-three** winning condition and the **draw** condition when no player can force a win.",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a **direct, task-grounded** check for optimal play outcome (White/Black/Draw) using **game-theoretic reasoning** (e.g., Grundy numbers, tree traversal, or path analysis) rather than relying on undefined `optimally_wins_white`/`optimally_wins_black` helpers.",
+            "task_evidence": "Could you please find who will win the game or whether it ends as a draw, assuming both players play optimally?",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a **direct, task-grounded** check for optimal play outcome (White/Black/Draw) using **game-theoretic reasoning** (e.g., Grundy numbers, tree traversal, or path analysis) rather than relying on undefined `optimally_wins_black` helpers.",
+            "task_evidence": "Could you please find who will win the game or whether it ends as a draw, assuming both players play optimally?",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a **direct, task-grounded** check for the draw condition (no forced win for either player) using **game-theoretic reasoning** (e.g., exhaustive path analysis or tree traversal) rather than relying on undefined `optimally_wins_white`/`optimally_wins_black` helpers.",
+            "task_evidence": "In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "The player wins if he paints some path of three vertices in his color. In case all vertices are colored and neither player won, the game ends in a draw.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the **substantive input-output relation** for determining the winner (White/Black/Draw) based on optimal play, including the **path-of-three** winning condition and the **draw** condition when no player can force a win.",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() in ['White', 'Draw', 'Black']",
+            "description": "The output for each test case is either 'White', 'Draw', or 'Black'."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(output == 'White' or output == 'Draw' or output == 'Black' for output in [line.strip() for line in stdout.splitlines() if line.strip()])",
+            "description": "Each line of output corresponds to a test case and is one of the three possible outcomes."
+          },
+          {
+            "id": "Q3",
+            "expression": "all((exists_path_of_three_white(tree, colors) or (not exists_path_of_three_white(tree, colors) and not exists_path_of_three_black(tree, colors) and all_vertices_colored(tree, colors))) == (output == 'Draw') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "description": "The output is 'Draw' if and only if neither player can force a win (no path of three for either color) and all vertices are colored."
+          },
+          {
+            "id": "Q4",
+            "expression": "all((exists_path_of_three_white(tree, colors) and not exists_path_of_three_black(tree, colors)) == (output == 'White') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "description": "The output is 'White' if and only if the white player can force a win (a path of three white vertices exists and no path of three black vertices exists)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all((exists_path_of_three_black(tree, colors) and not exists_path_of_three_white(tree, colors)) == (output == 'Black') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "description": "The output is 'Black' if and only if the black player can force a win (a path of three black vertices exists and no path of three white vertices exists)."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "ef31f8c2ce4476a17682f4ee10343ec65e461ed1bd4d4065671f83dfb45e63b3",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the optimal play semantics: the output must reflect the result of the game assuming both players play optimally to win, with White moving first. The current postconditions only check for existence of paths of three, not the game's optimal play outcome.",
+            "task_evidence": "assuming both players play optimally",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the optimal play semantics: the output must reflect the result of the game assuming both players play optimally to win, with White moving first. The current postconditions only check for existence of paths of three, not the game's optimal play outcome.",
+            "task_evidence": "assuming both players play optimally",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly model the game's optimal play outcome. The current expression incorrectly ties 'Draw' to a static check of path existence and coloring completion, rather than the dynamic game state after optimal play.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly model the game's optimal play outcome. The current expression incorrectly assumes 'White' is determined by static path existence, rather than White's ability to force a win through optimal play.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly model the game's optimal play outcome. The current expression incorrectly assumes 'Black' is determined by static path existence, rather than Black's ability to force a win through optimal play after White's move.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the game's termination condition: the output must be 'Draw' if and only if all vertices are colored and neither player has a winning path, **after optimal play by both**. The current postconditions do not account for the game's dynamic progression.",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "missing_task_evidence",
+            "candidate_index": 3,
+            "location": "postconditions[4].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "assuming both players play optimally",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the optimal play semantics: the output must reflect the result of the game assuming both players play optimally to win, with White moving first. The current postconditions only check for existence of paths of three, not the game's optimal play outcome.",
+            "task_evidence": "assuming both players play optimally",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "stdout.strip() in ['White', 'Draw', 'Black']",
+            "description": "The output for each test case is either 'White', 'Draw', or 'Black'."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(output == 'White' or output == 'Draw' or output == 'Black' for output in [line.strip() for line in stdout.splitlines() if line.strip()])",
+            "description": "Each line of output corresponds to a test case and is one of the three possible outcomes."
+          },
+          {
+            "id": "Q3",
+            "expression": "all((determine_game_outcome(tree, colors) == 'Draw') == (output == 'Draw') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "description": "The output is 'Draw' if and only if the game ends in a draw after both players play optimally (no player can force a win and all vertices are colored)."
+          },
+          {
+            "id": "Q4",
+            "expression": "all((determine_game_outcome(tree, colors) == 'White') == (output == 'White') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "description": "The output is 'White' if and only if the white player can force a win through optimal play."
+          },
+          {
+            "id": "Q5",
+            "expression": "all((determine_game_outcome(tree, colors) == 'Black') == (output == 'Black') for tree, colors, output in zip([build_tree(n, edges) for n, edges in [(int(stdin.readline()), [tuple(map(int, stdin.readline().split())) for _ in range(n - 1)]) for _ in range(T)]], [stdin.readline().strip() for _ in range(T)], [line.strip() for line in stdout.splitlines() if line.strip()]))",
+            "description": "The output is 'Black' if and only if the black player can force a win through optimal play."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "88c1f902ccb1e2517078f2c324d017388be074cfd8c4c798d1859e85ad09f9ff",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the requirement for 'Black' win determination when the black player can force a win through optimal play, **without** relying on `determine_game_outcome` as a helper. The expression must directly encode the game logic (e.g., existence of a winning strategy for black under optimal play).",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. ... assuming both players play optimally?",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the requirement for 'White' win determination when the white player can force a win through optimal play, **without** relying on `determine_game_outcome` as a helper. The expression must directly encode the game logic (e.g., existence of a winning strategy for white under optimal play).",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. ... assuming both players play optimally?",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition that captures the requirement for 'Draw' determination when all vertices are colored and neither player has a winning path. The expression must directly encode the game logic (e.g., no path of three vertices in either color and all vertices colored).",
+            "task_evidence": "In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a direct encoding of the 'Draw' condition: all vertices are colored ('N' is absent) and no path of three vertices exists for either player.",
+            "task_evidence": "In case all vertices are colored and neither player won, the game ends in a draw.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression with a direct encoding of the 'White' win condition: white can force a win by creating a path of three white vertices on their turn, assuming optimal play from both sides.",
+            "task_evidence": "The player wins if he paints some path of three vertices in his color. ... assuming both players play optimally?",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 5,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 6
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 240.316,
+  "processing_error": null,
+  "finished_at": "2026-09-04T12:57:00.796602+00:00"
+}

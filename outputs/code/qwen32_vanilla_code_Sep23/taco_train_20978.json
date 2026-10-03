@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_20978",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T15:10:06.800142+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    k = int(input[1])\n    weights = list(map(int, input[2:]))\n\n    if max(weights) > k:\n        print(-1)\n        print(0)\n        return\n\n    dp = defaultdict(lambda: float('inf'))\n    ways = defaultdict(int)\n    dp[0] = 0\n    ways[0] = 1\n\n    for mask in range(1, 1 << n):\n        subset_weight = 0\n        count = 0\n        for i in range(n):\n            if mask & (1 << i):\n                subset_weight += weights[i]\n                count += 1\n        if subset_weight <= k:\n            for prev_mask in range(mask):\n                if (mask & prev_mask) == prev_mask:\n                    new_rides = dp[prev_mask] + (1 if count > 0 else 0)\n                    if new_rides < dp[mask]:\n                        dp[mask] = new_rides\n                        ways[mask] = ways[prev_mask]\n                    elif new_rides == dp[mask]:\n                        ways[mask] = (ways[mask] + ways[prev_mask]) % 1000000007\n\n    full_mask = (1 << n) - 1\n    if dp[full_mask] == float('inf'):\n        print(-1)\n        print(0)\n    else:\n        print(dp[full_mask])\n        print(ways[full_mask])\n\nif __name__ == \"__main__\":\n    main()"
+}

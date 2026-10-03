@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_13694",
+  "task_index": 193,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_13694.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nq = int(sys.stdin.readline())\nassignments = {}\nhistory = []\npriority_count = defaultdict(int)\n\nfor _ in range(q):\n    operation = sys.stdin.readline().strip().split()\n    if operation[0] == \"set\":\n        ai, xi = operation[1], int(operation[2])\n        if ai in assignments:\n            old_xi = assignments[ai]\n            priority_count[old_xi] -= 1\n        assignments[ai] = xi\n        priority_count[xi] += 1\n        history.append((\"set\", ai, xi))\n    elif operation[0] == \"remove\":\n        ai = operation[1]\n        if ai in assignments:\n            xi = assignments[ai]\n            del assignments[ai]\n            priority_count[xi] -= 1\n            history.append((\"remove\", ai))\n    elif operation[0] == \"query\":\n        ai = operation[1]\n        if ai not in assignments:\n            print(-1)\n        else:\n            xi = assignments[ai]\n            count = sum(priority_count[p] for p in priority_count if p < xi)\n            print(count)\n    elif operation[0] == \"undo\":\n        di = int(operation[1])\n        for _ in range(di):\n            if history:\n                op, *args = history.pop()\n                if op == \"set\":\n                    ai, xi = args\n                    if priority_count[xi] == 1:\n                        del priority_count[xi]\n                    else:\n                        priority_count[xi] -= 1\n                    if ai in assignments and assignments[ai] == xi:\n                        del assignments[ai]\n                    if len(args) == 3:\n                        old_ai, old_xi = args\n                        assignments[old_ai] = old_xi\n                        priority_count[old_xi] += 1\n                elif op == \"remove\":\n                    ai = args[0]\n                    xi = assignments[ai]\n                    priority_count[xi] += 1\nsys.stdout.flush()",
+  "generation_seconds": 38.258,
+  "generated_at": "2026-09-23T21:09:51.528506+00:00"
+}

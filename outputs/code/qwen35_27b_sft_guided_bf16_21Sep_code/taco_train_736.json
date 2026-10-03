@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_736",
+  "task_index": 52,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_guided_bf16_21Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen35_27b_sft_21Sep/taco_train_736.json",
+  "code": "import sys\nfrom math import isqrt\n\ndef sieve(limit):\n    is_prime = [True] * (limit + 1)\n    is_prime[0] = is_prime[1] = False\n    for i in range(2, isqrt(limit) + 1):\n        if is_prime[i]:\n            for j in range(i*i, limit + 1, i):\n                is_prime[j] = False\n    return is_prime\n\nMAX_N = 10**6\nis_prime = sieve(MAX_N)\n\nprimes = [i for i, p in enumerate(is_prime) if p]\nprime_set = set(primes)\n\nsquares_of_primes = []\nfor p in primes:\n    sq = p * p\n    if sq >= MAX_N:\n        break\n    squares_of_primes.append(sq)\n\ncubes_of_primes = []\nfor p in primes:\n    cb = p * p * p\n    if cb >= MAX_N:\n        break\n    cubes_of_primes.append(cb)\n\ncube_to_p = {p*p*p: p for p in primes if p*p*p < MAX_N}\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    nums = [int(x) for x in input_data]\n    \n    results = []\n    for n in nums:\n        if n == 0:\n            break\n        \n        found = False\n        ans = (0, 0, 0)\n        \n        for cb in cubes_of_primes:\n            if cb >= n:\n                break\n            remainder_after_cube = n - cb\n            p3 = cube_to_p[cb]\n            \n            for sq in squares_of_primes:\n                if sq >= remainder_after_cube:\n                    break\n                remainder_after_sq = remainder_after_cube - sq\n                \n                if remainder_after_sq > 1 and is_prime[remainder_after_sq]:\n                    p1 = remainder_after_sq\n                    p2 = int(isqrt(sq))\n                    ans = (p1, p2, p3)\n                    found = True\n                    break\n            \n            if found:\n                break\n        \n        results.append(f\"{ans[0]} {ans[1]} {ans[2]}\")\n    \n    for res in results:\n        print(res)\n\nif __name__ == \"__main__\":\n    solve()",
+  "generation_seconds": 43.722,
+  "generated_at": "2026-09-22T12:47:49.271573+00:00"
+}

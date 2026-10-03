@@ -1,0 +1,539 @@
+{
+  "task_id": "taco_train_24767",
+  "task_index": 895,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(n) <= 10**5 and 0 <= int(k) <= 10**8",
+        "description": "Input consists of integers n (1 ≤ n ≤ 10^5) and k (0 ≤ k ≤ 10^8)"
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 2",
+        "description": "Input contains exactly two space-separated integers"
+      }
+    ],
+    "postconditions": [
+      {
+        "description": "Output is either -1 or a sequence of n distinct integers each between 1 and 10^9",
+        "expression": "stdout.strip() == '-1' or (all(1 <= int(x) <= 10**9 for x in stdout.split()) and len(stdout.split()) == int(n) and len(set(stdout.split())) == int(n))",
+        "id": "Q1"
+      },
+      {
+        "description": "If output is not -1, the sum of gcds of consecutive pairs in the sequence equals k, where pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)",
+        "expression": "stdout.strip() != '-1' and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range((int(n) - 1) // 2 + 1)) == int(k)",
+        "id": "Q2"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(n) <= 10**5 and 0 <= int(k) <= 10**8",
+        "description": "Input consists of integers n (1 ≤ n ≤ 10^5) and k (0 ≤ k ≤ 10^8)"
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()) == 2",
+        "description": "Input contains exactly two space-separated integers"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == '-1' or (all(1 <= int(x) <= 10**9 for x in stdout.split()) and len(stdout.split()) == int(n))",
+        "description": "Output is either -1 or a sequence of n distinct integers each between 1 and 10^9"
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() != '-1' and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range(int(n)//2)) == int(k)",
+        "description": "If output is not -1, the sum of gcds of consecutive pairs in the sequence equals k"
+      },
+      {
+        "id": "Q3",
+        "expression": "stdout.strip() == '-1' or (int(n) >= 2 and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range(int(n)//2)) == int(k))",
+        "description": "If n < 2, output -1 since no pairs can be formed"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "db53596b7230cd5dcdc6011c9721e951724e8c2bd1dcd6c3e9c369725aeb412d",
+  "selected_contract_fingerprint": "5e5e301c0e75d10354de6e244a20f364a58c190ab2bbe9fe9cd7eadcb89c7613",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_24767.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression for Q2 is incorrect because it assumes n is even (int(n)//2). The task allows n to be odd, in which case the last element is unused (no pair is formed). The sum of gcds should only consider pairs formed by Bimokh's moves, i.e., the first n-1 elements if n is odd (since the last element is left alone).",
+      "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, and so on.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[1].expression",
+      "action": "replace",
+      "instruction": "The expression for Q2 is incorrect because it assumes n is even (int(n)//2). The task allows n to be odd, in which case the last element is unused (no pair is formed). The sum of gcds should only consider pairs formed by Bimokh's moves, i.e., the first n-1 elements if n is odd (since the last element is left alone).",
+      "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, and so on.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression for Q2 is incorrect because it assumes n is even (int(n)//2). The task allows n to be odd, in which case the last element is unused (no pair is formed). The sum of gcds should only consider pairs formed by Bimokh's moves, i.e., the first n-1 elements if n is odd (since the last element is left alone).",
+        "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, and so on.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression for Q2 is incorrect because it assumes n is even (int(n)//2). The task allows n to be odd, in which case the last element is unused (no pair is formed). The sum of gcds should only consider pairs formed by Bimokh's moves, i.e., the first n-1 elements if n is odd (since the last element is left alone).",
+        "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, and so on.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "remove",
+        "instruction": "Q3 is redundant and incorrect: it repeats Q2's logic but adds a redundant condition (int(n) >= 2) that is not part of the task's core requirement. The task does not require special handling for n < 2 in the postcondition; it is already covered by Q1 (output -1) and Q2 (sum of gcds).",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring that if n < 2, the output is -1 (since no pairs can be formed). This is a material requirement from the task description.",
+        "task_evidence": "Bimokh stops when the board contains less than two numbers. When Bimokh removes numbers x and y from the board, he gets gcd(x, y) points. At the beginning of the game Bimokh has zero points.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression for Q2 is incorrect because it assumes n is even (int(n)//2). The task allows n to be odd, in which case the last element is unused (no pair is formed). The sum of gcds should only consider pairs formed by Bimokh's moves, i.e., the first n-1 elements if n is odd (since the last element is left alone).",
+        "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, and so on.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[1].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "1 <= int(n) <= 10**5 and 0 <= int(k) <= 10**8",
+          "description": "Input consists of integers n (1 ≤ n ≤ 10^5) and k (0 ≤ k ≤ 10^8)"
+        },
+        {
+          "id": "P2",
+          "expression": "len(stdin.split()) == 2",
+          "description": "Input contains exactly two space-separated integers"
+        }
+      ],
+      "postconditions": [
+        {
+          "description": "Output is either -1 or a sequence of n distinct integers each between 1 and 10^9",
+          "expression": "stdout.strip() == '-1' or (all(1 <= int(x) <= 10**9 for x in stdout.split()) and len(stdout.split()) == int(n) and len(set(stdout.split())) == int(n))",
+          "id": "Q1"
+        },
+        {
+          "description": "If output is not -1, the sum of gcds of consecutive pairs in the sequence equals k, where pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)",
+          "expression": "stdout.strip() != '-1' and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range((int(n) - 1) // 2 + 1)) == int(k)",
+          "id": "Q2"
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 2,
+      "errors": [
+        "semantic_audit: audit keys must be exactly checks,issues"
+      ]
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[1].expression",
+          "action": "replace",
+          "instruction": "The expression for Q2 is incorrect because it assumes n is even (int(n)//2). The task allows n to be odd, in which case the last element is unused (no pair is formed). The sum of gcds should only consider pairs formed by Bimokh's moves, i.e., the first n-1 elements if n is odd (since the last element is left alone).",
+          "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, and so on.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q2",
+          "expression": "stdout.strip() != '-1' and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range((int(n) - 1) // 2 + 1)) == int(k)",
+          "description": "If output is not -1, the sum of gcds of consecutive pairs in the sequence equals k, where pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "70fac9795d23d16c36148a97e5904a3b5b0de429943b80b11daa015c9f9d9bde",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the range calculation for `i` to match the task's requirement of stopping when fewer than two elements remain. The current expression incorrectly uses `int(n)//2` instead of `(int(n) - 1) // 2 + 1` for the upper bound of `i`.",
+            "task_evidence": "Bimokh stops when the board contains less than two numbers. When Bimokh removes numbers x and y from the board, he gets gcd(x, y) points. ... pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the range calculation for `i` to match the task's requirement of stopping when fewer than two elements remain. The current expression incorrectly uses `int(n)//2` instead of `(int(n) - 1) // 2 + 1` for the upper bound of `i`.",
+            "task_evidence": "Bimokh stops when the board contains less than two numbers. When Bimokh removes numbers x and y from the board, he gets gcd(x, y) points. ... pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure that the sequence contains exactly `n` distinct integers when the output is not `-1`. The current contract does not explicitly enforce distinctness in the expression.",
+            "task_evidence": "Find n distinct integers a1, a2, ..., an",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2]",
+            "action": "remove",
+            "instruction": "Remove this clause entirely as it is redundant and incorrect. The logic for `n < 2` is already covered by the task's requirement that Bimokh stops when fewer than two elements remain, and the sum of GCDs is trivially 0 in such cases. The clause incorrectly mixes the `n < 2` case with the general case.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[2].expression"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "Fix the range calculation for `i` to match the task's requirement of stopping when fewer than two elements remain. The current expression incorrectly uses `int(n)//2` instead of `(int(n) - 1) // 2 + 1` for the upper bound of `i`.",
+          "task_evidence": "Bimokh stops when the board contains less than two numbers. When Bimokh removes numbers x and y from the board, he gets gcd(x, y) points. ... pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "stdout.strip() != '-1' and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range((len(stdout.split()) - 1) // 2)) == int(k)",
+          "description": "If output is not -1, the sum of gcds of consecutive pairs in the sequence equals k, where pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)"
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "42f275c61ade435e53b18656a592244d887229fe5e779a6f228928ae3ad75542",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the range calculation for pairing indices to match the task's move semantics (stopping when fewer than two elements remain). The current expression uses `(len(stdout.split()) - 1) // 2`, which is incorrect for odd-length sequences. Use `(int(n) - 1) // 2 + 1` to align with the task's description of moves (e.g., for `n=5`, pairs are (1,2) and (3,4), not (1,2) and (3,4) and (5,?)—the last element is ignored).",
+            "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, etc.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the range calculation for pairing indices to match the task's move semantics (stopping when fewer than two elements remain). The current expression uses `(len(stdout.split()) - 1) // 2`, which is incorrect for odd-length sequences. Use `(int(n) - 1) // 2 + 1` to align with the task's description of moves (e.g., for `n=5`, pairs are (1,2) and (3,4), not (1,2) and (3,4) and (5,?)—the last element is ignored).",
+            "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, etc.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure the output sequence has exactly `n` distinct integers when not `-1`. The current contract does not explicitly enforce distinctness in the expression (only in the description).",
+            "task_evidence": "Mashmokh writes sequence of n **distinct** integers on the board.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to ensure the sum of GCDs is exactly `k` only when the sequence length `n` allows at least one pair (i.e., `n >= 2`). For `n < 2`, the sum must be `0` (since no pairs exist). The current contract does not handle this edge case explicitly.",
+            "task_evidence": "Bimokh stops when the board contains less than two numbers. At the beginning of the game Bimokh has zero points.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 0,
+            "location": "postconditions[2].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 2,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, etc.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the range calculation for pairing indices to match the task's move semantics (stopping when fewer than two elements remain). The current expression uses `(len(stdout.split()) - 1) // 2`, which is incorrect for odd-length sequences. Use `(int(n) - 1) // 2 + 1` to align with the task's description of moves (e.g., for `n=5`, pairs are (1,2) and (3,4), not (1,2) and (3,4) and (5,?)—the last element is ignored).",
+            "task_evidence": "Bimokh stops when the board contains less than two numbers. On the first move he removes the first and the second integer, on the second move he removes the first and the second of the remaining sequence, etc.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": false
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "Output is either -1 or a sequence of n distinct integers each between 1 and 10^9",
+            "expression": "stdout.strip() == '-1' or (all(1 <= int(x) <= 10**9 for x in stdout.split()) and len(stdout.split()) == int(n) and len(set(stdout.split())) == int(n))",
+            "id": "Q1"
+          },
+          {
+            "description": "If output is not -1, the sum of gcds of consecutive pairs in the sequence equals k, where pairs are formed by Bimokh's moves (first and second, third and fourth, etc., stopping when fewer than two elements remain)",
+            "expression": "stdout.strip() != '-1' and sum(math.gcd(int(stdout.split()[2*i]), int(stdout.split()[2*i+1])) for i in range((int(n) - 1) // 2 + 1)) == int(k)",
+            "id": "Q2"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "5e5e301c0e75d10354de6e244a20f364a58c190ab2bbe9fe9cd7eadcb89c7613",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 119.412,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:28:09.011648+00:00"
+}

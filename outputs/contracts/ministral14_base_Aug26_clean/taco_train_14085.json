@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_14085",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= n <= 10**5 and 0 <= m <= n for n, m in [(int(stdin.split()[0]), int(stdin.split()[1]))])",
+        "description": "Input contains integers n (number of suspects) and m (number of truthful answers) where 1 ≤ n ≤ 10^5 and 0 ≤ m ≤ n."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()) == n + 1",
+        "description": "Input has exactly n+1 lines: first line with n and m, followed by n answer lines."
+      },
+      {
+        "id": "P3",
+        "expression": "all('+' in line or '-' in line for line in stdin.splitlines()[1:])",
+        "description": "Each of the n answer lines starts with either '+' or '-' followed by an integer."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= int(line[1:]) <= n for line in stdin.splitlines()[1:])",
+        "description": "For each answer line, the integer ai (after '+' or '-') satisfies 1 ≤ ai ≤ n."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout.splitlines()) == n",
+        "description": "Output contains exactly n lines, one for each suspect."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line in ['Truth', 'Lie', 'Not defined'] for line in stdout.splitlines())",
+        "description": "Each output line is exactly one of 'Truth', 'Lie', or 'Not defined'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((line == 'Truth' and all(ai == i or (ai != i and (criminal != ai)) for i, line in enumerate(stdout.splitlines(), 1) if line == 'Truth')) or (line == 'Lie' and all(ai != i or (ai == i and (criminal != i)) for i, line in enumerate(stdout.splitlines(), 1) if line == 'Lie')) for criminal in range(1, n + 1) if sum(1 for i in range(1, n + 1) if (line := stdin.splitlines()[i])[0] == '+' and int(line[1:]) == criminal or (line[0] == '-' and int(line[1:]) != criminal)) == m)",
+        "description": "For each suspect i, the output line is 'Truth' if and only if suspect i tells the truth for every possible criminal that satisfies the m-truth condition. Similarly, 'Lie' if suspect i lies for every such criminal. Otherwise, 'Not defined'."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((line == 'Truth' and any(ai == i or (ai != i and (criminal != ai)) for criminal in range(1, n + 1) if sum(1 for i in range(1, n + 1) if (line := stdin.splitlines()[i])[0] == '+' and int(line[1:]) == criminal or (line[0] == '-' and int(line[1:]) != criminal)) == m)) or (line == 'Lie' and any(ai != i or (ai == i and (criminal != i)) for criminal in range(1, n + 1) if sum(1 for i in range(1, n + 1) if (line := stdin.splitlines()[i])[0] == '+' and int(line[1:]) == criminal or (line[0] == '-' and int(line[1:]) != criminal)) == m)) for i, line in enumerate(stdout.splitlines(), 1))",
+        "description": "For each suspect i, if the output is 'Truth', there exists at least one criminal where suspect i tells the truth. If 'Lie', there exists at least one criminal where suspect i lies."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= n <= 10**5 and 0 <= m <= n for n, m in [(int(stdin.split()[0]), int(stdin.split()[1]))])\",\n      \"description\": \"Input contains integers n (number of suspects) and m (number of truthful answers) where 1 ≤ n ≤ 10^5 and 0 ≤ m ≤ n.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.splitlines()) == n + 1\",\n      \"description\": \"Input has exactly n+1 lines: first line with n and m, followed by n answer lines.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all('+' in line or '-' in line for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the n answer lines starts with either '+' or '-' followed by an integer.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= int(line[1:]) <= n for line in stdin.splitlines()[1:])\",\n      \"description\": \"For each answer line, the integer ai (after '+' or '-') satisfies 1 ≤ ai ≤ n.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"len(stdout.splitlines()) == n\",\n      \"description\": \"Output contains exactly n lines, one for each suspect.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line in ['Truth', 'Lie', 'Not defined'] for line in stdout.splitlines())\",\n      \"description\": \"Each output line is exactly one of 'Truth', 'Lie', or 'Not defined'.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((line == 'Truth' and all(ai == i or (ai != i and (criminal != ai)) for i, line in enumerate(stdout.splitlines(), 1) if line == 'Truth')) or (line == 'Lie' and all(ai != i or (ai == i and (criminal != i)) for i, line in enumerate(stdout.splitlines(), 1) if line == 'Lie')) for criminal in range(1, n + 1) if sum(1 for i in range(1, n + 1) if (line := stdin.splitlines()[i])[0] == '+' and int(line[1:]) == criminal or (line[0] == '-' and int(line[1:]) != criminal)) == m)\",\n      \"description\": \"For each suspect i, the output line is 'Truth' if and only if suspect i tells the truth for every possible criminal that satisfies the m-truth condition. Similarly, 'Lie' if suspect i lies for every such criminal. Otherwise, 'Not defined'.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((line == 'Truth' and any(ai == i or (ai != i and (criminal != ai)) for criminal in range(1, n + 1) if sum(1 for i in range(1, n + 1) if (line := stdin.splitlines()[i])[0] == '+' and int(line[1:]) == criminal or (line[0] == '-' and int(line[1:]) != criminal)) == m)) or (line == 'Lie' and any(ai != i or (ai == i and (criminal != i)) for criminal in range(1, n + 1) if sum(1 for i in range(1, n + 1) if (line := stdin.splitlines()[i])[0] == '+' and int(line[1:]) == criminal or (line[0] == '-' and int(line[1:]) != criminal)) == m)) for i, line in enumerate(stdout.splitlines(), 1))\",\n      \"description\": \"For each suspect i, if the output is 'Truth', there exists at least one criminal where suspect i tells the truth. If 'Lie', there exists at least one criminal where suspect i lies.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1669,
+  "generated_tokens": 972,
+  "hit_output_limit": false,
+  "generation_seconds": 46.112,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T18:52:05.414519+00:00"
+}

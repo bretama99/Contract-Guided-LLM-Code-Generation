@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19481",
+  "task_index": 957,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_19481.json",
+  "code": "import sys\nsys.setrecursionlimit(300000)\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        n = int(next(iterator))\n    except StopIteration:\n        return\n    \n    MOD = 1000000007\n    num_nodes = 2 * n\n    \n    adj = [[] for _ in range(num_nodes + 1)]\n    \n    for _ in range(num_nodes - 1):\n        u = int(next(iterator))\n        v = int(next(iterator))\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    parent = [0] * (num_nodes + 1)\n    order = []\n    stack = [1]\n    visited = [False] * (num_nodes + 1)\n    visited[1] = True\n    \n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if not visited[v]:\n                visited[v] = True\n                parent[v] = u\n                stack.append(v)\n    \n    dp = [0] * (num_nodes + 1)\n    \n    for u in reversed(order):\n        children = []\n        for v in adj[u]:\n            if v != parent[u]:\n                children.append(v)\n        \n        if len(children) > 2:\n            dp[u] = 0\n            continue\n        \n        if len(children) == 0:\n            dp[u] = 1\n        elif len(children) == 1:\n            v = children[0]\n            dp[u] = dp[v]\n        else:\n            v1, v2 = children[0], children[1]\n            if dp[v1] == 0 or dp[v2] == 0:\n                dp[u] = 0\n            else:\n                term = (dp[v1] * dp[v2]) % MOD\n                dp[u] = (term * 2) % MOD\n    \n    root = 1\n    ans = dp[root]\n    if n >= 1:\n        ans = (ans * 2) % MOD\n    \n    print(ans % MOD)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 51.678,
+  "generated_at": "2026-09-26T22:07:14.576649+00:00"
+}

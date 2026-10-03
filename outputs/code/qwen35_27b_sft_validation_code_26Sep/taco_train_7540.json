@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_7540",
+  "task_index": 684,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_7540.json",
+  "code": "import sys\n\ndef main():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    n = int(next(iterator))\n    D = int(next(iterator))\n    \n    MOD = 10**9 + 7\n    \n    adj = [[] for _ in range(n + 1)]\n    for i in range(2, n + 1):\n        p = int(next(iterator))\n        adj[p].append(i)\n    \n    dp = [[0] * (n + 1) for _ in range(n + 1)]\n    \n    def dfs(u):\n        sz = 1\n        dp[u][1] = 1\n        \n        for v in adj[u]:\n            child_sz = dfs(v)\n            sz += child_sz\n            \n            new_dp = [0] * (sz + 1)\n            for k in range(1, len(dp[u])):\n                if dp[u][k] == 0:\n                    continue\n                for j in range(1, min(child_sz + 1, sz - k + 1)):\n                    if dp[v][j] == 0:\n                        continue\n                    idx = k + j - 1\n                    if idx > sz:\n                        break\n                    term = (dp[u][k] * dp[v][j]) % MOD\n                    new_dp[idx] = (new_dp[idx] + term) % MOD\n            \n            dp[u] = new_dp + [0] * (n + 1 - len(new_dp))\n        \n        return sz\n    \n    dfs(1)\n    \n    ans = 0\n    for k in range(1, n + 1):\n        if dp[1][k] == 0:\n            continue\n        comb = 1\n        num = D + k - 1\n        den = 1\n        for i in range(k):\n            num = (num * ((D + k - 1 - i) % MOD)) % MOD\n            den = (den * ((i + 1) % MOD)) % MOD\n        comb = (num * pow(den, MOD - 2, MOD)) % MOD\n        term = (dp[1][k] * comb) % MOD\n        ans = (ans + term) % MOD\n    \n    print(ans)\n\nif __name__ == \"__main__\":\n    main()",
+  "generation_seconds": 49.294,
+  "generated_at": "2026-09-26T21:18:44.061884+00:00"
+}

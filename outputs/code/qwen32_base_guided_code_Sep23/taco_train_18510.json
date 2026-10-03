@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_18510",
+  "task_index": 109,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_18510.json",
+  "code": "import sys\nfrom collections import deque\n\ndef read_input():\n    input = sys.stdin.read().strip().split('\\n\\n')\n    n, m, k = map(int, input[0].split())\n    layers = [layer.split('\\n') for layer in input[1:]]\n    return n, m, k, layers\n\ndef parse_layers(n, m, k, layers):\n    grid = [[[0 if layers[i][j][l] == '0' else 1 for l in range(k)] for j in range(m)] for i in range(n)]\n    return grid\n\ndef bfs(grid, n, m, k, start):\n    queue = deque([start])\n    visited = set([start])\n    while queue:\n        x, y, z = queue.popleft()\n        for dx, dy, dz in [(1, 0, 0), (0, 1, 0), (0, 0, 1)]:\n            nx, ny, nz = x + dx, y + dy, z + dz\n            if 0 <= nx < n and 0 <= ny < m and 0 <= nz < k and grid[nx][ny][nz] and (nx, ny, nz) not in visited:\n                visited.add((nx, ny, nz))\n                queue.append((nx, ny, nz))\n    return visited\n\ndef find_critical_cpus(grid, n, m, k):\n    critical_count = 0\n    for x in range(n):\n        for y in range(m):\n            for z in range(k):\n                if grid[x][y][z]:\n                    grid[x][y][z] = 0\n                    reachable_before = bfs(grid, n, m, k, (0, 0, 0))\n                    grid[x][y][z] = 1\n                    grid[x][y][z] = 0\n                    reachable_after = bfs(grid, n, m, k, (0, 0 ,0))\n                    grid[x][y][z] = 1\n                    if len(reachable_before) > len(reachable_after):\n                        critical_count += 1\n    return critical_count\n\nn, m, k, layers = read_input()\ngrid = parse_layers(n, m, k, layers)\nprint(find_critical_cpus(grid, n, m, k))",
+  "generation_seconds": 45.09,
+  "generated_at": "2026-09-23T20:09:40.241330+00:00"
+}

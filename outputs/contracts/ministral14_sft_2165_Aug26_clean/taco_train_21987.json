@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_21987",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(stdin.splitlines()) >= 2 and stdin.splitlines()[1].isdigit()",
+        "description": "The first line is your name (non-empty string), and the second line is an integer n (1 ≤ n ≤ 100) representing the number of actions."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 6 for line in stdin.splitlines()[2:2+n])",
+        "description": "Each of the next n lines contains exactly one action in the format 'X posted on Y's wall', 'X commented on Y's post', or 'X likes Y's post', with exactly one space between words."
+      },
+      {
+        "id": "P3",
+        "expression": "all('s' in line for line in stdin.splitlines()[2:2+n])",
+        "description": "All action lines contain the possessive form 's' (e.g., 'Y's wall', 'Y's post')."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(name) <= 10 for name in re.findall(r'\\b[a-z]{1,10}\\b', stdin))",
+        "description": "All names in the input consist of 1 to 10 lowercase Latin letters."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == '\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\n'",
+        "description": "The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(name != my_name for name in distinct_names)",
+        "description": "The output excludes your name (the first line of input)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(name in distinct_names for name in set(re.findall(r'\\b[a-z]{1,10}\\b', stdin)) - {my_name})",
+        "description": "The output includes all distinct names from the input (excluding your name), even if their priority factor is zero."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"len(stdin.splitlines()) >= 2 and stdin.splitlines()[1].isdigit()\",\n      \"description\": \"The first line is your name (non-empty string), and the second line is an integer n (1 ≤ n ≤ 100) representing the number of actions.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 6 for line in stdin.splitlines()[2:2+n])\",\n      \"description\": \"Each of the next n lines contains exactly one action in the format 'X posted on Y's wall', 'X commented on Y's post', or 'X likes Y's post', with exactly one space between words.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all('s' in line for line in stdin.splitlines()[2:2+n])\",\n      \"description\": \"All action lines contain the possessive form 's' (e.g., 'Y's wall', 'Y's post').\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= len(name) <= 10 for name in re.findall(r'\\\\b[a-z]{1,10}\\\\b', stdin))\",\n      \"description\": \"All names in the input consist of 1 to 10 lowercase Latin letters.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout == '\\\\n'.join(sorted(distinct_names, key=lambda name: (-priority[name], name))) + '\\\\n'\",\n      \"description\": \"The output is a newline-separated list of distinct names (excluding your name) sorted by descending priority factor with you. If two names have the same priority factor, they are sorted lexicographically in ascending order.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(name != my_name for name in distinct_names)\",\n      \"description\": \"The output excludes your name (the first line of input).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(name in distinct_names for name in set(re.findall(r'\\\\b[a-z]{1,10}\\\\b', stdin)) - {my_name})\",\n      \"description\": \"The output includes all distinct names from the input (excluding your name), even if their priority factor is zero.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1655,
+  "generated_tokens": 594,
+  "hit_output_limit": false,
+  "generation_seconds": 26.016,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:23:04.267476+00:00"
+}

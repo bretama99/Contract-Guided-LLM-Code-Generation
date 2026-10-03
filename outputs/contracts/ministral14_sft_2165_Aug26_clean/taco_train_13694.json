@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_13694",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= q <= 10**5",
+        "description": "The number of operations q is between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= len(ai) <= 15 and ai.islower() and ai.isalpha() for line in stdin.splitlines()[1:] if line.split()[0] in ['set', 'remove', 'query'])",
+        "description": "Each assignment name ai consists of lowercase English letters and has length between 1 and 15."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= xi <= 10**9 for line in stdin.splitlines()[1:] if line.split()[0] == 'set')",
+        "description": "Each priority xi in a set operation is between 1 and 1,000,000,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= di < i for i, line in enumerate(stdin.splitlines()[1:], 1) if line.split()[0] == 'undo')",
+        "description": "Each undo operation di is non-negative and less than the current day index i."
+      },
+      {
+        "id": "P5",
+        "expression": "stdin.splitlines()[0].strip() == ''.join(stdin.splitlines()[1:][-1].split()[0]) == 'query'",
+        "description": "The last operation is a query operation."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() == '-1' or (0 <= int(stdout_line.strip()) <= len({a for op in stdin.splitlines()[1:] if op.split()[0] == 'set' for a in op.split()[1] if op.split()[0] == 'set'}) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')",
+        "description": "For each query operation, the output is either -1 (if the assignment is not present) or a non-negative integer representing the count of assignments with a smaller priority."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((ai in {a for op in stdin.splitlines()[1:] if op.split()[0] == 'set' for a in op.split()[1] if op.split()[0] == 'set'}) == (int(stdout_line.strip()) != -1) for stdout_line, line in zip(stdout.splitlines(), stdin.splitlines()[1:]) if line.split()[0] == 'query' and stdout_line.strip() != '')",
+        "description": "The output for a query is -1 if and only if the queried assignment ai is not present in the to-do list."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((int(stdout_line.strip()) == sum(1 for a, x in current_state.items() if a != ai and x < current_state[ai])) if ai in current_state else int(stdout_line.strip()) == -1 for stdout_line, line in zip(stdout.splitlines(), stdin.splitlines()[1:]) if line.split()[0] == 'query' and stdout_line.strip() != '')",
+        "description": "For a query operation, the output is the count of assignments with a smaller priority than ai if ai is present, otherwise -1."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= q <= 10**5\",\n      \"description\": \"The number of operations q is between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= len(ai) <= 15 and ai.islower() and ai.isalpha() for line in stdin.splitlines()[1:] if line.split()[0] in ['set', 'remove', 'query'])\",\n      \"description\": \"Each assignment name ai consists of lowercase English letters and has length between 1 and 15.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= xi <= 10**9 for line in stdin.splitlines()[1:] if line.split()[0] == 'set')\",\n      \"description\": \"Each priority xi in a set operation is between 1 and 1,000,000,000 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= di < i for i, line in enumerate(stdin.splitlines()[1:], 1) if line.split()[0] == 'undo')\",\n      \"description\": \"Each undo operation di is non-negative and less than the current day index i.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"stdin.splitlines()[0].strip() == ''.join(stdin.splitlines()[1:][-1].split()[0]) == 'query'\",\n      \"description\": \"The last operation is a query operation.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() == '-1' or (0 <= int(stdout_line.strip()) <= len({a for op in stdin.splitlines()[1:] if op.split()[0] == 'set' for a in op.split()[1] if op.split()[0] == 'set'}) for stdout_line in stdout.splitlines() if stdout_line.strip() != '')\",\n      \"description\": \"For each query operation, the output is either -1 (if the assignment is not present) or a non-negative integer representing the count of assignments with a smaller priority.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((ai in {a for op in stdin.splitlines()[1:] if op.split()[0] == 'set' for a in op.split()[1] if op.split()[0] == 'set'}) == (int(stdout_line.strip()) != -1) for stdout_line, line in zip(stdout.splitlines(), stdin.splitlines()[1:]) if line.split()[0] == 'query' and stdout_line.strip() != '')\",\n      \"description\": \"The output for a query is -1 if and only if the queried assignment ai is not present in the to-do list.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((int(stdout_line.strip()) == sum(1 for a, x in current_state.items() if a != ai and x < current_state[ai])) if ai in current_state else int(stdout_line.strip()) == -1 for stdout_line, line in zip(stdout.splitlines(), stdin.splitlines()[1:]) if line.split()[0] == 'query' and stdout_line.strip() != '')\",\n      \"description\": \"For a query operation, the output is the count of assignments with a smaller priority than ai if ai is present, otherwise -1.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2008,
+  "generated_tokens": 836,
+  "hit_output_limit": false,
+  "generation_seconds": 38.954,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:36:10.405722+00:00"
+}

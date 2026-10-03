@@ -1,0 +1,97 @@
+{
+  "task_id": "taco_train_13694",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(q_line.strip()) <= 10**5 and isinstance(q_line, str) and q_line.strip() != ''",
+        "description": "The first line of input is a single integer q (1 ≤ q ≤ 10^5) representing the number of operations."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) in {2, 3} for line in operations) and all(line.strip() != '' for line in operations)",
+        "description": "Each of the q subsequent lines is a valid operation line with exactly 2 or 3 space-separated tokens (operation type and either 1 or 2 arguments)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(op in {'set', 'remove', 'query', 'undo'} for op in [line.split()[0] for line in operations])",
+        "description": "Each operation is one of 'set', 'remove', 'query', or 'undo'."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= len(ai) <= 15 and ai.islower() and ai.isalpha() for line in operations if (op := line.split()[0]) in {'set', 'remove', 'query'} and (ai := line.split()[1]))",
+        "description": "Each assignment name ai is a non-empty string of lowercase English letters with length between 1 and 15."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= int(xi) <= 10**9 for line in operations if (op := line.split()[0]) == 'set' and (xi := line.split()[2]))",
+        "description": "Each priority xi in a 'set' operation is an integer between 1 and 10^9."
+      },
+      {
+        "id": "P6",
+        "expression": "all(0 <= int(di) < i for i, line in enumerate(operations, 1) if (op := line.split()[0]) == 'undo' and (di := line.split()[1]))",
+        "description": "Each undo operation's di is a non-negative integer less than the current day index i (0 ≤ di < i)."
+      },
+      {
+        "id": "P7",
+        "expression": "operations[-1].split()[0] == 'query'",
+        "description": "The last operation is always a 'query'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() == '-1' or (0 <= int(stdout_line.strip()) <= len(current_assignments)) for stdout_line in output_lines)",
+        "description": "For each 'query' operation, the output is either -1 (if the queried assignment is not in the current to-do list) or a non-negative integer representing the count of assignments with strictly smaller priority values than the queried assignment."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((op := line.split()[0]) == 'query' and (ai := line.split()[1]) in current_assignments and (count := sum(1 for x in current_assignments.values() if x < current_assignments[ai])) == int(stdout_line.strip()) for line, stdout_line in zip(operations, output_lines) if op == 'query')",
+        "description": "For each 'query' operation, if the queried assignment ai is present in the current to-do list, the output is the exact count of assignments with strictly smaller priority values than ai's priority."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((op := line.split()[0]) == 'set' and (ai := line.split()[1]) and (xi := line.split()[2]) and (ai in current_assignments or ai not in previous_assignments) for line in operations if op == 'set')",
+        "description": "After a 'set' operation, the assignment ai is either newly added to the to-do list or its priority is updated to xi, and no other assignments are affected."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((op := line.split()[0]) == 'remove' and (ai := line.split()[1]) and (ai in previous_assignments and ai not in current_assignments or ai not in previous_assignments) for line in operations if op == 'remove')",
+        "description": "After a 'remove' operation, the assignment ai is removed from the to-do list if it was present before the operation, and no other assignments are affected."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((op := line.split()[0]) == 'undo' and (di := line.split()[1]) and (current_assignments == previous_assignments_at_day(int(di))) for line in operations if op == 'undo')",
+        "description": "After an 'undo' operation with di, the to-do list reverts to the state it was in di days prior to the current day (i.e., the state after the operation on day i - di - 1)."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(ai in current_assignments or ai not in current_assignments for ai in all_assignments_ever_seen)",
+        "description": "The to-do list always contains only assignments that have been explicitly added via 'set' operations and not removed or undone."
+      },
+      {
+        "id": "I2",
+        "expression": "all(1 <= current_assignments[ai] <= 10**9 for ai in current_assignments)",
+        "description": "Every assignment in the to-do list has a priority value between 1 and 10^9."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(q_line.strip()) <= 10**5 and isinstance(q_line, str) and q_line.strip() != ''\",\n      \"description\": \"The first line of input is a single integer q (1 ≤ q ≤ 10^5) representing the number of operations.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) in {2, 3} for line in operations) and all(line.strip() != '' for line in operations)\",\n      \"description\": \"Each of the q subsequent lines is a valid operation line with exactly 2 or 3 space-separated tokens (operation type and either 1 or 2 arguments).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(op in {'set', 'remove', 'query', 'undo'} for op in [line.split()[0] for line in operations])\",\n      \"description\": \"Each operation is one of 'set', 'remove', 'query', or 'undo'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= len(ai) <= 15 and ai.islower() and ai.isalpha() for line in operations if (op := line.split()[0]) in {'set', 'remove', 'query'} and (ai := line.split()[1]))\",\n      \"description\": \"Each assignment name ai is a non-empty string of lowercase English letters with length between 1 and 15.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= int(xi) <= 10**9 for line in operations if (op := line.split()[0]) == 'set' and (xi := line.split()[2]))\",\n      \"description\": \"Each priority xi in a 'set' operation is an integer between 1 and 10^9.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all(0 <= int(di) < i for i, line in enumerate(operations, 1) if (op := line.split()[0]) == 'undo' and (di := line.split()[1]))\",\n      \"description\": \"Each undo operation's di is a non-negative integer less than the current day index i (0 ≤ di < i).\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"operations[-1].split()[0] == 'query'\",\n      \"description\": \"The last operation is always a 'query'.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() == '-1' or (0 <= int(stdout_line.strip()) <= len(current_assignments)) for stdout_line in output_lines)\",\n      \"description\": \"For each 'query' operation, the output is either -1 (if the queried assignment is not in the current to-do list) or a non-negative integer representing the count of assignments with strictly smaller priority values than the queried assignment.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((op := line.split()[0]) == 'query' and (ai := line.split()[1]) in current_assignments and (count := sum(1 for x in current_assignments.values() if x < current_assignments[ai])) == int(stdout_line.strip()) for line, stdout_line in zip(operations, output_lines) if op == 'query')\",\n      \"description\": \"For each 'query' operation, if the queried assignment ai is present in the current to-do list, the output is the exact count of assignments with strictly smaller priority values than ai's priority.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((op := line.split()[0]) == 'set' and (ai := line.split()[1]) and (xi := line.split()[2]) and (ai in current_assignments or ai not in previous_assignments) for line in operations if op == 'set')\",\n      \"description\": \"After a 'set' operation, the assignment ai is either newly added to the to-do list or its priority is updated to xi, and no other assignments are affected.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((op := line.split()[0]) == 'remove' and (ai := line.split()[1]) and (ai in previous_assignments and ai not in current_assignments or ai not in previous_assignments) for line in operations if op == 'remove')\",\n      \"description\": \"After a 'remove' operation, the assignment ai is removed from the to-do list if it was present before the operation, and no other assignments are affected.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((op := line.split()[0]) == 'undo' and (di := line.split()[1]) and (current_assignments == previous_assignments_at_day(int(di))) for line in operations if op == 'undo')\",\n      \"description\": \"After an 'undo' operation with di, the to-do list reverts to the state it was in di days prior to the current day (i.e., the state after the operation on day i - di - 1).\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(ai in current_assignments or ai not in current_assignments for ai in all_assignments_ever_seen)\",\n      \"description\": \"The to-do list always contains only assignments that have been explicitly added via 'set' operations and not removed or undone.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(1 <= current_assignments[ai] <= 10**9 for ai in current_assignments)\",\n      \"description\": \"Every assignment in the to-do list has a priority value between 1 and 10^9.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2008,
+  "generated_tokens": 1366,
+  "hit_output_limit": false,
+  "generation_seconds": 59.204,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:17:50.307287+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_6919",
+  "task_index": 104,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_6919.json",
+  "code": "def getMaxRepetitions(s1: str, n1: int, s2: str, n2: int) -> int:\n    if n1 == 0:\n        return 0\n    \n    s2_len = len(s2)\n    s1_len = len(s1)\n    \n    count_s2 = 0\n    index_s2 = 0\n    record = {}\n    cycle_start_count = 0\n    cycle_start_index = -1\n    cycle_count_s2 = 0\n    cycle_count_s1 = 0\n    \n    total_s1_used = 0\n    total_s2_found = 0\n    \n    while total_s1_used < n1:\n        for i in range(s1_len):\n            if s1[i] == s2[index_s2]:\n                index_s2 += 1\n                if index_s2 == s2_len:\n                    index_s2 = 0\n                    total_s2_found += 1\n        \n        total_s1_used += 1\n        \n        key = index_s2\n        if key in record:\n            prev_total_s1, prev_total_s2 = record[key]\n            cycle_len_s1 = total_s1_used - prev_total_s1\n            cycle_len_s2 = total_s2_found - prev_total_s2\n            \n            remaining_s1 = n1 - total_s1_used\n            num_cycles = remaining_s1 // cycle_len_s1\n            \n            total_s2_found += num_cycles * cycle_len_s2\n            total_s1_used += num_cycles * cycle_len_s1\n            \n            break\n        \n        record[key] = (total_s1_used, total_s2_found)\n    \n    remaining_s1 = n1 - total_s1_used\n    extra_s2 = 0\n    temp_index = index_s2\n    for _ in range(remaining_s1 * s1_len):\n        if temp_index < s2_len and s1[0] == s2[temp_index]:\n            pass\n        temp_index = (temp_index + 1) % s2_len\n        if temp_index == 0:\n            extra_s2 += 1\n    \n    for i in range(remaining_s1):\n        for j in range(s1_len):\n            if s1[j] == s2[index_s2]:\n                index_s2 += 2\n                if index_s2 > s2_len:\n                    index_s2 -= s2_len\n                    extra_s2 += 1\n    \n    final_s2_count = total_s2_found + extra_s2\n    return final_s2_count // n2",
+  "generation_seconds": 54.41,
+  "generated_at": "2026-09-26T21:44:14.518870+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_2760",
+  "task_index": 686,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_2760.json",
+  "code": "import sys\nimport heapq\n\ndef find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, x, y):\n    rootX = find(parent, x)\n    rootY = find(parent, y)\n    if rootX != rootY:\n        if rank[rootX] > rank[rootY]:\n            parent[rootY] = rootX\n        elif rank[rootX] < rank[rootY]:\n            parent[rootX] = rootY\n        else:\n            parent[rootY] = rootX\n            rank[rootX] += 1\n\ndef kruskal(n, edges):\n    parent = list(range(n + 1))\n    rank = [0] * (n + 1)\n    mst_cost = 0\n    mst_edges = []\n    for w, u, v in edges:\n        if find(parent, u) != find(parent, v):\n            union(parent, rank, u, v)\n            mst_cost += w\n            mst_edges.append((u, v, w))\n    return mst_cost, mst_edges\n\ndef min_operations_to_unique_mst(n, edges):\n    edges.sort()\n    mst_cost, mst_edges = kruskal(n, edges)\n    edge_count = [0] * (n + 1)\n    for u, v, _ in mst_edges:\n        edge_count[u] += 1\n        edge_count[v] += 1\n    candidate_edges = []\n    for u, v, w in edges:\n        if find(parent, u) != find(parent, v) or (edge_count[u] > 1 and edge_count[v] > 1):\n            candidate_edges.append((w, u, v))\n    operations = 0\n    parent = list(range(n + 1))\n    rank = [0 for _ in range(n + 1)]\n    for w, u, v in mst_edges:\n        union(parent, rank, u, v)\n    for w, u, v in candidate_edges:\n        if find(parent, u) != find(parent, v):\n            if w < mst_cost:\n                union(parent, rank, u, v)\n            else:\n                operations += 1\n                union(parent, rank, u, v)\n    return operations\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nm = int(input[1])\nedges = []\nindex = 2\nfor _ in range(m):\n    u = int(input[index])\n    v = int(input[index + 1])\n    w = int(input[index + 2])\n    edges.append((w, u, v))\n    index += 3\nprint(min_operations_to_unique_mst(n, edges))",
+  "generation_seconds": 52.276,
+  "generated_at": "2026-09-23T18:13:33.796224+00:00"
+}

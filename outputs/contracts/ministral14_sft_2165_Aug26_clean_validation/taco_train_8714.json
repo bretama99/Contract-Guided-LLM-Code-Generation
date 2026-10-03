@@ -1,0 +1,490 @@
+{
+  "task_id": "taco_train_8714",
+  "task_index": 900,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "The number of test cases t is an integer between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(s) == int(len(s)) and 2 <= len(s) <= 100 for s in [line.strip() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case string s has length between 2 and 100 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(s.count('(') == 1 and s.count(')') == 1 for s in [line.strip() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case string s contains exactly one '(' and exactly one ')' character."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in '()?' for c in s) for s in [line.strip() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case string s consists only of characters '(', ')', and '?'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if any(all((balance := balance + 1 if c == '(' else balance - 1 if c == ')' else 0) >= 0 and (balance := balance + 1 if c == '(' else balance - 1 if c == ')' else 0) == 0 for c in s) for s in [line.strip() for line in stdin.splitlines()[1:t+1]] for replacement in product('()', repeat=s.count('?'))) else 'NO'",
+        "description": "For each test case, output 'YES' if there exists a way to replace all '?' with either '(' or ')' such that the resulting sequence is a regular bracket sequence (RBS), otherwise output 'NO'. A sequence is RBS if it can be balanced with a non-negative balance at every step and zero balance at the end."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 1000",
+        "description": "The number of test cases t is an integer between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(s) == int(len(s)) and 2 <= len(s) <= 100 for s in [line.strip() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case string s has length between 2 and 100 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(s.count('(') == 1 and s.count(')') == 1 for s in [line.strip() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case string s contains exactly one '(' and exactly one ')' character."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(c in '()?' for c in s) for s in [line.strip() for line in stdin.splitlines()[1:t+1]])",
+        "description": "Each test case string s consists only of characters '(', ')', and '?'."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'YES' if any(all((balance := balance + 1 if c == '(' else balance - 1 if c == ')' else 0) >= 0 and (balance := balance + 1 if c == '(' else balance - 1 if c == ')' else 0) == 0 for c in s) for s in [line.strip() for line in stdin.splitlines()[1:t+1]] for replacement in product('()', repeat=s.count('?'))) else 'NO'",
+        "description": "For each test case, output 'YES' if there exists a way to replace all '?' with either '(' or ')' such that the resulting sequence is a regular bracket sequence (RBS), otherwise output 'NO'. A sequence is RBS if it can be balanced with a non-negative balance at every step and zero balance at the end."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "71e524bbf3539eb5a4eeaa2185c9352b601149d82f73766fcb1252cf8cb96c63",
+  "selected_contract_fingerprint": "71e524bbf3539eb5a4eeaa2185c9352b601149d82f73766fcb1252cf8cb96c63",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_8714.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+      "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+      "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract lacks a precondition or invariant ensuring that the **original sequence** (before replacement) contains exactly one '(' and one ')'. This is a material requirement from the task and must be enforced.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the **RBS definition** (non-negative balance at every step and zero balance at the end). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence. The expression must generate all possible replacements of '?' with '(' or ')', then check if **any** of these replacements results in a sequence with non-negative balance at every step and zero balance at the end.",
+        "task_evidence": "A sequence is RBS if it can be balanced with a non-negative balance at every step and zero balance at the end.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+      "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[0].expression",
+      "action": "replace",
+      "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+      "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract lacks a precondition or invariant ensuring that the **original sequence** (before replacement) contains exactly one '(' and one ')'. This is a material requirement from the task and must be enforced.",
+        "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression does not correctly model the **RBS definition** (non-negative balance at every step and zero balance at the end). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence. The expression must generate all possible replacements of '?' with '(' or ')', then check if **any** of these replacements results in a sequence with non-negative balance at every step and zero balance at the end.",
+        "task_evidence": "A sequence is RBS if it can be balanced with a non-negative balance at every step and zero balance at the end.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[0].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+          "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[0].expression",
+          "action": "replace",
+          "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+          "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+            "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+            "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[0].expression",
+            "action": "replace",
+            "instruction": "The expression does not correctly model the task's requirement that **exactly one '(' and exactly one ')' exist in the input sequence** (per P3). The current expression allows arbitrary replacements of '?' without enforcing this constraint, which is a material defect. The task requires that the **original sequence** (before replacement) must contain exactly one '(' and one ')', but the expression does not enforce this during replacement checks. Additionally, the expression does not correctly handle the **non-negative balance at every step** and **zero balance at the end** for the **final sequence** (after replacement). The current logic incorrectly applies balance checks to intermediate replacements rather than the final sequence.",
+            "task_evidence": "There is exactly one character ( and exactly one character ) in this sequence.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "INVALID",
+        "candidate_value": null,
+        "repair_model_calls": 2,
+        "generation_errors": [
+          "returned target value has invalid structure or expression syntax",
+          "returned target value has invalid structure or expression syntax"
+        ],
+        "candidate_fingerprint": null,
+        "verification_status": null,
+        "decision_reason": "no_valid_repair_candidate",
+        "verification_model_calls": 0
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 127.291,
+  "processing_error": null,
+  "finished_at": "2026-09-04T11:41:38.994923+00:00"
+}

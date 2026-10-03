@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_2402",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.isdigit() and int(T) >= 1 and int(T) <= 10**4",
+        "description": "The first line of input is a single integer T (1 ≤ T ≤ 10^4) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(line.strip() for line in stdin.splitlines() if line.strip())",
+        "description": "All input lines are non-empty and properly formatted."
+      },
+      {
+        "id": "P3",
+        "expression": "all(N.isdigit() and int(N) >= 2 and int(N) <= 2*10**5 for N in [line.split()[0] for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()])",
+        "description": "For each test case, the first line after T is an integer N (2 ≤ N ≤ 2*10^5) representing the number of vertices in the tree."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(edges) == N-1 for N, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)]))",
+        "description": "Each test case has exactly N-1 edges, forming a tree."
+      },
+      {
+        "id": "P5",
+        "expression": "all(all(u.isdigit() and v.isdigit() and 1 <= int(u) <= N and 1 <= int(v) <= N for u, v in [line.split() for line in edges]) for N, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)]))",
+        "description": "Each edge (u_i, v_i) has 1 ≤ u_i, v_i ≤ N, where N is the number of vertices in the tree."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(output_line.isdigit() and 0 <= int(output_line) <= N-2 for N, output_line in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)]))",
+        "description": "For each test case, the output is a single integer representing the minimum number of edges to add to the tree to form a Hamiltonian path, where 0 ≤ output ≤ N-2."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((lambda edges: len(edges) == 0 or (lambda tree: any(len(leaves) == 1 for leaves in [leaf for leaf in tree if len(tree[leaf]) == 1]) or len([leaf for leaf in tree if len(tree[leaf]) == 1]) == 2))(build_tree(N, edges)) == (int(output_line) == 0) for N, edges, output_line in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)]))",
+        "description": "If the tree already has a Hamiltonian path (i.e., it is a path graph or has exactly two leaves), the output is 0."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((lambda edges: len(edges) > 0 and (lambda tree: len([leaf for leaf in tree if len(tree[leaf]) == 1]) == 2))(build_tree(N, edges)) == (int(output_line) == 1) for N, edges, output_line in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)]))",
+        "description": "If the tree has exactly two leaves and is not already a path graph, the output is 1."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((lambda edges: len(edges) > 0 and (lambda tree: len([leaf for leaf in tree if len(tree[leaf]) == 1]) == k))(build_tree(N, edges)) == (int(output_line) == k-2) for N, edges, output_line, k in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)], [len([leaf for leaf in build_tree(N, edges) if len(build_tree(N, edges)[leaf]) == 1]) for N, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)])]))",
+        "description": "If the tree has k leaves, the minimum number of edges to add to form a Hamiltonian path is k-2."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"T.isdigit() and int(T) >= 1 and int(T) <= 10**4\",\n      \"description\": \"The first line of input is a single integer T (1 ≤ T ≤ 10^4) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(line.strip() for line in stdin.splitlines() if line.strip())\",\n      \"description\": \"All input lines are non-empty and properly formatted.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(N.isdigit() and int(N) >= 2 and int(N) <= 2*10**5 for N in [line.split()[0] for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()])\",\n      \"description\": \"For each test case, the first line after T is an integer N (2 ≤ N ≤ 2*10^5) representing the number of vertices in the tree.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(edges) == N-1 for N, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)]))\",\n      \"description\": \"Each test case has exactly N-1 edges, forming a tree.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(all(u.isdigit() and v.isdigit() and 1 <= int(u) <= N and 1 <= int(v) <= N for u, v in [line.split() for line in edges]) for N, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)]))\",\n      \"description\": \"Each edge (u_i, v_i) has 1 ≤ u_i, v_i ≤ N, where N is the number of vertices in the tree.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(output_line.isdigit() and 0 <= int(output_line) <= N-2 for N, output_line in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)]))\",\n      \"description\": \"For each test case, the output is a single integer representing the minimum number of edges to add to the tree to form a Hamiltonian path, where 0 ≤ output ≤ N-2.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((lambda edges: len(edges) == 0 or (lambda tree: any(len(leaves) == 1 for leaves in [leaf for leaf in tree if len(tree[leaf]) == 1]) or len([leaf for leaf in tree if len(tree[leaf]) == 1]) == 2))(build_tree(N, edges)) == (int(output_line) == 0) for N, edges, output_line in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)]))\",\n      \"description\": \"If the tree already has a Hamiltonian path (i.e., it is a path graph or has exactly two leaves), the output is 0.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((lambda edges: len(edges) > 0 and (lambda tree: len([leaf for leaf in tree if len(tree[leaf]) == 1]) == 2))(build_tree(N, edges)) == (int(output_line) == 1) for N, edges, output_line in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)]))\",\n      \"description\": \"If the tree has exactly two leaves and is not already a path graph, the output is 1.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((lambda edges: len(edges) > 0 and (lambda tree: len([leaf for leaf in tree if len(tree[leaf]) == 1]) == k))(build_tree(N, edges)) == (int(output_line) == k-2) for N, edges, output_line, k in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)], [stdin.splitlines()[i+N+1] for i in range(1, len(stdin.splitlines()), N+1)], [len([leaf for leaf in build_tree(N, edges) if len(build_tree(N, edges)[leaf]) == 1]) for N, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[1:] if line.strip() and line.split()[0].isdigit()], [stdin.splitlines()[i+1:i+N] for i in range(1, len(stdin.splitlines()), N+1)])]))\",\n      \"description\": \"If the tree has k leaves, the minimum number of edges to add to form a Hamiltonian path is k-2.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1617,
+  "generated_tokens": 1455,
+  "hit_output_limit": false,
+  "generation_seconds": 71.685,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:18:42.825802+00:00"
+}

@@ -1,0 +1,253 @@
+{
+  "task_id": "taco_train_6713",
+  "task_index": 958,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 200000 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, the number of nodes N is between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= M <= 120000 for M in [int(line.split()[1]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, the number of main roads M is between 0 and 120,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= x <= N and 1 <= y <= N and x != y for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() and not line.startswith('0 '))",
+        "description": "For each main road, the nodes x and y are valid (1 ≤ x, y ≤ N) and distinct."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= S <= N for line in stdin.splitlines() if line.strip() and not ' ' in line and line.isdigit())",
+        "description": "The source node S is a valid node (1 ≤ S ≤ N)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(set(line.split())) == 2 for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2)",
+        "description": "There are no duplicate edges between the same pair of nodes."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == N - 1 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "For each test case, the output contains exactly N-1 integers, representing distances to all nodes except the source node S."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(output_line.split()[i]) >= 0 for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())))",
+        "description": "All distances in the output are non-negative integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(output_line.split()[i]) == min_distance for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (min_distance := shortest_village_distance(S, N, edges, i + 1)) is not None)",
+        "description": "For each node i (1 ≤ i ≤ N, i ≠ S), the output distance is the shortest path distance from S to i using only village roads (edges not present in the main road graph)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(output_line.split()[i]) == int(output_line.split()[j]) or (i + 1 != j + 1 and shortest_village_distance(S, N, edges, i + 1) != shortest_village_distance(S, N, edges, j + 1)) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) for j in range(i + 1, len(output_line.split())) if (i + 1 != S and j + 1 != S))",
+        "description": "The output distances are consistent with the shortest path distances computed for each node."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(int(output_line.split()[i]) == shortest_village_distance(S, N, edges, i + 1) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (i + 1 != S))",
+        "description": "The output distances are ordered by node number (1 to N, excluding S) in ascending order."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T >= 1 and T <= 10",
+        "description": "The number of test cases T is between 1 and 10 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(2 <= N <= 200000 for N in [int(line.split()[0]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, the number of nodes N is between 2 and 200,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(0 <= M <= 120000 for M in [int(line.split()[1]) for line in stdin.splitlines() if line.strip() and ' ' in line])",
+        "description": "For each test case, the number of main roads M is between 0 and 120,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= x <= N and 1 <= y <= N and x != y for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2 and line.split()[0].isdigit() and line.split()[1].isdigit() and not line.startswith('0 '))",
+        "description": "For each main road, the nodes x and y are valid (1 ≤ x, y ≤ N) and distinct."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= S <= N for line in stdin.splitlines() if line.strip() and not ' ' in line and line.isdigit())",
+        "description": "The source node S is a valid node (1 ≤ S ≤ N)."
+      },
+      {
+        "id": "P6",
+        "expression": "all(len(set(line.split())) == 2 for line in stdin.splitlines() if line.strip() and ' ' in line and len(line.split()) == 2)",
+        "description": "There are no duplicate edges between the same pair of nodes."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(output_line.split()) == N - 1 for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "For each test case, the output contains exactly N-1 integers, representing distances to all nodes except the source node S."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(int(output_line.split()[i]) >= 0 for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())))",
+        "description": "All distances in the output are non-negative integers."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(int(output_line.split()[i]) == min_distance for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (min_distance := shortest_village_distance(S, N, edges, i + 1)) is not None)",
+        "description": "For each node i (1 ≤ i ≤ N, i ≠ S), the output distance is the shortest path distance from S to i using only village roads (edges not present in the main road graph)."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(int(output_line.split()[i]) == int(output_line.split()[j]) or (i + 1 != j + 1 and shortest_village_distance(S, N, edges, i + 1) != shortest_village_distance(S, N, edges, j + 1)) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) for j in range(i + 1, len(output_line.split())) if (i + 1 != S and j + 1 != S))",
+        "description": "The output distances are consistent with the shortest path distances computed for each node."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(int(output_line.split()[i]) == shortest_village_distance(S, N, edges, i + 1) for output_line in stdout.splitlines() if output_line.strip() for i in range(len(output_line.split())) if (i + 1 != S))",
+        "description": "The output distances are ordered by node number (1 to N, excluding S) in ascending order."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "4f18416e87e4d6d249a2f0641cf86d646afdde7b6801b106f45c13f1063655db",
+  "selected_contract_fingerprint": "4f18416e87e4d6d249a2f0641cf86d646afdde7b6801b106f45c13f1063655db",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_6713.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_audit_structured_output_unresolved",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": null,
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [
+      {
+        "code": "assignment_expression_not_allowed",
+        "location": "postconditions[2].expression"
+      }
+    ],
+    "uncertainties": [
+      {
+        "code": "semantic_audit_failed",
+        "detail": "semantic_audit: audit keys must be exactly checks,issues"
+      }
+    ],
+    "model_calls": 2,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues",
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 63.361,
+  "processing_error": null,
+  "finished_at": "2026-09-04T13:42:02.983403+00:00"
+}

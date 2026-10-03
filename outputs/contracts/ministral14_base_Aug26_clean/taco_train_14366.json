@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_14366",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= m <= n <= 100 for n, m in [line.split() for line in stdin.splitlines() if line.strip().isdigit()])",
+        "description": "Input contains integers n (total files) and m (files to delete) where 1 ≤ m ≤ n ≤ 100."
+      },
+      {
+        "id": "P2",
+        "expression": "len([line for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()]) == n",
+        "description": "Exactly n non-empty filenames follow the first line, each on a separate line."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(filename) <= 100 and all(c in 'abcdefghijklmnopqrstuvwxyz0123456789.' for c in filename) for filename in [line.strip() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()])",
+        "description": "Each filename is non-empty, length ≤ 100, and contains only lowercase letters, digits, or dots."
+      },
+      {
+        "id": "P4",
+        "expression": "all(filename != other_filename for filename in filenames for other_filename in filenames if filename != other_filename)",
+        "description": "All filenames are distinct, where `filenames` is the list of all n filenames."
+      },
+      {
+        "id": "P5",
+        "expression": "len([int(x) for x in stdin.splitlines()[-1].split()]) == m and all(1 <= int(x) <= n for x in stdin.splitlines()[-1].split())",
+        "description": "The last line contains exactly m distinct integers in ascending order, each between 1 and n (inclusive), representing indices of files to delete."
+      },
+      {
+        "id": "P6",
+        "expression": "set([int(x) for x in stdin.splitlines()[-1].split()]) == set(range(1, m+1))",
+        "description": "The indices of files to delete are exactly 1, 2, ..., m (no gaps or duplicates)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'Yes' and len(stdout.splitlines()) == 2 and len(stdout.splitlines()[1].strip()) > 0",
+        "description": "If a valid pattern exists, the first line of stdout is 'Yes' and the second line contains a non-empty pattern string."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.strip() == 'No' and len(stdout.splitlines()) == 1",
+        "description": "If no valid pattern exists, stdout is exactly 'No' on a single line."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(pattern) == len(filename) for filename in to_delete_filenames) and all(len(pattern) == len(filename) for filename in other_filenames)",
+        "description": "The pattern's length must match the length of every filename in both the to-delete set and the non-delete set, where `to_delete_filenames` and `other_filenames` are the filenames corresponding to the delete indices and others, respectively."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(any(pattern[i] == '?' or pattern[i] == filename[i] for i in range(len(pattern))) for filename in to_delete_filenames)",
+        "description": "Every filename in the to-delete set must match the pattern, where `to_delete_filenames` are the filenames indexed by the delete indices."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(not all(pattern[i] == '?' or pattern[i] == filename[i] for i in range(len(pattern))) for filename in other_filenames)",
+        "description": "No filename outside the to-delete set matches the pattern, where `other_filenames` are the filenames not indexed by the delete indices."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= m <= n <= 100 for n, m in [line.split() for line in stdin.splitlines() if line.strip().isdigit()])\",\n      \"description\": \"Input contains integers n (total files) and m (files to delete) where 1 ≤ m ≤ n ≤ 100.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len([line for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()]) == n\",\n      \"description\": \"Exactly n non-empty filenames follow the first line, each on a separate line.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(filename) <= 100 and all(c in 'abcdefghijklmnopqrstuvwxyz0123456789.' for c in filename) for filename in [line.strip() for line in stdin.splitlines() if line.strip() and not line.strip().isdigit()])\",\n      \"description\": \"Each filename is non-empty, length ≤ 100, and contains only lowercase letters, digits, or dots.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(filename != other_filename for filename in filenames for other_filename in filenames if filename != other_filename)\",\n      \"description\": \"All filenames are distinct, where `filenames` is the list of all n filenames.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"len([int(x) for x in stdin.splitlines()[-1].split()]) == m and all(1 <= int(x) <= n for x in stdin.splitlines()[-1].split())\",\n      \"description\": \"The last line contains exactly m distinct integers in ascending order, each between 1 and n (inclusive), representing indices of files to delete.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"set([int(x) for x in stdin.splitlines()[-1].split()]) == set(range(1, m+1))\",\n      \"description\": \"The indices of files to delete are exactly 1, 2, ..., m (no gaps or duplicates).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'Yes' and len(stdout.splitlines()) == 2 and len(stdout.splitlines()[1].strip()) > 0\",\n      \"description\": \"If a valid pattern exists, the first line of stdout is 'Yes' and the second line contains a non-empty pattern string.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.strip() == 'No' and len(stdout.splitlines()) == 1\",\n      \"description\": \"If no valid pattern exists, stdout is exactly 'No' on a single line.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(pattern) == len(filename) for filename in to_delete_filenames) and all(len(pattern) == len(filename) for filename in other_filenames)\",\n      \"description\": \"The pattern's length must match the length of every filename in both the to-delete set and the non-delete set, where `to_delete_filenames` and `other_filenames` are the filenames corresponding to the delete indices and others, respectively.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(any(pattern[i] == '?' or pattern[i] == filename[i] for i in range(len(pattern))) for filename in to_delete_filenames)\",\n      \"description\": \"Every filename in the to-delete set must match the pattern, where `to_delete_filenames` are the filenames indexed by the delete indices.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(not all(pattern[i] == '?' or pattern[i] == filename[i] for i in range(len(pattern))) for filename in other_filenames)\",\n      \"description\": \"No filename outside the to-delete set matches the pattern, where `other_filenames` are the filenames not indexed by the delete indices.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1646,
+  "generated_tokens": 979,
+  "hit_output_limit": false,
+  "generation_seconds": 60.544,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:54:32.071361+00:00"
+}

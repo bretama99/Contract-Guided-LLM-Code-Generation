@@ -1,0 +1,347 @@
+{
+  "task_id": "taco_train_5812",
+  "task_index": 430,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 500000 and 0 <= m <= 500000 and 2 <= k <= 500000",
+        "description": "Input bounds for number of students (n), acquaintances (m), and groups (k) are valid."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= c_i <= k for c_i in c) and len(c) == n",
+        "description": "Each student's group assignment c_i is a valid group number between 1 and k, and there are exactly n assignments."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n and a_i != b_i for (a_i, b_i) in acquaintances) and len(acquaintances) == m",
+        "description": "Each acquaintance pair (a_i, b_i) consists of distinct student indices between 1 and n, and there are exactly m such pairs."
+      },
+      {
+        "id": "P4",
+        "expression": "all(a_i < b_i or (a_i > b_i and (a_i, b_i) not in [(x, y) for (x, y) in acquaintances if x != y]) for (a_i, b_i) in acquaintances)",
+        "description": "No unordered pair of acquaintances is listed more than once."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(count_valid_group_pairs(n, c, acquaintances, k))",
+        "description": "The output is the count of valid pairs of distinct groups (g1, g2) where it is possible to partition the students in g1 and g2 into two teams such that no team contains any acquaintance pair."
+      },
+      {
+        "id": "Q2",
+        "expression": "count_valid_group_pairs(n, c, acquaintances, k) == sum(1 for g1 in range(1, k+1) for g2 in range(g1+1, k+1) if is_valid_group_pair(g1, g2, c, acquaintances))",
+        "description": "The count is computed by checking all possible pairs of distinct groups (g1, g2) and counting those where the students in g1 and g2 can be partitioned into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q3",
+        "expression": "is_valid_group_pair(g1, g2, c, acquaintances) == (not any((a in students_g1_g2 and b in students_g1_g2) for (a, b) in acquaintances)) or (can_partition_into_teams(students_g1_g2, acquaintances))",
+        "description": "A group pair (g1, g2) is valid if either there are no acquaintances within the combined students of g1 and g2, or the students can be partitioned into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q4",
+        "expression": "students_g1_g2 == [i for i in range(1, n+1) if c[i-1] == g1 or c[i-1] == g2]",
+        "description": "students_g1_g2 is the list of student indices belonging to either group g1 or g2."
+      },
+      {
+        "id": "Q5",
+        "expression": "can_partition_into_teams(students, acquaintances) == (not any((a in students and b in students) for (a, b) in acquaintances)) or (is_bipartite(students, acquaintances))",
+        "description": "The students can be partitioned into two teams with no acquaintance pairs within any team if either there are no acquaintances among them or their acquaintance graph is bipartite."
+      },
+      {
+        "id": "Q6",
+        "expression": "is_bipartite(students, acquaintances) == (len(students) == 0) or (can_color_graph(students, acquaintances, 2))",
+        "description": "The graph induced by the students and their acquaintances is bipartite if it can be colored with two colors such that no two adjacent vertices share the same color."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 500000 and 0 <= m <= 500000 and 2 <= k <= 500000",
+        "description": "Input bounds for number of students (n), acquaintances (m), and groups (k) are valid."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= c_i <= k for c_i in c) and len(c) == n",
+        "description": "Each student's group assignment c_i is a valid group number between 1 and k, and there are exactly n assignments."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= a_i <= n and 1 <= b_i <= n and a_i != b_i for (a_i, b_i) in acquaintances) and len(acquaintances) == m",
+        "description": "Each acquaintance pair (a_i, b_i) consists of distinct student indices between 1 and n, and there are exactly m such pairs."
+      },
+      {
+        "id": "P4",
+        "expression": "all(a_i < b_i or (a_i > b_i and (a_i, b_i) not in [(x, y) for (x, y) in acquaintances if x != y]) for (a_i, b_i) in acquaintances)",
+        "description": "No unordered pair of acquaintances is listed more than once."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout == str(count_valid_group_pairs(n, c, acquaintances, k))",
+        "description": "The output is the count of valid pairs of distinct groups (g1, g2) where it is possible to partition the students in g1 and g2 into two teams such that no team contains any acquaintance pair."
+      },
+      {
+        "id": "Q2",
+        "expression": "count_valid_group_pairs(n, c, acquaintances, k) == sum(1 for g1 in range(1, k+1) for g2 in range(g1+1, k+1) if is_valid_group_pair(g1, g2, c, acquaintances))",
+        "description": "The count is computed by checking all possible pairs of distinct groups (g1, g2) and counting those where the students in g1 and g2 can be partitioned into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q3",
+        "expression": "is_valid_group_pair(g1, g2, c, acquaintances) == (not any((a in students_g1_g2 and b in students_g1_g2) for (a, b) in acquaintances)) or (can_partition_into_teams(students_g1_g2, acquaintances))",
+        "description": "A group pair (g1, g2) is valid if either there are no acquaintances within the combined students of g1 and g2, or the students can be partitioned into two teams with no acquaintance pairs within any team."
+      },
+      {
+        "id": "Q4",
+        "expression": "students_g1_g2 == [i for i in range(1, n+1) if c[i-1] == g1 or c[i-1] == g2]",
+        "description": "students_g1_g2 is the list of student indices belonging to either group g1 or g2."
+      },
+      {
+        "id": "Q5",
+        "expression": "can_partition_into_teams(students, acquaintances) == (not any((a in students and b in students) for (a, b) in acquaintances)) or (is_bipartite(students, acquaintances))",
+        "description": "The students can be partitioned into two teams with no acquaintance pairs within any team if either there are no acquaintances among them or their acquaintance graph is bipartite."
+      },
+      {
+        "id": "Q6",
+        "expression": "is_bipartite(students, acquaintances) == (len(students) == 0) or (can_color_graph(students, acquaintances, 2))",
+        "description": "The graph induced by the students and their acquaintances is bipartite if it can be colored with two colors such that no two adjacent vertices share the same color."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "25bce2af914ee3223957b637c7e6ba9f4259d371ff0a52a334a768e2737247c3",
+  "selected_contract_fingerprint": "25bce2af914ee3223957b637c7e6ba9f4259d371ff0a52a334a768e2737247c3",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_5812.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that empty groups are considered valid for selection (i.e., pairs involving empty groups are counted if the non-empty group can trivially satisfy the team condition).",
+        "task_evidence": "Moreover, teams may have different sizes (or even be empty).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the count includes all possible pairs of distinct groups, including those where one or both groups are empty, as long as the non-empty group(s) can satisfy the team condition.",
+        "task_evidence": "In the second example, we can select any group pair. Please note, that even though the third group has no students, we still can select it (with some other group) for the game.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly handle the case where one or both groups are empty, and ensure the count includes all valid pairs of distinct groups, including those with empty groups.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly capture the bipartite check for the combined students of g1 and g2, ensuring that the graph induced by the students in g1 and g2 is bipartite (or has no edges).",
+        "task_evidence": "The game requires that there are no acquaintance pairs inside each of the teams.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to ensure that the bipartite check is performed on the subgraph induced by the students in g1 and g2, not just any subset of students.",
+        "task_evidence": "The game requires that there are no acquaintance pairs inside each of the teams.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 5
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that empty groups are considered valid for selection (i.e., pairs involving empty groups are counted if the non-empty group can trivially satisfy the team condition).",
+        "task_evidence": "Moreover, teams may have different sizes (or even be empty).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the count includes all possible pairs of distinct groups, including those where one or both groups are empty, as long as the non-empty group(s) can satisfy the team condition.",
+        "task_evidence": "In the second example, we can select any group pair. Please note, that even though the third group has no students, we still can select it (with some other group) for the game.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to explicitly handle the case where one or both groups are empty, and ensure the count includes all valid pairs of distinct groups, including those with empty groups.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to correctly capture the bipartite check for the combined students of g1 and g2, ensuring that the graph induced by the students in g1 and g2 is bipartite (or has no edges).",
+        "task_evidence": "The game requires that there are no acquaintance pairs inside each of the teams.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Replace the expression to ensure that the bipartite check is performed on the subgraph induced by the students in g1 and g2, not just any subset of students.",
+        "task_evidence": "The game requires that there are no acquaintance pairs inside each of the teams.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 5
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 56.481,
+  "processing_error": null,
+  "finished_at": "2026-09-04T12:44:23.713025+00:00"
+}

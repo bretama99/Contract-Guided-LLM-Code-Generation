@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_19595",
+  "task_index": 211,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_19595.json",
+  "code": "import sys\nfrom collections import defaultdict\nimport heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float('inf') for node in graph}\n    distances[start] = 0\n    priority_queue = [(0, start)]\n    while priority_queue:\n        current_distance, current_node = heapq.heappop(priority_queue)\n        if current_distance > distances[current_node]:\n            continue\n        for neighbor, weight in graph[current_node].items():\n            distance = current_distance + weight\n            if distance < distances[neighbor]:\n                distances[neighbor] = distance\n                heapq.heappush(priority_queue, (distance, neighbor))\n    return distances\n\ndef count_missile_silos(n, m, s, roads, l):\n    graph = defaultdict(dict)\n    for v, u, w in roads:\n        graph[v][u] = w\n        graph[u][v] = w\n    distances = dijkstra(graph, s)\n    silo_count = 0\n    for node, distance in distances.items():\n        if distance == l:\n            silo_count += 1\n    for v, u, w in roads:\n        d1 = distances[v]\n        d2 = distances[u]\n        if d1 <= l <= d2 or d2 <= l <= d1:\n            if abs(d1 - l) < w / 2:\n                silo_count += 1\n    return silo_count\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nm = int(input[1])\ns = int(input[2])\nroads = []\nindex = 3\nfor _ in range(m):\n    vi = int(input[index])\n    ui = int(input[index + 1])\n    wi = int(input[index + 2])\n    roads.append((vi, ui, wi))\n    index += 3\nl = int(input[index])\nprint(count_missile_silos(n, m, s, roads, l))",
+  "generation_seconds": 36.877,
+  "generated_at": "2026-09-23T18:30:00.166428+00:00"
+}

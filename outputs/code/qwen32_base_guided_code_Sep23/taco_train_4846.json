@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_4846",
+  "task_index": 466,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_4846.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\n\nMOD = 1000000007\n\ndef bfs(graph, start, end, parent):\n    visited = [False] * (n + 1)\n    queue = deque([start])\n    visited[start] = True\n    while queue:\n        u = queue.popleft()\n        if u == end:\n            break\n        for v in graph[u]:\n            if not visited[v]:\n                visited[v] = True\n                queue.append(v)\n                parent[v] = u\n    return visited[end]\n\ndef count_paths(graph, start, end, parent):\n    if not bfs(graph, start, end, parent):\n        return 0\n    paths = [0] * (n + 1)\n    paths[end] = 1\n    stack = []\n    visited = [False] * (n + 1)\n    visited[end] = True\n    queue = deque([end])\n    while queue:\n        u = queue.popleft()\n        stack.append(u)\n        for v in graph[u]:\n            if not visited[v]:\n                visited[u] = True\n                queue.append(v)\n    while stack:\n        u = stack.pop()\n        for v in graph[u]:\n            if parent[v] == u:\n                paths[v] = (paths[v] + paths[u]) % MOD\n    return paths[start]\n\nn, m = map(int, sys.stdin.readline().split())\ngraph = defaultdict(list)\nfor _ in range(m):\n    a, b = map(int, sys.stdin.readline().split())\n    graph[a].append(b)\n    graph[b].append(a)\n\nk = int(sys.stdin.readline())\npairs = [tuple(map(int, sys.stdin.readline().split())) for _ in range(k)]\n\nresults = []\nfor x, y in pairs:\n    parent = [-1] * (n + 1)\n    results.append(count_paths(graph, x, y, parent))\n\nprint('\\n'.join(map(str, results)))",
+  "generation_seconds": 36.998,
+  "generated_at": "2026-09-23T21:03:09.744177+00:00"
+}

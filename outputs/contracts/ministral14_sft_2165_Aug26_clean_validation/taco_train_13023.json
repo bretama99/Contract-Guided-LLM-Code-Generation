@@ -1,0 +1,962 @@
+{
+  "task_id": "taco_train_13023",
+  "task_index": 72,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "DEFECTIVE_UNRESOLVED",
+  "selected_source": "original_fallback",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and m >= n - 1 and m <= 2 * 10**5",
+        "description": "The graph has at least 2 vertices and at least n-1 edges (connected), with no more than 200,000 edges."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= ai <= n and 1 <= bi <= n and ai != bi and 1 <= ci <= 10**4 for ai, bi, ci in edges)",
+        "description": "Each edge (ai, bi) connects distinct vertices within bounds, and each flow volume ci is between 1 and 10,000."
+      },
+      {
+        "id": "P3",
+        "expression": "len(edges) == m",
+        "description": "The input contains exactly m edges, each represented as a tuple (ai, bi, ci)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(ai != bi for ai, bi, _ in edges)",
+        "description": "No edge connects a vertex to itself."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_directions) == m",
+        "description": "The output contains exactly m integers, one for each input edge."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(di in {0, 1} for di in output_directions)",
+        "description": "Each output direction di is either 0 (ai → bi) or 1 (bi → ai)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= v <= n and v != 1 and v != n and sum(ci for (u, v, ci) in edges if (u == v and di == 0) or (v == u and di == 1)) == sum(ci for (u, v, ci) in edges if (v == v and di == 0) or (u == v and di == 1)) for v in range(2, n))",
+        "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow."
+      },
+      {
+        "id": "Q4",
+        "expression": "sum(ci for (u, v, ci) in edges if (u == 1 and di == 0) or (v == 1 and di == 1)) == sum(ci for (u, v, ci) in edges if (u == n and di == 1) or (v == n and di == 0))",
+        "description": "The total flow out of the source (vertex 1) equals the total flow into the sink (vertex n)."
+      },
+      {
+        "id": "Q5",
+        "expression": "not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)",
+        "description": "No directed edge forms a self-loop (though this is already implied by P4)."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)",
+        "description": "The directed graph has no cycles (implied by the problem's guarantee of a solution and the acyclic orientation requirement)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n >= 2 and m >= n - 1 and m <= 2 * 10**5",
+        "description": "The graph has at least 2 vertices and at least n-1 edges (connected), with no more than 200,000 edges."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= ai <= n and 1 <= bi <= n and ai != bi and 1 <= ci <= 10**4 for ai, bi, ci in edges)",
+        "description": "Each edge (ai, bi) connects distinct vertices within bounds, and each flow volume ci is between 1 and 10,000."
+      },
+      {
+        "id": "P3",
+        "expression": "len(edges) == m",
+        "description": "The input contains exactly m edges, each represented as a tuple (ai, bi, ci)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(ai != bi for ai, bi, _ in edges)",
+        "description": "No edge connects a vertex to itself."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_directions) == m",
+        "description": "The output contains exactly m integers, one for each input edge."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(di in {0, 1} for di in output_directions)",
+        "description": "Each output direction di is either 0 (ai → bi) or 1 (bi → ai)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(1 <= v <= n and v != 1 and v != n and sum(ci for (u, v, ci) in edges if (u == v and di == 0) or (v == u and di == 1)) == sum(ci for (u, v, ci) in edges if (v == v and di == 0) or (u == v and di == 1)) for v in range(2, n))",
+        "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow."
+      },
+      {
+        "id": "Q4",
+        "expression": "sum(ci for (u, v, ci) in edges if (u == 1 and di == 0) or (v == 1 and di == 1)) == sum(ci for (u, v, ci) in edges if (u == n and di == 1) or (v == n and di == 0))",
+        "description": "The total flow out of the source (vertex 1) equals the total flow into the sink (vertex n)."
+      },
+      {
+        "id": "Q5",
+        "expression": "not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)",
+        "description": "No directed edge forms a self-loop (though this is already implied by P4)."
+      },
+      {
+        "id": "Q6",
+        "expression": "not any((u == v and di == 0) or (v == u and di == 1) for (u, v, _), di in zip(edges, output_directions) if u == v)",
+        "description": "The directed graph has no cycles (implied by the problem's guarantee of a solution and the acyclic orientation requirement)."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "dfb27818752e5b7fcd05e94edfbcee0dca7fe6b1fc795721d177ea32bcf90b98",
+  "selected_contract_fingerprint": "dfb27818752e5b7fcd05e94edfbcee0dca7fe6b1fc795721d177ea32bcf90b98",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_13023.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "DEFECTIVE",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+      "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+      "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+        "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+        "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+        "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "remove",
+        "instruction": "This clause is redundant and incorrectly checks for self-loops (which are already excluded by P4). The problem does not require explicit self-loop checks in the output.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "remove",
+        "instruction": "The problem guarantees a solution exists, and the acyclic orientation requirement is not directly verifiable via a simple expression. This clause is not a correct postcondition.",
+        "task_evidence": "the obtained directed graph does not have cycles",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring vertex 1 has no incoming edges (all edges incident to vertex 1 must be outgoing).",
+        "task_evidence": "vertex with number 1 has no incoming edges",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for intermediate vertex flow conservation. The current expression incorrectly checks for self-loops and has redundant conditions.",
+        "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+      "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[3].expression",
+      "action": "replace",
+      "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+      "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": false
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+        "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+        "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": false
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[3].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+        "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "remove",
+        "instruction": "This clause is redundant and incorrectly checks for self-loops (which are already excluded by P4). The problem does not require explicit self-loop checks in the output.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[5].expression",
+        "action": "remove",
+        "instruction": "The problem guarantees a solution exists, and the acyclic orientation requirement is not directly verifiable via a simple expression. This clause is not a correct postcondition.",
+        "task_evidence": "the obtained directed graph does not have cycles",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition ensuring vertex 1 has no incoming edges (all edges incident to vertex 1 must be outgoing).",
+        "task_evidence": "vertex with number 1 has no incoming edges",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Fix the logic for intermediate vertex flow conservation. The current expression incorrectly checks for self-loops and has redundant conditions.",
+        "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[3].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": {
+    "resolved": false,
+    "accepted_contract": null,
+    "accepted_verification": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[3].expression",
+          "action": "replace",
+          "instruction": "Fix the logic for source (vertex 1) and sink (vertex n) flow sums. The current expression incorrectly checks for self-loops and does not correctly capture the flow direction for source/sink.",
+          "task_evidence": "vertex with number 1 has no incoming edges; ... the sum of ci of incoming edges is equal to the sum of ci of outcoming edges for intermediate vertices",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": false
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q4",
+          "expression": "sum(ci for (u, v, ci), di in zip(edges, output_directions) if (u == 1 and di == 0)) == sum(ci for (u, v, ci), di in zip(edges, output_directions) if (v == n and di == 0))",
+          "description": "The total flow out of the source (vertex 1) equals the total flow into the sink (vertex n), where source has no incoming edges and sink has no outgoing edges."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "870a97f4f4f0eb5a8d7ec1ef2f869f358e3f036c0c48fd9c999ac28204b57bd4",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "ISSUE"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for incoming/outgoing flow sums for intermediate vertices. The current expression incorrectly checks for self-loops (u == v) and has redundant conditions.",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for incoming/outgoing flow sums for intermediate vertices. The current expression incorrectly checks for self-loops (u == v) and has redundant conditions.",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The expression does not enforce the source (vertex 1) having no incoming edges or the sink (vertex n) having no outgoing edges. It also incorrectly sums flow for source/sink.",
+            "task_evidence": "vertex with number 1 has no incoming edges; ... the obtained directed graph does not have cycles.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "remove",
+            "instruction": "The expression is a duplicate of Q5 and does not address cycle detection. The problem guarantees a solution exists, so cycle detection is not required in the contract.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to enforce that vertex 1 has no incoming edges (all edges incident to 1 are directed away from it).",
+            "task_evidence": "vertex with number 1 has no incoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to enforce that vertex n has no outgoing edges (all edges incident to n are directed toward it).",
+            "task_evidence": "vertex with number 1 has no incoming edges; ... the obtained directed graph does not have cycles.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions[3].expression"
+          },
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[2].expression",
+          "action": "replace",
+          "instruction": "Fix the logic for incoming/outgoing flow sums for intermediate vertices. The current expression incorrectly checks for self-loops (u == v) and has redundant conditions.",
+          "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q3",
+          "expression": "all(1 < v < n and sum(ci for (u, v, ci), di in zip(edges, output_directions) if u == v and di == 0 or v == u and di == 1) == sum(ci for (u, v, ci), di in zip(edges, output_directions) if v == v and di == 0 or u == v and di == 1) for v in range(2, n))",
+          "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "1da032d1c0295511d93c7771d71708352f3829a4b405b87743308d7d78f25512",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for incoming/outgoing flow calculation. The current expression incorrectly checks for `v == v` and has redundant conditions.",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for incoming/outgoing flow calculation. The current expression incorrectly checks for `v == v` and has redundant conditions.",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "The current expression does not enforce the source (vertex 1) having no incoming edges or the sink (vertex n) having no outgoing edges. It only checks equality of total flow, which is insufficient.",
+            "task_evidence": "vertex with number 1 has no incoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "remove",
+            "instruction": "The expression is redundant and incorrect (same as Q5). The problem guarantees a solution exists, so this clause is unnecessary and misleading.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to enforce that vertex 1 has no incoming edges (all edges incident to 1 must be outgoing).",
+            "task_evidence": "vertex with number 1 has no incoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a clause to enforce that vertex n has no outgoing edges (all edges incident to n must be incoming).",
+            "task_evidence": "vertex with number 1 has no incoming edges; [implied by context: sink has no outgoing edges]",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Fix the logic for incoming/outgoing flow calculation. The current expression incorrectly checks for `v == v` and has redundant conditions.",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "len(output_directions) == m",
+            "description": "The output contains exactly m integers, one for each input edge."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(di in {0, 1} for di in output_directions)",
+            "description": "Each output direction di is either 0 (ai → bi) or 1 (bi → ai)."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(1 < v < n and sum(ci for (u, v, ci), di in zip(edges, output_directions) if (u == v and di == 0)) == sum(ci for (u, v, ci), di in zip(edges, output_directions) if (v == u and di == 1)) for v in range(2, n))",
+            "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(u == 1 and di == 0 for (u, v, _), di in zip(edges, output_directions))",
+            "description": "Vertex 1 (source) has no incoming edges (all edges incident to 1 are directed away from it)."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(v == n and di == 1 for (u, v, _), di in zip(edges, output_directions))",
+            "description": "Vertex n (sink) has no outgoing edges (all edges incident to n are directed toward it)."
+          },
+          {
+            "id": "Q6",
+            "expression": "sum(ci for (u, v, ci), di in zip(edges, output_directions) if (u == 1 and di == 0)) == sum(ci for (u, v, ci), di in zip(edges, output_directions) if (v == n and di == 1))",
+            "description": "The total flow out of the source (vertex 1) equals the total flow into the sink (vertex n)."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "514d102e2917a628cf0e658e8f5a69674bab2d265e245b63bfde8937fb8e08ae",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring the directed graph has no cycles (acyclic). This is a material requirement from the task.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring the directed graph has no cycles (acyclic). This is a material requirement from the task.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "remove",
+            "instruction": "Remove Q6 (total flow out of source equals total flow into sink). This is redundant because it is implied by the flow conservation at intermediate vertices and the source/sink constraints (Q3, Q4, Q5). The task does not explicitly require this as a separate check.",
+            "task_evidence": "",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 4,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "missing_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "the obtained directed graph does not have cycles.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring the directed graph has no cycles (acyclic). This is a material requirement from the task.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output contains exactly m integers, one for each input edge.",
+            "expression": "len(output_directions) == m",
+            "id": "Q1"
+          },
+          {
+            "description": "Each output direction di is either 0 (ai → bi) or 1 (bi → ai).",
+            "expression": "all(di in {0, 1} for di in output_directions)",
+            "id": "Q2"
+          },
+          {
+            "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow.",
+            "expression": "all(1 < v < n and sum(ci for (u, v, ci), di in zip(edges, output_directions) if (v == u and di == 1)) == sum(ci for (u, v, ci), di in zip(edges, output_directions) if (u == v and di == 0)) for v in range(2, n))",
+            "id": "Q3"
+          },
+          {
+            "description": "Vertex 1 (source) has no incoming edges (all edges incident to 1 are directed away from it).",
+            "expression": "all(u == 1 and di == 0 for (u, v, _), di in zip(edges, output_directions))",
+            "id": "Q4"
+          },
+          {
+            "description": "Vertex n (sink) has no outgoing edges (all edges incident to n are directed toward it).",
+            "expression": "all(v == n and di == 1 for (u, v, _), di in zip(edges, output_directions))",
+            "id": "Q5"
+          },
+          {
+            "description": "The directed graph formed by the output directions is acyclic.",
+            "expression": "not any((u, v) in [(x, y) for (x, y, _) in edges for di in [0, 1] if (x == edges[i][0] and y == edges[i][1] and di == 0) or (x == edges[i][1] and y == edges[i][0] and di == 1) for i in range(m)] for u in range(1, n + 1) for v in range(1, n + 1) if u != v and (u, v) in [(x, y) for (x, y, _) in edges for di in [0, 1] if (x == edges[i][0] and y == edges[i][1] and di == 0) or (x == edges[i][1] and y == edges[i][0] and di == 1) for i in range(m)] and (v, u) in [(x, y) for (x, y, _) in edges for di in [0, 1] if (x == edges[i][0] and y == edges[i][1] and di == 0) or (x == edges[i][1] and y == edges[i][0] and di == 1) for i in range(m)])",
+            "id": "Q6"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "68da31aa6edeef5a6faf8c75ffa2f0a5f9374262c7d3d4978d9faba45d192a52",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 3,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The acyclicity check is overly complex and incorrect. Replace with a correct topological sort or cycle detection expression for the directed graph formed by the output directions.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The acyclicity check is overly complex and incorrect. Replace with a correct topological sort or cycle detection expression for the directed graph formed by the output directions.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the source (vertex 1) has no outgoing edges directed toward it (already covered by Q4) and the sink (vertex n) has no incoming edges (not covered).",
+            "task_evidence": "vertex with number 1 has no incoming edges; ... vertex n (sink) has no outgoing edges",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "The expression for flow conservation at intermediate vertices is incorrect. Replace with a correct expression that sums incoming and outgoing flows for each vertex v (1 < v < n).",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 1,
+            "location": "postconditions"
+          }
+        ]
+      },
+      {
+        "attempt": 5,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "the obtained directed graph does not have cycles.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "The acyclicity check is overly complex and incorrect. Replace with a correct topological sort or cycle detection expression for the directed graph formed by the output directions.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "description": "The output contains exactly m integers, one for each input edge.",
+            "expression": "len(output_directions) == m",
+            "id": "Q1"
+          },
+          {
+            "description": "Each output direction di is either 0 (ai → bi) or 1 (bi → ai).",
+            "expression": "all(di in {0, 1} for di in output_directions)",
+            "id": "Q2"
+          },
+          {
+            "description": "For every intermediate vertex v (1 < v < n), the sum of incoming flow equals the sum of outgoing flow.",
+            "expression": "all(1 < v < n and sum(ci for (u, v, ci), di in zip(edges, output_directions) if (v == u and di == 1)) == sum(ci for (u, v, ci), di in zip(edges, output_directions) if (u == v and di == 0)) for v in range(2, n))",
+            "id": "Q3"
+          },
+          {
+            "description": "Vertex 1 (source) has no incoming edges (all edges incident to 1 are directed away from it).",
+            "expression": "all(u == 1 and di == 0 for (u, v, _), di in zip(edges, output_directions))",
+            "id": "Q4"
+          },
+          {
+            "description": "Vertex n (sink) has no outgoing edges (all edges incident to n are directed toward it).",
+            "expression": "all(v == n and di == 1 for (u, v, _), di in zip(edges, output_directions))",
+            "id": "Q5"
+          },
+          {
+            "description": "The directed graph formed by the output directions is acyclic.",
+            "expression": "not any((u, v) in directed_edges and (v, u) in directed_edges for u in range(1, n + 1) for v in range(1, n + 1) if u != v)",
+            "id": "Q6"
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "d3b8f8546c740e435b888a48fde95627f3c7f5a3cc55f6862ba7f8c8c544a203",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[5].expression",
+            "action": "replace",
+            "instruction": "Replace the acyclicity check with a proper topological sort or DFS-based cycle detection for the directed graph formed by the output directions.",
+            "task_evidence": "the obtained directed graph does not have cycles.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition ensuring that the directed graph is a valid orientation of the original undirected graph (i.e., for each undirected edge (ai, bi), exactly one of (ai → bi) or (bi → ai) is chosen).",
+            "task_evidence": "You should direct all edges in such way that the following conditions hold:",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[2].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly compute incoming/outgoing flow sums for intermediate vertices. The current expression has logical errors in the conditions (e.g., `v == u and di == 1` should be `u == v and di == 1` for incoming, and `u == v and di == 0` should be `v == u and di == 0` for outgoing).",
+            "task_evidence": "for each vertex v (1 < v < n), sum of ci of incoming edges is equal to the sum of ci of outcoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[3].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly enforce that all edges incident to vertex 1 are directed away from it (i.e., `u == 1 and di == 0` should be `u == 1 and di == 0` for outgoing, but the current expression is incomplete as it only checks one direction). The expression should also handle cases where `v == 1` (incoming edges to 1).",
+            "task_evidence": "vertex with number 1 has no incoming edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the expression to correctly enforce that all edges incident to vertex n are directed toward it (i.e., `v == n and di == 1` should be `v == n and di == 1` for incoming, but the current expression is incomplete as it only checks one direction). The expression should also handle cases where `u == n` (outgoing edges from n).",
+            "task_evidence": "vertex n (sink) has no outgoing edges;",
+            "source": "semantic_audit",
+            "task_evidence_grounded": false
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "unverified_task_evidence",
+            "candidate_index": 4,
+            "location": "postconditions[4].expression"
+          },
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 5
+          }
+        ]
+      }
+    ],
+    "attempts_used": 5
+  },
+  "repair_attempts_used": 5,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 258.487,
+  "processing_error": null,
+  "finished_at": "2026-09-04T00:34:15.718657+00:00"
+}

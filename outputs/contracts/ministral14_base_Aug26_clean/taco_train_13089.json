@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_13089",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "stdin.count('\\n') == 2",
+        "description": "Input consists of exactly two lines: the first line contains L, the second line contains R."
+      },
+      {
+        "id": "P2",
+        "expression": "all(c.isdigit() for c in stdin.split('\\n')[0]) and all(c.isdigit() for c in stdin.split('\\n')[1])",
+        "description": "L and R are positive integers without leading zeros, represented as strings in stdin."
+      },
+      {
+        "id": "P3",
+        "expression": "L_int := int(stdin.split('\\n')[0]) and R_int := int(stdin.split('\\n')[1]) and 1 <= L_int <= R_int <= 10**10**6",
+        "description": "Parsed integers L and R satisfy 1 ≤ L ≤ R ≤ 10^(10^6)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout_lines := stdout.split('\\n') and len(stdout_lines) >= 1 and all(c.isdigit() for c in stdout_lines[0])",
+        "description": "First line of stdout is a non-negative integer n (compressed block count)."
+      },
+      {
+        "id": "Q2",
+        "expression": "n := int(stdout_lines[0]) and 1 <= n <= (R_int - L_int + 1) and len(stdout_lines) == n + 1",
+        "description": "n is the number of compressed blocks, and there are exactly n + 1 lines in stdout (including the first line)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(line.split()) == 2 and all(c.isdigit() for c in line.split()) for line in stdout_lines[1:])",
+        "description": "Each of the n subsequent lines contains exactly two space-separated integers t_i and c_i (t_i ≥ 0, c_i ≥ 1)."
+      },
+      {
+        "id": "Q4",
+        "expression": "t_i_c_i := [(int(line.split()[0]), int(line.split()[1])) for line in stdout_lines[1:]] and sum(c_i for (t_i, c_i) in t_i_c_i) == (R_int - L_int + 1)",
+        "description": "The sum of all c_i equals the length of the segment [L, R], i.e., R - L + 1."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(t_i != t_j for i in range(len(t_i_c_i) - 1) for j in range(i + 1, len(t_i_c_i)) if i // c_i == j // c_i)",
+        "description": "Adjacent blocks in the compressed sequence have distinct t_i values (t_i ≠ t_{i+1})."
+      },
+      {
+        "id": "Q6",
+        "expression": "def is_valid_decomposition(L, R, t_i_c_i):\n    current_pos = L\n    for t_i, c_i in t_i_c_i:\n        for _ in range(c_i):\n            segment_length = 10 ** (2 ** t_i - 1) if t_i >= 1 else 1\n            if current_pos + segment_length - 1 > R:\n                return False\n            if t_i == 0:\n                if current_pos != current_pos + segment_length - 1:\n                    return False\n            else:\n                if (current_pos - 1) % segment_length != 0:\n                    return False\n            current_pos += segment_length\n    return current_pos - 1 == R\nis_valid_decomposition(L_int, R_int, t_i_c_i)",
+        "description": "The sequence of t_i and c_i corresponds to a valid decomposition of [L, R] into minimal square-ten tree nodes, where each node [l_i, r_i] satisfies:\n    - For t_i = 0: l_i = r_i (single element).\n    - For t_i ≥ 1: l_i ≡ 1 mod (10^(2^(t_i - 1))) and r_i = l_i + 10^(2^(t_i - 1)) - 1.\n    The decomposition is contiguous (l_{i+1} = r_i + 1) and covers [L, R] exactly."
+      },
+      {
+        "id": "Q7",
+        "expression": "def is_minimal_decomposition(L, R, t_i_c_i):\n    m = sum(c_i for (t_i, c_i) in t_i_c_i)\n    for t_i, c_i in t_i_c_i:\n        for _ in range(c_i):\n            segment_length = 10 ** (2 ** t_i - 1) if t_i >= 1 else 1\n            if t_i >= 1 and segment_length > 10 ** (2 ** (t_i - 1)):\n                return False\n    return True\nis_minimal_decomposition(L_int, R_int, t_i_c_i)",
+        "description": "The decomposition is minimal in the number of nodes (m), where each node's segment length is exactly 10^(2^(t_i - 1)) for t_i ≥ 1, and no smaller m exists for any valid decomposition."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"stdin.count('\\\\n') == 2\",\n      \"description\": \"Input consists of exactly two lines: the first line contains L, the second line contains R.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(c.isdigit() for c in stdin.split('\\\\n')[0]) and all(c.isdigit() for c in stdin.split('\\\\n')[1])\",\n      \"description\": \"L and R are positive integers without leading zeros, represented as strings in stdin.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"L_int := int(stdin.split('\\\\n')[0]) and R_int := int(stdin.split('\\\\n')[1]) and 1 <= L_int <= R_int <= 10**10**6\",\n      \"description\": \"Parsed integers L and R satisfy 1 ≤ L ≤ R ≤ 10^(10^6).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout_lines := stdout.split('\\\\n') and len(stdout_lines) >= 1 and all(c.isdigit() for c in stdout_lines[0])\",\n      \"description\": \"First line of stdout is a non-negative integer n (compressed block count).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"n := int(stdout_lines[0]) and 1 <= n <= (R_int - L_int + 1) and len(stdout_lines) == n + 1\",\n      \"description\": \"n is the number of compressed blocks, and there are exactly n + 1 lines in stdout (including the first line).\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(line.split()) == 2 and all(c.isdigit() for c in line.split()) for line in stdout_lines[1:])\",\n      \"description\": \"Each of the n subsequent lines contains exactly two space-separated integers t_i and c_i (t_i ≥ 0, c_i ≥ 1).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"t_i_c_i := [(int(line.split()[0]), int(line.split()[1])) for line in stdout_lines[1:]] and sum(c_i for (t_i, c_i) in t_i_c_i) == (R_int - L_int + 1)\",\n      \"description\": \"The sum of all c_i equals the length of the segment [L, R], i.e., R - L + 1.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(t_i != t_j for i in range(len(t_i_c_i) - 1) for j in range(i + 1, len(t_i_c_i)) if i // c_i == j // c_i)\",\n      \"description\": \"Adjacent blocks in the compressed sequence have distinct t_i values (t_i ≠ t_{i+1}).\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"def is_valid_decomposition(L, R, t_i_c_i):\\n    current_pos = L\\n    for t_i, c_i in t_i_c_i:\\n        for _ in range(c_i):\\n            segment_length = 10 ** (2 ** t_i - 1) if t_i >= 1 else 1\\n            if current_pos + segment_length - 1 > R:\\n                return False\\n            if t_i == 0:\\n                if current_pos != current_pos + segment_length - 1:\\n                    return False\\n            else:\\n                if (current_pos - 1) % segment_length != 0:\\n                    return False\\n            current_pos += segment_length\\n    return current_pos - 1 == R\\nis_valid_decomposition(L_int, R_int, t_i_c_i)\",\n      \"description\": \"The sequence of t_i and c_i corresponds to a valid decomposition of [L, R] into minimal square-ten tree nodes, where each node [l_i, r_i] satisfies:\\n    - For t_i = 0: l_i = r_i (single element).\\n    - For t_i ≥ 1: l_i ≡ 1 mod (10^(2^(t_i - 1))) and r_i = l_i + 10^(2^(t_i - 1)) - 1.\\n    The decomposition is contiguous (l_{i+1} = r_i + 1) and covers [L, R] exactly.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"def is_minimal_decomposition(L, R, t_i_c_i):\\n    m = sum(c_i for (t_i, c_i) in t_i_c_i)\\n    for t_i, c_i in t_i_c_i:\\n        for _ in range(c_i):\\n            segment_length = 10 ** (2 ** t_i - 1) if t_i >= 1 else 1\\n            if t_i >= 1 and segment_length > 10 ** (2 ** (t_i - 1)):\\n                return False\\n    return True\\nis_minimal_decomposition(L_int, R_int, t_i_c_i)\",\n      \"description\": \"The decomposition is minimal in the number of nodes (m), where each node's segment length is exactly 10^(2^(t_i - 1)) for t_i ≥ 1, and no smaller m exists for any valid decomposition.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1964,
+  "generated_tokens": 1275,
+  "hit_output_limit": false,
+  "generation_seconds": 54.241,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:35:17.202142+00:00"
+}

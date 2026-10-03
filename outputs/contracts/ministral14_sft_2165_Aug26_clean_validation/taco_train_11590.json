@@ -1,0 +1,596 @@
+{
+  "task_id": "taco_train_11590",
+  "task_index": 88,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "REPAIRED_CORRECT",
+  "selected_source": "repaired",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.isdigit() and 1 <= int(T) <= 100",
+        "description": "T is an integer between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(M) == 26 and all(c.isalpha() and c.islower() for c in M) and sorted(M) == sorted('abcdefghijklmnopqrstuvwxyz')",
+        "description": "M is a lowercase permutation of the English alphabet."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(S) > 0 and len(S) <= 100 and all(c.isalpha() or c in {'_', '.', ',', '!', '?'} for c in S) for S in sentences)",
+        "description": "Each sentence S is non-empty, has at most 100 characters, and contains only letters, underscores, or punctuation."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(translated_sentence) == len(original_sentence) for original_sentence, translated_sentence in zip(sentences, output_lines))",
+        "description": "Each translated sentence has the same length as the original Bytelandian sentence."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(original_sentence[i] == translated_sentence[i] if original_sentence[i] in {'.', ',', '!', '?'} else False for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+        "description": "Punctuation symbols ('.', ',', '!', '?') in the original sentence remain unchanged in the translated sentence."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(original_sentence[i].isupper() == translated_sentence[i].isupper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+        "description": "Uppercase letters in the original sentence remain uppercase in the translated sentence, and lowercase letters remain lowercase."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(original_sentence[i].islower() and translated_sentence[i] == M[ord(original_sentence[i]) - ord('a')] or original_sentence[i].isupper() and translated_sentence[i] == M[ord(original_sentence[i].lower()) - ord('a')].upper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)) if original_sentence[i].isalpha())",
+        "description": "Each letter in the original sentence is translated to its corresponding English letter using the mapping M, preserving case."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(original_sentence[i] == '_' and translated_sentence[i] == ' ' for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+        "description": "Each underscore ('_') in the original Bytelandian sentence is replaced by a space (' ') in the translated English sentence."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "T.isdigit() and 1 <= int(T) <= 100",
+        "description": "T is an integer between 1 and 100 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(M) == 26 and all(c.isalpha() and c.islower() for c in M) and sorted(M) == sorted('abcdefghijklmnopqrstuvwxyz')",
+        "description": "M is a lowercase permutation of the English alphabet."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(S) > 0 and len(S) <= 100 and all(c.isalpha() or c in {'_', '.', ',', '!', '?'} for c in S) for S in sentences)",
+        "description": "Each sentence S is non-empty, has at most 100 characters, and contains only letters, underscores, or punctuation."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(translated_sentence) == len(original_sentence) for original_sentence, translated_sentence in zip(sentences, output_lines))",
+        "description": "Each translated sentence has the same length as the original Bytelandian sentence."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(original_sentence[i] == translated_sentence[i] if original_sentence[i] in {'_', '.', ',', '!', '?'} else False for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+        "description": "Punctuation symbols and underscores in the original sentence remain unchanged in the translated sentence."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(original_sentence[i].isupper() == translated_sentence[i].isupper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+        "description": "Uppercase letters in the original sentence remain uppercase in the translated sentence, and lowercase letters remain lowercase."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(original_sentence[i].islower() and translated_sentence[i] == M[ord(original_sentence[i]) - ord('a')] or original_sentence[i].isupper() and translated_sentence[i] == M[ord(original_sentence[i].lower()) - ord('a')].upper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+        "description": "Each letter in the original sentence is translated to its corresponding English letter using the mapping M, preserving case."
+      },
+      {
+        "id": "Q5",
+        "expression": "all('_'.join(translated_sentence.split('_')) == translated_sentence for translated_sentence in output_lines)",
+        "description": "Each translated sentence has underscores replaced by spaces in the output."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "f1f8380e6e436f431eb9545e743d096fd23ae221821b38e54988a72bc3bcea1f",
+  "selected_contract_fingerprint": "7786b1d96092e5234d8d66b8ba82d63af870071173bdc78bc5c8709473eab887",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_11590.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "DEFECTIVE",
+  "original_workflow_action": "REPAIR",
+  "original_repair_recommended": true,
+  "original_repair_basis": "confirmed_defect",
+  "final_status": "CORRECT",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "DEFECTIVE",
+    "decision_reason": "independently_confirmed_semantic_defect",
+    "workflow_action": "REPAIR",
+    "repair_recommended": true,
+    "repair_basis": "confirmed_defect",
+    "repair_issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+      "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": {
+      "type": "incorrect_clause",
+      "location": "postconditions[4].expression",
+      "action": "replace",
+      "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+      "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+      "source": "independent_confirmation",
+      "task_evidence_grounded": true
+    },
+    "issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+        "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "confirmed_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+        "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+        "source": "independent_confirmation",
+        "task_evidence_grounded": true
+      }
+    ],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[4].expression",
+        "action": "replace",
+        "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+        "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly enforce that punctuation symbols ('.', ',', '!', '?') remain unchanged in the translated sentence. While Q2 attempts to capture this, it is incorrectly expressed (it checks for equality only when the character is punctuation, which is logically redundant and incorrect). The requirement must be explicitly enforced as a postcondition.",
+        "task_evidence": "Each punctuation symbol (see below) should remain the same.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[1].expression",
+        "action": "replace",
+        "instruction": "The expression is logically incorrect. It checks for equality only when the character is punctuation or underscore, but the condition is structured as `if ... else False`, which means it will always evaluate to `False` for non-punctuation/non-underscore characters. This is not the intended behavior. The expression should instead ensure that punctuation and underscores remain unchanged, while letters are translated.",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "The contract does not explicitly enforce that the translation preserves the case of each letter (uppercase remains uppercase, lowercase remains lowercase). While Q3 attempts to capture this, it is not sufficient because it does not ensure that the translation of uppercase letters is also uppercase in the output. The requirement must be explicitly enforced as a postcondition.",
+        "task_evidence": "Note that the uppercase letters in Bytelandian remain uppercase in English, and lowercase letters remain lowercase.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 2,
+        "location": "postconditions[1].expression"
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "CORRECT",
+    "decision_reason": "all_semantic_checks_clean",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "OK",
+      "invariants": "OK",
+      "task_coverage": "OK",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [],
+    "model_calls": 1,
+    "errors": []
+  },
+  "repair": {
+    "resolved": true,
+    "accepted_contract": {
+      "interface": {
+        "mode": "stdin_stdout",
+        "signature": "stdin -> stdout",
+        "input_channel": "stdin",
+        "output_channel": "stdout"
+      },
+      "preconditions": [
+        {
+          "id": "P1",
+          "expression": "T.isdigit() and 1 <= int(T) <= 100",
+          "description": "T is an integer between 1 and 100 inclusive."
+        },
+        {
+          "id": "P2",
+          "expression": "len(M) == 26 and all(c.isalpha() and c.islower() for c in M) and sorted(M) == sorted('abcdefghijklmnopqrstuvwxyz')",
+          "description": "M is a lowercase permutation of the English alphabet."
+        },
+        {
+          "id": "P3",
+          "expression": "all(len(S) > 0 and len(S) <= 100 and all(c.isalpha() or c in {'_', '.', ',', '!', '?'} for c in S) for S in sentences)",
+          "description": "Each sentence S is non-empty, has at most 100 characters, and contains only letters, underscores, or punctuation."
+        }
+      ],
+      "postconditions": [
+        {
+          "id": "Q1",
+          "expression": "all(len(translated_sentence) == len(original_sentence) for original_sentence, translated_sentence in zip(sentences, output_lines))",
+          "description": "Each translated sentence has the same length as the original Bytelandian sentence."
+        },
+        {
+          "id": "Q2",
+          "expression": "all(original_sentence[i] == translated_sentence[i] if original_sentence[i] in {'.', ',', '!', '?'} else False for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+          "description": "Punctuation symbols ('.', ',', '!', '?') in the original sentence remain unchanged in the translated sentence."
+        },
+        {
+          "id": "Q3",
+          "expression": "all(original_sentence[i].isupper() == translated_sentence[i].isupper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+          "description": "Uppercase letters in the original sentence remain uppercase in the translated sentence, and lowercase letters remain lowercase."
+        },
+        {
+          "id": "Q4",
+          "expression": "all(original_sentence[i].islower() and translated_sentence[i] == M[ord(original_sentence[i]) - ord('a')] or original_sentence[i].isupper() and translated_sentence[i] == M[ord(original_sentence[i].lower()) - ord('a')].upper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)) if original_sentence[i].isalpha())",
+          "description": "Each letter in the original sentence is translated to its corresponding English letter using the mapping M, preserving case."
+        },
+        {
+          "id": "Q5",
+          "expression": "all(original_sentence[i] == '_' and translated_sentence[i] == ' ' for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+          "description": "Each underscore ('_') in the original Bytelandian sentence is replaced by a space (' ') in the translated English sentence."
+        }
+      ],
+      "invariants": []
+    },
+    "accepted_verification": {
+      "verifier_version": "three_file_expression_led_v3_actionable_u1",
+      "status": "CORRECT",
+      "decision_reason": "all_semantic_checks_clean",
+      "workflow_action": "KEEP",
+      "repair_recommended": false,
+      "repair_basis": null,
+      "repair_issue": null,
+      "checks": {
+        "interface": "OK",
+        "preconditions": "OK",
+        "postconditions": "OK",
+        "invariants": "OK",
+        "task_coverage": "OK",
+        "expression_description": "OK"
+      },
+      "issue": null,
+      "issues": [],
+      "confirmed_issues": [],
+      "candidate_issues": [],
+      "structural_issues": [],
+      "semantic_structural_issues": [],
+      "representation_issues": [],
+      "uncertainties": [],
+      "model_calls": 1,
+      "errors": []
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+          "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "expression": "all(' ' in translated_sentence.replace('_', ' ') and translated_sentence.replace('_', ' ') == translated_sentence.replace('_', ' ') for original_sentence, translated_sentence in zip(sentences, output_lines)) and all(original_sentence[i] == '_' == translated_sentence[i] == ' ' for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)) if original_sentence[i] == '_')",
+          "description": "Each underscore ('_') in the original Bytelandian sentence is replaced by a space (' ') in the translated English sentence, and all other characters remain unchanged except for letter translation."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "71f253b9d70e0aba4f73e1f9c4f60453e9d592f12989902d08e6b3b2352aac69",
+        "verification_status": "UNCERTAIN",
+        "decision_reason": "semantic_candidate_not_confirmed",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "ISSUE",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove the redundant and incorrect expression (the first part of the AND) and fix the second part to correctly capture the underscore-to-space translation requirement.",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that underscores ('_') in the original sentence are replaced by spaces (' ') in the translated sentence.",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Replace the entire expression with a correct one that ensures underscores are translated to spaces and all other characters (except letters) remain unchanged.",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output. Each punctuation symbol (see below) should remain the same.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure that punctuation symbols ('.', ',', '!', '?') remain unchanged in the translated sentence.",
+            "task_evidence": "Each punctuation symbol (see below) should remain the same.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "The current expression is redundant and incorrect. Replace it with a correct expression that ensures punctuation symbols remain unchanged.",
+            "task_evidence": "Each punctuation symbol (see below) should remain the same.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": [
+          {
+            "code": "semantic_audit_confirmation_disagreement",
+            "candidate_count": 6
+          }
+        ]
+      },
+      {
+        "attempt": 2,
+        "repair_kind": "expression_semantic",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions[4].expression",
+          "action": "replace",
+          "instruction": "The expression is logically flawed and does not correctly enforce the requirement that underscores are replaced by spaces in the output. The current expression checks for the absence of underscores in the translated sentence, which is not the intended behavior. The correct behavior is to ensure that underscores in the original sentence are replaced by spaces in the output, not to check for their presence/absence in the translated sentence.",
+          "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+          "source": "independent_confirmation",
+          "task_evidence_grounded": true
+        },
+        "generation_status": "OK",
+        "candidate_value": {
+          "id": "Q5",
+          "expression": "all(original_sentence.replace('_', ' ') == translated_sentence.replace(' ', '_') for original_sentence, translated_sentence in zip(sentences, output_lines))",
+          "description": "Each underscore ('_') in the original Bytelandian sentence is replaced by a space (' ') in the translated English sentence, and all other characters (except letters) remain in their original positions."
+        },
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "29ad9aa124e2e148ea195e046a1ff5f9c09a048f3f1e3f8f16e662cde8299360",
+        "verification_status": "DEFECTIVE",
+        "decision_reason": "independently_confirmed_semantic_defect",
+        "verification_model_calls": 2,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "ISSUE",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove Q5 as it is redundant and incorrect. The expression does not correctly capture the requirement for underscores being replaced by spaces, and it conflicts with Q2 (punctuation/underscore preservation).",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        ],
+        "candidate_issues": [
+          {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove Q5 as it is redundant and incorrect. The expression does not correctly capture the requirement for underscores being replaced by spaces, and it conflicts with Q2 (punctuation/underscore preservation).",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          },
+          {
+            "type": "missing_clause",
+            "location": "postconditions",
+            "action": "add",
+            "instruction": "Add a postcondition to ensure underscores ('_') in the original sentence are replaced by spaces (' ') in the translated sentence.",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+            "source": "semantic_audit",
+            "task_evidence_grounded": true
+          }
+        ],
+        "representation_issues": [],
+        "uncertainties": []
+      },
+      {
+        "attempt": 3,
+        "repair_kind": "section_fallback",
+        "target": {
+          "type": "incorrect_clause",
+          "location": "postconditions",
+          "action": "replace",
+          "instruction": "Targeted repair attempts did not reach CORRECT. Reconstruct the complete postconditions section from ORIGINAL TASK, preserving all correct task semantics and removing/replacing only semantics that prevent correct certification.",
+          "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+          "source": "section_fallback_after_targeted_failure",
+          "original_issue": {
+            "type": "incorrect_clause",
+            "location": "postconditions[4].expression",
+            "action": "replace",
+            "instruction": "Remove Q5 as it is redundant and incorrect. The expression does not correctly capture the requirement for underscores being replaced by spaces, and it conflicts with Q2 (punctuation/underscore preservation).",
+            "task_evidence": "Replace each underscores ('_') with a space (' ') in the output.",
+            "source": "independent_confirmation",
+            "task_evidence_grounded": true
+          }
+        },
+        "generation_status": "OK",
+        "candidate_value": [
+          {
+            "id": "Q1",
+            "expression": "all(len(translated_sentence) == len(original_sentence) for original_sentence, translated_sentence in zip(sentences, output_lines))",
+            "description": "Each translated sentence has the same length as the original Bytelandian sentence."
+          },
+          {
+            "id": "Q2",
+            "expression": "all(original_sentence[i] == translated_sentence[i] if original_sentence[i] in {'.', ',', '!', '?'} else False for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+            "description": "Punctuation symbols ('.', ',', '!', '?') in the original sentence remain unchanged in the translated sentence."
+          },
+          {
+            "id": "Q3",
+            "expression": "all(original_sentence[i].isupper() == translated_sentence[i].isupper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+            "description": "Uppercase letters in the original sentence remain uppercase in the translated sentence, and lowercase letters remain lowercase."
+          },
+          {
+            "id": "Q4",
+            "expression": "all(original_sentence[i].islower() and translated_sentence[i] == M[ord(original_sentence[i]) - ord('a')] or original_sentence[i].isupper() and translated_sentence[i] == M[ord(original_sentence[i].lower()) - ord('a')].upper() for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)) if original_sentence[i].isalpha())",
+            "description": "Each letter in the original sentence is translated to its corresponding English letter using the mapping M, preserving case."
+          },
+          {
+            "id": "Q5",
+            "expression": "all(original_sentence[i] == '_' and translated_sentence[i] == ' ' for original_sentence, translated_sentence in zip(sentences, output_lines) for i in range(len(original_sentence)))",
+            "description": "Each underscore ('_') in the original Bytelandian sentence is replaced by a space (' ') in the translated English sentence."
+          }
+        ],
+        "repair_model_calls": 1,
+        "generation_errors": [],
+        "candidate_fingerprint": "7786b1d96092e5234d8d66b8ba82d63af870071173bdc78bc5c8709473eab887",
+        "verification_status": "CORRECT",
+        "decision_reason": "all_semantic_checks_clean",
+        "verification_model_calls": 1,
+        "checks": {
+          "interface": "OK",
+          "preconditions": "OK",
+          "postconditions": "OK",
+          "invariants": "OK",
+          "task_coverage": "OK",
+          "expression_description": "OK"
+        },
+        "confirmed_issues": [],
+        "candidate_issues": [],
+        "representation_issues": [],
+        "uncertainties": []
+      }
+    ],
+    "attempts_used": 3
+  },
+  "repair_attempts_used": 3,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 105.463,
+  "processing_error": null,
+  "finished_at": "2026-09-04T01:01:40.586258+00:00"
+}

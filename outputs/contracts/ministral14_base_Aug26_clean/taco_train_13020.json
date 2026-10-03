@@ -1,0 +1,72 @@
+{
+  "task_id": "taco_train_13020",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(4 <= int(n) <= 5000 and n <= int(m) <= 3*n for n, m in [line.split() for line in stdin.splitlines()[0:1]])",
+        "description": "The first line contains two integers n (4 ≤ n ≤ 5000) and m (n ≤ m ≤ 3n), representing the number of vertices and edges in the graph."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and all(1 <= int(v) <= n and 1 <= int(u) <= n for v, u in [line.split() for line in stdin.splitlines()[1:m+1]]))",
+        "description": "Each of the next m lines contains two integers v and u (1 ≤ v, u ≤ n), representing edges between vertices. The graph is connected, has no loops, and each vertex has degree ≤ 3."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(line.split()) == 1 and 1 <= int(line) <= n for line in stdin.splitlines()[m+1:])",
+        "description": "After initial placement, each subsequent line is either Nastya's starting vertex (first line) or her new vertex after each move (1 ≤ vertex ≤ n)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(len(output_line.split()) == 3 and all(1 <= int(v) <= n for v in output_line.split()) for output_line in stdout.splitlines() if output_line.strip())",
+        "description": "Each output line must contain exactly three integers (1 ≤ a, b, c ≤ n), representing the positions of the three bees."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "any(all(int(bee) == int(nastya) for bee in stdout.splitlines()[i].split()) or all(int(bee) != int(nastya) for bee in stdout.splitlines()[i].split()) and int(nastya) in [int(bee) for bee in stdout.splitlines()[i].split()] for i, nastya in enumerate(stdin.splitlines()[m+1:], 1))",
+        "description": "The game ends when at least one bee and Nastya are on the same vertex at any turn (either after bees move or after Nastya moves)."
+      },
+      {
+        "id": "Q2",
+        "expression": "len(stdout.splitlines()) <= n + 1",
+        "description": "The game terminates within n moves (n is the number of vertices), where n+1 accounts for the initial placement."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(len(stdout.splitlines()) == 0 or (len(stdout.splitlines()) == 1 and len(stdin.splitlines()) == m + 1) or (len(stdout.splitlines()) == i + 1 and len(stdin.splitlines()) == m + i + 1 for i in range(1, n + 1)))",
+        "description": "The interaction alternates strictly: initial placement (1 output line) followed by pairs of bee moves (output) and Nastya moves (input), until termination."
+      }
+    ],
+    "invariants": [
+      {
+        "id": "I1",
+        "expression": "all(1 <= int(v) <= n and 1 <= int(u) <= n and (v != u) for v, u in [line.split() for line in stdin.splitlines()[1:m+1]])",
+        "description": "The graph remains static with vertices labeled from 1 to n and edges connecting distinct vertices."
+      },
+      {
+        "id": "I2",
+        "expression": "all(degree(v) <= 3 for v in range(1, n + 1))",
+        "description": "The degree of every vertex in the graph is at most 3 throughout the game."
+      }
+    ]
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(4 <= int(n) <= 5000 and n <= int(m) <= 3*n for n, m in [line.split() for line in stdin.splitlines()[0:1]])\",\n      \"description\": \"The first line contains two integers n (4 ≤ n ≤ 5000) and m (n ≤ m ≤ 3n), representing the number of vertices and edges in the graph.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 and all(1 <= int(v) <= n and 1 <= int(u) <= n for v, u in [line.split() for line in stdin.splitlines()[1:m+1]]))\",\n      \"description\": \"Each of the next m lines contains two integers v and u (1 ≤ v, u ≤ n), representing edges between vertices. The graph is connected, has no loops, and each vertex has degree ≤ 3.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(line.split()) == 1 and 1 <= int(line) <= n for line in stdin.splitlines()[m+1:])\",\n      \"description\": \"After initial placement, each subsequent line is either Nastya's starting vertex (first line) or her new vertex after each move (1 ≤ vertex ≤ n).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(len(output_line.split()) == 3 and all(1 <= int(v) <= n for v in output_line.split()) for output_line in stdout.splitlines() if output_line.strip())\",\n      \"description\": \"Each output line must contain exactly three integers (1 ≤ a, b, c ≤ n), representing the positions of the three bees.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"any(all(int(bee) == int(nastya) for bee in stdout.splitlines()[i].split()) or all(int(bee) != int(nastya) for bee in stdout.splitlines()[i].split()) and int(nastya) in [int(bee) for bee in stdout.splitlines()[i].split()] for i, nastya in enumerate(stdin.splitlines()[m+1:], 1))\",\n      \"description\": \"The game ends when at least one bee and Nastya are on the same vertex at any turn (either after bees move or after Nastya moves).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"len(stdout.splitlines()) <= n + 1\",\n      \"description\": \"The game terminates within n moves (n is the number of vertices), where n+1 accounts for the initial placement.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(len(stdout.splitlines()) == 0 or (len(stdout.splitlines()) == 1 and len(stdin.splitlines()) == m + 1) or (len(stdout.splitlines()) == i + 1 and len(stdin.splitlines()) == m + i + 1 for i in range(1, n + 1)))\",\n      \"description\": \"The interaction alternates strictly: initial placement (1 output line) followed by pairs of bee moves (output) and Nastya moves (input), until termination.\"\n    }\n  ],\n  \"invariants\": [\n    {\n      \"id\": \"I1\",\n      \"expression\": \"all(1 <= int(v) <= n and 1 <= int(u) <= n and (v != u) for v, u in [line.split() for line in stdin.splitlines()[1:m+1]])\",\n      \"description\": \"The graph remains static with vertices labeled from 1 to n and edges connecting distinct vertices.\"\n    },\n    {\n      \"id\": \"I2\",\n      \"expression\": \"all(degree(v) <= 3 for v in range(1, n + 1))\",\n      \"description\": \"The degree of every vertex in the graph is at most 3 throughout the game.\"\n    }\n  ]\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2217,
+  "generated_tokens": 946,
+  "hit_output_limit": false,
+  "generation_seconds": 44.219,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:51:19.768803+00:00"
+}

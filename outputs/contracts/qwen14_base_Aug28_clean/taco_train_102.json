@@ -1,0 +1,75 @@
+{
+  "task_id": "taco_train_102",
+  "model": "qwen14-base-Aug28-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= k <= n <= 10**5",
+        "description": "Number of online courses (n) and main courses (k) are within the specified range."
+      },
+      {
+        "id": "P2",
+        "expression": "len(main_courses) == k",
+        "description": "The number of main courses provided matches the value of k."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= course <= n for course in main_courses)",
+        "description": "All main courses are within the valid range of course numbers."
+      },
+      {
+        "id": "P4",
+        "expression": "all(0 <= len(dependencies) <= n-1 for dependencies in course_dependencies)",
+        "description": "Each course has a valid number of dependencies."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= dependency <= n for dependency in dependencies for dependencies in course_dependencies)",
+        "description": "All dependencies are within the valid range of course numbers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "return_value == '-1' or (len(return_value.split()) == 2 + min_courses and all(1 <= int(course) <= n for course in return_value.split()[1:]))",
+        "description": "The output is either '-1' indicating no valid course order, or it consists of two lines: the first line is the minimum number of courses, and the second line is a list of course numbers in chronological order."
+      },
+      {
+        "id": "Q2",
+        "expression": "return_value == '-1' or all(int(course) in main_courses for course in return_value.split()[1:] if int(course) in main_courses)",
+        "description": "All main courses are included in the output if a valid course order exists."
+      },
+      {
+        "id": "Q3",
+        "expression": "return_value == '-1' or all(int(course) not in return_value.split()[1:] for course in range(1, n+1) if course not in main_courses and course not in [int(d) for dependencies in course_dependencies for d in dependencies])",
+        "description": "No unnecessary courses are included in the output if a valid course order exists."
+      },
+      {
+        "id": "Q4",
+        "expression": "return_value == '-1' or all(int(course) not in return_value.split()[1:] for course in range(1, n+1) if course not in main_courses and course not in [int(d) for dependencies in course_dependencies for d in dependencies])",
+        "description": "No unnecessary courses are included in the output if a valid course order exists."
+      },
+      {
+        "id": "Q5",
+        "expression": "return_value == '-1' or all(int(return_value.split()[1+i]) in [int(d) for d in course_dependencies[int(return_value.split()[1+i])-1]] for i in range(len(return_value.split())-2) if int(return_value.split()[1+i+1]) in course_dependencies[int(return_value.split()[1+i])-1])",
+        "description": "Each course in the output order satisfies its dependency requirements."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= k <= n <= 10**5\",\n      \"description\": \"Number of online courses (n) and main courses (k) are within the specified range.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(main_courses) == k\",\n      \"description\": \"The number of main courses provided matches the value of k.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= course <= n for course in main_courses)\",\n      \"description\": \"All main courses are within the valid range of course numbers.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(0 <= len(dependencies) <= n-1 for dependencies in course_dependencies)\",\n      \"description\": \"Each course has a valid number of dependencies.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= dependency <= n for dependency in dependencies for dependencies in course_dependencies)\",\n      \"description\": \"All dependencies are within the valid range of course numbers.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"return_value == '-1' or (len(return_value.split()) == 2 + min_courses and all(1 <= int(course) <= n for course in return_value.split()[1:]))\",\n      \"description\": \"The output is either '-1' indicating no valid course order, or it consists of two lines: the first line is the minimum number of courses, and the second line is a list of course numbers in chronological order.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"return_value == '-1' or all(int(course) in main_courses for course in return_value.split()[1:] if int(course) in main_courses)\",\n      \"description\": \"All main courses are included in the output if a valid course order exists.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"return_value == '-1' or all(int(course) not in return_value.split()[1:] for course in range(1, n+1) if course not in main_courses and course not in [int(d) for dependencies in course_dependencies for d in dependencies])\",\n      \"description\": \"No unnecessary courses are included in the output if a valid course order exists.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"return_value == '-1' or all(int(course) not in return_value.split()[1:] for course in range(1, n+1) if course not in main_courses and course not in [int(d) for dependencies in course_dependencies for d in dependencies])\",\n      \"description\": \"No unnecessary courses are included in the output if a valid course order exists.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"return_value == '-1' or all(int(return_value.split()[1+i]) in [int(d) for d in course_dependencies[int(return_value.split()[1+i])-1]] for i in range(len(return_value.split())-2) if int(return_value.split()[1+i+1]) in course_dependencies[int(return_value.split()[1+i])-1])\",\n      \"description\": \"Each course in the output order satisfies its dependency requirements.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1694,
+  "generated_tokens": 773,
+  "hit_output_limit": false,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T04:11:56.459825+00:00"
+}

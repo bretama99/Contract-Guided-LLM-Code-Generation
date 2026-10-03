@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_20738",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T17:16:12.343539+00:00",
+  "code": "import sys\nfrom heapq import nlargest\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    m = int(input[1])\n    k = int(input[2])\n    a = list(map(int, input[3:]))\n\n    def calculate_beauty(subarray):\n        return sum(nlargest(m, subarray))\n\n    # Initialize dp array where dp[i][j] is the max beauty we can get by splitting first i elements into j subarrays\n    dp = [[float('-inf')] * (k + 1) for _ in range(n + 1)]\n    dp[0][0] = 0\n\n    # To store the partition points\n    partition_points = [[-1] * (k + 1) for _ in range(n + 1)]\n\n    for i in range(1, n + 1):\n        for j in range(1, min(i // m, k) + 1):\n            for l in range(m, i - (j - 1) * m + 1):\n                current_beauty = calculate_beauty(a[i - l:i])\n                if dp[i - l][j - 1] + current_beauty > dp[i][j]:\n                    dp[i][j] = dp[i - l][j - 1] + current_beauty\n                    partition_points[i][j] = i - l\n\n    # Reconstruct the partition points\n    result_partitions = []\n    current_index = n\n    current_k = k\n    while current_k > 0:\n        result_partitions.append(partition_points[current_index][current_k])\n        current_index = partition_points[current_index][current_k]\n        current_k -= 1\n\n    result_partitions = sorted(result_partitions)\n\n    print(dp[n][k])\n    print(\" \".join(map(str, result_partitions)))\n\nif __name__ == \"__main__\":\n    main()"
+}

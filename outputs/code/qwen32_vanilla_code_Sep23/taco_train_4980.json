@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_4980",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T14:25:45.698948+00:00",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef read_input():\n    import sys\n    data = sys.stdin.read().strip().split('\\n')\n    A, B = map(int, data[0].split())\n    picture = data[1:]\n    return A, B, picture\n\ndef get_pieces(A, B, picture, X, Y):\n    pieces = []\n    for i in range(0, A, X):\n        for j in range(0, B, Y):\n            piece = []\n            for x in range(X):\n                piece.append(picture[i + x][j:j + Y])\n            pieces.append(''.join(piece))\n    return pieces\n\ndef is_good_puzzle(pieces):\n    seen = set()\n    for piece in pieces:\n        rotations = {piece[i:] + piece[:i] for i in range(len(piece))}\n        if any(rot in seen for rot in rotations):\n            return False\n        seen.add(piece)\n    return True\n\ndef main():\n    A, B, picture = read_input()\n    good_puzzles = []\n    min_area = float('inf')\n    min_piece = (float('inf'), float('inf'))\n    \n    for X in range(1, A + 1):\n        if A % X != 0:\n            continue\n        for Y in range(1, B + 1):\n            if B % Y != 0:\n                continue\n            pieces = get_pieces(A, B, picture, X, Y)\n            if is_good_puzzle(pieces):\n                good_puzzles.append((X, Y))\n                area = X * Y\n                if area < min_area or (area == min_area and X < min_piece[0]):\n                    min_area = area\n                    min_piece = (X, Y)\n    \n    print(len(good_puzzles))\n    print(min_piece[0], min_piece[1])\n\nif __name__ == \"__main__\":\n    main()"
+}

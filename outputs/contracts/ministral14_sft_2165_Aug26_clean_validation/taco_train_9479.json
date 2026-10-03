@@ -1,0 +1,283 @@
+{
+  "task_id": "taco_train_9479",
+  "task_index": 532,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(x, int) and x >= 0 for x in [a, b, c, d])",
+        "description": "a, b, c, d are non-negative integers"
+      },
+      {
+        "id": "P2",
+        "expression": "0 < a + b + c + d <= 10**5",
+        "description": "Total count of numbers is between 1 and 10^5 (inclusive)"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' if not possible else stdout.strip() == 'YES' and len(sequence) == a + b + c + d and all(abs(sequence[i] - sequence[i+1]) == 1 for i in range(len(sequence)-1)) and sequence.count(0) == a and sequence.count(1) == b and sequence.count(2) == c and sequence.count(3) == d",
+        "description": "If a valid sequence exists, output 'YES' followed by the sequence; otherwise output 'NO'. The sequence must be beautiful (consecutive differences of 1), contain exactly a 0s, b 1s, c 2s, and d 3s, and have length a+b+c+d"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(isinstance(x, int) and x >= 0 for x in [a, b, c, d])",
+        "description": "a, b, c, d are non-negative integers"
+      },
+      {
+        "id": "P2",
+        "expression": "0 < a + b + c + d <= 10**5",
+        "description": "Total count of numbers is between 1 and 10^5 (inclusive)"
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'NO' if not possible else stdout.strip() == 'YES' and len(sequence) == a + b + c + d and all(abs(sequence[i] - sequence[i+1]) == 1 for i in range(len(sequence)-1)) and sequence.count(0) == a and sequence.count(1) == b and sequence.count(2) == c and sequence.count(3) == d",
+        "description": "If a valid sequence exists, output 'YES' followed by the sequence; otherwise output 'NO'. The sequence must be beautiful (consecutive differences of 1), contain exactly a 0s, b 1s, c 2s, and d 3s, and have length a+b+c+d"
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "8e9c63ccfec49aec63d58ff5378ae3c3e1e339e0f5ca7f37337a1c87d03bce2b",
+  "selected_contract_fingerprint": "8e9c63ccfec49aec63d58ff5378ae3c3e1e339e0f5ca7f37337a1c87d03bce2b",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_9479.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly capture the impossibility condition (when no valid sequence exists). The current expression does not distinguish between 'NO' and 'YES' cases in terms of logical feasibility; it only checks the output format when a sequence exists. The task requires handling the impossibility case (e.g., when counts make a beautiful sequence impossible).",
+        "task_evidence": "If it is impossible to construct a beautiful sequence satisfying the above constraints, print 'NO' (without quotes) in one line.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly ensure that the sequence is constructible from the given counts (a, b, c, d). The current expression does not verify whether the counts can logically form a beautiful sequence (e.g., parity constraints, adjacency rules).",
+        "task_evidence": "He wants to construct a beautiful sequence using all of these a + b + c + d numbers.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly handle the case where the sequence is not beautiful (e.g., when consecutive elements differ by more than 1). The current expression only checks the output format but does not enforce the beautiful sequence property as a precondition for 'YES'.",
+        "task_evidence": "a sequence s_1, s_2, …, s_{n} is beautiful if |s_i - s_{i+1}| = 1 for all 1 ≤ i ≤ n - 1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly ensure that the sequence is valid only if it uses exactly a 0s, b 1s, c 2s, and d 3s. The current expression checks counts but does not enforce that the sequence is derived from these counts in a way that respects the beautiful property.",
+        "task_evidence": "There should be a numbers equal to 0, b numbers equal to 1, c numbers equal to 2 and d numbers equal to 3.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is underspecified. It does not capture the logical feasibility of constructing a beautiful sequence from the given counts. The expression must include a condition that checks whether the counts (a, b, c, d) can form a beautiful sequence (e.g., parity constraints, adjacency rules).",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 5
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly capture the impossibility condition (when no valid sequence exists). The current expression does not distinguish between 'NO' and 'YES' cases in terms of logical feasibility; it only checks the output format when a sequence exists. The task requires handling the impossibility case (e.g., when counts make a beautiful sequence impossible).",
+        "task_evidence": "If it is impossible to construct a beautiful sequence satisfying the above constraints, print 'NO' (without quotes) in one line.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly ensure that the sequence is constructible from the given counts (a, b, c, d). The current expression does not verify whether the counts can logically form a beautiful sequence (e.g., parity constraints, adjacency rules).",
+        "task_evidence": "He wants to construct a beautiful sequence using all of these a + b + c + d numbers.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly handle the case where the sequence is not beautiful (e.g., when consecutive elements differ by more than 1). The current expression only checks the output format but does not enforce the beautiful sequence property as a precondition for 'YES'.",
+        "task_evidence": "a sequence s_1, s_2, …, s_{n} is beautiful if |s_i - s_{i+1}| = 1 for all 1 ≤ i ≤ n - 1.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions[0].expression",
+        "action": "add",
+        "instruction": "The postcondition must explicitly ensure that the sequence is valid only if it uses exactly a 0s, b 1s, c 2s, and d 3s. The current expression checks counts but does not enforce that the sequence is derived from these counts in a way that respects the beautiful property.",
+        "task_evidence": "There should be a numbers equal to 0, b numbers equal to 1, c numbers equal to 2 and d numbers equal to 3.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "The expression is underspecified. It does not capture the logical feasibility of constructing a beautiful sequence from the given counts. The expression must include a condition that checks whether the counts (a, b, c, d) can form a beautiful sequence (e.g., parity constraints, adjacency rules).",
+        "task_evidence": "",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "missing_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions[0].expression"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 5
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 30.127,
+  "processing_error": null,
+  "finished_at": "2026-09-03T23:28:34.160262+00:00"
+}

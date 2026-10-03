@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_11103",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 100",
+        "description": "The first line of input is an integer n (1 ≤ n ≤ 100) representing the number of operators."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 or len(line.split()) == 2 for line in stdin.splitlines()[1:])",
+        "description": "Each subsequent line is either a 'typedef A B' or 'typeof A' operator, where A and B (if present) are valid type expressions."
+      },
+      {
+        "id": "P3",
+        "expression": "all('typedef' in line or 'typeof' in line for line in stdin.splitlines()[1:])",
+        "description": "Every operator line starts with either 'typedef' or 'typeof'."
+      },
+      {
+        "id": "P4",
+        "expression": "all('*' not in name and '&' not in name and name not in ['void', 'errtype'] for line in stdin.splitlines()[1:] for name in line.split() if name not in ['typedef', 'typeof'] and name.islower() and len(name) <= 20)",
+        "description": "Type names (B in typedef) are non-empty lowercase Latin letters (1-20 chars) and do not contain '*' or '&'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(len(line.split()[1]) <= 100 for line in stdin.splitlines()[1:] if 'typedef' in line)",
+        "description": "The type expression A in 'typedef A B' has no more than 100 characters (including '*' and '&')."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line in ['void', 'errtype'] or (stdout_line.startswith('void') and all(c in '*' for c in stdout_line[4:])) or stdout_line == 'errtype' for stdout_line in stdout.splitlines() if stdout_line)",
+        "description": "For every 'typeof A' operator, the output is either 'void' followed by zero or more '*' (e.g., 'void*', 'void**'), or 'errtype'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(stdout.splitlines()) == sum(1 for line in stdin.splitlines()[1:] if 'typeof' in line))",
+        "description": "The number of output lines equals the number of 'typeof' operators in the input."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(stdout.splitlines()[i] == resolve_type(stdin.splitlines()[1:][j]) for i, j in enumerate([k for k, line in enumerate(stdin.splitlines()[1:]) if 'typeof' in line]))",
+        "description": "Each output line corresponds to the resolved type of the 'typeof A' operator at the same position in the input, where resolve_type() is a function that computes the type according to the &K* rules."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(stdin.splitlines()[0]) <= 100\",\n      \"description\": \"The first line of input is an integer n (1 ≤ n ≤ 100) representing the number of operators.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 or len(line.split()) == 2 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each subsequent line is either a 'typedef A B' or 'typeof A' operator, where A and B (if present) are valid type expressions.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all('typedef' in line or 'typeof' in line for line in stdin.splitlines()[1:])\",\n      \"description\": \"Every operator line starts with either 'typedef' or 'typeof'.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all('*' not in name and '&' not in name and name not in ['void', 'errtype'] for line in stdin.splitlines()[1:] for name in line.split() if name not in ['typedef', 'typeof'] and name.islower() and len(name) <= 20)\",\n      \"description\": \"Type names (B in typedef) are non-empty lowercase Latin letters (1-20 chars) and do not contain '*' or '&'.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(len(line.split()[1]) <= 100 for line in stdin.splitlines()[1:] if 'typedef' in line)\",\n      \"description\": \"The type expression A in 'typedef A B' has no more than 100 characters (including '*' and '&').\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line in ['void', 'errtype'] or (stdout_line.startswith('void') and all(c in '*' for c in stdout_line[4:])) or stdout_line == 'errtype' for stdout_line in stdout.splitlines() if stdout_line)\",\n      \"description\": \"For every 'typeof A' operator, the output is either 'void' followed by zero or more '*' (e.g., 'void*', 'void**'), or 'errtype'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(stdout.splitlines()) == sum(1 for line in stdin.splitlines()[1:] if 'typeof' in line))\",\n      \"description\": \"The number of output lines equals the number of 'typeof' operators in the input.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(stdout.splitlines()[i] == resolve_type(stdin.splitlines()[1:][j]) for i, j in enumerate([k for k, line in enumerate(stdin.splitlines()[1:]) if 'typeof' in line]))\",\n      \"description\": \"Each output line corresponds to the resolved type of the 'typeof A' operator at the same position in the input, where resolve_type() is a function that computes the type according to the &K* rules.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2138,
+  "generated_tokens": 765,
+  "hit_output_limit": false,
+  "generation_seconds": 33.559,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:25:45.993154+00:00"
+}

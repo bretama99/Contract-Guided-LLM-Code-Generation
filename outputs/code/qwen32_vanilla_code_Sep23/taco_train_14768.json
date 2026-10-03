@@ -1,0 +1,9 @@
+{
+  "task_id": "taco_train_14768",
+  "dataset": "taco",
+  "workflow": "vanilla",
+  "provider": "local_transformers",
+  "model": "qwen32_vanilla_Sep23",
+  "generated_at": "2026-09-23T15:00:06.946589+00:00",
+  "code": "import sys\nfrom collections import defaultdict\nfrom math import comb\n\ndef find(parent, i):\n    if parent[i] != i:\n        parent[i] = find(parent, parent[i])\n    return parent[i]\n\ndef union(parent, rank, x, y):\n    xroot = find(parent, x)\n    yroot = find(parent, y)\n\n    if rank[xroot] < rank[yroot]:\n        parent[xroot] = yroot\n    elif rank[xroot] > rank[yroot]:\n        parent[yroot] = xroot\n    else:\n        parent[yroot] = xroot\n        rank[xroot] += 1\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    m = int(input[1])\n    k = int(input[2])\n\n    edges = []\n    index = 3\n    for _ in range(m):\n        a = int(input[index]) - 1\n        b = int(input[index + 1]) - 1\n        edges.append((a, b))\n        index += 2\n\n    parent = list(range(n))\n    rank = [0] * n\n\n    for a, b in edges:\n        union(parent, rank, a, b)\n\n    components = defaultdict(list)\n    for node in range(n):\n        root = find(parent, node)\n        components[root].append(node)\n\n    total_ways = 1\n    for component in components.values():\n        size = len(component)\n        if size > 1:\n            total_ways *= comb(size * (size - 1) // 2, m - len(edges) + sum(1 for c in components.values() if len(c) == 1))\n            total_ways %= k\n\n    print(total_ways % k)\n\nif __name__ == \"__main__\":\n    main()"
+}

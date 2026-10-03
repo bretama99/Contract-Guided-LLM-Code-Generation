@@ -1,0 +1,23 @@
+{
+  "task_id": "taco_train_3462",
+  "dataset": "taco",
+  "workflow": "contract_guided",
+  "provider": "local_transformers",
+  "model": "qwen14-base-from-base-Aug28-clean",
+  "model_type": "qwen2",
+  "attention_implementation": "sdpa",
+  "starter_code_included": false,
+  "reference_solution_included": false,
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen14_base_Aug28_clean/taco_train_3462.json",
+  "contract_source": "parsed_contract",
+  "contract_schema_ok": true,
+  "raw_response": "```python\nMOD = 10**9 + 7\n\ndef main():\n    import sys\n    input = sys.stdin.read\n    data = input().split()\n    \n    n = int(data[0])\n    m = int(data[1])\n    \n    vectors = []\n    index = 2\n    for _ in range(n):\n        k = int(data[index])\n        if k == 1:\n            vectors.append(1 << (int(data[index + 1]) - 1))\n        elif k == 2:\n            x1 = int(data[index + 1])\n            x2 = int(data[index + 2])\n            vectors.append((1 << (x1 - 1)) | (1 << (x2 - 1)))\n        index += k + 1\n    \n    # Calculate the size of T\n    seen = set()\n    for vector in vectors:\n        for s in list(seen):\n            seen.add(s ^ vector)\n        seen.add(vector)\n    seen.add(0)\n    result_size = len(seen) % MOD\n    \n    # Find the smallest subset S'\n    from collections import defaultdict\n    from heapq import heappush, heappop\n    \n    dp = defaultdict(lambda: float('inf'))\n    dp[0] = 0\n    parent = {}\n    \n    pq = [(0, 0)]\n    while pq:\n        cost, state = heappop(pq)\n        if cost > dp[state]:\n            continue\n        for i, vector in enumerate(vectors):\n            new_state = state ^ vector\n            if dp[new_state] > cost + 1:\n                dp[new_state] = cost + 1\n                parent[new_state] = (state, i)\n                heappush(pq, (cost + 1, new_state))\n    \n    target_state = (1 << m) - 1\n    S_prime_indices = []\n    while target_state != 0:\n        _, i = parent[target_state]\n        S_prime_indices.append(i + 1)\n        target_state ^= vectors[i]\n    \n    S_prime_indices.sort()\n    \n    print(result_size, len(S_prime_indices))\n    print(*S_prime_indices)\n\nif __name__ == \"__main__\":\n    main()\n```",
+  "code": "MOD = 10**9 + 7\n\ndef main():\n    import sys\n    input = sys.stdin.read\n    data = input().split()\n    \n    n = int(data[0])\n    m = int(data[1])\n    \n    vectors = []\n    index = 2\n    for _ in range(n):\n        k = int(data[index])\n        if k == 1:\n            vectors.append(1 << (int(data[index + 1]) - 1))\n        elif k == 2:\n            x1 = int(data[index + 1])\n            x2 = int(data[index + 2])\n            vectors.append((1 << (x1 - 1)) | (1 << (x2 - 1)))\n        index += k + 1\n    \n    # Calculate the size of T\n    seen = set()\n    for vector in vectors:\n        for s in list(seen):\n            seen.add(s ^ vector)\n        seen.add(vector)\n    seen.add(0)\n    result_size = len(seen) % MOD\n    \n    # Find the smallest subset S'\n    from collections import defaultdict\n    from heapq import heappush, heappop\n    \n    dp = defaultdict(lambda: float('inf'))\n    dp[0] = 0\n    parent = {}\n    \n    pq = [(0, 0)]\n    while pq:\n        cost, state = heappop(pq)\n        if cost > dp[state]:\n            continue\n        for i, vector in enumerate(vectors):\n            new_state = state ^ vector\n            if dp[new_state] > cost + 1:\n                dp[new_state] = cost + 1\n                parent[new_state] = (state, i)\n                heappush(pq, (cost + 1, new_state))\n    \n    target_state = (1 << m) - 1\n    S_prime_indices = []\n    while target_state != 0:\n        _, i = parent[target_state]\n        S_prime_indices.append(i + 1)\n        target_state ^= vectors[i]\n    \n    S_prime_indices.sort()\n    \n    print(result_size, len(S_prime_indices))\n    print(*S_prime_indices)\n\nif __name__ == \"__main__\":\n    main()",
+  "prompt_tokens": 1823,
+  "generated_tokens": 462,
+  "max_new_tokens_used": 4096,
+  "hit_output_limit": false,
+  "generation_seconds": 21.691,
+  "generation_issue": null,
+  "generated_at": "2026-08-29T05:27:05.629874+00:00"
+}

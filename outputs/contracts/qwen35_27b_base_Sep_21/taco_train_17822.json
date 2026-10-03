@@ -1,0 +1,60 @@
+{
+  "task_id": "taco_train_17822",
+  "task_index": 136,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 2500 and 1 <= m <= 2500 and 1 <= q <= 100000",
+        "description": "Grid dimensions n, m and number of queries q are within specified bounds."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= t <= 3 and 1 <= r1 <= n and 1 <= r2 <= n and 1 <= c1 <= m and 1 <= c2 <= m for t, r1, c1, r2, c2 in queries)",
+        "description": "Each query has a valid type t and coordinates within the grid bounds."
+      },
+      {
+        "id": "P3",
+        "expression": "all((2 <= r1 <= r2 <= n - 1 and 2 <= c1 <= c2 <= m - 1) if t == 1 else True for t, r1, c1, r2, c2 in queries)",
+        "description": "For type 1 (add barrier), the rectangle is strictly inside the grid boundaries (not touching the outer border)."
+      },
+      {
+        "id": "P4",
+        "expression": "all((2 <= r1 <= r2 <= n - 1 and 2 <= c1 <= c2 <= m - 1) if t == 2 else True for t, r1, c1, r2, c2 in queries)",
+        "description": "For type 2 (remove barrier), the rectangle is strictly inside the grid boundaries."
+      },
+      {
+        "id": "P5",
+        "expression": "True",
+        "description": "The problem statement guarantees that barriers do not intersect or share points, and type 2 queries only remove existing barriers."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(output_lines) == len([q for q in queries if q[0] == 3])",
+        "description": "The number of output lines equals the number of type 3 queries."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line in ['Yes', 'No'] for line in output_lines)",
+        "description": "Each output line is either 'Yes' or 'No'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((output_lines[i] == 'Yes') == (is_reachable(queries[:i+1], r1, c1, r2, c2)) for i, (t, r1, c1, r2, c2) in enumerate(queries) if t == 3)",
+        "description": "For each type 3 query, the output is 'Yes' if and only if there exists a path from (r1, c1) to (r2, c2) that does not cross any currently active barriers, and 'No' otherwise. The set of active barriers is determined by the sequence of type 1 and type 2 queries preceding the current query."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 71.967,
+  "seed": 178,
+  "generated_at": "2026-09-21T07:31:51.449314+00:00"
+}

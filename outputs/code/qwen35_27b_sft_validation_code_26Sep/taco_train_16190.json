@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_16190",
+  "task_index": 434,
+  "dataset": "taco",
+  "model": "qwen35_27b_sft_validation_code_26Sep",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/verification/qwen35_27b_sft_validation_contract_26Sep/taco_train_16190.json",
+  "code": "import sys\nfrom collections import defaultdict, deque\nimport heapq\n\ndef solve():\n    lines = sys.stdin.read().splitlines()\n    idx = 0\n    first_case = True\n    \n    while idx < len(lines):\n        line = lines[idx].strip()\n        if not line:\n            idx += 1\n            continue\n        try:\n            n = int(line)\n        except ValueError:\n            idx += 1\n            continue\n        \n        if n == 0:\n            break\n        \n        idx += 1\n        packages = []\n        deps_map = {}\n        \n        for _ in range(n):\n            parts = lines[idx].split()\n            idx += 1\n            pkg = parts[0]\n            deps = parts[1:] if len(parts) > 1 else []\n            packages.append(pkg)\n            deps_map[pkg] = deps\n        \n        adj = defaultdict(list)\n        in_degree = {pkg: 0 for pkg in packages}\n        \n        for pkg in packages:\n            for dep in deps_map[pkg]:\n                if dep in packages:\n                    adj[dep].append(pkg)\n                    in_degree[pkg] += 1\n        \n        heap = []\n        for pkg in packages:\n            if in_degree[pkg] == 0:\n                heapq.heappush(heap, pkg)\n        \n        result = []\n        processed = set()\n        \n        while heap:\n            current = heapq.heappop(heap)\n            result.append(current)\n            processed.add(current)\n            \n            for neighbor in adj[current]:\n                in_degree[neighbor] -= 1\n                if in_degree[neighbor] == 0:\n                    heapq.heappush(heap, neighbor)\n        \n        if len(result) != n:\n            if not first_case:\n                print()\n            print(\"cannot be ordered\")\n        else:\n            if not first_case:\n                print()\n            for pkg in result:\n                print(pkg)\n        \n        first_case = False\n\nsolve()",
+  "generation_seconds": 40.998,
+  "generated_at": "2026-09-26T21:35:28.927074+00:00"
+}

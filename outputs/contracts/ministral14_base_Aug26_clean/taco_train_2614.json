@@ -1,0 +1,66 @@
+{
+  "task_id": "taco_train_2614",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.split()[0]) <= 2 * 10**5",
+        "description": "The number of junctions n is an integer between 1 and 200,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.split()[1:1+n]) == n and all(-10**4 <= int(s) <= 10**4 for s in stdin.split()[1:1+n])",
+        "description": "The junction constraints s_1, ..., s_n are n integers, each between -10,000 and 10,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "0 <= int(stdin.split()[1+n]) <= 2 * 10**5",
+        "description": "The number of pipes m is an integer between 0 and 200,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "m == 0 or (len(stdin.split()[2+n:]) == 2*m and all(1 <= int(x) <= n and 1 <= int(y) <= n and int(x) != int(y) for x, y in zip(stdin.split()[2+n:2+n:2], stdin.split()[3+n:3+n:2])))",
+        "description": "Each of the m pipes connects two distinct junctions x_i and y_i, where 1 ≤ x_i, y_i ≤ n. No duplicate unordered pairs (x_i, y_i) exist."
+      },
+      {
+        "id": "P5",
+        "expression": "sum(int(s) for s in stdin.split()[1:1+n]) == 0",
+        "description": "The sum of all junction constraints s_i must be zero (conservation of flow)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'Possible' if any(all(sum(f_i for i, (x_i, y_i) in enumerate(pipes, 1) if (x_i == j and y_i != j) or (y_i == j and x_i != j)) - sum(f_i for i, (x_i, y_i) in enumerate(pipes, 1) if (x_i != j and y_i == j) or (y_i != j and x_i == j)) == s_j for j in range(1, n+1)) for f in product(*[range(-2*10**9, 2*10**9+1) for _ in range(m)])) else stdout.strip() == 'Impossible'",
+        "description": "If there exists a set of integer pipe flows f_1, ..., f_m (each between -2*10^9 and 2*10^9) such that for every junction j, the net flow (incoming - outgoing) equals s_j, then output 'Possible' followed by the m flow values. Otherwise, output 'Impossible'."
+      },
+      {
+        "id": "Q2",
+        "expression": "stdout.count('\\n') == m + 1 if stdout.strip() == 'Possible' else stdout.count('\\n') == 0",
+        "description": "If 'Possible', the output must contain exactly m+1 lines: the first line is 'Possible', followed by m lines of integer flow values. If 'Impossible', the output must contain exactly one line."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(-2*10**9 <= int(f) <= 2*10**9 for f in stdout.split()[1:]) if stdout.strip() == 'Possible' else True",
+        "description": "Each output flow value f_i must be an integer between -2*10^9 and 2*10^9 inclusive."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= int(stdin.split()[0]) <= 2 * 10**5\",\n      \"description\": \"The number of junctions n is an integer between 1 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(stdin.split()[1:1+n]) == n and all(-10**4 <= int(s) <= 10**4 for s in stdin.split()[1:1+n])\",\n      \"description\": \"The junction constraints s_1, ..., s_n are n integers, each between -10,000 and 10,000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"0 <= int(stdin.split()[1+n]) <= 2 * 10**5\",\n      \"description\": \"The number of pipes m is an integer between 0 and 200,000 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"m == 0 or (len(stdin.split()[2+n:]) == 2*m and all(1 <= int(x) <= n and 1 <= int(y) <= n and int(x) != int(y) for x, y in zip(stdin.split()[2+n:2+n:2], stdin.split()[3+n:3+n:2])))\",\n      \"description\": \"Each of the m pipes connects two distinct junctions x_i and y_i, where 1 ≤ x_i, y_i ≤ n. No duplicate unordered pairs (x_i, y_i) exist.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"sum(int(s) for s in stdin.split()[1:1+n]) == 0\",\n      \"description\": \"The sum of all junction constraints s_i must be zero (conservation of flow).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip() == 'Possible' if any(all(sum(f_i for i, (x_i, y_i) in enumerate(pipes, 1) if (x_i == j and y_i != j) or (y_i == j and x_i != j)) - sum(f_i for i, (x_i, y_i) in enumerate(pipes, 1) if (x_i != j and y_i == j) or (y_i != j and x_i == j)) == s_j for j in range(1, n+1)) for f in product(*[range(-2*10**9, 2*10**9+1) for _ in range(m)])) else stdout.strip() == 'Impossible'\",\n      \"description\": \"If there exists a set of integer pipe flows f_1, ..., f_m (each between -2*10^9 and 2*10^9) such that for every junction j, the net flow (incoming - outgoing) equals s_j, then output 'Possible' followed by the m flow values. Otherwise, output 'Impossible'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"stdout.count('\\\\n') == m + 1 if stdout.strip() == 'Possible' else stdout.count('\\\\n') == 0\",\n      \"description\": \"If 'Possible', the output must contain exactly m+1 lines: the first line is 'Possible', followed by m lines of integer flow values. If 'Impossible', the output must contain exactly one line.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(-2*10**9 <= int(f) <= 2*10**9 for f in stdout.split()[1:]) if stdout.strip() == 'Possible' else True\",\n      \"description\": \"Each output flow value f_i must be an integer between -2*10^9 and 2*10^9 inclusive.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1738,
+  "generated_tokens": 938,
+  "hit_output_limit": false,
+  "generation_seconds": 40.947,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:02:10.600542+00:00"
+}

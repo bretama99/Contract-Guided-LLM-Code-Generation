@@ -1,0 +1,257 @@
+{
+  "task_id": "taco_train_19295",
+  "task_index": 870,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(s) >= 1 and len(s) <= 5000000 and all(c.islower() for c in s)",
+        "description": "Input string s is non-empty, consists of lowercase English letters, and has length up to 5,000,000."
+      },
+      {
+        "id": "P2",
+        "expression": "1 <= k <= len(s)",
+        "description": "Integer k is at least 1 and at most the length of s."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(t) >= 1 for t in t_list) and len(t_list) <= k and ''.join(t_list) == s",
+        "description": "The string s is partitioned into at most k non-empty substrings t_list."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(t == t_list[i] or t == t_list[i][::-1] for i, t in enumerate(t_prime_list)) and ''.join(t_prime_list) == stdout",
+        "description": "Each substring in t_list is either kept as-is or reversed to form t_prime_list, which is concatenated to produce the lexicographically smallest possible string stdout."
+      },
+      {
+        "id": "Q3",
+        "expression": "not any(stdout < candidate for candidate in possible_outputs) and all(candidate >= stdout for candidate in possible_outputs)",
+        "description": "The output stdout is the lexicographically smallest string achievable by any valid partition and reversal operation."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "len(s) >= 1 and len(s) <= 5000000 and all(c.islower() for c in s)",
+        "description": "Input string s is non-empty, consists of lowercase English letters, and has length up to 5,000,000."
+      },
+      {
+        "id": "P2",
+        "expression": "1 <= k <= len(s)",
+        "description": "Integer k is at least 1 and at most the length of s."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(t) >= 1 for t in t_list) and len(t_list) <= k and ''.join(t_list) == s",
+        "description": "The string s is partitioned into at most k non-empty substrings t_list."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(t == t_list[i] or t == t_list[i][::-1] for i, t in enumerate(t_prime_list)) and ''.join(t_prime_list) == stdout",
+        "description": "Each substring in t_list is either kept as-is or reversed to form t_prime_list, which is concatenated to produce the lexicographically smallest possible string stdout."
+      },
+      {
+        "id": "Q3",
+        "expression": "not any(stdout < candidate for candidate in possible_outputs) and all(candidate >= stdout for candidate in possible_outputs)",
+        "description": "The output stdout is the lexicographically smallest string achievable by any valid partition and reversal operation."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "629e5a4ddc5aca0ad10bec77985b9a499939c2a64aafa73e00a60d95b1aa5f3b",
+  "selected_contract_fingerprint": "629e5a4ddc5aca0ad10bec77985b9a499939c2a64aafa73e00a60d95b1aa5f3b",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_19295.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that directly captures the lexicographically smallest string requirement without relying on an undefined `possible_outputs` set. The expression must be constructively verifiable (e.g., via a greedy or dynamic programming approach) and not rely on existential quantification over all possible outputs.",
+        "task_evidence": "Your task is to determine the lexicographically smallest string that could be the result of applying the given operation to the string s.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly states the output `stdout` is derived from a valid partition of `s` into at most `k` non-empty substrings, where each substring is either kept or reversed, and the concatenation of these substrings (in order) forms `stdout`.",
+        "task_evidence": "A line is split into at most k non-empty substrings... The lines are concatenated back in the same order, we get string s' = t'1t'2... t'm, where t'i equals ti or tir.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output `stdout` is the lexicographically smallest string achievable by any valid partition and reversal operation, expressed constructively (e.g., via a greedy or dynamic programming approach).",
+        "task_evidence": "Your task is to determine the lexicographically smallest string that could be the result of applying the given operation to the string s.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "OK",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[2].expression",
+        "action": "replace",
+        "instruction": "Replace the expression with one that directly captures the lexicographically smallest string requirement without relying on an undefined `possible_outputs` set. The expression must be constructively verifiable (e.g., via a greedy or dynamic programming approach) and not rely on existential quantification over all possible outputs.",
+        "task_evidence": "Your task is to determine the lexicographically smallest string that could be the result of applying the given operation to the string s.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that explicitly states the output `stdout` is derived from a valid partition of `s` into at most `k` non-empty substrings, where each substring is either kept or reversed, and the concatenation of these substrings (in order) forms `stdout`.",
+        "task_evidence": "A line is split into at most k non-empty substrings... The lines are concatenated back in the same order, we get string s' = t'1t'2... t'm, where t'i equals ti or tir.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition that ensures the output `stdout` is the lexicographically smallest string achievable by any valid partition and reversal operation, expressed constructively (e.g., via a greedy or dynamic programming approach).",
+        "task_evidence": "Your task is to determine the lexicographically smallest string that could be the result of applying the given operation to the string s.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 1,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 3
+      }
+    ],
+    "model_calls": 2,
+    "errors": []
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 19.956,
+  "processing_error": null,
+  "finished_at": "2026-09-04T10:41:30.437336+00:00"
+}

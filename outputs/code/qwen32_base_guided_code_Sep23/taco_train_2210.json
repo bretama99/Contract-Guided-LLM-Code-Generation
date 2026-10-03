@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_2210",
+  "task_index": 422,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_2210.json",
+  "code": "import sys\nimport heapq\n\ndef dijkstra(n, edges, start):\n    dist = [float('inf')] * (n + 1)\n    dist[start] = 0\n    pq = [(0, start)]\n    while pq:\n        current_dist, u = heapq.heappop(pq)\n        if current_dist > dist[u]:\n            continue\n        for v, weight in edges[u]:\n            distance = current_dist + weight\n            if distance < dist[v]:\n                dist[v] = distance\n                heapq.heappush(pq, (distance, v))\n    return dist\n\ndef solve(n, m, k, roads):\n    edges = [[] for _ in range(n + 1)]\n    for a, b, c in roads:\n        edges[a].append((b, c))\n        edges[b].append((a, c))\n    \n    dist_from_a = dijkstra(n, edges, roads[k-1][0])\n    dist_from_b = dijkstra(n, edges, roads[k-1][1])\n    a, b, length = roads[k-1]\n    \n    def max_distance(x):\n        return max(dist_from_a[i] + x if i != b else x for i in range(1, n + 1))\n    \n    left, right = 0, length\n    best_x = 0\n    best_max_dist = float('inf')\n    \n    while right - left > 1e-6:\n        mid = (left + right) / 2\n        mid_max_dist = max_distance(mid)\n        if mid_max_dist <= best_max_dist:\n            best_x = mid\n            best_max_dist = mid_max_dist\n            right = mid\n        else:\n            left = mid\n    \n    return f\"{best_x:.5f} {best_max_dist:.5f}\"\n\nimport sys\ninput = sys.stdin.read().split()\nindex = 0\nt = int(input[index])\nindex += 1\nresults = []\n\nfor _ in range(t):\n    n = int(input[index])\n    m = int(input[index + 1])\n    k = int(input[index + 2])\n    index += 3\n    roads = []\n    for _ in range(m):\n        a = int(input[index])\n        b = int(input[index + 1])\n        c = int(input[index + 2])\n        roads.append((a, b, c))\n        index += 3\n    results.append(solve(n, m, k, roads))\n\nfor result in results:\n    print(result)",
+  "generation_seconds": 48.199,
+  "generated_at": "2026-09-23T20:44:43.665703+00:00"
+}

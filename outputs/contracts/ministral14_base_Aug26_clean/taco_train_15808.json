@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_15808",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t == int(t) and 1 <= t <= 10**4",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10^4) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(line.strip() == '' for line in stdin.splitlines()[1:2*t] if line.strip() != '')",
+        "description": "Each test case is preceded by an empty line (except possibly the first line)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(len(lines) == n + 1 for lines in [stdin.splitlines()[i:i+n+1] for i in range(2*t, len(stdin.splitlines()), n+2)])",
+        "description": "Each test case consists of n+1 lines: the first line contains n and k, followed by n-1 lines of edges."
+      },
+      {
+        "id": "P4",
+        "expression": "all(all(u == int(u) and v == int(v) and 1 <= u <= n and 1 <= v <= n and u != v for u, v in [line.split() for line in lines[1:]]) for lines in [stdin.splitlines()[i:i+n+1] for i in range(2*t, len(stdin.splitlines()), n+2)])",
+        "description": "Each edge is a pair of integers u and v (1 ≤ u, v ≤ n, u ≠ v) representing vertices connected by an edge."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= n <= 4*10**5 and 1 <= k <= 2*10**5 for n, k in [tuple(map(int, line.split())) for line in stdin.splitlines()[2*t::n+2]])",
+        "description": "For each test case, n (1 ≤ n ≤ 4*10^5) is the number of vertices, and k (1 ≤ k ≤ 2*10^5) is the number of operations."
+      },
+      {
+        "id": "P6",
+        "expression": "sum(int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]) <= 4*10**5",
+        "description": "The sum of n across all test cases does not exceed 4*10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(stdout.splitlines()) == t for _ in range(t))",
+        "description": "The output contains exactly t lines, one for each test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(output_line == str(int(output_line)) for output_line in stdout.splitlines())",
+        "description": "Each output line is a single integer representing the number of vertices remaining after k operations."
+      },
+      {
+        "id": "Q3",
+        "expression": "all(0 <= int(output_line) <= n for output_line, n in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]]))",
+        "description": "The output integer for each test case is between 0 and n (inclusive), representing the remaining vertices after k operations."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(remaining_vertices == 0 if k >= max_operations else remaining_vertices == n - k * leaves_removed for remaining_vertices, n, k, max_operations, leaves_removed in zip([int(line) for line in stdout.splitlines()], [int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [int(line.split()[1]) for line in stdin.splitlines()[2*t::n+2]], [max_operations_for_tree(n, edges) for n, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [stdin.splitlines()[i+1:i+n] for i in range(2*t, len(stdin.splitlines()), n+2)])], [leaves_removed_per_operation(n, edges) for n, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [stdin.splitlines()[i+1:i+n] for i in range(2*t, len(stdin.splitlines()), n+2)])]))",
+        "description": "For each test case, the output is 0 if k ≥ max_operations (the number of operations needed to remove all vertices), otherwise it is n - k * leaves_removed_per_operation, where leaves_removed_per_operation is the number of leaves removed in each operation (which is constant until the tree is reduced to 0 or 1 vertex)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all(remaining_vertices == 0 if n == 1 and k >= 1 else remaining_vertices == 0 if n == 2 and k >= 1 else remaining_vertices == max(0, n - k) if n <= 2 else remaining_vertices == max(0, n - k * leaves_removed_per_operation) for remaining_vertices, n, k, leaves_removed_per_operation in zip([int(line) for line in stdout.splitlines()], [int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [int(line.split()[1]) for line in stdin.splitlines()[2*t::n+2]], [leaves_removed_per_operation(n, edges) for n, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [stdin.splitlines()[i+1:i+n] for i in range(2*t, len(stdin.splitlines()), n+2)])]))",
+        "description": "For special cases: if n=1 and k≥1, or n=2 and k≥1, the result is 0. Otherwise, the result is max(0, n - k * leaves_removed_per_operation), where leaves_removed_per_operation is the number of leaves removed in each operation (constant until the tree is reduced to 0 or 1 vertex)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"t == int(t) and 1 <= t <= 10**4\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10^4) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(line.strip() == '' for line in stdin.splitlines()[1:2*t] if line.strip() != '')\",\n      \"description\": \"Each test case is preceded by an empty line (except possibly the first line).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(len(lines) == n + 1 for lines in [stdin.splitlines()[i:i+n+1] for i in range(2*t, len(stdin.splitlines()), n+2)])\",\n      \"description\": \"Each test case consists of n+1 lines: the first line contains n and k, followed by n-1 lines of edges.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(all(u == int(u) and v == int(v) and 1 <= u <= n and 1 <= v <= n and u != v for u, v in [line.split() for line in lines[1:]]) for lines in [stdin.splitlines()[i:i+n+1] for i in range(2*t, len(stdin.splitlines()), n+2)])\",\n      \"description\": \"Each edge is a pair of integers u and v (1 ≤ u, v ≤ n, u ≠ v) representing vertices connected by an edge.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= n <= 4*10**5 and 1 <= k <= 2*10**5 for n, k in [tuple(map(int, line.split())) for line in stdin.splitlines()[2*t::n+2]])\",\n      \"description\": \"For each test case, n (1 ≤ n ≤ 4*10^5) is the number of vertices, and k (1 ≤ k ≤ 2*10^5) is the number of operations.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"sum(int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]) <= 4*10**5\",\n      \"description\": \"The sum of n across all test cases does not exceed 4*10^5.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(stdout.splitlines()) == t for _ in range(t))\",\n      \"description\": \"The output contains exactly t lines, one for each test case.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(output_line == str(int(output_line)) for output_line in stdout.splitlines())\",\n      \"description\": \"Each output line is a single integer representing the number of vertices remaining after k operations.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all(0 <= int(output_line) <= n for output_line, n in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]]))\",\n      \"description\": \"The output integer for each test case is between 0 and n (inclusive), representing the remaining vertices after k operations.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(remaining_vertices == 0 if k >= max_operations else remaining_vertices == n - k * leaves_removed for remaining_vertices, n, k, max_operations, leaves_removed in zip([int(line) for line in stdout.splitlines()], [int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [int(line.split()[1]) for line in stdin.splitlines()[2*t::n+2]], [max_operations_for_tree(n, edges) for n, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [stdin.splitlines()[i+1:i+n] for i in range(2*t, len(stdin.splitlines()), n+2)])], [leaves_removed_per_operation(n, edges) for n, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [stdin.splitlines()[i+1:i+n] for i in range(2*t, len(stdin.splitlines()), n+2)])]))\",\n      \"description\": \"For each test case, the output is 0 if k ≥ max_operations (the number of operations needed to remove all vertices), otherwise it is n - k * leaves_removed_per_operation, where leaves_removed_per_operation is the number of leaves removed in each operation (which is constant until the tree is reduced to 0 or 1 vertex).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all(remaining_vertices == 0 if n == 1 and k >= 1 else remaining_vertices == 0 if n == 2 and k >= 1 else remaining_vertices == max(0, n - k) if n <= 2 else remaining_vertices == max(0, n - k * leaves_removed_per_operation) for remaining_vertices, n, k, leaves_removed_per_operation in zip([int(line) for line in stdout.splitlines()], [int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [int(line.split()[1]) for line in stdin.splitlines()[2*t::n+2]], [leaves_removed_per_operation(n, edges) for n, edges in zip([int(line.split()[0]) for line in stdin.splitlines()[2*t::n+2]], [stdin.splitlines()[i+1:i+n] for i in range(2*t, len(stdin.splitlines()), n+2)])]))\",\n      \"description\": \"For special cases: if n=1 and k≥1, or n=2 and k≥1, the result is 0. Otherwise, the result is max(0, n - k * leaves_removed_per_operation), where leaves_removed_per_operation is the number of leaves removed in each operation (constant until the tree is reduced to 0 or 1 vertex).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1828,
+  "generated_tokens": 1480,
+  "hit_output_limit": false,
+  "generation_seconds": 66.004,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T20:22:55.147371+00:00"
+}

@@ -1,0 +1,76 @@
+{
+  "task_id": "taco_train_21647",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "n == int(stdin.split()[0]) and n >= 1 and n <= 10**5",
+        "description": "The first line of input is an integer n (1 ≤ n ≤ 10^5) representing the number of stones."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 3 for line in stdin.splitlines()[1:])",
+        "description": "Each of the next n lines contains exactly three integers a_i, b_i, c_i (1 ≤ a_i, b_i, c_i ≤ 10^9) representing the edge lengths of the i-th stone."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(a) <= 10**9 and 1 <= int(b) <= 10**9 and 1 <= int(c) <= 10**9 for line in stdin.splitlines()[1:] for a, b, c in [line.split()])",
+        "description": "Each edge length a_i, b_i, c_i is a positive integer between 1 and 10^9 inclusive."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip().split() == ['1'] or stdout.strip().split() == ['2']",
+        "description": "The first line of output is either '1' (selecting one stone) or '2' (selecting two stones)."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(1 <= int(x) <= n for x in stdout.strip().splitlines()[1].split())",
+        "description": "The second line of output contains k distinct integers from 1 to n (where k is 1 or 2), representing the indices of the selected stones."
+      },
+      {
+        "id": "Q3",
+        "expression": "k == 1 and max_sphere_radius_single == max(max_sphere_radius_single, max_sphere_radius_double) or k == 2 and max_sphere_radius_double == max(max_sphere_radius_single, max_sphere_radius_double)",
+        "description": "The selected stones maximize the radius of the sphere that can be carved from the resulting parallelepiped. If k=1, the radius is the minimum of the three edge lengths of the selected stone. If k=2, the radius is the minimum of the three edge lengths of the combined parallelepiped (after gluing two stones on a matching face)."
+      },
+      {
+        "id": "Q4",
+        "expression": "max_sphere_radius_single == max(min(int(a), int(b), int(c)) for a, b, c in [line.split() for line in stdin.splitlines()[1:]])",
+        "description": "max_sphere_radius_single is the maximum possible radius of a sphere carved from a single stone, computed as the minimum of the three edge lengths of that stone."
+      },
+      {
+        "id": "Q5",
+        "expression": "max_sphere_radius_double == max(min(x, y, z) for i in range(n) for j in range(i+1, n) for x, y, z in [get_combined_dimensions(i, j)])",
+        "description": "max_sphere_radius_double is the maximum possible radius of a sphere carved from two glued stones, computed as the minimum of the three edge lengths of the combined parallelepiped after gluing stones i and j on a matching face. get_combined_dimensions(i, j) returns the three edge lengths of the combined parallelepiped after optimally gluing stones i and j."
+      },
+      {
+        "id": "Q6",
+        "expression": "k == 1 and selected_stone_indices == [i+1] and min(int(a), int(b), int(c)) == max_sphere_radius_single for i, (a, b, c) in enumerate([line.split() for line in stdin.splitlines()[1:]]) if min(int(a), int(b), int(c)) == max_sphere_radius_single",
+        "description": "If k=1, the selected stone is one that maximizes the minimum of its three edge lengths."
+      },
+      {
+        "id": "Q7",
+        "expression": "k == 2 and selected_stone_indices == [i+1, j+1] and min(x, y, z) == max_sphere_radius_double for i in range(n) for j in range(i+1, n) for x, y, z in [get_combined_dimensions(i, j)] if min(x, y, z) == max_sphere_radius_double",
+        "description": "If k=2, the selected stones are a pair that, when optimally glued, maximizes the minimum of the three edge lengths of the combined parallelepiped."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"n == int(stdin.split()[0]) and n >= 1 and n <= 10**5\",\n      \"description\": \"The first line of input is an integer n (1 ≤ n ≤ 10^5) representing the number of stones.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each of the next n lines contains exactly three integers a_i, b_i, c_i (1 ≤ a_i, b_i, c_i ≤ 10^9) representing the edge lengths of the i-th stone.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(a) <= 10**9 and 1 <= int(b) <= 10**9 and 1 <= int(c) <= 10**9 for line in stdin.splitlines()[1:] for a, b, c in [line.split()])\",\n      \"description\": \"Each edge length a_i, b_i, c_i is a positive integer between 1 and 10^9 inclusive.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"stdout.strip().split() == ['1'] or stdout.strip().split() == ['2']\",\n      \"description\": \"The first line of output is either '1' (selecting one stone) or '2' (selecting two stones).\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(1 <= int(x) <= n for x in stdout.strip().splitlines()[1].split())\",\n      \"description\": \"The second line of output contains k distinct integers from 1 to n (where k is 1 or 2), representing the indices of the selected stones.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"k == 1 and max_sphere_radius_single == max(max_sphere_radius_single, max_sphere_radius_double) or k == 2 and max_sphere_radius_double == max(max_sphere_radius_single, max_sphere_radius_double)\",\n      \"description\": \"The selected stones maximize the radius of the sphere that can be carved from the resulting parallelepiped. If k=1, the radius is the minimum of the three edge lengths of the selected stone. If k=2, the radius is the minimum of the three edge lengths of the combined parallelepiped (after gluing two stones on a matching face).\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"max_sphere_radius_single == max(min(int(a), int(b), int(c)) for a, b, c in [line.split() for line in stdin.splitlines()[1:]])\",\n      \"description\": \"max_sphere_radius_single is the maximum possible radius of a sphere carved from a single stone, computed as the minimum of the three edge lengths of that stone.\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"max_sphere_radius_double == max(min(x, y, z) for i in range(n) for j in range(i+1, n) for x, y, z in [get_combined_dimensions(i, j)])\",\n      \"description\": \"max_sphere_radius_double is the maximum possible radius of a sphere carved from two glued stones, computed as the minimum of the three edge lengths of the combined parallelepiped after gluing stones i and j on a matching face. get_combined_dimensions(i, j) returns the three edge lengths of the combined parallelepiped after optimally gluing stones i and j.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"k == 1 and selected_stone_indices == [i+1] and min(int(a), int(b), int(c)) == max_sphere_radius_single for i, (a, b, c) in enumerate([line.split() for line in stdin.splitlines()[1:]]) if min(int(a), int(b), int(c)) == max_sphere_radius_single\",\n      \"description\": \"If k=1, the selected stone is one that maximizes the minimum of its three edge lengths.\"\n    },\n    {\n      \"id\": \"Q7\",\n      \"expression\": \"k == 2 and selected_stone_indices == [i+1, j+1] and min(x, y, z) == max_sphere_radius_double for i in range(n) for j in range(i+1, n) for x, y, z in [get_combined_dimensions(i, j)] if min(x, y, z) == max_sphere_radius_double\",\n      \"description\": \"If k=2, the selected stones are a pair that, when optimally glued, maximizes the minimum of the three edge lengths of the combined parallelepiped.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2012,
+  "generated_tokens": 1134,
+  "hit_output_limit": false,
+  "generation_seconds": 51.604,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:02:25.504347+00:00"
+}

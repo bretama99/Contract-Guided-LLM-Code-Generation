@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_24334",
+  "task_index": 273,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_24334.json",
+  "code": "import sys\nfrom collections import defaultdict\n\nclass UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n        self.max_path = [0] * n\n\n    def find(self, u):\n        if self.parent[u] != u:\n            self.parent[u] = self.find(self.parent[u])\n        return self.parent[u]\n\n    def union(self, u, v):\n        rootU = self.find(u)\n        rootV = self.find(v)\n        if rootU != rootV:\n            if self.rank[rootU] > self.rank[rootV]:\n                self.parent[rootV] = rootU\n                self.max_path[rootU] = max(self.max_path[rootU], self.max_path[rootV] + 1)\n            elif self.rank[rootU] < self.rank[rootV]:\n                self.parent[rootU] = rootV\n                self.max_path[rootV] = max(self.max_path[rootV], self.max_path[rootU] + 1)\n            else:\n                self.parent[rootV] = rootU\n                self.max_path[rootV] += 1\n                self.max_path[rootU] = max(self.max_path[rootU] + 1, self.max_path[rootV])\n\ndef main():\n    import sys\n    input = sys.stdin.read().split()\n    index = 0\n    n = int(input[index])\n    m = int(input[index + 1])\n    q = int(input[index + 2])\n    index += 3\n    uf = UnionFind(n)\n    for _ in range(m):\n        a = int(input[index]) - 1\n        b = int(input[index + 1]) - 1\n        uf.union(a, b)\n        index += 2\n    results = []\n    for _ in range(q):\n        t = int(input[index])\n        if t == 1:\n            x = int(input[index + 1]) - 1\n            rootX = uf.find(x)\n            results.append(uf.max_path[rootX])\n            index += 2\n        elif t == 2:\n            x = int(input[index + 1]) - 1\n\t\t\ty = int(input[index + 2]) - 1\n            uf.union(x, y)\n            index += 3\n    for result in results:\n        print(result)\n\nmain()",
+  "generation_seconds": 44.053,
+  "generated_at": "2026-09-23T21:44:47.834837+00:00"
+}

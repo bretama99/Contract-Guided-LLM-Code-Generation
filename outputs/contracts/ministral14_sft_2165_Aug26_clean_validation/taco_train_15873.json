@@ -1,0 +1,355 @@
+{
+  "task_id": "taco_train_15873",
+  "task_index": 657,
+  "dataset": "taco",
+  "workflow": "contract_verification_repair",
+  "workflow_version": "three_file_expression_led_verify_repair_v3_actionable_u1",
+  "verifier_version": "three_file_expression_led_v3_actionable_u1",
+  "repair_version": "three_file_expression_led_repair_v5_section_fallback",
+  "selection_status": "PRESERVED_UNCERTAIN",
+  "selected_source": "original",
+  "downstream_usable": true,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 500",
+        "description": "The first line of input is an integer n, where 1 ≤ n ≤ 500."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()[1].split()) == int(stdin.splitlines()[0])",
+        "description": "The second line contains exactly n distinct file names, each with 1 to 8 lowercase letters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= len(name) <= 8 and name.islower() and name.isalpha() for name in stdin.splitlines()[1].split())",
+        "description": "Each file name in the second line is a string of 1 to 8 lowercase letters."
+      },
+      {
+        "id": "P4",
+        "expression": "all('import' in line for line in stdin.splitlines()[2:])",
+        "description": "Each of the n sections starts with a line containing the file name and an integer k, followed by k lines starting with 'import'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(',' in line or len(line.split()) == 1 for line in stdin.splitlines()[2:] if line.startswith('import'))",
+        "description": "Each 'import' line is comma-space separated or contains exactly one file name."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'SHIP IT' if not any(cycle_detected(files, dependencies) for files in all_possible_cycles(files, dependencies)) else any(cycle == stdout.strip() for cycle in all_possible_cycles(files, dependencies))",
+        "description": "If there are no cyclic dependencies, output 'SHIP IT'. Otherwise, output a shortest cycle in the order of the cycle."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= int(stdin.splitlines()[0]) <= 500",
+        "description": "The first line of input is an integer n, where 1 ≤ n ≤ 500."
+      },
+      {
+        "id": "P2",
+        "expression": "len(stdin.splitlines()[1].split()) == int(stdin.splitlines()[0])",
+        "description": "The second line contains exactly n distinct file names, each with 1 to 8 lowercase letters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= len(name) <= 8 and name.islower() and name.isalpha() for name in stdin.splitlines()[1].split())",
+        "description": "Each file name in the second line is a string of 1 to 8 lowercase letters."
+      },
+      {
+        "id": "P4",
+        "expression": "all('import' in line for line in stdin.splitlines()[2:])",
+        "description": "Each of the n sections starts with a line containing the file name and an integer k, followed by k lines starting with 'import'."
+      },
+      {
+        "id": "P5",
+        "expression": "all(',' in line or len(line.split()) == 1 for line in stdin.splitlines()[2:] if line.startswith('import'))",
+        "description": "Each 'import' line is comma-space separated or contains exactly one file name."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "stdout.strip() == 'SHIP IT' if not any(cycle_detected(files, dependencies) for files in all_possible_cycles(files, dependencies)) else any(cycle == stdout.strip() for cycle in all_possible_cycles(files, dependencies))",
+        "description": "If there are no cyclic dependencies, output 'SHIP IT'. Otherwise, output a shortest cycle in the order of the cycle."
+      }
+    ],
+    "invariants": []
+  },
+  "original_contract_fingerprint": "f402dd6015bc5f0d7a9b647e9eee08b8eb6301a01c9e28d9f402e7995122777c",
+  "selected_contract_fingerprint": "f402dd6015bc5f0d7a9b647e9eee08b8eb6301a01c9e28d9f402e7995122777c",
+  "original_contract_path": "/local/home/brhanet/projects/contract_guided_llm_code_generation/outputs/taco/evaluation_25/contracts/ministral14_sft_2165_Aug26_clean/taco_train_15873.json",
+  "source_contract_origin": "original_sft_contract",
+  "source_contract_regenerated": false,
+  "source_contract_generation": null,
+  "original_status": "UNCERTAIN",
+  "original_workflow_action": "KEEP",
+  "original_repair_recommended": false,
+  "original_repair_basis": null,
+  "final_status": "UNCERTAIN",
+  "original_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "UNCERTAIN",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure that the input is well-formed with respect to the file sections (e.g., correct number of sections, correct file name and k per section, and that k matches the number of import lines).",
+        "task_evidence": "Each section starts with one line containing the name of the file and an integer k, followed by k lines, each starting with 'import'.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure that all imported files are listed in the second line of input (i.e., no invalid imports).",
+        "task_evidence": "every file imported is listed in the second line of the input.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure that no file imports itself (directly or indirectly, but at least no direct self-import).",
+        "task_evidence": "No file imports the same file more than once.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the postcondition expression to correctly capture the requirement of outputting a shortest cycle (if any) in the order of the cycle. The current expression is underspecified and does not enforce the shortest cycle requirement.",
+        "task_evidence": "If there are many shortest cycles, any one will be accepted.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output is a shortest cycle (if cyclic dependencies exist) and that the cycle is correctly ordered (i.e., the i-th file imports the (i+1)-th file, and the last imports the first).",
+        "task_evidence": "output a line containing the names of files in a shortest cycle, in the order of the cycle (i.e., the i-th file listed must import the (i+1)-st file listed, and the last file listed must import the first).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output is exactly 'SHIP IT' when there are no cyclic dependencies.",
+        "task_evidence": "If the code base has no cyclic dependencies, output 'SHIP IT'.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "preconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "preconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 5,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 6
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "final_verification": {
+    "verifier_version": "three_file_expression_led_v3_actionable_u1",
+    "status": "UNCERTAIN",
+    "decision_reason": "semantic_candidate_not_confirmed",
+    "workflow_action": "KEEP",
+    "repair_recommended": false,
+    "repair_basis": null,
+    "repair_issue": null,
+    "checks": {
+      "interface": "OK",
+      "preconditions": "UNCERTAIN",
+      "postconditions": "ISSUE",
+      "invariants": "OK",
+      "task_coverage": "ISSUE",
+      "expression_description": "OK"
+    },
+    "issue": null,
+    "issues": [],
+    "confirmed_issues": [],
+    "candidate_issues": [
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure that the input is well-formed with respect to the file sections (e.g., correct number of sections, correct file name and k per section, and that k matches the number of import lines).",
+        "task_evidence": "Each section starts with one line containing the name of the file and an integer k, followed by k lines, each starting with 'import'.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure that all imported files are listed in the second line of input (i.e., no invalid imports).",
+        "task_evidence": "every file imported is listed in the second line of the input.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "preconditions",
+        "action": "add",
+        "instruction": "Add a precondition to ensure that no file imports itself (directly or indirectly, but at least no direct self-import).",
+        "task_evidence": "No file imports the same file more than once.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "incorrect_clause",
+        "location": "postconditions[0].expression",
+        "action": "replace",
+        "instruction": "Replace the postcondition expression to correctly capture the requirement of outputting a shortest cycle (if any) in the order of the cycle. The current expression is underspecified and does not enforce the shortest cycle requirement.",
+        "task_evidence": "If there are many shortest cycles, any one will be accepted.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": true
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output is a shortest cycle (if cyclic dependencies exist) and that the cycle is correctly ordered (i.e., the i-th file imports the (i+1)-th file, and the last imports the first).",
+        "task_evidence": "output a line containing the names of files in a shortest cycle, in the order of the cycle (i.e., the i-th file listed must import the (i+1)-st file listed, and the last file listed must import the first).",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      },
+      {
+        "type": "missing_clause",
+        "location": "postconditions",
+        "action": "add",
+        "instruction": "Add a postcondition to ensure that the output is exactly 'SHIP IT' when there are no cyclic dependencies.",
+        "task_evidence": "If the code base has no cyclic dependencies, output 'SHIP IT'.",
+        "source": "semantic_audit",
+        "task_evidence_grounded": false
+      }
+    ],
+    "structural_issues": [],
+    "semantic_structural_issues": [],
+    "representation_issues": [],
+    "uncertainties": [
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 0,
+        "location": "preconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 2,
+        "location": "preconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 4,
+        "location": "postconditions"
+      },
+      {
+        "code": "unverified_task_evidence",
+        "candidate_index": 5,
+        "location": "postconditions"
+      },
+      {
+        "code": "semantic_audit_confirmation_disagreement",
+        "candidate_count": 6
+      }
+    ],
+    "model_calls": 3,
+    "errors": [
+      "semantic_audit: audit keys must be exactly checks,issues"
+    ]
+  },
+  "repair": null,
+  "repair_attempts_used": 0,
+  "model": {
+    "model_name": "ministral14_sft_2165_Aug26_clean_validation",
+    "model_path": "/local/data/huggingface/brhanet/models/Ministral-3-14B-Instruct-2512-BF16",
+    "adapter_path": "outputs/finetuning/ministral3_14b_contract_lora_V5/final_adapter_last_step_unselected",
+    "model_type": "mistral3",
+    "attention_implementation": "sdpa",
+    "context_length": 262144,
+    "greedy": true
+  },
+  "config": {
+    "retries": 5,
+    "json_retries": 1,
+    "verify_tokens": 768,
+    "confirm_tokens": 256,
+    "repair_tokens": 1024,
+    "contract_generation_tokens": 1536,
+    "contract_generation_retries": 5,
+    "max_context": 32768,
+    "code_execution_used": false,
+    "code_result_used": false,
+    "reference_solution_used": false,
+    "tests_used": false
+  },
+  "elapsed_seconds": 59.785,
+  "processing_error": null,
+  "finished_at": "2026-09-04T03:52:24.188505+00:00"
+}

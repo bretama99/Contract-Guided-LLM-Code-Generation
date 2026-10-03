@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_999",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "q >= 2 and q <= 10**5",
+        "description": "The number of tasks q is an integer between 2 and 100,000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= int(line.split()[1]) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '1')",
+        "description": "For type 1 tasks, u_i is an integer between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= int(x_i) <= 10**5 and 1 <= int(k_i) <= 10**5 and 1 <= int(s_i) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '2' for x_i, k_i, s_i in [line.split()[1:4]])",
+        "description": "For type 2 tasks, x_i, k_i, and s_i are integers between 1 and 100,000 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "stdin.splitlines()[0].split()[0] == '1'",
+        "description": "The first task is always of type 1."
+      },
+      {
+        "id": "P5",
+        "expression": "any(line.split()[0] == '2' for line in stdin.splitlines()[1:])",
+        "description": "There is at least one task of type 2."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all((line.split()[0] == '1' or (line.split()[0] == '2' and (stdout_line := stdout.splitlines()[i].strip()) in ['-1'] or (v := int(stdout_line), any(v == int(num) for num in a) and (x_i := int(line.split()[1]), k_i := int(line.split()[2]), s_i := int(line.split()[3])) and k_i % math.gcd(x_i, v) == 0 and x_i + v <= s_i and all((x_i + v_alt <= s_i and k_i % math.gcd(x_i, v_alt) == 0) implies ((x_i ^ v) >= (x_i ^ v_alt)) for v_alt in a)))) for i, line in enumerate(stdin.splitlines()[1:]))",
+        "description": "For each type 2 task, the output v (or -1) satisfies: (1) v is in the current array a, (2) k_i divides GCD(x_i, v), (3) x_i + v ≤ s_i, and (4) x_i XOR v is maximized among all valid v in a. If no such v exists, output -1."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.split()[0] == '1' or (line.split()[0] == '2' and (stdout_line := stdout.splitlines()[i].strip()) == '-1' or (v := int(stdout_line), any(v == int(num) for num in a)))) for i, line in enumerate(stdin.splitlines()[1:]))",
+        "description": "For each type 2 task, if the output is not -1, it must be an existing element in the current array a."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"q >= 2 and q <= 10**5\",\n      \"description\": \"The number of tasks q is an integer between 2 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(1 <= int(line.split()[1]) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '1')\",\n      \"description\": \"For type 1 tasks, u_i is an integer between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= int(x_i) <= 10**5 and 1 <= int(k_i) <= 10**5 and 1 <= int(s_i) <= 10**5 for line in stdin.splitlines()[1:] if line.split()[0] == '2' for x_i, k_i, s_i in [line.split()[1:4]])\",\n      \"description\": \"For type 2 tasks, x_i, k_i, and s_i are integers between 1 and 100,000 inclusive.\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"stdin.splitlines()[0].split()[0] == '1'\",\n      \"description\": \"The first task is always of type 1.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"any(line.split()[0] == '2' for line in stdin.splitlines()[1:])\",\n      \"description\": \"There is at least one task of type 2.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all((line.split()[0] == '1' or (line.split()[0] == '2' and (stdout_line := stdout.splitlines()[i].strip()) in ['-1'] or (v := int(stdout_line), any(v == int(num) for num in a) and (x_i := int(line.split()[1]), k_i := int(line.split()[2]), s_i := int(line.split()[3])) and k_i % math.gcd(x_i, v) == 0 and x_i + v <= s_i and all((x_i + v_alt <= s_i and k_i % math.gcd(x_i, v_alt) == 0) implies ((x_i ^ v) >= (x_i ^ v_alt)) for v_alt in a)))) for i, line in enumerate(stdin.splitlines()[1:]))\",\n      \"description\": \"For each type 2 task, the output v (or -1) satisfies: (1) v is in the current array a, (2) k_i divides GCD(x_i, v), (3) x_i + v ≤ s_i, and (4) x_i XOR v is maximized among all valid v in a. If no such v exists, output -1.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line.split()[0] == '1' or (line.split()[0] == '2' and (stdout_line := stdout.splitlines()[i].strip()) == '-1' or (v := int(stdout_line), any(v == int(num) for num in a)))) for i, line in enumerate(stdin.splitlines()[1:]))\",\n      \"description\": \"For each type 2 task, if the output is not -1, it must be an existing element in the current array a.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2038,
+  "generated_tokens": 858,
+  "hit_output_limit": false,
+  "generation_seconds": 38.686,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T22:15:11.235007+00:00"
+}

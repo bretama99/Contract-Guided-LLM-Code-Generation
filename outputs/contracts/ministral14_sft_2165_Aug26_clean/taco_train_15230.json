@@ -1,0 +1,81 @@
+{
+  "task_id": "taco_train_15230",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "h >= 2 and w >= 2 and q >= 1 and q <= 10000",
+        "description": "Grid dimensions h and w are at least 2, and number of days q is between 1 and 10000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(row) == w for row in grid_lines)",
+        "description": "Each of the h grid rows has exactly w characters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(cell in {'.', '#'} for row in grid_lines for cell in row)",
+        "description": "Each cell in the grid is either allowed ('.') or permanently blocked ('#')."
+      },
+      {
+        "id": "P4",
+        "expression": "grid_lines[0][0] == '.' and grid_lines[-1][-1] == '.'",
+        "description": "Limak's house (top-left cell) and school (bottom-right cell) are never permanently blocked."
+      },
+      {
+        "id": "P5",
+        "expression": "all(1 <= ri <= h and 1 <= cj <= w for day in days for (ri, cj) in day['temporary_blocks'])",
+        "description": "Temporary blocks for each day are within grid bounds."
+      },
+      {
+        "id": "P6",
+        "expression": "all((ri, cj) != (1, 1) and (ri, cj) != (h, w) for day in days for (ri, cj) in day['temporary_blocks'])",
+        "description": "Temporary blocks never include Limak's house or school."
+      },
+      {
+        "id": "P7",
+        "expression": "all(grid_lines[ri-1][cj-1] == '.' for day in days for (ri, cj) in day['temporary_blocks'])",
+        "description": "Temporary blocks are only on allowed cells (not permanently blocked)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(output_line in {'YES', 'NO'} for output_line in stdout_lines)",
+        "description": "Each output line is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(len(output_line) == 3 for output_line in stdout_lines)",
+        "description": "Each output line has exactly 3 characters ('YES' or 'NO')."
+      },
+      {
+        "id": "Q3",
+        "expression": "len(stdout_lines) == q",
+        "description": "The number of output lines equals the number of days q."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(has_valid_path(grid_lines, day['temporary_blocks']) == (output_line == 'YES') for day, output_line in zip(days, stdout_lines))",
+        "description": "For each day, 'YES' is output if and only if there exists a valid path from house to school and back without revisiting cells (except house)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"h >= 2 and w >= 2 and q >= 1 and q <= 10000\",\n      \"description\": \"Grid dimensions h and w are at least 2, and number of days q is between 1 and 10000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(row) == w for row in grid_lines)\",\n      \"description\": \"Each of the h grid rows has exactly w characters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(cell in {'.', '#'} for row in grid_lines for cell in row)\",\n      \"description\": \"Each cell in the grid is either allowed ('.') or permanently blocked ('#').\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"grid_lines[0][0] == '.' and grid_lines[-1][-1] == '.'\",\n      \"description\": \"Limak's house (top-left cell) and school (bottom-right cell) are never permanently blocked.\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(1 <= ri <= h and 1 <= cj <= w for day in days for (ri, cj) in day['temporary_blocks'])\",\n      \"description\": \"Temporary blocks for each day are within grid bounds.\"\n    },\n    {\n      \"id\": \"P6\",\n      \"expression\": \"all((ri, cj) != (1, 1) and (ri, cj) != (h, w) for day in days for (ri, cj) in day['temporary_blocks'])\",\n      \"description\": \"Temporary blocks never include Limak's house or school.\"\n    },\n    {\n      \"id\": \"P7\",\n      \"expression\": \"all(grid_lines[ri-1][cj-1] == '.' for day in days for (ri, cj) in day['temporary_blocks'])\",\n      \"description\": \"Temporary blocks are only on allowed cells (not permanently blocked).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(output_line in {'YES', 'NO'} for output_line in stdout_lines)\",\n      \"description\": \"Each output line is either 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(len(output_line) == 3 for output_line in stdout_lines)\",\n      \"description\": \"Each output line has exactly 3 characters ('YES' or 'NO').\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"len(stdout_lines) == q\",\n      \"description\": \"The number of output lines equals the number of days q.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(has_valid_path(grid_lines, day['temporary_blocks']) == (output_line == 'YES') for day, output_line in zip(days, stdout_lines))\",\n      \"description\": \"For each day, 'YES' is output if and only if there exists a valid path from house to school and back without revisiting cells (except house).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2316,
+  "generated_tokens": 770,
+  "hit_output_limit": false,
+  "generation_seconds": 36.762,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:33:57.690552+00:00"
+}

@@ -1,0 +1,65 @@
+{
+  "task_id": "taco_train_23690",
+  "task_index": 860,
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "t >= 1 and t <= 1000",
+        "description": "The number of test cases t is between 1 and 1000 inclusive."
+      },
+      {
+        "id": "P2",
+        "expression": "all(1 <= n <= 100000 and 0 <= x <= y <= n for n, x, y in test_cases_params)",
+        "description": "For each test case, n is between 1 and 10^5, and 0 <= x <= y <= n."
+      },
+      {
+        "id": "P3",
+        "expression": "all(all(1 <= b <= n + 1 for b in guess) for n, guess in test_cases_data)",
+        "description": "Each element in Bob's guess is an integer between 1 and n+1 inclusive."
+      },
+      {
+        "id": "P4",
+        "expression": "sum(n for n, _, _ in test_cases_params) <= 100000",
+        "description": "The sum of n across all test cases does not exceed 10^5."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "len(stdout_lines) == 2 * t",
+        "description": "The output contains exactly 2 lines per test case."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((stdout_lines[2*i] in ['YES','yes','Yes','yEs','yeS','YES','Yes','YES']) or (stdout_lines[2*i] in ['NO','no','No','nO','NO','No','NO','no']) for i in range(t))",
+        "description": "The first line of each test case output is 'YES' or 'NO' (case-insensitive)."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((stdout_lines[2*i] in ['YES','yes','Yes','yEs','yeS','YES','Yes','YES']) and (len(stdout_lines[2*i+1].split()) == n and all(1 <= int(v) <= n+1 for v in stdout_lines[2*i+1].split())) for i, (n, x, y, guess) in enumerate(zip(test_cases_params, test_cases_guesses)) if stdout_lines[2*i] in ['YES','yes','Yes','yEs','yeS','YES','Yes','YES'])",
+        "description": "If the answer is YES, the second line contains n integers between 1 and n+1."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((stdout_lines[2*i] in ['NO','no','No','nO','NO','No','NO','no']) and (not exists_valid_code(n, x, y, guess)) for i, (n, x, y, guess) in enumerate(zip(test_cases_params, test_cases_guesses)) if stdout_lines[2*i] in ['NO','no','No','nO','NO','No','NO','no'])",
+        "description": "If the answer is NO, no valid secret code exists for the given n, x, y, and guess."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((stdout_lines[2*i] in ['YES','yes','Yes','yEs','yeS','YES','Yes','YES']) and (x == sum(1 for j in range(n) if int(stdout_lines[2*i+1].split()[j]) == guess[j]) and y == sum(min(guess.count(c), secret.count(c)) for c in set(guess))) for i, (n, x, y, guess) in enumerate(zip(test_cases_params, test_cases_guesses)) if stdout_lines[2*i] in ['YES','yes','Yes','yEs','yeS','YES','Yes','YES'])",
+        "description": "If the answer is YES, the output code satisfies the given x (exact matches) and y (multiset intersection size) constraints."
+      }
+    ],
+    "invariants": []
+  },
+  "generation_seconds": 78.656,
+  "seed": 902,
+  "generated_at": "2026-09-21T10:54:56.107872+00:00"
+}

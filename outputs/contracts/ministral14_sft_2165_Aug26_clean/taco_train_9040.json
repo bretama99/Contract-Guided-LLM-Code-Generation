@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_9040",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "1 <= n <= 10**5 and 1 <= m + k <= 10**5",
+        "description": "n is the length of the serial number (1 ≤ n ≤ 10^5), and m + k is the total number of changes and checks (1 ≤ m + k ≤ 10^5)."
+      },
+      {
+        "id": "P2",
+        "expression": "len(serial_number) == n and all(c.isdigit() for c in serial_number)",
+        "description": "The serial number is a string of exactly n digits (0-9)."
+      },
+      {
+        "id": "P3",
+        "expression": "all(1 <= l <= r <= n for line in changes_and_checks if line.startswith('1') and (l := int(line.split()[1])) and (r := int(line.split()[2])))",
+        "description": "For each change operation (1 l r c), the substring indices l and r are valid (1 ≤ l ≤ r ≤ n)."
+      },
+      {
+        "id": "P4",
+        "expression": "all(1 <= l <= r <= n and 1 <= d <= r - l + 1 for line in changes_and_checks if line.startswith('2') and (l := int(line.split()[1])) and (r := int(line.split()[2])) and (d := int(line.split()[3])))",
+        "description": "For each check operation (2 l r d), the substring indices l and r are valid (1 ≤ l ≤ r ≤ n), and d is a valid period (1 ≤ d ≤ r - l + 1)."
+      },
+      {
+        "id": "P5",
+        "expression": "all(0 <= c <= 9 for line in changes_and_checks if line.startswith('1') and (c := int(line.split()[3])))",
+        "description": "For each change operation (1 l r c), the digit c is between 0 and 9."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())",
+        "description": "For each check operation, the output is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all((lambda: (s := current_serial_number), (l := int(line.split()[1])), (r := int(line.split()[2])), (d := int(line.split()[3])), (substring := s[l-1:r]), (period_valid := all(substring[i] == substring[i+d] for i in range(len(substring) - d))), (output_line == 'YES' if period_valid else 'NO'))(line) for line in changes_and_checks if line.startswith('2'))",
+        "description": "For each check operation (2 l r d), the output is 'YES' if the substring from l to r (1-based) in the current serial number has period d (i.e., substring[i] == substring[i+d] for all valid i), otherwise 'NO'."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"1 <= n <= 10**5 and 1 <= m + k <= 10**5\",\n      \"description\": \"n is the length of the serial number (1 ≤ n ≤ 10^5), and m + k is the total number of changes and checks (1 ≤ m + k ≤ 10^5).\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"len(serial_number) == n and all(c.isdigit() for c in serial_number)\",\n      \"description\": \"The serial number is a string of exactly n digits (0-9).\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(1 <= l <= r <= n for line in changes_and_checks if line.startswith('1') and (l := int(line.split()[1])) and (r := int(line.split()[2])))\",\n      \"description\": \"For each change operation (1 l r c), the substring indices l and r are valid (1 ≤ l ≤ r ≤ n).\"\n    },\n    {\n      \"id\": \"P4\",\n      \"expression\": \"all(1 <= l <= r <= n and 1 <= d <= r - l + 1 for line in changes_and_checks if line.startswith('2') and (l := int(line.split()[1])) and (r := int(line.split()[2])) and (d := int(line.split()[3])))\",\n      \"description\": \"For each check operation (2 l r d), the substring indices l and r are valid (1 ≤ l ≤ r ≤ n), and d is a valid period (1 ≤ d ≤ r - l + 1).\"\n    },\n    {\n      \"id\": \"P5\",\n      \"expression\": \"all(0 <= c <= 9 for line in changes_and_checks if line.startswith('1') and (c := int(line.split()[3])))\",\n      \"description\": \"For each change operation (1 l r c), the digit c is between 0 and 9.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(stdout_line.strip() in ['YES', 'NO'] for stdout_line in stdout.splitlines() if stdout_line.strip())\",\n      \"description\": \"For each check operation, the output is either 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all((lambda: (s := current_serial_number), (l := int(line.split()[1])), (r := int(line.split()[2])), (d := int(line.split()[3])), (substring := s[l-1:r]), (period_valid := all(substring[i] == substring[i+d] for i in range(len(substring) - d))), (output_line == 'YES' if period_valid else 'NO'))(line) for line in changes_and_checks if line.startswith('2'))\",\n      \"description\": \"For each check operation (2 l r d), the output is 'YES' if the substring from l to r (1-based) in the current serial number has period d (i.e., substring[i] == substring[i+d] for all valid i), otherwise 'NO'.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 1768,
+  "generated_tokens": 774,
+  "hit_output_limit": false,
+  "generation_seconds": 33.463,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:52:14.468563+00:00"
+}

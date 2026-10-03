@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_14977",
+  "task_index": 790,
+  "dataset": "taco",
+  "model": "qwen32_sft_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_sft_Sep23/taco_train_14977.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef find_longest_path(graph, start, visited):\n    visited[start] = True\n    longest = ([], start)\n    for neighbor in graph[start]:\n        if not visited[neighbor]:\n            path, end = find_longest_path(graph, neighbor, visited)\n            if len(path) + 1 > len(longest[0]):\n                longest = (path + [start], end)\n    visited[start] = False\n    return longest\n\ndef find_diameter_and_center(graph, n):\n    visited = [False] * (n + 1)\n    _, farthest = find_longest_path(graph, 1, visited)\n    path, _ = find_longest_path(graph, farthest, visited)\n    diameter = len(path)\n    center = path[diameter // 2]\n    return diameter, center\n\ndef construct_paths(graph, n):\n    diameter, center = find_diameter_and_center(graph, n)\n    paths = []\n    visited = [False] * (n + 1)\n    for neighbor in graph[center]:\n        path, _ = find_longest_path(graph, neighbor, visited)\n        path.append(center)\n        path.reverse()\n        edge_indices = []\n        for i in range(len(path) - 1):\n            for j, (u, v) in enumerate(edges):\n                if (path[i], path[i + 1]) == (u, v) or (path[i], path[i + 1]) == (v, u):\n                    edge_indices.append(j + 1)\n        x = 0.5 if len(path) % 2 == 0 else 0.6666666666\n        paths.append((len(edge_indices), edge_indices, path[-1], path[-2], x))\n    return paths\n\ninput = sys.stdin.read().split()\nn = int(input[0])\nedges = [(int(input[2 * i + 1]), int(input[2 * i + 2])) for i in range(n - 1)]\n\ngraph = defaultdict(list)\nfor u, v in edges:\n    graph[u].append(v)\n    graph[v].append(u)\n\npaths = construct_paths(graph, n)\n\nprint(len(paths))\nfor path in paths:\n    print(*path)",
+  "generation_seconds": 43.211,
+  "generated_at": "2026-09-23T19:07:12.481693+00:00"
+}

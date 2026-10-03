@@ -1,0 +1,61 @@
+{
+  "task_id": "taco_train_16103",
+  "model": "ministral14-sft-2165-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "0 <= n <= 500 and 0 <= S <= 1000",
+        "description": "The number of parcels n is between 1 and 500, and the platform strength S is between 0 and 1000."
+      },
+      {
+        "id": "P2",
+        "expression": "all(0 <= ini < outi < 2 * n for ini, outi, _, _, _ in parcels) and all(0 <= wi <= 1000 and 0 <= si <= 1000 and 1 <= vi <= 10**6 for _, _, wi, si, vi in parcels)",
+        "description": "For each parcel, the arrival time ini is strictly less than the delivery time outi, and outi is strictly less than 2n. Each parcel's weight wi and strength si are between 0 and 1000, and value vi is between 1 and 1,000,000."
+      },
+      {
+        "id": "P3",
+        "expression": "all(ini != inj or outi != outj for i in range(n) for j in range(i + 1, n) for ini, outi, _, _, _ in [parcels[i], parcels[j]])",
+        "description": "No two parcels have the same arrival time and delivery time pair (ini, outi)."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "isinstance(max_bourles, int) and max_bourles >= 0",
+        "description": "The output is a non-negative integer representing the maximum sum of bourles Jaroslav can obtain."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(0 <= total_weight <= S for total_weight in platform_weights) and all(weight_above <= strength for weight_above, strength in box_strengths)",
+        "description": "At every time step, the total weight of boxes on the platform does not exceed the platform strength S, and each box's strength is at least the total weight of boxes above it."
+      },
+      {
+        "id": "Q3",
+        "expression": "max_bourles == sum(vi for i, (ini, outi, wi, si, vi) in enumerate(parcels) if selected[i])",
+        "description": "The maximum bourles is the sum of values vi for all parcels that are selected and delivered at their exact outi time."
+      },
+      {
+        "id": "Q4",
+        "expression": "all(ini <= outi for i, (ini, outi, _, _, _) in enumerate(parcels) if selected[i])",
+        "description": "Every selected parcel is delivered at or after its arrival time."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"0 <= n <= 500 and 0 <= S <= 1000\",\n      \"description\": \"The number of parcels n is between 1 and 500, and the platform strength S is between 0 and 1000.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(0 <= ini < outi < 2 * n for ini, outi, _, _, _ in parcels) and all(0 <= wi <= 1000 and 0 <= si <= 1000 and 1 <= vi <= 10**6 for _, _, wi, si, vi in parcels)\",\n      \"description\": \"For each parcel, the arrival time ini is strictly less than the delivery time outi, and outi is strictly less than 2n. Each parcel's weight wi and strength si are between 0 and 1000, and value vi is between 1 and 1,000,000.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(ini != inj or outi != outj for i in range(n) for j in range(i + 1, n) for ini, outi, _, _, _ in [parcels[i], parcels[j]])\",\n      \"description\": \"No two parcels have the same arrival time and delivery time pair (ini, outi).\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"isinstance(max_bourles, int) and max_bourles >= 0\",\n      \"description\": \"The output is a non-negative integer representing the maximum sum of bourles Jaroslav can obtain.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(0 <= total_weight <= S for total_weight in platform_weights) and all(weight_above <= strength for weight_above, strength in box_strengths)\",\n      \"description\": \"At every time step, the total weight of boxes on the platform does not exceed the platform strength S, and each box's strength is at least the total weight of boxes above it.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"max_bourles == sum(vi for i, (ini, outi, wi, si, vi) in enumerate(parcels) if selected[i])\",\n      \"description\": \"The maximum bourles is the sum of values vi for all parcels that are selected and delivered at their exact outi time.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all(ini <= outi for i, (ini, outi, _, _, _) in enumerate(parcels) if selected[i])\",\n      \"description\": \"Every selected parcel is delivered at or after its arrival time.\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2041,
+  "generated_tokens": 701,
+  "hit_output_limit": false,
+  "generation_seconds": 32.818,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T12:35:32.503608+00:00"
+}

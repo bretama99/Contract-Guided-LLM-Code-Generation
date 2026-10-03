@@ -1,0 +1,71 @@
+{
+  "task_id": "taco_train_19134",
+  "model": "ministral14-base-Aug26-clean",
+  "contract": {
+    "interface": {
+      "mode": "stdin_stdout",
+      "signature": "stdin -> stdout",
+      "input_channel": "stdin",
+      "output_channel": "stdout"
+    },
+    "preconditions": [
+      {
+        "id": "P1",
+        "expression": "all(1 <= int(line.split()[0]) <= 10**3 for line in stdin.splitlines()[1:])",
+        "description": "The first line of input is an integer t (1 ≤ t ≤ 10³) representing the number of test cases."
+      },
+      {
+        "id": "P2",
+        "expression": "all(len(line.split()) == 2 and all(int(x) >= 1 for x in line.split()) for line in stdin.splitlines()[1:])",
+        "description": "Each subsequent line contains two integers n_i and k_i (1 ≤ n_i ≤ 10⁹, 1 ≤ k_i ≤ 10¹⁸) representing the test case parameters."
+      },
+      {
+        "id": "P3",
+        "expression": "all(int(line.split()[0]) <= 10**9 and int(line.split()[1]) <= 10**18 for line in stdin.splitlines()[1:])",
+        "description": "The constraints for n_i and k_i are respected: 1 ≤ n_i ≤ 10⁹ and 1 ≤ k_i ≤ 10¹⁸."
+      }
+    ],
+    "postconditions": [
+      {
+        "id": "Q1",
+        "expression": "all(len(line.strip().split()) == 1 or len(line.strip().split()) == 2 for line in stdout.splitlines())",
+        "description": "Each output line is either 'YES' or 'YES m' where m is an integer, or 'NO'."
+      },
+      {
+        "id": "Q2",
+        "expression": "all(line.strip().split()[0] in ['YES', 'NO'] for line in stdout.splitlines())",
+        "description": "The first word of each output line is either 'YES' or 'NO'."
+      },
+      {
+        "id": "Q3",
+        "expression": "all((line.strip().split()[0] == 'YES' and (len(line.strip().split()) == 1 or (len(line.strip().split()) == 2 and int(line.strip().split()[1]) >= 0))) or line.strip().split()[0] == 'NO' for line in stdout.splitlines())",
+        "description": "If the answer is 'YES', it may be followed by an integer m (log₂ of the side length of the squares in the path), or it may be 'YES' alone (though the problem guarantees a valid m exists when possible). If 'NO', no additional value follows."
+      },
+      {
+        "id": "Q4",
+        "expression": "all((line.strip().split()[0] == 'YES' and (int(line.strip().split()[1]) if len(line.strip().split()) == 2 else 0) <= n_i) for line, n_i in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[1:]]))",
+        "description": "If 'YES m' is output, m must satisfy 0 ≤ m ≤ n_i (since the side length of the squares in the path must be a power of 2 dividing the initial side length 2ⁿᵢ)."
+      },
+      {
+        "id": "Q5",
+        "expression": "all((line.strip().split()[0] == 'YES' and (k_i >= (2**(2*n_i) - 1) - (2**(2*(n_i - m)) - 1) and k_i <= (2**(2*n_i) - 1) - (2**(2*(n_i - m - 1)) - 1))) or line.strip().split()[0] == 'NO' for line, n_i, k_i in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[1:]], [int(line.split()[1]) for line in stdin.splitlines()[1:]]) if line.strip().split()[0] == 'YES')",
+        "description": "For a 'YES' answer, there exists an integer m (0 ≤ m ≤ n_i) such that the number of splitting operations k_i satisfies: (2^(2*n_i) - 1) - (2^(2*(n_i - m)) - 1) ≤ k_i ≤ (2^(2*n_i) - 1) - (2^(2*(n_i - m - 1)) - 1). This ensures that exactly k_i splits can be performed while maintaining a path of squares of side length 2^m from the lower-left to the upper-right corner."
+      },
+      {
+        "id": "Q6",
+        "expression": "all((line.strip().split()[0] == 'NO' and (k_i < (2**(2*n_i) - 1) - (2**(2*(n_i - n_i)) - 1) or k_i > (2**(2*n_i) - 1) - (2**(2*(n_i - 0 - 1)) - 1))) or line.strip().split()[0] == 'YES' for line, n_i, k_i in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[1:]], [int(line.split()[1]) for line in stdin.splitlines()[1:]]) if line.strip().split()[0] == 'NO')",
+        "description": "For a 'NO' answer, k_i is either too small (less than the minimum splits needed to create a path of the smallest possible squares) or too large (more than the maximum possible splits for any valid path configuration)."
+      }
+    ],
+    "invariants": []
+  },
+  "raw_response": "```json\n{\n  \"interface\": {\n    \"mode\": \"stdin_stdout\",\n    \"signature\": \"stdin -> stdout\",\n    \"input_channel\": \"stdin\",\n    \"output_channel\": \"stdout\"\n  },\n  \"preconditions\": [\n    {\n      \"id\": \"P1\",\n      \"expression\": \"all(1 <= int(line.split()[0]) <= 10**3 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The first line of input is an integer t (1 ≤ t ≤ 10³) representing the number of test cases.\"\n    },\n    {\n      \"id\": \"P2\",\n      \"expression\": \"all(len(line.split()) == 2 and all(int(x) >= 1 for x in line.split()) for line in stdin.splitlines()[1:])\",\n      \"description\": \"Each subsequent line contains two integers n_i and k_i (1 ≤ n_i ≤ 10⁹, 1 ≤ k_i ≤ 10¹⁸) representing the test case parameters.\"\n    },\n    {\n      \"id\": \"P3\",\n      \"expression\": \"all(int(line.split()[0]) <= 10**9 and int(line.split()[1]) <= 10**18 for line in stdin.splitlines()[1:])\",\n      \"description\": \"The constraints for n_i and k_i are respected: 1 ≤ n_i ≤ 10⁹ and 1 ≤ k_i ≤ 10¹⁸.\"\n    }\n  ],\n  \"postconditions\": [\n    {\n      \"id\": \"Q1\",\n      \"expression\": \"all(len(line.strip().split()) == 1 or len(line.strip().split()) == 2 for line in stdout.splitlines())\",\n      \"description\": \"Each output line is either 'YES' or 'YES m' where m is an integer, or 'NO'.\"\n    },\n    {\n      \"id\": \"Q2\",\n      \"expression\": \"all(line.strip().split()[0] in ['YES', 'NO'] for line in stdout.splitlines())\",\n      \"description\": \"The first word of each output line is either 'YES' or 'NO'.\"\n    },\n    {\n      \"id\": \"Q3\",\n      \"expression\": \"all((line.strip().split()[0] == 'YES' and (len(line.strip().split()) == 1 or (len(line.strip().split()) == 2 and int(line.strip().split()[1]) >= 0))) or line.strip().split()[0] == 'NO' for line in stdout.splitlines())\",\n      \"description\": \"If the answer is 'YES', it may be followed by an integer m (log₂ of the side length of the squares in the path), or it may be 'YES' alone (though the problem guarantees a valid m exists when possible). If 'NO', no additional value follows.\"\n    },\n    {\n      \"id\": \"Q4\",\n      \"expression\": \"all((line.strip().split()[0] == 'YES' and (int(line.strip().split()[1]) if len(line.strip().split()) == 2 else 0) <= n_i) for line, n_i in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[1:]]))\",\n      \"description\": \"If 'YES m' is output, m must satisfy 0 ≤ m ≤ n_i (since the side length of the squares in the path must be a power of 2 dividing the initial side length 2ⁿᵢ).\"\n    },\n    {\n      \"id\": \"Q5\",\n      \"expression\": \"all((line.strip().split()[0] == 'YES' and (k_i >= (2**(2*n_i) - 1) - (2**(2*(n_i - m)) - 1) and k_i <= (2**(2*n_i) - 1) - (2**(2*(n_i - m - 1)) - 1))) or line.strip().split()[0] == 'NO' for line, n_i, k_i in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[1:]], [int(line.split()[1]) for line in stdin.splitlines()[1:]]) if line.strip().split()[0] == 'YES')\",\n      \"description\": \"For a 'YES' answer, there exists an integer m (0 ≤ m ≤ n_i) such that the number of splitting operations k_i satisfies: (2^(2*n_i) - 1) - (2^(2*(n_i - m)) - 1) ≤ k_i ≤ (2^(2*n_i) - 1) - (2^(2*(n_i - m - 1)) - 1). This ensures that exactly k_i splits can be performed while maintaining a path of squares of side length 2^m from the lower-left to the upper-right corner.\"\n    },\n    {\n      \"id\": \"Q6\",\n      \"expression\": \"all((line.strip().split()[0] == 'NO' and (k_i < (2**(2*n_i) - 1) - (2**(2*(n_i - n_i)) - 1) or k_i > (2**(2*n_i) - 1) - (2**(2*(n_i - 0 - 1)) - 1))) or line.strip().split()[0] == 'YES' for line, n_i, k_i in zip(stdout.splitlines(), [int(line.split()[0]) for line in stdin.splitlines()[1:]], [int(line.split()[1]) for line in stdin.splitlines()[1:]]) if line.strip().split()[0] == 'NO')\",\n      \"description\": \"For a 'NO' answer, k_i is either too small (less than the minimum splits needed to create a path of the smallest possible squares) or too large (more than the maximum possible splits for any valid path configuration).\"\n    }\n  ],\n  \"invariants\": []\n}\n```",
+  "parse_ok": true,
+  "schema_ok": true,
+  "prompt_tokens": 2016,
+  "generated_tokens": 1286,
+  "hit_output_limit": false,
+  "generation_seconds": 63.413,
+  "generation_issue": null,
+  "generated_at": "2026-08-26T19:18:10.822934+00:00"
+}

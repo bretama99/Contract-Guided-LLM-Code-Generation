@@ -1,0 +1,11 @@
+{
+  "task_id": "taco_train_9864",
+  "task_index": 514,
+  "dataset": "taco",
+  "model": "qwen32_base_guided_Sep23",
+  "attention_implementation": "sdpa",
+  "contract_path": "outputs/taco/evaluation_25/contracts/qwen32_base_Sep23/taco_train_9864.json",
+  "code": "import sys\nfrom collections import defaultdict\n\ndef find(parent, i):\n    if parent[i] == i:\n        return i\n    parent[i] = find(parent, parent[i])\n    return parent[i]\n\ndef union(parent, rank, x, y):\n    xroot = find(parent, x)\n    yroot = find(parent, y)\n    if rank[xroot] < rank[yroot]:\n        parent[xroot] = yroot\n    elif rank[xroot] > rank[yroot]:\n        parent[yroot] = xroot\n    else:\n        parent[yroot] = xroot\n        rank[xroot] += 1\n\ndef dfs(graph, u, visited, component):\n    visited[u] = True\n    component.append(u)\n    for v in graph[u]:\n        if not visited[v]:\n            dfs(graph, v, visited, component)\n\ndef count_critical_links(N, M, P, edges):\n    parent = list(range(N + 1))\n    rank = [0] * (N + 1)\n    for u, v in edges:\n        union(parent, rank, u, v)\n    components = defaultdict(list)\n    visited = [False] * (N + 1)\n    for u in range(1, N + 1):\n        root = find(parent, u)\n        if not visited[u]:\n            dfs(graph, u, visited, components[root])\n    critical_links = 0\n    for u, v in edges:\n        if abs(len(components[find(parent, u)]) - len(components[find(parent, v)])) < P:\n            critical_links += 1\n    return critical_links\n\nimport sys\ninput = sys.stdin.read().split()\nN = int(input[0])\nM = int(input[1])\nP = int(input[2])\nedges = [(int(input[3 + 2 * i]), int(input[4 + 2 * i])) for i in range(M)]\ngraph = defaultdict(list)\nfor u, v in edges:\n    graph[u].append(v)\n    graph[v].append(u)\nprint(count_critical_links(N, M, P, edges))",
+  "generation_seconds": 39.147,
+  "generated_at": "2026-09-23T19:30:20.475365+00:00"
+}
